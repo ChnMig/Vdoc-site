@@ -296,6 +296,7 @@ export VDOC_STORAGE_ENDPOINT="127.0.0.1:9000"`,
             'Configuration is loaded from defaults, config.yaml, and VDOC_ environment variables. Environment variables are the safest fit for deployment platforms.',
           bullets: [
             'VDOC_SERVER_PORT controls the API listener and defaults to 8080.',
+            'VDOC_INITIAL_ADMIN_EMAIL and VDOC_INITIAL_ADMIN_PASSWORD seed the first SuperAdmin only when the user table is empty.',
             'VDOC_DATABASE_MAX_OPEN_CONNS and VDOC_DATABASE_MAX_IDLE_CONNS tune PostgreSQL pooling.',
             'VDOC_STORAGE_BUCKET, VDOC_STORAGE_ACCESS_KEY, VDOC_STORAGE_SECRET_KEY, VDOC_STORAGE_REGION, VDOC_STORAGE_USE_SSL, and VDOC_STORAGE_PATH_STYLE configure object storage.',
             'VDOC_MCP_TOKEN_CIPHER_KEY and VDOC_MCP_TOKEN_CIPHER_KID control token ciphertext settings.',
@@ -303,6 +304,8 @@ export VDOC_STORAGE_ENDPOINT="127.0.0.1:9000"`,
           code: `VDOC_SERVER_PORT=8080
 VDOC_LOG_LEVEL=info
 VDOC_JWT_EXPIRATION=12h
+VDOC_INITIAL_ADMIN_EMAIL=admin@example.com
+VDOC_INITIAL_ADMIN_PASSWORD="<initial-admin-password>"
 VDOC_STORAGE_BUCKET=vdoc
 VDOC_STORAGE_REGION=us-east-1
 VDOC_STORAGE_PATH_STYLE=true`,
@@ -576,6 +579,7 @@ export VDOC_STORAGE_ENDPOINT="127.0.0.1:9000"`,
             '配置来自默认值、config.yaml 和 VDOC_ 环境变量。对部署平台来说，环境变量是最合适的配置方式。',
           bullets: [
             'VDOC_SERVER_PORT 控制 API 监听端口，默认 8080。',
+            'VDOC_INITIAL_ADMIN_EMAIL 和 VDOC_INITIAL_ADMIN_PASSWORD 仅在用户表为空时创建第一个 SuperAdmin。',
             'VDOC_DATABASE_MAX_OPEN_CONNS 和 VDOC_DATABASE_MAX_IDLE_CONNS 调整 PostgreSQL 连接池。',
             'VDOC_STORAGE_BUCKET、VDOC_STORAGE_ACCESS_KEY、VDOC_STORAGE_SECRET_KEY、VDOC_STORAGE_REGION、VDOC_STORAGE_USE_SSL 和 VDOC_STORAGE_PATH_STYLE 配置对象存储。',
             'VDOC_MCP_TOKEN_CIPHER_KEY 和 VDOC_MCP_TOKEN_CIPHER_KID 控制 Token 密文设置。',
@@ -583,6 +587,8 @@ export VDOC_STORAGE_ENDPOINT="127.0.0.1:9000"`,
           code: `VDOC_SERVER_PORT=8080
 VDOC_LOG_LEVEL=info
 VDOC_JWT_EXPIRATION=12h
+VDOC_INITIAL_ADMIN_EMAIL=admin@example.com
+VDOC_INITIAL_ADMIN_PASSWORD="<initial-admin-password>"
 VDOC_STORAGE_BUCKET=vdoc
 VDOC_STORAGE_REGION=us-east-1
 VDOC_STORAGE_PATH_STYLE=true`,
