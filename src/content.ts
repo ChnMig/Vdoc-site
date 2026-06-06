@@ -300,6 +300,7 @@ export VDOC_STORAGE_ENDPOINT="127.0.0.1:9000"`,
             'VDOC_DATABASE_MAX_OPEN_CONNS and VDOC_DATABASE_MAX_IDLE_CONNS tune PostgreSQL pooling.',
             'VDOC_STORAGE_BUCKET, VDOC_STORAGE_ACCESS_KEY, VDOC_STORAGE_SECRET_KEY, VDOC_STORAGE_REGION, VDOC_STORAGE_USE_SSL, and VDOC_STORAGE_PATH_STYLE configure object storage.',
             'VDOC_MCP_TOKEN_CIPHER_KEY and VDOC_MCP_TOKEN_CIPHER_KID control token ciphertext settings.',
+            'Use ./vdoc --resetadmin <email> <new-password> to reset an active SuperAdmin password from the deployed binary.',
           ],
           code: `VDOC_SERVER_PORT=8080
 VDOC_LOG_LEVEL=info
@@ -308,7 +309,8 @@ VDOC_INITIAL_ADMIN_EMAIL=admin@example.com
 VDOC_INITIAL_ADMIN_PASSWORD="<initial-admin-password>"
 VDOC_STORAGE_BUCKET=vdoc
 VDOC_STORAGE_REGION=us-east-1
-VDOC_STORAGE_PATH_STYLE=true`,
+VDOC_STORAGE_PATH_STYLE=true
+./vdoc --resetadmin admin@example.com "<new-admin-password>"`,
         },
         {
           id: 'core-workflows',
@@ -583,6 +585,7 @@ export VDOC_STORAGE_ENDPOINT="127.0.0.1:9000"`,
             'VDOC_DATABASE_MAX_OPEN_CONNS 和 VDOC_DATABASE_MAX_IDLE_CONNS 调整 PostgreSQL 连接池。',
             'VDOC_STORAGE_BUCKET、VDOC_STORAGE_ACCESS_KEY、VDOC_STORAGE_SECRET_KEY、VDOC_STORAGE_REGION、VDOC_STORAGE_USE_SSL 和 VDOC_STORAGE_PATH_STYLE 配置对象存储。',
             'VDOC_MCP_TOKEN_CIPHER_KEY 和 VDOC_MCP_TOKEN_CIPHER_KID 控制 Token 密文设置。',
+            '忘记 SuperAdmin 密码时，可用 ./vdoc --resetadmin <email> <new-password> 直接从部署二进制重置。',
           ],
           code: `VDOC_SERVER_PORT=8080
 VDOC_LOG_LEVEL=info
@@ -591,7 +594,8 @@ VDOC_INITIAL_ADMIN_EMAIL=admin@example.com
 VDOC_INITIAL_ADMIN_PASSWORD="<initial-admin-password>"
 VDOC_STORAGE_BUCKET=vdoc
 VDOC_STORAGE_REGION=us-east-1
-VDOC_STORAGE_PATH_STYLE=true`,
+VDOC_STORAGE_PATH_STYLE=true
+./vdoc --resetadmin admin@example.com "<new-admin-password>"`,
         },
         {
           id: 'core-workflows',
