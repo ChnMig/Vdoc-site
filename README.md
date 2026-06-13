@@ -1,6 +1,6 @@
 # Vdoc Site
 
-Public marketing and documentation portal for Vdoc. It presents product concepts, deployment notes, API surfaces, MCP adapter setup, Skill workflows, and the product workbench / developer portal experience for visitors.
+Public marketing and documentation portal for Vdoc. It presents product concepts, deployment notes, API surfaces, MCP adapter setup, and Skill workflows as a lightweight multipage static site.
 
 ## Stack
 
@@ -10,6 +10,7 @@ Public marketing and documentation portal for Vdoc. It presents product concepts
 - Tailwind CSS
 - Vitest and Testing Library smoke tests
 - Lightweight local i18n dictionary for English and Simplified Chinese
+- Browser history and `popstate` based client-side routing, with no routing dependency
 
 ## Local Development
 
@@ -44,7 +45,9 @@ The site content is grounded in the workspace product and backend documents:
 
 ## Design Direction
 
-The site uses a standalone public-facing design system: dark editorial panels, amber/aqua contract highlights, ledger-like documentation cards, and a document observatory hero. It is not the authenticated management surface; that role belongs to `Vdoc-admin/`, which now carries the product workbench and developer-portal browsing experience.
+The site uses a standalone public-facing paper system: ivory canvas, ink typography, subtle paper grain, folio cards, document tabs, and red-orange stamp accents. The public routes are `/`, `/concepts`, `/workflows`, `/docs`, `/docs/<doc-id>`, `/api`, and `/agents`; docs render as an index plus one article per document ID so long documentation can grow inside focused document routes.
+
+The public site links to the project repository at <https://github.com/ChnMig/Vdoc>. It is not the authenticated management surface; that role belongs to `Vdoc-admin/`.
 
 ## Internationalization
 

@@ -44,6 +44,11 @@ export type SiteCopy = {
   header: {
     tagline: string
   }
+  github: {
+    label: string
+    cta: string
+    footer: string
+  }
   navItems: NavItem[]
   hero: {
     eyebrow: string
@@ -53,9 +58,10 @@ export type SiteCopy = {
       docs: string
       api: string
       mcp: string
+      github: string
     }
     metrics: Array<{ label: string; value: string }>
-    orbit: {
+    archive: {
       nodes: string[]
       semanticDiff: string
       fieldRemoved: string
@@ -82,6 +88,10 @@ export type SiteCopy = {
     eyebrow: string
     title: string
     body: string
+    landingLabel: string
+    openDocLabel: string
+    backToDocsLabel: string
+    unknownDocLabel: string
     panels: DocPanel[]
   }
   api: {
@@ -107,6 +117,7 @@ export type SiteCopy = {
     docs: string
     openapi: string
     quickStart: string
+    github: string
   }
 }
 
@@ -153,29 +164,35 @@ export const copy: Record<Language, SiteCopy> = {
     header: {
       tagline: 'Versioned docs for AI teams',
     },
+    github: {
+      label: 'GitHub',
+      cta: 'View repository',
+      footer: 'GitHub repository',
+    },
     navItems: [
-      { href: '#portal', label: 'Portal' },
-      { href: '#concepts', label: 'Concepts' },
-      { href: '#workflows', label: 'Workflows' },
-      { href: '#docs', label: 'Docs' },
-      { href: '#api', label: 'API' },
-      { href: '#agents', label: 'Agents' },
+      { href: '/', label: 'Home' },
+      { href: '/concepts', label: 'Concepts' },
+      { href: '/workflows', label: 'Workflows' },
+      { href: '/docs', label: 'Docs' },
+      { href: '/api', label: 'API' },
+      { href: '/agents', label: 'Agents' },
     ],
     hero: {
       eyebrow: 'Public portal and documentation',
-      title: 'A contract observatory for AI-assisted teams.',
+      title: 'A living dossier for AI-assisted teams.',
       body: 'Vdoc keeps OpenAPI docs, Markdown knowledge, semantic diffs, breaking-change summaries, MCP access, and agent skills in one reviewed source of truth.',
       ctas: {
-        docs: 'Read deployment guide',
-        api: 'Open API docs',
+        docs: 'Open document index',
+        api: 'Browse API page',
         mcp: 'Install MCP adapter',
+        github: 'View GitHub repository',
       },
       metrics: [
         { label: 'Document types', value: '2' },
         { label: 'Review gate', value: 'Human' },
         { label: 'Agent surface', value: 'MCP' },
       ],
-      orbit: {
+      archive: {
         nodes: ['OpenAPI', 'Markdown', 'MCP', 'Skill'],
         semanticDiff: 'semantic diff',
         fieldRemoved: 'field removed',
@@ -254,6 +271,11 @@ export const copy: Record<Language, SiteCopy> = {
       eyebrow: 'Documentation navigation',
       title: 'Deploy it, operate it, connect agents.',
       body: 'These sections mirror the v0.1 backend, MCP adapter, and Skill package so the public site can serve as the first-stop handbook.',
+      landingLabel: 'Document index',
+      openDocLabel: 'Open page',
+      backToDocsLabel: 'Back to all docs',
+      unknownDocLabel:
+        'That document page is not in the current Vdoc public index.',
       panels: [
         {
           id: 'quick-start',
@@ -417,6 +439,7 @@ Drafts: create_*, update_*, submit_*, get_*_draft`,
       docs: 'Read docs',
       openapi: 'OpenAPI YAML',
       quickStart: 'Quick start',
+      github: 'GitHub repository',
     },
   },
   'zh-CN': {
@@ -439,29 +462,35 @@ Drafts: create_*, update_*, submit_*, get_*_draft`,
     header: {
       tagline: '面向 AI 团队的版本化文档',
     },
+    github: {
+      label: 'GitHub',
+      cta: '查看代码仓库',
+      footer: 'GitHub 仓库',
+    },
     navItems: [
-      { href: '#portal', label: '门户' },
-      { href: '#concepts', label: '产品概念' },
-      { href: '#workflows', label: '工作流' },
-      { href: '#docs', label: '文档' },
-      { href: '#api', label: 'API' },
-      { href: '#agents', label: 'Agent' },
+      { href: '/', label: '首页' },
+      { href: '/concepts', label: '产品概念' },
+      { href: '/workflows', label: '工作流' },
+      { href: '/docs', label: '文档' },
+      { href: '/api', label: 'API' },
+      { href: '/agents', label: 'Agent' },
     ],
     hero: {
       eyebrow: '公共门户与文档站',
-      title: '面向 AI 协作团队的契约观测台。',
+      title: '面向 AI 协作团队的活文档档案馆。',
       body: 'Vdoc 将 OpenAPI 文档、Markdown 项目知识、语义 Diff、Breaking Change 摘要、MCP 接入和 Agent Skill 汇入一个经过审核的可信来源。',
       ctas: {
-        docs: '查看部署指南',
-        api: '打开 API 文档',
+        docs: '打开文档索引',
+        api: '浏览 API 页面',
         mcp: '安装 MCP Adapter',
+        github: '查看 GitHub 仓库',
       },
       metrics: [
         { label: '文档类型', value: '2' },
         { label: '审核关卡', value: '人工' },
         { label: 'Agent 接口', value: 'MCP' },
       ],
-      orbit: {
+      archive: {
         nodes: ['OpenAPI', 'Markdown', 'MCP', 'Skill'],
         semanticDiff: '语义 Diff',
         fieldRemoved: '字段被移除',
@@ -539,6 +568,10 @@ Drafts: create_*, update_*, submit_*, get_*_draft`,
       eyebrow: '文档导航',
       title: '部署、运维，并接入 Agent。',
       body: '这些章节对应 v0.1 后端、MCP Adapter 和 Skill 包，让公共站点成为上手 Vdoc 的第一本文档。',
+      landingLabel: '文档索引',
+      openDocLabel: '打开页面',
+      backToDocsLabel: '返回全部文档',
+      unknownDocLabel: '当前 Vdoc 公共索引中没有这个文档页面。',
       panels: [
         {
           id: 'quick-start',
@@ -702,6 +735,7 @@ Markdown：get_latest_doc, compare_doc_versions
       docs: '阅读文档',
       openapi: 'OpenAPI YAML',
       quickStart: '快速开始',
+      github: 'GitHub 仓库',
     },
   },
 }
