@@ -34,6 +34,8 @@ The site content is grounded in the workspace product and backend documents:
 - `../PRD.md`
 - `../IMPLEMENTATION_PLAN.md`
 - `../IMPROVEMENTS.md`
+- `../PILOT_RUNBOOK.md`
+- `../RELEASE_DEPLOY.md`
 - `../Vdoc/README.md`
 - `../Vdoc/docs/api/API.md`
 - `../Vdoc-mcp/README.md`
