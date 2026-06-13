@@ -1,6 +1,6 @@
 # Vdoc Site
 
-Public marketing and documentation portal for Vdoc. It presents product concepts, deployment notes, API surfaces, MCP adapter setup, and Skill workflows for visitors.
+Public marketing and documentation portal for Vdoc. It presents product concepts, deployment notes, API surfaces, MCP adapter setup, Skill workflows, and the product workbench / developer portal experience for visitors.
 
 ## Stack
 
@@ -42,7 +42,7 @@ The site content is grounded in the workspace product and backend documents:
 
 ## Design Direction
 
-The site uses a standalone public-facing design system: dark editorial panels, amber/aqua contract highlights, ledger-like documentation cards, and a document observatory hero. It is not a management surface and does not link visitors into self-hosted operations UI.
+The site uses a standalone public-facing design system: dark editorial panels, amber/aqua contract highlights, ledger-like documentation cards, and a document observatory hero. It is not the authenticated management surface; that role belongs to `Vdoc-admin/`, which now carries the product workbench and developer-portal browsing experience.
 
 ## Internationalization
 
