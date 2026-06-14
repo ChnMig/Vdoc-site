@@ -1,0 +1,148 @@
+:root {
+  --vdoc-ink: #2f281f;
+  --vdoc-muted: #665f54;
+  --vdoc-line: #ded0ba;
+  --vdoc-panel: #fffaf0;
+  --vdoc-accent: #a14f2b;
+  --vdoc-accent-strong: #7b351f;
+}
+
+body {
+  color: var(--vdoc-ink);
+  background: #f6efe2;
+  font-family:
+    Avenir Next,
+    Gill Sans,
+    Trebuchet MS,
+    sans-serif;
+}
+
+.app-name-link img {
+  width: 2rem;
+}
+
+.sidebar,
+.sidebar-toggle {
+  background: var(--vdoc-panel);
+}
+
+.sidebar {
+  border-right: 1px solid var(--vdoc-line);
+}
+
+.sidebar ul li a {
+  color: var(--vdoc-muted);
+  font-weight: 700;
+}
+
+.sidebar ul li.active > a,
+.sidebar ul li a:hover {
+  color: var(--vdoc-accent-strong);
+}
+
+.app-nav {
+  top: 1rem;
+  right: 1.5rem;
+}
+
+.app-nav ul {
+  margin: 0;
+}
+
+.app-nav .vdoc-return-site {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--vdoc-line);
+  border-radius: 999px;
+  background: rgba(255, 250, 240, 0.92);
+  padding: 0.45rem 0.8rem;
+  color: var(--vdoc-accent-strong);
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+
+.app-nav .vdoc-return-site:hover {
+  border-color: var(--vdoc-accent);
+  color: var(--vdoc-accent);
+}
+
+.markdown-section {
+  max-width: 56rem;
+  padding-top: 3.5rem;
+}
+
+.markdown-section h1,
+.markdown-section h2,
+.markdown-section h3 {
+  color: var(--vdoc-ink);
+  font-family:
+    Iowan Old Style,
+    Palatino Linotype,
+    Georgia,
+    serif;
+}
+
+.markdown-section h1 {
+  letter-spacing: -0.03em;
+}
+
+.markdown-section p,
+.markdown-section li {
+  color: var(--vdoc-muted);
+  line-height: 1.75;
+}
+
+.markdown-section code {
+  border-radius: 0.45rem;
+  color: var(--vdoc-accent-strong);
+}
+
+.markdown-section pre {
+  border: 1px solid var(--vdoc-line);
+  border-radius: 0.9rem;
+}
+
+.markdown-section table {
+  display: table;
+  width: 100%;
+}
+
+.markdown-section blockquote {
+  border-left-color: var(--vdoc-accent);
+  color: var(--vdoc-muted);
+}
+
+.vdoc-copy-markdown {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0 0 1.25rem;
+  border: 1px solid var(--vdoc-accent-strong);
+  border-radius: 999px;
+  background: var(--vdoc-accent);
+  padding: 0.55rem 0.9rem;
+  color: white;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.vdoc-copy-markdown:focus-visible {
+  outline: 3px solid #d49b6a;
+  outline-offset: 3px;
+}
+
+.vdoc-copy-status {
+  min-height: 1.25rem;
+  margin: -0.75rem 0 1rem;
+  color: var(--vdoc-accent-strong);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+@media (max-width: 48rem) {
+  .markdown-section {
+    padding: 4.5rem 1.5rem 2rem;
+  }
+}

@@ -23,7 +23,7 @@ describe('Vdoc public site', () => {
     window.scrollTo = vi.fn()
   })
 
-  it('renders a routed home page with repository links and without admin links', () => {
+  it('renders home with simplified nav, repository links, Docs last, and no admin links', () => {
     const { container } = render(<App />)
 
     expect(
@@ -31,7 +31,6 @@ describe('Vdoc public site', () => {
         name: /a living dossier for ai-assisted teams/i,
       }),
     ).toBeInTheDocument()
-    expect(container.querySelector('a[href="/concepts"]')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /Home/i })).toHaveAttribute(
       'aria-current',
       'page',
@@ -42,21 +41,52 @@ describe('Vdoc public site', () => {
     expect(
       container.querySelectorAll(`a[href="${githubUrl}"]`).length,
     ).toBeGreaterThan(0)
-    expect(
-      screen.queryByText(/Configuration variables that matter/i),
-    ).not.toBeInTheDocument()
     expect(screen.queryByText(englishAdminConsoleCta)).not.toBeInTheDocument()
     expect(screen.queryByText(englishAdminConsoleLabel)).not.toBeInTheDocument()
     expect(
       container.querySelector(`a[href="${adminPath}"]`),
     ).not.toBeInTheDocument()
+
+    const navLinks = Array.from(
+      container.querySelectorAll<HTMLAnchorElement>(
+        'header .nav-link:not(.nav-link-github)',
+      ),
+    )
+    expect(navLinks.map((link) => link.textContent)).toEqual([
+      'Home',
+      'Concepts',
+      'Workflows',
+      'Docs',
+    ])
+    expect(navLinks.at(-1)).toHaveAttribute('href', '/docs/index.html')
+    expect(
+      container.querySelector('header a[href="/api"]'),
+    ).not.toBeInTheDocument()
+    expect(
+      container.querySelector('header a[href="/agents"]'),
+    ).not.toBeInTheDocument()
   })
 
-  it('navigates between top-level pages with isolated route content', () => {
-    render(<App />)
+  it('navigates between Home, Concepts, and Workflows with isolated route content', () => {
+    const { container } = render(<App />)
 
-    fireEvent.click(screen.getByRole('link', { name: /Workflows/i }))
+    const conceptsNavLink = container.querySelector<HTMLAnchorElement>(
+      'header a[href="/concepts"]',
+    )
+    expect(conceptsNavLink).toBeInTheDocument()
+    fireEvent.click(conceptsNavLink!)
+    expect(window.location.pathname).toBe('/concepts')
+    expect(
+      screen.getByRole('heading', {
+        name: /Not a Swagger clone\. A collaboration boundary/i,
+      }),
+    ).toBeInTheDocument()
 
+    const workflowsNavLink = container.querySelector<HTMLAnchorElement>(
+      'header a[href="/workflows"]',
+    )
+    expect(workflowsNavLink).toBeInTheDocument()
+    fireEvent.click(workflowsNavLink!)
     expect(window.location.pathname).toBe('/workflows')
     expect(screen.getByRole('link', { name: /Workflows/i })).toHaveAttribute(
       'aria-current',
@@ -75,61 +105,83 @@ describe('Vdoc public site', () => {
     ).not.toBeInTheDocument()
   })
 
-  it('renders the docs landing as a document index and opens one doc article', () => {
+  it('hands API, MCP, Skill, and footer entry points to Docsify links', () => {
     const { container } = render(<App />)
 
-    fireEvent.click(screen.getByRole('link', { name: /^Docs$/i }))
-
-    expect(window.location.pathname).toBe('/docs')
     expect(
-      screen.getByRole('heading', {
-        name: /Deploy it, operate it, connect agents/i,
-      }),
+      screen.getByRole('link', { name: /Open document index/i }),
+    ).toHaveAttribute('href', '/docs/index.html')
+    expect(
+      screen.getByRole('link', { name: /Read API reference/i }),
+    ).toHaveAttribute('href', '/docs/index.html#/api-reference')
+    expect(
+      container.querySelector('a.route-card[href="/docs/index.html"]'),
     ).toBeInTheDocument()
-    const runtimeDocLink = container.querySelector<HTMLAnchorElement>(
-      'a[href="/docs/runtime-env"]',
-    )
-    expect(runtimeDocLink).toBeInTheDocument()
-
-    fireEvent.click(runtimeDocLink!)
-
-    expect(window.location.pathname).toBe('/docs/runtime-env')
     expect(
       container.querySelector(
-        'a[href="/docs/runtime-env"][aria-current="page"]',
+        'a.route-card[href="/docs/index.html#/api-reference"]',
       ),
     ).toBeInTheDocument()
     expect(
-      screen.getByRole('heading', {
-        name: /Configuration variables that matter/i,
-      }),
+      container.querySelector(
+        'a.route-card[href="/docs/index.html#/mcp-tools"]',
+      ),
     ).toBeInTheDocument()
     expect(
-      screen.getByLabelText(/Configuration variables that matter example/i),
+      container.querySelector(
+        'a.route-card[href="/docs/index.html#/skill-workflows"]',
+      ),
     ).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /Read docs/i })).toHaveAttribute(
+      'href',
+      '/docs/index.html',
+    )
+    expect(screen.getByRole('link', { name: /Deployment/i })).toHaveAttribute(
+      'href',
+      '/docs/index.html#/deployment',
+    )
     expect(
-      screen.queryByLabelText(/PostgreSQL plus RustFS\/S3 storage example/i),
-    ).not.toBeInTheDocument()
+      screen
+        .getAllByRole('link', { name: /API reference/i })
+        .some(
+          (link) =>
+            link.getAttribute('href') === '/docs/index.html#/api-reference',
+        ),
+    ).toBe(true)
   })
 
-  it('renders MCP and Skill installation guidance with valid tools', () => {
-    window.history.pushState({}, '', '/agents')
+  it('treats retired API and Agent paths as not found instead of React pages', () => {
+    window.history.pushState({}, '', '/api')
+    const { unmount } = render(<App />)
 
+    expect(
+      screen.queryByRole('heading', {
+        name: /One Go backend, four exposed surfaces/i,
+      }),
+    ).not.toBeInTheDocument()
+    expect(
+      screen
+        .getAllByRole('link', { name: /Read docs/i })
+        .some((link) => link.getAttribute('href') === '/docs/index.html'),
+    ).toBe(true)
+
+    unmount()
+    window.history.pushState({}, '', '/agents')
     render(<App />)
 
     expect(
-      screen.getAllByRole('link', { name: /Install MCP adapter/i }).length,
-    ).toBeGreaterThan(0)
+      screen.queryByRole('heading', {
+        name: /Give agents a reviewed memory/i,
+      }),
+    ).not.toBeInTheDocument()
     expect(
-      screen.getAllByRole('link', { name: /Install Skill/i }).length,
-    ).toBeGreaterThan(0)
-    expect(screen.getAllByText('get_endpoint_detail').length).toBeGreaterThan(0)
-    expect(screen.getByText('compare_doc_versions')).toBeInTheDocument()
+      screen
+        .getAllByRole('link', { name: /Read docs/i })
+        .some((link) => link.getAttribute('href') === '/docs/index.html'),
+    ).toBe(true)
   })
 
-  it('switches from English to Simplified Chinese and persists the choice on a doc route', () => {
-    window.history.pushState({}, '', '/docs/infrastructure')
-
+  it('switches to Simplified Chinese and keeps Docs as the last normal nav link', () => {
     const { container } = render(<App />)
 
     fireEvent.click(
@@ -137,7 +189,7 @@ describe('Vdoc public site', () => {
     )
 
     expect(
-      screen.getByRole('heading', { name: /PostgreSQL 加 RustFS\/S3 存储/ }),
+      screen.getByRole('heading', { name: /面向 AI 协作团队的活文档档案馆/ }),
     ).toBeInTheDocument()
     expect(
       container.querySelectorAll(`a[href="${githubUrl}"]`).length,
@@ -147,17 +199,34 @@ describe('Vdoc public site', () => {
     expect(document.documentElement.lang).toBe('zh-CN')
     expect(document.title).toBe('Vdoc - 面向 AI 协作的文档中心')
     expect(window.localStorage.getItem('vdoc-site-language')).toBe('zh-CN')
+
+    const navLinks = Array.from(
+      container.querySelectorAll<HTMLAnchorElement>(
+        'header .nav-link:not(.nav-link-github)',
+      ),
+    )
+    expect(navLinks.map((link) => link.textContent)).toEqual([
+      '首页',
+      '产品概念',
+      '工作流',
+      '文档',
+    ])
+    expect(navLinks.at(-1)).toHaveAttribute('href', '/docs/index.html')
   })
 
-  it('responds to browser back and popstate navigation', async () => {
-    render(<App />)
+  it('responds to browser back and popstate navigation for remaining React pages', async () => {
+    const { container } = render(<App />)
 
-    fireEvent.click(screen.getByRole('link', { name: /^API$/ }))
+    const conceptsNavLink = container.querySelector<HTMLAnchorElement>(
+      'header a[href="/concepts"]',
+    )
+    expect(conceptsNavLink).toBeInTheDocument()
+    fireEvent.click(conceptsNavLink!)
 
-    expect(window.location.pathname).toBe('/api')
+    expect(window.location.pathname).toBe('/concepts')
     expect(
       screen.getByRole('heading', {
-        name: /One Go backend, four exposed surfaces/i,
+        name: /Not a Swagger clone\. A collaboration boundary/i,
       }),
     ).toBeInTheDocument()
 

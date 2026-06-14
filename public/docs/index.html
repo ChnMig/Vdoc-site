@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vdoc 文档</title>
+    <meta
+      name="description"
+      content="Vdoc 中文文档，覆盖产品概览、部署、Admin 使用、API、MCP 工具、Skill 工作流、发布与回滚。"
+    />
+    <link rel="icon" href="/favicon.svg" />
+    <link rel="stylesheet" href="./docsify-vue-local.css" />
+    <link rel="stylesheet" href="./vdoc-docs.css" />
+  </head>
+  <body>
+    <div id="app">正在加载 Vdoc 文档...</div>
+    <script>
+      window.$docsify = {
+        name: 'Vdoc 文档',
+        homepage: 'product-overview.md',
+        loadSidebar: true,
+        loadNavbar: true,
+        subMaxLevel: 3,
+        auto2top: true,
+        alias: {
+          '/.*/_sidebar.md': '/_sidebar.md',
+          '/.*/_navbar.md': '/_navbar.md',
+        },
+      }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/docsify@4/lib/docsify.min.js"></script>
+    <script src="./copy-markdown.js"></script>
+  </body>
+</html>
