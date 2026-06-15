@@ -1,188 +1,149 @@
-# 发布与回滚
+# 升级与回滚
 
-本页用于试点或生产发布前后。目标是只发布通过 CI 和 live smoke 的 artifact，并保留能快速回滚的上一版。
+本页用于已经运行 Vdoc 的用户。目标是在升级前备份数据，升级后验证 backend、Admin、MCP 和 Skill，如果失败能回到上一版。
 
-## 本页目标
+## 升级前准备
 
-- 列出 backend、Admin、site、MCP、Skill 的发布检查。
-- 汇总必须配置的环境变量和安全规则。
-- 给出发布后 smoke 和按组件回滚步骤。
+- 确认你知道当前运行的代码版本、镜像 tag 或构建来源。
+- 保留当前 `.env`，但不要把真实 secret 写入 issue、聊天记录或 release notes。
+- 确认 PostgreSQL 和对象存储都能访问。
+- 记录当前 Admin URL、backend health URL 和 Agent MCP 配置。
+- 在维护窗口中执行升级，避免用户正在提交 Draft 时中断。
 
-## 适用场景
+## 1. 备份 PostgreSQL
 
-- 准备打 tag 或发布试点 artifact。
-- 已发布后需要确认 backend、Admin、site、MCP、Skill 都能工作。
-- 新版本出现问题，需要回到上一版。
+完整 Compose 示例：
 
-## 发布前检查
+```sh
+mkdir -p backups
+docker compose --env-file .env exec -T postgres \
+  sh -lc 'pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB"' \
+  > backups/vdoc-$(date +%Y%m%d%H%M%S).sql
+```
 
-确认各仓库 CI 已通过，或本地执行相同检查：
+如果你使用外部 PostgreSQL，用供应商建议的快照或 `pg_dump` 方式备份。不要在未验证备份可恢复前升级生产或长期试点环境。
 
-- `Vdoc/.github/workflows/ci.yml`，覆盖 backend build、vet、tests 和 v0.1 E2E smoke。
-- `Vdoc-admin/.github/workflows/ci.yml`，覆盖 formatting、build、lint 和 browser tests。
-- `Vdoc-site/.github/workflows/ci.yml`，覆盖 formatting、build、lint 和 tests。
-- `Vdoc-mcp/.github/workflows/ci.yml`，覆盖 build、tests 和 package dry run。
-- `Vdoc-skill/.github/workflows/ci.yml`，覆盖 tests 和 package dry run。
+## 2. 备份对象存储
 
-发布前还要按 [部署](deployment) 跑 live backend smoke，使用一次性 PostgreSQL 和 RustFS/S3 resources。
+RustFS 或 S3 compatible storage 保存 raw 和 normalized 文档对象。升级前至少要保留 bucket 快照或复制一份 bucket 内容。
 
-## 必须配置的环境变量
+完整 Compose 的 named volume 是 `rustfs-data`，可以用基础设施层快照备份。外部对象存储请使用供应商的 bucket versioning、snapshot、replication 或对象复制工具。
 
-Backend pilot 或 production deployments 必须设置：
+不要把 storage access key 和 secret key 写进备份脚本日志。
 
-- `VDOC_JWT_KEY`
-- `VDOC_DATABASE_ENABLED=true`
-- `VDOC_DATABASE_DSN`
-- `VDOC_STORAGE_ENABLED=true`
-- `VDOC_STORAGE_ENDPOINT`
-- `VDOC_STORAGE_BUCKET`
-- `VDOC_STORAGE_ACCESS_KEY`
-- `VDOC_STORAGE_SECRET_KEY`
-- `VDOC_MCP_TOKEN_CIPHER_KEY`
-- `VDOC_MCP_TOKEN_CIPHER_KID`
+## 3. 拉取或构建新版本
 
-Admin deployment 必须在 build time 设置：
+如果使用 workspace root 的 Compose 包，从 workspace root 执行：
 
-- `VITE_VDOC_API_BASE_URL`
+```sh
+docker compose --env-file .env config
+docker compose --env-file .env pull
+docker compose --env-file .env up -d --build
+```
 
-如果使用 Docker Compose 试点依赖，还要准备：
+当前 root Compose 会从本地 `./Vdoc` 和 `./Vdoc-admin` build app services。`pull` 主要用于拉取 `postgres`、`rustfs`、`caddy`、`node` 等基础镜像；实际 app 更新来自你当前 workspace 内容。
 
-- `VDOC_DOCKER_POSTGRES_PASSWORD`
-- `VDOC_DOCKER_RUSTFS_ACCESS_KEY`
-- `VDOC_DOCKER_RUSTFS_SECRET_KEY`
-
-## 安全规则
-
-- 不要提交 `.env`、`.env.compose`、JWT keys、MCP tokens、storage secrets、database passwords 或 `Authorization` headers。
-- `VDOC_MCP_TOKEN_CIPHER_KEY` 轮换时必须同时使用新的 `VDOC_MCP_TOKEN_CIPHER_KID`，并安排迁移窗口。
-- v0.1 的 MCP tokens 是 user-bound，project-bound robot 或 CI tokens 属于后续候选能力。
-- Release notes 中只能写 placeholder 或状态，不写真实 secret。
-
-## 发布命令
-
-Backend：
+如果你直接部署组件，分别重新构建和发布：
 
 ```sh
 cd Vdoc
-make verify
-make test-e2e
 make build
 ```
-
-需要 cross-platform distributables 时：
-
-```sh
-cd Vdoc
-CROSS=1 make build
-```
-
-Admin：
 
 ```sh
 cd Vdoc-admin
 pnpm install --frozen-lockfile
-pnpm format:check
 pnpm build
-pnpm lint
-pnpm exec playwright install chromium
-pnpm test
 ```
 
-Site：
-
-```sh
-cd Vdoc-site
-pnpm install --frozen-lockfile
-pnpm format:check
-pnpm build
-pnpm lint
-pnpm test
-```
-
-MCP package：
+MCP 和 Skill 包升级前也要跑测试：
 
 ```sh
 cd Vdoc-mcp
 npm ci
 npm test
-npm pack --dry-run
 ```
-
-Skill package：
 
 ```sh
 cd Vdoc-skill
 npm ci
 npm test
-npm pack --dry-run
 ```
 
-## 发布后 smoke
+## 4. 等待自动迁移和服务健康
 
-1. Backend health 成功：
+backend 启动时会在 `VDOC_DATABASE_ENABLED=true` 时自动运行 migrations。不要在迁移过程中重启或删除数据库。查看 backend 日志：
+
+```sh
+docker compose --env-file .env logs -f backend
+```
+
+确认容器状态：
+
+```sh
+docker compose --env-file .env ps
+```
+
+确认健康：
+
+```sh
+curl http://127.0.0.1:8080/api/v1/open/health
+curl -I http://127.0.0.1:8081/
+```
+
+如果你改过 `.env` host ports，请把命令中的端口替换成实际端口。部署到域名时使用你的 backend 和 Admin 域名。
+
+## 5. 升级后功能验证
+
+1. Admin 能登录。
+2. `GET /api/v1/private/identity/me` 成功，private API 使用 raw JWT `Authorization` header，无 `Bearer` 前缀。
+3. 已有 Project、Document、Draft、Version 和 Diff 能打开。
+4. 新建一个测试 Draft，并确认审核流程仍可用。
+5. MCP `tools/list` 成功，至少一个 read-only tool call 成功。
+6. Agent 使用 Skill 时会先查 Vdoc MCP，再回答 endpoint 或 Markdown 问题。
+
+## 回滚策略
+
+如果升级后 backend health 失败或核心流程不可用，先停止继续写入，再回滚。
+
+完整 Compose 的快速回滚思路：
+
+1. 回到上一版 workspace 内容或上一版镜像 tag。
+2. 保持 `.env` 不变，除非失败原因就是配置错误。
+3. 运行：
 
    ```sh
-   curl https://your-vdoc.example.com/api/v1/open/health
+   docker compose --env-file .env up -d --build
    ```
 
-2. Admin 能 register 或 login。
-3. `/api/v1/private/identity/me` 成功，private API 使用 raw JWT `Authorization` header，无 `Bearer` 前缀。
-4. SuperAdmin 和 Project Admin 的 Dashboard 都能打开。
-5. 能创建或查看 Project、Document、Draft、Version、Diff 和 MCP Token。
-6. Site `/docs/index.html` 能打开 Docsify app，hash routes 工作。
-7. MCP `tools/list` 和至少一个 read-only tool call 成功。
-8. Skill package 包含 `SKILL.md`、`templates/`、`examples/`、`README.md` 和 `LICENSE`。
+4. 如果迁移已经写入不兼容 schema，按升级前 PostgreSQL 备份恢复。
+5. 如果对象写入出错，按升级前 bucket 备份恢复对象存储。
+6. 重新执行 backend health、Admin 登录和 MCP read-only call 验证。
 
-## 回滚步骤
-
-Backend 回滚：
-
-1. 在 load balancer 或网关上停止新流量，或切到维护页。
-2. 恢复上一版 backend binary 或 container。
-3. 除非迁移方案明确要求，不要删除 database 和 object store。
-4. 重新运行 `/api/v1/open/health`。
-5. 用 MCP Token 做一个 read-only MCP tool call。
-
-Admin 或 site 回滚：
-
-1. 把 static hosting 指回上一版 `dist/` artifact。
-2. Admin 回滚后确认 login、Dashboard、Versions、Diffs、MCP Token 页面可用。
-3. Site 回滚后确认 `/docs/index.html`、`/docs/index.html#/deployment`、`/docs/index.html#/mcp-tools` 可用。
-
-MCP 或 Skill 回滚：
-
-1. 保留上一版 package。
-2. 通知试点用户在 Agent config 中固定上一版。
-3. 确认 `tools/list` 和一个 read-only tool call 可用。
-4. 确认 Skill 仍会要求 Agent 先查 Vdoc facts。
+直接部署时，恢复上一版 backend binary 或 container、Admin `dist/`、MCP package 和 Skill package。除非你正在恢复备份，不要删除数据库和对象存储。
 
 ## 发布说明模板
 
 ```text
 Version:
-Backend commit:
-Admin commit:
-Site commit:
+Backend source or image:
+Admin source or image:
 MCP package version:
 Skill package version:
-CI status:
-Live smoke status:
+Backup location:
+Upgrade command:
+Health check result:
+Admin smoke result:
+MCP smoke result:
 Known limitations:
 Rollback artifact:
 ```
 
 Known limitations 至少写明：no direct MCP publish、no invitation flow、no notification bot、no PR Bot、no complete SDK/codegen platform、no commercial billing or tenant administration。
 
-## 如何验证
+## 避免的操作
 
-- 每个组件的检查命令都有通过记录。
-- Backend health 和 Admin private identity 在目标环境成功。
-- MCP Token 没有出现在 CLI args、日志、文档或 release notes 中。
-- 旧 artifact 可用，回滚路径不是临时猜测。
-
-## 常见问题
-
-- 只发布 backend 不更新 Admin 可能导致页面调用不匹配接口。
-- Site build 成功不代表 Docsify links 正确，必须打开 `/docs/index.html#/deployment` 和 `/docs/index.html#/mcp-tools`。
-- 发布前如果没有 live smoke，不要把试点状态标成 ready。
-- 回滚时不要随手执行会删数据的 Docker volume 命令，除非环境明确是一次性的。
+- 不要在非一次性环境执行 `docker compose down -v`。
+- 不要在升级日志中输出 `.env`、JWT、MCP Token、database password、storage secret 或 `Authorization` header。
+- 不要只验证 Admin 页面能打开就宣布整套 Vdoc 升级成功。
+- 不要把 MCP 或 Skill 版本升级和 backend 不兼容时的问题归因给 Agent，先验证 `tools/list` 来自当前 backend。

@@ -20,9 +20,16 @@ type Route =
 type DocsEntrypointCard = {
   body: string
   eyebrow: string
+  slug: DocsSlug
   title: string
-  to: string
 }
+
+type DocsSlug =
+  | 'product-overview'
+  | 'deployment'
+  | 'api-reference'
+  | 'mcp-tools'
+  | 'skill-workflows'
 
 const docsEntrypointCards: Record<Language, DocsEntrypointCard[]> = {
   en: [
@@ -30,19 +37,19 @@ const docsEntrypointCards: Record<Language, DocsEntrypointCard[]> = {
       eyebrow: 'API reference',
       title: 'Backend API reference',
       body: 'Open the Docsify API reference for route groups, envelopes, and OpenAPI handoff details.',
-      to: '/docs/index.html#/api-reference',
+      slug: 'api-reference',
     },
     {
       eyebrow: 'MCP tools',
       title: 'MCP tool catalog',
       body: 'Find the installable MCP tools agents use to read reviewed Vdoc project facts.',
-      to: '/docs/index.html#/mcp-tools',
+      slug: 'mcp-tools',
     },
     {
       eyebrow: 'Skill workflows',
       title: 'Agent Skill workflows',
       body: 'Follow the Docsify Skill playbooks for resolving IDs, comparing versions, and avoiding contract guesses.',
-      to: '/docs/index.html#/skill-workflows',
+      slug: 'skill-workflows',
     },
   ],
   'zh-CN': [
@@ -50,21 +57,33 @@ const docsEntrypointCards: Record<Language, DocsEntrypointCard[]> = {
       eyebrow: 'API 参考',
       title: '后端 API 参考',
       body: '在 Docsify 中查看路由分组、响应信封和 OpenAPI 交接说明。',
-      to: '/docs/index.html#/api-reference',
+      slug: 'api-reference',
     },
     {
       eyebrow: 'MCP 工具',
       title: 'MCP 工具目录',
       body: '查看 Agent 读取 Vdoc 已审核项目事实时使用的可安装 MCP 工具。',
-      to: '/docs/index.html#/mcp-tools',
+      slug: 'mcp-tools',
     },
     {
       eyebrow: 'Skill 工作流',
       title: 'Agent Skill 工作流',
       body: '按 Docsify 中的 Skill 流程解析 ID、比较版本，避免编造契约事实。',
-      to: '/docs/index.html#/skill-workflows',
+      slug: 'skill-workflows',
     },
   ],
+}
+
+function docsHref(language: Language, slug: DocsSlug = 'product-overview') {
+  if (language === 'en') {
+    return `/docs/index.html#/en/${slug}`
+  }
+
+  if (slug === 'product-overview') {
+    return '/docs/index.html'
+  }
+
+  return `/docs/index.html#/${slug}`
 }
 
 function isLanguage(value: string | null): value is Language {
@@ -164,12 +183,13 @@ function App() {
       />
       <main className="site-main" id="main-content">
         <RouteRenderer
+          language={language}
           onNavigate={navigate}
           route={route}
           siteCopy={siteCopy}
         />
       </main>
-      <SiteFooter siteCopy={siteCopy} />
+      <SiteFooter language={language} siteCopy={siteCopy} />
     </div>
   )
 }
@@ -215,7 +235,7 @@ function SiteHeader({
                     aria-current={active ? 'page' : undefined}
                     className="nav-link"
                     data-active={active ? 'true' : 'false'}
-                    href={item.href}
+                    href={docsHref(language)}
                     key={item.href}
                   >
                     {item.label}
@@ -295,10 +315,12 @@ function LanguageSwitcher({
 }
 
 function RouteRenderer({
+  language,
   onNavigate,
   route,
   siteCopy,
 }: {
+  language: Language
   onNavigate: (to: string) => void
   route: Route
   siteCopy: SiteCopy
@@ -312,26 +334,30 @@ function RouteRenderer({
   }
 
   if (route.kind === 'not-found') {
-    return <NotFound siteCopy={siteCopy} />
+    return <NotFound language={language} siteCopy={siteCopy} />
   }
 
-  return <Home onNavigate={onNavigate} siteCopy={siteCopy} />
+  return (
+    <Home language={language} onNavigate={onNavigate} siteCopy={siteCopy} />
+  )
 }
 
 function Home({
+  language,
   onNavigate,
   siteCopy,
 }: {
+  language: Language
   onNavigate: (to: string) => void
   siteCopy: SiteCopy
 }) {
   const routeCards = [
     { section: siteCopy.concepts, to: '/concepts' },
     { section: siteCopy.workflows, to: '/workflows' },
-    { section: siteCopy.docs, to: '/docs/index.html' },
-    ...docsEntrypointCards[getContentLanguage(siteCopy)].map((card) => ({
+    { section: siteCopy.docs, to: docsHref(language) },
+    ...docsEntrypointCards[language].map((card) => ({
       section: card,
-      to: card.to,
+      to: docsHref(language, card.slug),
     })),
   ]
 
@@ -347,12 +373,12 @@ function Home({
             {siteCopy.hero.body}
           </p>
           <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-            <a className="button-primary" href="/docs/index.html">
+            <a className="button-primary" href={docsHref(language)}>
               {siteCopy.hero.ctas.docs}
             </a>
             <a
               className="button-secondary"
-              href="/docs/index.html#/api-reference"
+              href={docsHref(language, 'api-reference')}
             >
               {siteCopy.hero.ctas.apiReference}
             </a>
@@ -462,7 +488,13 @@ function Workflows({ siteCopy }: { siteCopy: SiteCopy }) {
   )
 }
 
-function NotFound({ siteCopy }: { siteCopy: SiteCopy }) {
+function NotFound({
+  language,
+  siteCopy,
+}: {
+  language: Language
+  siteCopy: SiteCopy
+}) {
   return (
     <DocumentPage
       body={siteCopy.docs.body}
@@ -471,7 +503,7 @@ function NotFound({ siteCopy }: { siteCopy: SiteCopy }) {
     >
       <div className="route-categories mt-10">
         <p className="text-muted leading-7">{siteCopy.docs.body}</p>
-        <a className="button-primary mt-6" href="/docs/index.html">
+        <a className="button-primary mt-6" href={docsHref(language)}>
           {siteCopy.footer.docs}
         </a>
       </div>
@@ -526,10 +558,6 @@ function Metric({ label, value }: { label: string; value: string }) {
       </dd>
     </div>
   )
-}
-
-function getContentLanguage(siteCopy: SiteCopy): Language {
-  return siteCopy.htmlLang === 'zh-CN' ? 'zh-CN' : 'en'
 }
 
 function RouteCard({
@@ -672,19 +700,25 @@ function isActivePath(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`)
 }
 
-function SiteFooter({ siteCopy }: { siteCopy: SiteCopy }) {
+function SiteFooter({
+  language,
+  siteCopy,
+}: {
+  language: Language
+  siteCopy: SiteCopy
+}) {
   return (
     <footer className="border-line bg-paper/75 border-t px-6 py-10 lg:px-8">
       <div className="text-muted mx-auto flex max-w-7xl flex-col gap-4 text-sm md:flex-row md:items-center md:justify-between">
         <p>{siteCopy.footer.body}</p>
         <div className="flex flex-wrap gap-3">
-          <a className="footer-link" href="/docs/index.html">
+          <a className="footer-link" href={docsHref(language)}>
             {siteCopy.footer.docs}
           </a>
-          <a className="footer-link" href="/docs/index.html#/deployment">
+          <a className="footer-link" href={docsHref(language, 'deployment')}>
             {siteCopy.footer.deployment}
           </a>
-          <a className="footer-link" href="/docs/index.html#/api-reference">
+          <a className="footer-link" href={docsHref(language, 'api-reference')}>
             {siteCopy.footer.apiReference}
           </a>
           <a

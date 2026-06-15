@@ -2,14 +2,17 @@
   --vdoc-ink: #2f281f;
   --vdoc-muted: #665f54;
   --vdoc-line: #ded0ba;
+  --vdoc-canvas: #f6efe2;
   --vdoc-panel: #fffaf0;
+  --vdoc-paper-text: #ffffff;
   --vdoc-accent: #a14f2b;
   --vdoc-accent-strong: #7b351f;
+  --vdoc-focus: #d49b6a;
 }
 
 body {
   color: var(--vdoc-ink);
-  background: #f6efe2;
+  background: var(--vdoc-canvas);
   font-family:
     Avenir Next,
     Gill Sans,
@@ -49,7 +52,12 @@ body {
   margin: 0;
 }
 
-.app-nav .vdoc-return-site {
+.app-nav li {
+  margin: 0 0 0 0.45rem;
+}
+
+.app-nav .vdoc-return-site,
+.app-nav .vdoc-language-switch {
   display: inline-flex;
   align-items: center;
   border: 1px solid var(--vdoc-line);
@@ -61,9 +69,20 @@ body {
   font-weight: 800;
 }
 
-.app-nav .vdoc-return-site:hover {
+.app-nav .vdoc-language-switch {
+  background: var(--vdoc-accent);
+  color: var(--vdoc-paper-text);
+}
+
+.app-nav .vdoc-return-site:hover,
+.app-nav .vdoc-language-switch:hover {
   border-color: var(--vdoc-accent);
   color: var(--vdoc-accent);
+}
+
+.app-nav .vdoc-language-switch:hover {
+  background: var(--vdoc-accent-strong);
+  color: var(--vdoc-paper-text);
 }
 
 .markdown-section {
@@ -121,7 +140,7 @@ body {
   border-radius: 999px;
   background: var(--vdoc-accent);
   padding: 0.55rem 0.9rem;
-  color: white;
+  color: var(--vdoc-paper-text);
   font: inherit;
   font-size: 0.85rem;
   font-weight: 800;
@@ -129,7 +148,7 @@ body {
 }
 
 .vdoc-copy-markdown:focus-visible {
-  outline: 3px solid #d49b6a;
+  outline: 3px solid var(--vdoc-focus);
   outline-offset: 3px;
 }
 

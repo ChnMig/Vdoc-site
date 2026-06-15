@@ -1,24 +1,11 @@
 # Skill 工作流
 
-Vdoc Skill 是安装到 Agent runtime 的工作流包。它不存数据、不算 diff、不直接调用后端，而是教 Agent 什么时候必须通过 Vdoc MCP 查询事实。
+Vdoc Skill 是安装到 Agent runtime 的工作流包。它不存数据、不计算 diff、不直接调用后端，而是教 Agent 什么时候必须通过 Vdoc MCP 查询事实。
 
-## 本页目标
-
-- 安装 `Vdoc-skill/` 到目标 Agent。
-- 说明 Skill 和 MCP 的分工。
-- 给出 endpoint integration、migration analysis、docs draft 的标准动作。
-
-## 适用场景
-
-- Agent 要写前端或后端 endpoint integration。
-- Agent 要判断 API 版本之间是否有 breaking change。
-- Agent 要引用 Markdown 文档原文或提交文档 Draft。
-- 团队希望减少 Agent 根据记忆编造字段、参数、响应结构或文档内容。
-
-## 前置条件
+## 使用前准备
 
 - Agent 已配置 [MCP 工具](mcp-tools)，并能成功调用 Vdoc `tools/list`。
-- 目标 runtime 支持安装技能或自定义工作流说明。
+- 目标 runtime 支持安装 skill 或自定义工作流说明。
 - 你知道 runtime 要求的 skill folder 位置。
 - 不要把 MCP Token、JWT 或 `Authorization` header 写进 Skill 文件或示例。
 
@@ -40,12 +27,21 @@ examples/
 
 Skill 必须和 `@vdoc/mcp` 配套使用。Skill 是工作流说明，MCP 才是实时 tool surface 和事实来源。
 
-## 安全规则
+验证 package：
 
-- Vdoc MCP 是 API contract facts 和 Markdown document content 的事实来源。
-- Agent 不能推断 endpoint fields、parameters、response properties、enum values、auth schemes、servers、breaking-change claims 或 Markdown text。
-- 不要打印、复制或记录 MCP tokens 和 JWTs。
-- v0.1 不提供 direct publish tools，版本发布由人类 Admin 或 SuperAdmin 审核。
+```sh
+cd Vdoc-skill
+npm test
+```
+
+## Agent 必须先查 Vdoc 的场景
+
+- 写前端或后端 endpoint integration。
+- 判断 endpoint、field、enum、response property、auth scheme 或 server 是否存在。
+- 比较两个 API 或 Markdown Version。
+- 根据 semantic diff 准备迁移说明。
+- 引用已发布 Markdown 文档原文。
+- 创建、更新或提交 Draft。
 
 ## 工作流 1：endpoint 集成
 
@@ -73,25 +69,32 @@ Skill 必须和 `@vdoc/mcp` 配套使用。Skill 是工作流说明，MCP 才是
 5. Agent 使用 `submit_doc_draft` 提交人工审核。
 6. Admin 或 SuperAdmin 在 Admin 中审核并发布。
 
-## 如何验证
+## 好提示示例
 
-先跑 package 测试：
-
-```sh
-cd Vdoc-skill
-npm test
+```text
+先查 Vdoc。找到 POST /orders 的已发布 endpoint detail，再更新客户端 payload 校验。
 ```
 
-再做一次小型 Agent 任务：
+```text
+比较当前 prod OpenAPI version 和上一个 version，先总结 breaking changes，再改文档。
+```
+
+```text
+读取 Vdoc 中已审核的 runbook Markdown，然后只基于这些事实回答部署问题。
+```
+
+## 如何验证
 
 1. 让 Agent 说明某个 endpoint 的请求字段。
 2. 观察 Agent 是否先调用 Vdoc MCP。
 3. 检查回答是否引用 `get_endpoint_detail` 或相关 Vdoc tool 的结果。
 4. 要求 Agent 发布版本，确认它只提交 Draft，并提示需要 Admin 或 SuperAdmin 审核。
 
-## 常见问题
+## 失败信号
 
-- 只安装 Skill 不配置 MCP 不够，Skill 没有实时数据能力。
-- Agent 如果跳过 MCP 直接回答，需要重新加载 Skill 并明确要求使用 Vdoc MCP。
-- 不要把 Skill 当发布权限，v0.1 的发布门禁仍在 Admin。
-- 示例文件中不能出现真实 token、JWT、database password、storage secret 或 `Authorization` header。
+- Agent 没有查询 Vdoc 就编造 endpoint fields。
+- Agent 使用显示名称替代 stable ID 或 `relative_path`。
+- Agent 说 Draft 已发布，但 Admin 中还没有新 Version。
+- Agent 把 MCP Token 放进 CLI args、日志或文档。
+
+出现这些情况时，重新加载 Skill，确认 MCP 可用，并明确要求 Agent 先查询 Vdoc MCP。

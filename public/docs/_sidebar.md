@@ -1,14 +1,15 @@
-- 快速开始
+- 认识 Vdoc
   - [产品概览](product-overview)
-  - [变更记录](changelog)
+  - [运行流程](how-it-works)
   - [版本说明](version-notes)
-- 部署与使用
-  - [部署](deployment)
-  - [Admin 使用](admin-usage)
-  - [API 参考](api-reference)
+  - [变更记录](changelog)
+- 安装和部署
+  - [部署指南](deployment)
+  - [首次使用](admin-usage)
 - Agent 接入
   - [MCP 工具](mcp-tools)
   - [Skill 工作流](skill-workflows)
-- 发布与排障
-  - [发布与回滚](release-rollback)
+  - [API 参考](api-reference)
+- 维护
+  - [升级与回滚](release-rollback)
   - [故障排查](troubleshooting)

@@ -1,52 +1,49 @@
 # API 参考
 
-本页给脚本、Admin 调试和 Agent 集成使用。它不是完整 OpenAPI 文件，完整接口定义请从后端读取 `/api/v1/open/docs/openapi.yaml`。
-
-## 本页目标
-
-- 说明 Vdoc REST 和 MCP 的基础路径。
-- 给出注册、私有身份验证、Draft 发布链路和 MCP `tools/list` 的安全示例。
-- 强调 Vdoc response envelope 和 raw `Authorization` header 规则。
-
-## 适用场景
-
-- 你要用 `curl` 或脚本排查 Admin 调用。
-- 你要给 Agent integrator 解释 MCP endpoint 和 token 用法。
-- 你要确认某个 route 属于 public、private 还是 MCP。
+本页给脚本、Admin 调试和 Agent 集成使用。它不是完整 OpenAPI 文件；完整机器可读定义由 backend 提供：`/api/v1/open/docs/openapi.yaml`。
 
 ## 基础路径
 
-| Surface          | Base                             |
-| ---------------- | -------------------------------- |
-| Public REST      | `/api/v1/open`                   |
-| Private REST     | `/api/v1/private`                |
-| OpenAPI document | `/api/v1/open/docs/openapi.yaml` |
-| MCP JSON-RPC     | `/api/v1/open/mcp`               |
+| Surface          | Path                             | 鉴权                           |
+| ---------------- | -------------------------------- | ------------------------------ |
+| Public REST      | `/api/v1/open/*`                 | 具体 route 决定，多数无鉴权。  |
+| Private REST     | `/api/v1/private/*`              | Raw JWT 放进 `Authorization`。 |
+| OpenAPI document | `/api/v1/open/docs/openapi.yaml` | 无鉴权。                       |
+| MCP JSON-RPC     | `/api/v1/open/mcp`               | Raw MCP Token。                |
 
-健康检查：
-
-```sh
-curl http://127.0.0.1:8080/api/v1/open/health
-```
-
-读取 OpenAPI 文件：
+本机完整 Compose 默认 backend origin 是 `http://127.0.0.1:8080`。部署环境请换成你的 backend 域名。
 
 ```sh
-curl http://127.0.0.1:8080/api/v1/open/docs/openapi.yaml
+API_BASE="${API_BASE:-http://127.0.0.1:8080}"
+curl "$API_BASE/api/v1/open/health"
+curl "$API_BASE/api/v1/open/docs/openapi.yaml"
 ```
 
 ## 鉴权规则
 
-Public auth 从 register 或 login 开始。Private REST 调用使用 Vdoc envelope 返回的 JWT。MCP 调用使用通过 private REST 或 Admin UI 创建的 MCP Token。
+Public auth 从 register 或 login 开始。Private REST 使用登录或注册返回的 JWT。MCP 使用 Admin 或 private REST 创建的 MCP Token。
 
-关键规则：`Authorization` header 放原始 JWT 或 MCP Token，不加 `Bearer` 前缀。不要把 header 值写进文档、日志、截图或仓库。
+关键规则：`Authorization` header 放原始 JWT 或 MCP Token，不加 `Bearer` 前缀。不要把完整 header 写进文档、日志、截图或仓库。
 
-## 注册并保存 JWT
+## 响应 envelope
 
-下面示例使用占位密码和测试邮箱，不要用真实用户密码。
+REST handler 对成功和业务错误都可能返回 HTTP 200，语义结果在 JSON body 中。
+
+| 字段        | 含义                                                                                                       |
+| ----------- | ---------------------------------------------------------------------------------------------------------- |
+| `code`      | 语义状态码，例如 `200`、`400`、`401`、`403`、`404`、`409`、`500`。                                         |
+| `status`    | 语义状态，例如 `OK`、`INVALID_ARGUMENT`、`UNAUTHENTICATED`、`PERMISSION_DENIED`、`NOT_FOUND`、`INTERNAL`。 |
+| `message`   | 面向调用者的提示。                                                                                         |
+| `detail`    | 成功结果或错误详情。                                                                                       |
+| `total`     | 列表接口的可选总数。                                                                                       |
+| `trace_id`  | 排查请求时使用的 trace 标识。                                                                              |
+| `timestamp` | 响应时间。                                                                                                 |
+
+## 注册或登录
+
+下面示例只用于本地 smoke。不要使用真实用户密码。
 
 ```sh
-API_BASE="${API_BASE:-http://127.0.0.1:8080}"
 PASSWORD="sample-password-change-me"
 
 REGISTER_RESPONSE=$(curl -sS "$API_BASE/api/v1/open/auth/register" \
@@ -64,28 +61,15 @@ curl -sS "$API_BASE/api/v1/private/identity/me" \
   -H "Authorization: $JWT"
 ```
 
-## 响应 envelope
-
-REST handler 对成功和业务错误都可能返回 HTTP 200，语义结果在 JSON body 中。
-
-| 字段        | 含义                                                                                                       |
-| ----------- | ---------------------------------------------------------------------------------------------------------- |
-| `code`      | 语义状态码，例如 `200`、`400`、`401`、`403`、`404`、`409`、`500`。                                         |
-| `status`    | 语义状态，例如 `OK`、`INVALID_ARGUMENT`、`UNAUTHENTICATED`、`PERMISSION_DENIED`、`NOT_FOUND`、`INTERNAL`。 |
-| `message`   | 面向调用者的提示。                                                                                         |
-| `detail`    | 成功结果或错误详情。                                                                                       |
-| `total`     | 列表接口的可选总数。                                                                                       |
-| `trace_id`  | 排查请求时使用的 trace 标识。                                                                              |
-| `timestamp` | 响应时间。                                                                                                 |
-
 ## 角色和文档类型
 
+- SuperAdmin 可以做系统级管理和审核。
 - Project Reader 可以查询。
 - Project Writer 可以上传 Draft 并提交。
 - Project Admin 可以 approve、request changes 或 reject。
-- SuperAdmin 可以做系统级管理。
-- `document_type=1` 表示 OpenAPI，`document_type=2` 表示 Markdown。
-- `relative_path` 是稳定身份，显示名称可以改，但路径身份不要随意改。
+- `document_type=1` 表示 OpenAPI。
+- `document_type=2` 表示 Markdown。
+- `relative_path` 是 Document 的稳定身份，显示名称变化不应改变它。
 
 ## 创建 Team、Project 和 Document
 
@@ -120,7 +104,7 @@ BRANCH_ID=$(curl -sS "$API_BASE/api/v1/private/projects/$PROJECT_ID/documents/$D
 
 OpenAPI Draft 可以提交 OpenAPI 3.0 或 3.1 内容为 `schema_content`。Markdown Draft 使用相同 private REST draft routes，可提交 Markdown 文本为 `schema_content` 或 `content`。MCP Markdown draft tools 使用 `markdown_content`。`content_kind` 对 OpenAPI 接受 `raw` 或 `normalized`，对 Markdown 接受 `raw` 或 `stable`。
 
-运行下面的 OpenAPI 示例前，先把 `SCHEMA_V1` 设成合法 JSON 字符串，例如用 `jq -Rs . < openapi.yaml` 生成；不要把含 secret 的 schema 样本提交到仓库。
+运行下面的 OpenAPI 示例前，先把 `SCHEMA_V1` 设成合法 JSON 字符串，例如用 `jq -Rs . < openapi.yaml` 生成。
 
 ```sh
 DRAFT_RESPONSE=$(curl -sS "$API_BASE/api/v1/private/projects/$PROJECT_ID/documents/$DOCUMENT_ID/drafts" \
@@ -161,7 +145,7 @@ curl -sS "$API_BASE/api/v1/private/projects/$PROJECT_ID/documents/$DOCUMENT_ID/v
   -H "Authorization: $JWT"
 ```
 
-比较两个 version。运行前确认 `VERSION_ONE_ID` 和 `VERSION_TWO_ID` 都来自已发布 Version：
+比较两个已发布 Version：
 
 ```sh
 DIFF_RESPONSE=$(curl -sS "$API_BASE/api/v1/private/projects/$PROJECT_ID/documents/$DOCUMENT_ID/diffs" \
@@ -176,7 +160,7 @@ curl -sS "$API_BASE/api/v1/private/projects/$PROJECT_ID/documents/$DOCUMENT_ID/d
 
 ## MCP Token 和 MCP JSON-RPC
 
-创建 MCP Token。`.detail.token` 是一次性可复制 secret，list、get、revoke 返回会脱敏。
+创建 MCP Token。`.detail.token` 是一次性可复制 secret，后续 list、get、revoke 返回会脱敏。
 
 ```sh
 MCP_TOKEN_RESPONSE=$(curl -sS "$API_BASE/api/v1/private/mcp-tokens" \
@@ -204,7 +188,7 @@ curl -sS "$API_BASE/api/v1/open/mcp" \
   -d "{\"jsonrpc\":\"2.0\",\"id\":\"endpoint-detail\",\"method\":\"tools/call\",\"params\":{\"name\":\"get_endpoint_detail\",\"arguments\":{\"project_id\":\"$PROJECT_ID\",\"document_id\":\"$DOCUMENT_ID\",\"version_id\":\"$VERSION_ID\",\"endpoint_id\":\"$ENDPOINT_ID\"}}}"
 ```
 
-v0.1 不通过 MCP 暴露 direct publish tools。Agent 可以创建、更新、查看和提交 Draft，但发布仍由人类 Admin 或 SuperAdmin 审核。
+v0.1 不通过 MCP 暴露 direct publish tools。Agent 可以创建、更新、查看和提交 Draft，但发布仍由 Admin 或 SuperAdmin 审核。
 
 ## 接口分类
 
@@ -229,7 +213,7 @@ v0.1 不通过 MCP 暴露 direct publish tools。Agent 可以创建、更新、�
 2. Register 或 login 返回 envelope，`detail.token` 可用于 `GET /api/v1/private/identity/me`。
 3. 创建 Draft、submit、approve 后能读取 Version content。
 4. `POST /api/v1/open/mcp` 的 `tools/list` 返回 tool schemas。
-5. 不在示例、日志或 Git history 中出现真实 JWT、MCP Token 或 `Authorization` header 值。
+5. 示例、日志或 Git history 中没有真实 JWT、MCP Token 或 `Authorization` header 值。
 
 ## 常见问题
 

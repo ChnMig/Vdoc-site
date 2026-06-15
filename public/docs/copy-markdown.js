@@ -3,17 +3,42 @@
 ;(function () {
   function currentMarkdownPath() {
     var route = window.location.hash.replace(/^#\/?/, '').split(/[?#]/)[0]
-    var cleanRoute = route.replace(/\/$/, '')
+    var cleanRoute = route.replace(/\/$/, '').replace(/\.md$/, '')
 
-    if (!cleanRoute) {
+    if (!cleanRoute || cleanRoute === 'README') {
       return 'product-overview.md'
     }
 
-    if (cleanRoute.endsWith('.md')) {
-      return cleanRoute
+    if (cleanRoute === 'en') {
+      return 'en/product-overview.md'
+    }
+
+    if (cleanRoute === 'en/README') {
+      return 'en/product-overview.md'
     }
 
     return cleanRoute + '.md'
+  }
+
+  function isEnglishRoute() {
+    var route = window.location.hash.replace(/^#\/?/, '').split(/[?#]/)[0]
+    return route === 'en' || route.indexOf('en/') === 0
+  }
+
+  function copyButtonLabel() {
+    return isEnglishRoute() ? 'Copy this Markdown' : '复制本页 Markdown'
+  }
+
+  function copiedStatus(markdownPath) {
+    return isEnglishRoute()
+      ? 'Copied ' + markdownPath
+      : '已复制 ' + markdownPath
+  }
+
+  function failedStatus(markdownPath) {
+    return isEnglishRoute()
+      ? 'Copy failed ' + markdownPath
+      : '复制失败 ' + markdownPath
   }
 
   window.$docsify = window.$docsify || {}
@@ -22,7 +47,9 @@
     function (hook) {
       hook.afterEach(function (html, next) {
         next(
-          '<button class="vdoc-copy-markdown" type="button">复制本页 Markdown</button><div class="vdoc-copy-status" aria-live="polite"></div>' +
+          '<button class="vdoc-copy-markdown" type="button">' +
+            copyButtonLabel() +
+            '</button><div class="vdoc-copy-status" aria-live="polite"></div>' +
             html,
         )
       })
@@ -50,10 +77,10 @@
               return navigator.clipboard.writeText(markdown)
             })
             .then(function () {
-              status.textContent = '已复制 ' + markdownPath
+              status.textContent = copiedStatus(markdownPath)
             })
             .catch(function () {
-              status.textContent = '复制失败 ' + markdownPath
+              status.textContent = failedStatus(markdownPath)
             })
         })
       })

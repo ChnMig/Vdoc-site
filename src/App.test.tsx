@@ -15,6 +15,16 @@ describe('Vdoc public site', () => {
   const chineseAdminConsoleCta = new RegExp(['进入', '管理', '后台'].join(''))
   const chineseAdminConsoleLabel = new RegExp(['管理', '后台'].join(''))
   const githubUrl = 'https://github.com/ChnMig/Vdoc'
+  const englishDocsIndex = '/docs/index.html#/en/product-overview'
+  const englishApiReference = '/docs/index.html#/en/api-reference'
+  const englishDeployment = '/docs/index.html#/en/deployment'
+  const englishMcpTools = '/docs/index.html#/en/mcp-tools'
+  const englishSkillWorkflows = '/docs/index.html#/en/skill-workflows'
+  const chineseDocsIndex = '/docs/index.html'
+  const chineseApiReference = '/docs/index.html#/api-reference'
+  const chineseDeployment = '/docs/index.html#/deployment'
+  const chineseMcpTools = '/docs/index.html#/mcp-tools'
+  const chineseSkillWorkflows = '/docs/index.html#/skill-workflows'
 
   beforeEach(() => {
     window.localStorage.clear()
@@ -58,7 +68,7 @@ describe('Vdoc public site', () => {
       'Workflows',
       'Docs',
     ])
-    expect(navLinks.at(-1)).toHaveAttribute('href', '/docs/index.html')
+    expect(navLinks.at(-1)).toHaveAttribute('href', englishDocsIndex)
     expect(
       container.querySelector('header a[href="/api"]'),
     ).not.toBeInTheDocument()
@@ -105,48 +115,39 @@ describe('Vdoc public site', () => {
     ).not.toBeInTheDocument()
   })
 
-  it('hands API, MCP, Skill, and footer entry points to Docsify links', () => {
+  it('hands English API, MCP, Skill, and footer entry points to English Docsify links', () => {
     const { container } = render(<App />)
 
     expect(
       screen.getByRole('link', { name: /Open document index/i }),
-    ).toHaveAttribute('href', '/docs/index.html')
+    ).toHaveAttribute('href', englishDocsIndex)
     expect(
       screen.getByRole('link', { name: /Read API reference/i }),
-    ).toHaveAttribute('href', '/docs/index.html#/api-reference')
+    ).toHaveAttribute('href', englishApiReference)
     expect(
-      container.querySelector('a.route-card[href="/docs/index.html"]'),
+      container.querySelector(`a.route-card[href="${englishDocsIndex}"]`),
     ).toBeInTheDocument()
     expect(
-      container.querySelector(
-        'a.route-card[href="/docs/index.html#/api-reference"]',
-      ),
+      container.querySelector(`a.route-card[href="${englishApiReference}"]`),
     ).toBeInTheDocument()
     expect(
-      container.querySelector(
-        'a.route-card[href="/docs/index.html#/mcp-tools"]',
-      ),
+      container.querySelector(`a.route-card[href="${englishMcpTools}"]`),
     ).toBeInTheDocument()
     expect(
-      container.querySelector(
-        'a.route-card[href="/docs/index.html#/skill-workflows"]',
-      ),
+      container.querySelector(`a.route-card[href="${englishSkillWorkflows}"]`),
     ).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /Read docs/i })).toHaveAttribute(
       'href',
-      '/docs/index.html',
+      englishDocsIndex,
     )
     expect(screen.getByRole('link', { name: /Deployment/i })).toHaveAttribute(
       'href',
-      '/docs/index.html#/deployment',
+      englishDeployment,
     )
     expect(
       screen
         .getAllByRole('link', { name: /API reference/i })
-        .some(
-          (link) =>
-            link.getAttribute('href') === '/docs/index.html#/api-reference',
-        ),
+        .some((link) => link.getAttribute('href') === englishApiReference),
     ).toBe(true)
   })
 
@@ -162,7 +163,7 @@ describe('Vdoc public site', () => {
     expect(
       screen
         .getAllByRole('link', { name: /Read docs/i })
-        .some((link) => link.getAttribute('href') === '/docs/index.html'),
+        .some((link) => link.getAttribute('href') === englishDocsIndex),
     ).toBe(true)
 
     unmount()
@@ -177,7 +178,7 @@ describe('Vdoc public site', () => {
     expect(
       screen
         .getAllByRole('link', { name: /Read docs/i })
-        .some((link) => link.getAttribute('href') === '/docs/index.html'),
+        .some((link) => link.getAttribute('href') === englishDocsIndex),
     ).toBe(true)
   })
 
@@ -211,7 +212,30 @@ describe('Vdoc public site', () => {
       '工作流',
       '文档',
     ])
-    expect(navLinks.at(-1)).toHaveAttribute('href', '/docs/index.html')
+    expect(navLinks.at(-1)).toHaveAttribute('href', chineseDocsIndex)
+    expect(screen.getByRole('link', { name: /打开文档索引/ })).toHaveAttribute(
+      'href',
+      chineseDocsIndex,
+    )
+    expect(screen.getByRole('link', { name: /阅读 API 参考/ })).toHaveAttribute(
+      'href',
+      chineseApiReference,
+    )
+    expect(
+      container.querySelector(`a.route-card[href="${chineseDocsIndex}"]`),
+    ).toBeInTheDocument()
+    expect(
+      container.querySelector(`a.route-card[href="${chineseApiReference}"]`),
+    ).toBeInTheDocument()
+    expect(
+      container.querySelector(`a.route-card[href="${chineseMcpTools}"]`),
+    ).toBeInTheDocument()
+    expect(
+      container.querySelector(`a.route-card[href="${chineseSkillWorkflows}"]`),
+    ).toBeInTheDocument()
+    expect(
+      container.querySelector(`footer a[href="${chineseDeployment}"]`),
+    ).toBeInTheDocument()
   })
 
   it('responds to browser back and popstate navigation for remaining React pages', async () => {

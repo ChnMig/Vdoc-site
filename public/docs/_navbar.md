@@ -1,1 +1,2 @@
 - <a class="vdoc-return-site" href="/" data-no-router>返回官网</a>
+- <a class="vdoc-language-switch" href="#/en/product-overview" data-vdoc-language-switch>English</a>
