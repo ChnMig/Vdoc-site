@@ -1,15 +1,15 @@
-- Understand Vdoc
+- Understand
   - [Product Overview](en/product-overview)
   - [How It Works](en/how-it-works)
   - [Version Notes](en/version-notes)
-  - [Changelog](en/changelog)
-- Install and Deploy
+- Follow
   - [Deployment Guide](en/deployment)
   - [First Use](en/admin-usage)
-- Agent Integration
+- Reference
+  - [API Reference](en/api-reference)
+  - [Changelog](en/changelog)
+- Operate
   - [MCP Tools](en/mcp-tools)
   - [Skill Workflows](en/skill-workflows)
-  - [API Reference](en/api-reference)
-- Maintain
   - [Upgrade and Rollback](en/release-rollback)
   - [Troubleshooting](en/troubleshooting)

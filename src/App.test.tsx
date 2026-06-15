@@ -38,7 +38,7 @@ describe('Vdoc public site', () => {
 
     expect(
       screen.getByRole('heading', {
-        name: /a living dossier for ai-assisted teams/i,
+        name: /a reviewed fact loop for humans and agents/i,
       }),
     ).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /Home/i })).toHaveAttribute(
@@ -51,6 +51,16 @@ describe('Vdoc public site', () => {
     expect(
       container.querySelectorAll(`a[href="${githubUrl}"]`).length,
     ).toBeGreaterThan(0)
+    const trustLoopLabels = Array.from(
+      container.querySelectorAll('.trust-loop-step strong'),
+    ).map((element) => element.textContent)
+    expect(trustLoopLabels).toEqual([
+      'Draft',
+      'Human review',
+      'Immutable Version',
+      'Diff',
+      'MCP / Skill query',
+    ])
     expect(screen.queryByText(englishAdminConsoleCta)).not.toBeInTheDocument()
     expect(screen.queryByText(englishAdminConsoleLabel)).not.toBeInTheDocument()
     expect(
@@ -128,6 +138,9 @@ describe('Vdoc public site', () => {
       container.querySelector(`a.route-card[href="${englishDocsIndex}"]`),
     ).toBeInTheDocument()
     expect(
+      container.querySelector(`a.route-card[href="${englishDeployment}"]`),
+    ).toBeInTheDocument()
+    expect(
       container.querySelector(`a.route-card[href="${englishApiReference}"]`),
     ).toBeInTheDocument()
     expect(
@@ -140,10 +153,9 @@ describe('Vdoc public site', () => {
       'href',
       englishDocsIndex,
     )
-    expect(screen.getByRole('link', { name: /Deployment/i })).toHaveAttribute(
-      'href',
-      englishDeployment,
-    )
+    expect(
+      container.querySelector(`footer a[href="${englishDeployment}"]`),
+    ).toBeInTheDocument()
     expect(
       screen
         .getAllByRole('link', { name: /API reference/i })
@@ -190,7 +202,7 @@ describe('Vdoc public site', () => {
     )
 
     expect(
-      screen.getByRole('heading', { name: /面向 AI 协作团队的活文档档案馆/ }),
+      screen.getByRole('heading', { name: /给人和 Agent 共用的审核事实闭环/ }),
     ).toBeInTheDocument()
     expect(
       container.querySelectorAll(`a[href="${githubUrl}"]`).length,
@@ -223,6 +235,9 @@ describe('Vdoc public site', () => {
     )
     expect(
       container.querySelector(`a.route-card[href="${chineseDocsIndex}"]`),
+    ).toBeInTheDocument()
+    expect(
+      container.querySelector(`a.route-card[href="${chineseDeployment}"]`),
     ).toBeInTheDocument()
     expect(
       container.querySelector(`a.route-card[href="${chineseApiReference}"]`),
@@ -259,7 +274,7 @@ describe('Vdoc public site', () => {
     await waitFor(() => expect(window.location.pathname).toBe('/'))
     expect(
       screen.getByRole('heading', {
-        name: /a living dossier for ai-assisted teams/i,
+        name: /a reviewed fact loop for humans and agents/i,
       }),
     ).toBeInTheDocument()
   })

@@ -13,11 +13,11 @@
   --stamp-strong: oklch(0.44 0.14 31);
   --brass: oklch(0.68 0.12 75);
   --sage: oklch(0.58 0.075 132);
-  --shadow-paper: 0 1.5rem 4rem rgb(78 55 26 / 0.14);
-  --shadow-lift: 0 1rem 2.25rem rgb(78 55 26 / 0.12);
+  --shadow-paper: 0 0.25rem 0.5rem rgb(78 55 26 / 0.12);
+  --shadow-lift: 0 0.125rem 0.375rem rgb(78 55 26 / 0.1);
   --radius-control: 999px;
-  --radius-card: 1.25rem;
-  --radius-panel: 2rem;
+  --radius-card: 1rem;
+  --radius-panel: 1.5rem;
   --site-header-offset: 8.5rem;
 }
 
@@ -261,7 +261,7 @@ button:not(:disabled) {
 .hero-plate {
   display: grid;
   gap: 3rem;
-  border-radius: 2.5rem;
+  border-radius: var(--radius-panel);
   padding: 2rem;
 }
 
@@ -300,10 +300,9 @@ button:not(:disabled) {
 .eyebrow,
 .card-meta {
   color: var(--stamp-strong);
-  font-size: 0.76rem;
+  font-size: 0.82rem;
   font-weight: 900;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
 }
 
 .button-primary,
@@ -345,14 +344,64 @@ button:not(:disabled) {
   transform: translateY(-2px);
 }
 
-.metric-card,
 .feature-card,
 .route-categories {
   border: 1px solid var(--line);
   border-radius: var(--radius-card);
   background: color-mix(in oklch, var(--paper), transparent 10%);
   padding: 1.5rem;
-  box-shadow: var(--shadow-lift);
+}
+
+.trust-loop {
+  display: grid;
+  gap: 0;
+  margin-top: 2.25rem;
+  padding: 0;
+  list-style: none;
+}
+
+.trust-loop-step {
+  display: grid;
+  grid-template-columns: 1rem minmax(7rem, 0.36fr) minmax(0, 1fr);
+  gap: 0.85rem;
+  align-items: start;
+  border-top: 1px solid var(--line);
+  padding-block: 0.9rem;
+}
+
+.trust-loop-step:last-child {
+  border-bottom: 1px solid var(--line);
+}
+
+.trust-loop-node {
+  width: 0.55rem;
+  height: 0.55rem;
+  margin-top: 0.42rem;
+  border-radius: var(--radius-control);
+  background: var(--stamp);
+  box-shadow: 0 0 0 0.25rem color-mix(in oklch, var(--stamp), transparent 86%);
+}
+
+.trust-loop-step strong {
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 1.02rem;
+  line-height: 1.3;
+}
+
+.trust-loop-step span:last-child {
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+@media (max-width: 40rem) {
+  .trust-loop-step {
+    grid-template-columns: 1rem minmax(0, 1fr);
+  }
+
+  .trust-loop-step span:last-child {
+    grid-column: 2;
+  }
 }
 
 .archive-preview {
@@ -456,7 +505,8 @@ button:not(:disabled) {
 }
 
 .archive-note {
-  border-left: 4px solid var(--stamp);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-card);
   background: color-mix(in oklch, var(--stamp), transparent 92%);
   padding: 1rem;
 }
@@ -498,10 +548,9 @@ button:not(:disabled) {
   background: var(--paper-deep);
   padding: 0.45rem 0.75rem;
   color: var(--muted);
-  font-size: 0.72rem;
+  font-size: 0.78rem;
   font-weight: 900;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
 }
 
 .page-title-row {
@@ -537,17 +586,16 @@ button:not(:disabled) {
 .route-card {
   position: relative;
   display: block;
-  min-height: 15rem;
+  min-height: 13rem;
   border: 1px solid var(--line);
   border-radius: var(--radius-card);
   background: color-mix(in oklch, var(--paper), transparent 8%);
   padding: 1.35rem;
   color: var(--ink);
-  box-shadow: var(--shadow-lift);
   transition:
     transform 180ms ease,
     border-color 180ms ease,
-    box-shadow 180ms ease;
+    background-color 180ms ease;
 }
 
 @media (min-width: 48rem) {
@@ -576,16 +624,16 @@ button:not(:disabled) {
 .feature-card:hover {
   transform: translateY(-3px);
   border-color: var(--line-strong);
-  box-shadow: var(--shadow-paper);
+  background: color-mix(in oklch, var(--paper-deep), transparent 18%);
 }
 
-.route-card-number {
-  display: block;
-  color: color-mix(in oklch, var(--stamp), transparent 20%);
-  font-family: var(--font-display);
-  font-size: 3rem;
+.route-card-cue {
+  position: absolute;
+  right: 1.25rem;
+  bottom: 1.15rem;
+  color: var(--stamp-strong);
+  font-size: 0.84rem;
   font-weight: 900;
-  line-height: 1;
 }
 
 .timeline {
@@ -600,22 +648,22 @@ button:not(:disabled) {
   border: 1px solid var(--line);
   background: color-mix(in oklch, var(--paper), transparent 8%);
   padding: 1.25rem;
-  box-shadow: var(--shadow-lift);
 }
 
 @media (min-width: 48rem) {
   .timeline-item {
-    grid-template-columns: 6rem 1fr;
+    grid-template-columns: 2rem 1fr;
     align-items: start;
   }
 }
 
-.timeline-index {
-  color: var(--stamp);
-  font-family: var(--font-display);
-  font-size: 2.5rem;
-  font-weight: 900;
-  line-height: 1;
+.timeline-marker {
+  width: 0.85rem;
+  height: 0.85rem;
+  margin-top: 0.45rem;
+  border-radius: var(--radius-control);
+  background: var(--stamp);
+  box-shadow: 0 0 0 0.35rem color-mix(in oklch, var(--stamp), transparent 88%);
 }
 
 .document-layout {

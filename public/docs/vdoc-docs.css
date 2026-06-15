@@ -127,7 +127,9 @@ body {
 }
 
 .markdown-section blockquote {
-  border-left-color: var(--vdoc-accent);
+  border: 1px solid var(--vdoc-line);
+  border-radius: 0.9rem;
+  background: color-mix(in srgb, var(--vdoc-accent) 8%, var(--vdoc-panel));
   color: var(--vdoc-muted);
 }
 

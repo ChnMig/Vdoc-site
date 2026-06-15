@@ -11,6 +11,11 @@ export type Feature = {
   meta: string
 }
 
+export type TrustLoopStep = {
+  label: string
+  detail: string
+}
+
 export type WorkflowStep = {
   label: string
   detail: string
@@ -48,7 +53,7 @@ export type SiteCopy = {
       apiReference: string
       github: string
     }
-    metrics: Array<{ label: string; value: string }>
+    trustLoop: TrustLoopStep[]
     archive: {
       nodes: string[]
       semanticDiff: string
@@ -120,17 +125,39 @@ export const copy: Record<Language, SiteCopy> = {
     ],
     hero: {
       eyebrow: 'Public portal and documentation',
-      title: 'A living dossier for AI-assisted teams.',
-      body: 'Vdoc keeps OpenAPI docs, Markdown knowledge, semantic diffs, breaking-change summaries, MCP access, and agent skills in one reviewed source of truth.',
+      title: 'A reviewed fact loop for humans and agents.',
+      body: 'Vdoc turns every OpenAPI or Markdown change into a visible trust loop: draft, human review, immutable version, diff, then MCP or Skill query against approved facts.',
       ctas: {
         docs: 'Open document index',
         apiReference: 'Read API reference',
         github: 'View GitHub repository',
       },
-      metrics: [
-        { label: 'Document types', value: '2' },
-        { label: 'Review gate', value: 'Human' },
-        { label: 'Agent surface', value: 'MCP' },
+      trustLoop: [
+        {
+          label: 'Draft',
+          detail:
+            'OpenAPI and Markdown enter Vdoc as branch drafts, not silent agent memory.',
+        },
+        {
+          label: 'Human review',
+          detail:
+            'Project reviewers approve the change before any agent-facing fact is published.',
+        },
+        {
+          label: 'Immutable Version',
+          detail:
+            'The approved content is sealed with raw source, normalized snapshots, and audit metadata.',
+        },
+        {
+          label: 'Diff',
+          detail:
+            'Teams compare semantic API changes, breaking summaries, and Markdown file diffs.',
+        },
+        {
+          label: 'MCP / Skill query',
+          detail:
+            'Agents retrieve the reviewed version through explicit tools instead of guessing contracts.',
+        },
       ],
       archive: {
         nodes: ['OpenAPI', 'Markdown', 'MCP', 'Skill'],
@@ -251,17 +278,35 @@ export const copy: Record<Language, SiteCopy> = {
     ],
     hero: {
       eyebrow: '公共门户与文档站',
-      title: '面向 AI 协作团队的活文档档案馆。',
-      body: 'Vdoc 将 OpenAPI 文档、Markdown 项目知识、语义 Diff、Breaking Change 摘要、MCP 接入和 Agent Skill 汇入一个经过审核的可信来源。',
+      title: '给人和 Agent 共用的审核事实闭环。',
+      body: 'Vdoc 把每一次 OpenAPI 或 Markdown 变更变成可见的可信闭环：草稿、人工审核、不可变版本、Diff，然后通过 MCP 或 Skill 查询已批准事实。',
       ctas: {
         docs: '打开文档索引',
         apiReference: '阅读 API 参考',
         github: '查看 GitHub 仓库',
       },
-      metrics: [
-        { label: '文档类型', value: '2' },
-        { label: '审核关卡', value: '人工' },
-        { label: 'Agent 接口', value: 'MCP' },
+      trustLoop: [
+        {
+          label: '草稿',
+          detail:
+            'OpenAPI 和 Markdown 先进入分支草稿，而不是静默进入 Agent 记忆。',
+        },
+        {
+          label: '人工审核',
+          detail: '项目审核者批准变更后，事实才会发布给 Agent 使用。',
+        },
+        {
+          label: '不可变版本',
+          detail: '已批准内容会连同 Raw 来源、规范化快照和审计元数据一起封存。',
+        },
+        {
+          label: 'Diff',
+          detail: '团队比较语义 API 变更、Breaking 摘要和 Markdown 文件 Diff。',
+        },
+        {
+          label: 'MCP / Skill 查询',
+          detail: 'Agent 通过明确工具读取已审核版本，而不是猜测契约。',
+        },
       ],
       archive: {
         nodes: ['OpenAPI', 'Markdown', 'MCP', 'Skill'],

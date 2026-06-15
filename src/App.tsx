@@ -5,6 +5,7 @@ import {
   supportedLanguages,
   type Feature,
   type Language,
+  type TrustLoopStep,
   type SiteCopy,
 } from './content'
 
@@ -19,7 +20,7 @@ type Route =
 
 type DocsEntrypointCard = {
   body: string
-  eyebrow: string
+  intent: string
   slug: DocsSlug
   title: string
 }
@@ -34,41 +35,65 @@ type DocsSlug =
 const docsEntrypointCards: Record<Language, DocsEntrypointCard[]> = {
   en: [
     {
-      eyebrow: 'API reference',
+      intent: 'Understand',
+      title: 'Product model',
+      body: 'Start with the reviewed document lifecycle, trust boundary, and public versus Admin responsibilities.',
+      slug: 'product-overview',
+    },
+    {
+      intent: 'Follow',
+      title: 'Deployment path',
+      body: 'Bring the backend online, then complete first-use setup without mixing public docs and Admin work.',
+      slug: 'deployment',
+    },
+    {
+      intent: 'Reference',
       title: 'Backend API reference',
-      body: 'Open the Docsify API reference for route groups, envelopes, and OpenAPI handoff details.',
+      body: 'Check route groups, response envelopes, and OpenAPI handoff details from the Docsify reference.',
       slug: 'api-reference',
     },
     {
-      eyebrow: 'MCP tools',
+      intent: 'Operate',
       title: 'MCP tool catalog',
-      body: 'Find the installable MCP tools agents use to read reviewed Vdoc project facts.',
+      body: 'Use the installable MCP tools agents call when reading reviewed Vdoc project facts.',
       slug: 'mcp-tools',
     },
     {
-      eyebrow: 'Skill workflows',
+      intent: 'Operate',
       title: 'Agent Skill workflows',
-      body: 'Follow the Docsify Skill playbooks for resolving IDs, comparing versions, and avoiding contract guesses.',
+      body: 'Resolve IDs, compare versions, and avoid contract guesses with the Vdoc Skill playbooks.',
       slug: 'skill-workflows',
     },
   ],
   'zh-CN': [
     {
-      eyebrow: 'API 参考',
+      intent: '理解',
+      title: '产品模型',
+      body: '先理解已审核文档生命周期、可信边界，以及公共文档和 Admin 的职责分工。',
+      slug: 'product-overview',
+    },
+    {
+      intent: '跟随',
+      title: '部署路径',
+      body: '启动后端并完成首次使用设置，不把公共文档和 Admin 操作混在一起。',
+      slug: 'deployment',
+    },
+    {
+      intent: '查阅',
       title: '后端 API 参考',
-      body: '在 Docsify 中查看路由分组、响应信封和 OpenAPI 交接说明。',
+      body: '在 Docsify 参考中查看路由分组、响应信封和 OpenAPI 交接说明。',
       slug: 'api-reference',
     },
     {
-      eyebrow: 'MCP 工具',
+      intent: '运维',
       title: 'MCP 工具目录',
-      body: '查看 Agent 读取 Vdoc 已审核项目事实时使用的可安装 MCP 工具。',
+      body: '查看 Agent 读取 Vdoc 已审核项目事实时调用的可安装 MCP 工具。',
       slug: 'mcp-tools',
     },
     {
-      eyebrow: 'Skill 工作流',
+      intent: '运维',
       title: 'Agent Skill 工作流',
-      body: '按 Docsify 中的 Skill 流程解析 ID、比较版本，避免编造契约事实。',
+      body: '按 Vdoc Skill 流程解析 ID、比较版本，避免编造契约事实。',
       slug: 'skill-workflows',
     },
   ],
@@ -352,11 +377,19 @@ function Home({
   siteCopy: SiteCopy
 }) {
   const routeCards = [
-    { section: siteCopy.concepts, to: '/concepts' },
-    { section: siteCopy.workflows, to: '/workflows' },
-    { section: siteCopy.docs, to: docsHref(language) },
+    {
+      section: siteCopy.concepts,
+      intent: siteCopy.concepts.eyebrow,
+      to: '/concepts',
+    },
+    {
+      section: siteCopy.workflows,
+      intent: siteCopy.workflows.eyebrow,
+      to: '/workflows',
+    },
     ...docsEntrypointCards[language].map((card) => ({
       section: card,
+      intent: card.intent,
       to: docsHref(language, card.slug),
     })),
   ]
@@ -391,15 +424,7 @@ function Home({
               {siteCopy.hero.ctas.github}
             </a>
           </div>
-          <dl className="mt-12 grid gap-4 sm:grid-cols-3">
-            {siteCopy.hero.metrics.map((metric) => (
-              <Metric
-                label={metric.label}
-                value={metric.value}
-                key={metric.label}
-              />
-            ))}
-          </dl>
+          <TrustLoop steps={siteCopy.hero.trustLoop} />
         </div>
         <ArchivePreview siteCopy={siteCopy} />
       </section>
@@ -429,12 +454,11 @@ function Home({
           </a>
         </div>
         <div className="route-card-grid">
-          {routeCards.map(({ section, to }, index) => (
+          {routeCards.map(({ intent, section, to }) => (
             <RouteCard
               body={section.body}
-              eyebrow={section.eyebrow}
-              key={section.title}
-              number={index + 1}
+              intent={intent}
+              key={`${section.title}-${to}`}
               onNavigate={onNavigate}
               title={section.title}
               to={to}
@@ -470,11 +494,9 @@ function Workflows({ siteCopy }: { siteCopy: SiteCopy }) {
       title={siteCopy.workflows.title}
     >
       <ol className="timeline mt-12">
-        {siteCopy.workflows.steps.map((step, index) => (
+        {siteCopy.workflows.steps.map((step) => (
           <li className="timeline-item" key={step.label}>
-            <span className="timeline-index">
-              {String(index + 1).padStart(2, '0')}
-            </span>
+            <span className="timeline-marker" aria-hidden="true" />
             <div>
               <h2 className="font-display text-ink text-2xl font-black">
                 {step.label}
@@ -547,30 +569,29 @@ function FeatureCard({ feature }: { feature: Feature }) {
   )
 }
 
-function Metric({ label, value }: { label: string; value: string }) {
+function TrustLoop({ steps }: { steps: TrustLoopStep[] }) {
   return (
-    <div className="metric-card">
-      <dt className="text-muted text-xs font-bold tracking-widest uppercase">
-        {label}
-      </dt>
-      <dd className="font-display text-ink mt-2 text-3xl font-black">
-        {value}
-      </dd>
-    </div>
+    <ol className="trust-loop">
+      {steps.map((step) => (
+        <li className="trust-loop-step" key={step.label}>
+          <span className="trust-loop-node" aria-hidden="true" />
+          <strong>{step.label}</strong>
+          <span>{step.detail}</span>
+        </li>
+      ))}
+    </ol>
   )
 }
 
 function RouteCard({
   body,
-  eyebrow,
-  number,
+  intent,
   onNavigate,
   title,
   to,
 }: {
   body: string
-  eyebrow: string
-  number: number
+  intent: string
   onNavigate: (to: string) => void
   title: string
   to: string
@@ -578,49 +599,37 @@ function RouteCard({
   if (isDocsHref(to)) {
     return (
       <a className="route-card" href={to}>
-        <RouteCardContent
-          body={body}
-          eyebrow={eyebrow}
-          number={number}
-          title={title}
-        />
+        <RouteCardContent body={body} intent={intent} title={title} />
       </a>
     )
   }
 
   return (
     <RouteLink className="route-card" onNavigate={onNavigate} to={to}>
-      <RouteCardContent
-        body={body}
-        eyebrow={eyebrow}
-        number={number}
-        title={title}
-      />
+      <RouteCardContent body={body} intent={intent} title={title} />
     </RouteLink>
   )
 }
 
 function RouteCardContent({
   body,
-  eyebrow,
-  number,
+  intent,
   title,
 }: {
   body: string
-  eyebrow: string
-  number: number
+  intent: string
   title: string
 }) {
   return (
     <>
-      <span className="route-card-number">
-        {String(number).padStart(2, '0')}
-      </span>
-      <span className="card-meta">{eyebrow}</span>
+      <span className="card-meta">{intent}</span>
       <strong className="font-display mt-3 block text-2xl leading-tight font-black">
         {title}
       </strong>
       <span className="text-muted mt-4 block leading-7">{body}</span>
+      <span className="route-card-cue" aria-hidden="true">
+        →
+      </span>
     </>
   )
 }
