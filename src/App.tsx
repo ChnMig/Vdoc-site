@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useState } from 'react'
-import type { AnchorHTMLAttributes, MouseEvent, ReactNode } from 'react'
+import type { AnchorHTMLAttributes, MouseEvent } from 'react'
 import {
   copy,
   supportedLanguages,
   type Feature,
   type Language,
-  type TrustLoopStep,
   type SiteCopy,
+  type TrustLoopStep,
+  type WorkflowStep,
 } from './content'
 
 const languageStorageKey = 'vdoc-site-language'
@@ -18,6 +19,13 @@ type Route =
   | { kind: 'workflows' }
   | { kind: 'not-found' }
 
+type DocsSlug =
+  | 'product-overview'
+  | 'deployment'
+  | 'api-reference'
+  | 'mcp-tools'
+  | 'skill-workflows'
+
 type DocsEntrypointCard = {
   body: string
   intent: string
@@ -25,12 +33,12 @@ type DocsEntrypointCard = {
   title: string
 }
 
-type DocsSlug =
-  | 'product-overview'
-  | 'deployment'
-  | 'api-reference'
-  | 'mcp-tools'
-  | 'skill-workflows'
+type GuideRoute = {
+  body: string
+  label: string
+  title: string
+  to: string
+}
 
 const docsEntrypointCards: Record<Language, DocsEntrypointCard[]> = {
   en: [
@@ -97,6 +105,67 @@ const docsEntrypointCards: Record<Language, DocsEntrypointCard[]> = {
       slug: 'skill-workflows',
     },
   ],
+}
+
+const guideLabels: Record<
+  Language,
+  {
+    conceptList: string
+    documentPreview: string
+    docsLead: string
+    docsPathCue: string
+    docsPaths: string
+    guidePages: string
+    journey: string
+    journeyTitle: string
+    missingPageTitle: string
+    nextPages: string
+    reviewedBadge: string
+    routeLabel: string
+    routeSummary: string
+    workflowSequence: string
+  }
+> = {
+  en: {
+    conceptList: 'Vdoc concepts',
+    documentPreview: 'Reviewed document preview',
+    docsLead: 'The quickest reading path',
+    docsPathCue: 'Open guide',
+    docsPaths: 'Documentation paths',
+    guidePages: 'Guide pages',
+    journey: 'Document journey',
+    journeyTitle: 'Draft to agent answer, with review in the middle.',
+    missingPageTitle: 'This page is not part of the public guide.',
+    nextPages: 'Keep reading',
+    reviewedBadge: 'Human-reviewed facts',
+    routeLabel: 'Page',
+    routeSummary: 'What you will learn',
+    workflowSequence: 'Workflow sequence',
+  },
+  'zh-CN': {
+    conceptList: 'Vdoc 产品概念',
+    documentPreview: '已审核文档预览',
+    docsLead: '最快阅读路径',
+    docsPathCue: '打开指南',
+    docsPaths: '文档路径',
+    guidePages: '指南页面',
+    journey: '文档旅程',
+    journeyTitle: '从草稿到 Agent 答案，中间必须经过人工审核。',
+    missingPageTitle: '这个页面不属于公共指南。',
+    nextPages: '继续阅读',
+    reviewedBadge: '人工审核事实',
+    routeLabel: '页面',
+    routeSummary: '你会理解什么',
+    workflowSequence: '工作流顺序',
+  },
+}
+
+function prefersReducedMotion() {
+  if (typeof window.matchMedia !== 'function') {
+    return false
+  }
+
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches
 }
 
 function docsHref(language: Language, slug: DocsSlug = 'product-overview') {
@@ -191,19 +260,22 @@ function App() {
 
     window.history.pushState({}, '', nextPathname)
     setPathname(nextPathname)
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+    window.scrollTo({
+      top: 0,
+      behavior: prefersReducedMotion() ? 'auto' : 'smooth',
+    })
   }
 
   return (
-    <div className="bg-canvas text-ink selection:bg-stamp selection:text-paper min-h-screen overflow-x-hidden">
+    <div className="bg-canvas text-ink selection:bg-review selection:text-reverse min-h-screen overflow-x-hidden">
       <a className="skip-link" href="#main-content">
         {siteCopy.accessibility.skipToMain}
       </a>
       <SiteHeader
+        currentPathname={pathname}
         language={language}
         onLanguageChange={setLanguage}
         onNavigate={navigate}
-        pathname={pathname}
         siteCopy={siteCopy}
       />
       <main className="site-main" id="main-content">
@@ -220,59 +292,55 @@ function App() {
 }
 
 function SiteHeader({
+  currentPathname,
   language,
   onLanguageChange,
   onNavigate,
-  pathname,
   siteCopy,
 }: {
+  currentPathname: string
   language: Language
   onLanguageChange: (language: Language) => void
   onNavigate: (to: string) => void
-  pathname: string
   siteCopy: SiteCopy
 }) {
   return (
-    <header className="site-header border-line bg-paper/92 border-b shadow-sm backdrop-blur-xl">
-      <nav
-        aria-label={siteCopy.accessibility.primaryNav}
-        className="mx-auto flex max-w-7xl flex-col gap-4 px-6 py-4 md:flex-row md:items-center md:justify-between lg:px-8"
-      >
-        <RouteLink className="brand-lockup" onNavigate={onNavigate} to="/">
-          <span className="brand-mark">V</span>
+    <header className="site-header">
+      <div className="site-header-inner">
+        <RouteLink
+          className="brand-lockup"
+          onNavigate={onNavigate}
+          to="/"
+          aria-label="Vdoc"
+        >
+          <span className="brand-mark">V/</span>
           <span>
-            <span className="font-display text-ink block text-xl font-black tracking-tight">
-              Vdoc
-            </span>
-            <span className="text-muted block text-xs font-bold tracking-widest uppercase">
-              {siteCopy.header.tagline}
-            </span>
+            <span className="brand-name">Vdoc</span>
+            <span className="brand-tagline">{siteCopy.header.tagline}</span>
           </span>
         </RouteLink>
-        <div className="flex flex-col gap-3 md:items-end">
-          <div className="flex flex-wrap items-center gap-2 text-sm">
+        <div className="header-actions">
+          <nav
+            aria-label={siteCopy.accessibility.primaryNav}
+            className="site-nav"
+          >
             {siteCopy.navItems.map((item) => {
-              const active = isActivePath(pathname, item.href)
+              const isDocs = item.href.startsWith('/docs')
+              const href = isDocs ? docsHref(language) : item.href
 
-              if (isDocsHref(item.href)) {
+              if (isDocs) {
                 return (
-                  <a
-                    aria-current={active ? 'page' : undefined}
-                    className="nav-link"
-                    data-active={active ? 'true' : 'false'}
-                    href={docsHref(language)}
-                    key={item.href}
-                  >
+                  <a className="nav-link" href={href} key={item.href}>
                     {item.label}
                   </a>
                 )
               }
 
+              const isCurrent = normalizePathname(item.href) === currentPathname
               return (
                 <RouteLink
-                  aria-current={active ? 'page' : undefined}
+                  aria-current={isCurrent ? 'page' : undefined}
                   className="nav-link"
-                  data-active={active ? 'true' : 'false'}
                   key={item.href}
                   onNavigate={onNavigate}
                   to={item.href}
@@ -282,6 +350,7 @@ function SiteHeader({
               )
             })}
             <a
+              aria-label={siteCopy.github.cta}
               className="nav-link nav-link-github"
               href={githubUrl}
               rel="noreferrer"
@@ -289,14 +358,14 @@ function SiteHeader({
             >
               {siteCopy.github.label}
             </a>
-          </div>
+          </nav>
           <LanguageSwitcher
             language={language}
             onLanguageChange={onLanguageChange}
             siteCopy={siteCopy}
           />
         </div>
-      </nav>
+      </div>
     </header>
   )
 }
@@ -316,25 +385,20 @@ function LanguageSwitcher({
       className="language-switcher"
       role="group"
     >
-      {supportedLanguages.map((availableLanguage) => {
-        const optionCopy = copy[availableLanguage]
-        const selected = availableLanguage === language
-
-        return (
-          <button
-            aria-label={`${siteCopy.accessibility.languageOption} ${optionCopy.languageName}`}
-            aria-pressed={selected}
-            className="language-button"
-            data-active={selected ? 'true' : 'false'}
-            key={availableLanguage}
-            onClick={() => onLanguageChange(availableLanguage)}
-            type="button"
-          >
-            <span>{optionCopy.shortLanguageName}</span>
-            <strong>{optionCopy.languageName}</strong>
-          </button>
-        )
-      })}
+      {supportedLanguages.map((option) => (
+        <button
+          aria-label={`${siteCopy.accessibility.languageOption} ${copy[option].languageName}`}
+          aria-pressed={option === language}
+          className="language-button"
+          data-active={option === language}
+          key={option}
+          onClick={() => onLanguageChange(option)}
+          type="button"
+        >
+          <span>{copy[option].shortLanguageName}</span>
+          {copy[option].languageName}
+        </button>
+      ))}
     </div>
   )
 }
@@ -351,23 +415,33 @@ function RouteRenderer({
   siteCopy: SiteCopy
 }) {
   if (route.kind === 'concepts') {
-    return <Concepts siteCopy={siteCopy} />
+    return <ConceptsGuide language={language} siteCopy={siteCopy} />
   }
 
   if (route.kind === 'workflows') {
-    return <Workflows siteCopy={siteCopy} />
+    return <WorkflowGuide language={language} siteCopy={siteCopy} />
   }
 
   if (route.kind === 'not-found') {
-    return <NotFound language={language} siteCopy={siteCopy} />
+    return (
+      <HelpfulNotFound
+        language={language}
+        onNavigate={onNavigate}
+        siteCopy={siteCopy}
+      />
+    )
   }
 
   return (
-    <Home language={language} onNavigate={onNavigate} siteCopy={siteCopy} />
+    <GuideHome
+      language={language}
+      onNavigate={onNavigate}
+      siteCopy={siteCopy}
+    />
   )
 }
 
-function Home({
+function GuideHome({
   language,
   onNavigate,
   siteCopy,
@@ -376,141 +450,36 @@ function Home({
   onNavigate: (to: string) => void
   siteCopy: SiteCopy
 }) {
-  const routeCards = [
+  const guideRoutes: GuideRoute[] = [
     {
-      section: siteCopy.concepts,
-      intent: siteCopy.concepts.eyebrow,
+      body: siteCopy.concepts.body,
+      label: siteCopy.concepts.eyebrow,
+      title: siteCopy.concepts.title,
       to: '/concepts',
     },
     {
-      section: siteCopy.workflows,
-      intent: siteCopy.workflows.eyebrow,
+      body: siteCopy.workflows.body,
+      label: siteCopy.workflows.eyebrow,
+      title: siteCopy.workflows.title,
       to: '/workflows',
     },
-    ...docsEntrypointCards[language].map((card) => ({
-      section: card,
-      intent: card.intent,
-      to: docsHref(language, card.slug),
-    })),
   ]
 
   return (
-    <div className="page-shell">
-      <section className="hero-plate">
-        <div className="hero-copy">
-          <p className="eyebrow">{siteCopy.hero.eyebrow}</p>
-          <h1 className="font-display mt-6 max-w-4xl text-5xl leading-none font-black tracking-tight text-balance md:text-7xl">
-            {siteCopy.hero.title}
-          </h1>
-          <p className="text-muted mt-7 max-w-2xl text-lg leading-8 md:text-xl">
-            {siteCopy.hero.body}
-          </p>
-          <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-            <a className="button-primary" href={docsHref(language)}>
-              {siteCopy.hero.ctas.docs}
-            </a>
-            <a
-              className="button-secondary"
-              href={docsHref(language, 'api-reference')}
-            >
-              {siteCopy.hero.ctas.apiReference}
-            </a>
-            <a
-              className="button-tertiary"
-              href={githubUrl}
-              rel="noreferrer"
-              target="_blank"
-            >
-              {siteCopy.hero.ctas.github}
-            </a>
-          </div>
-          <TrustLoop steps={siteCopy.hero.trustLoop} />
-        </div>
-        <ArchivePreview siteCopy={siteCopy} />
-      </section>
-      <section className="paper-index" aria-labelledby="route-index-title">
-        <div className="document-tabs" aria-hidden="true">
-          {siteCopy.navItems.map((item) => (
-            <span key={item.href}>{item.label}</span>
-          ))}
-        </div>
-        <div className="page-title-row">
-          <div>
-            <p className="eyebrow">{siteCopy.docs.eyebrow}</p>
-            <h2
-              className="font-display mt-4 text-4xl leading-tight font-black md:text-6xl"
-              id="route-index-title"
-            >
-              {siteCopy.docs.title}
-            </h2>
-          </div>
-          <a
-            className="stamp-link"
-            href={githubUrl}
-            rel="noreferrer"
-            target="_blank"
-          >
-            {siteCopy.github.cta}
-          </a>
-        </div>
-        <div className="route-card-grid">
-          {routeCards.map(({ intent, section, to }) => (
-            <RouteCard
-              body={section.body}
-              intent={intent}
-              key={`${section.title}-${to}`}
-              onNavigate={onNavigate}
-              title={section.title}
-              to={to}
-            />
-          ))}
-        </div>
-      </section>
-    </div>
+    <section className="guide-home" aria-labelledby="guide-home-title">
+      <IntroHero language={language} siteCopy={siteCopy} />
+      <DocumentJourney language={language} siteCopy={siteCopy} />
+      <GuidePaths
+        guideRoutes={guideRoutes}
+        language={language}
+        onNavigate={onNavigate}
+        siteCopy={siteCopy}
+      />
+    </section>
   )
 }
 
-function Concepts({ siteCopy }: { siteCopy: SiteCopy }) {
-  return (
-    <DocumentPage
-      body={siteCopy.concepts.body}
-      eyebrow={siteCopy.concepts.eyebrow}
-      title={siteCopy.concepts.title}
-    >
-      <div className="mt-10 grid gap-5 md:grid-cols-2">
-        {siteCopy.concepts.cards.map((card) => (
-          <FeatureCard feature={card} key={card.title} />
-        ))}
-      </div>
-    </DocumentPage>
-  )
-}
-
-function Workflows({ siteCopy }: { siteCopy: SiteCopy }) {
-  return (
-    <DocumentPage
-      body={siteCopy.workflows.body}
-      eyebrow={siteCopy.workflows.eyebrow}
-      title={siteCopy.workflows.title}
-    >
-      <ol className="timeline mt-12">
-        {siteCopy.workflows.steps.map((step) => (
-          <li className="timeline-item" key={step.label}>
-            <span className="timeline-marker" aria-hidden="true" />
-            <div>
-              <h2 className="font-display text-ink text-2xl font-black">
-                {step.label}
-              </h2>
-              <p className="text-muted mt-3 leading-7">{step.detail}</p>
-            </div>
-          </li>
-        ))}
-      </ol>
-    </DocumentPage>
-  )
-}
-
-function NotFound({
+function IntroHero({
   language,
   siteCopy,
 }: {
@@ -518,154 +487,349 @@ function NotFound({
   siteCopy: SiteCopy
 }) {
   return (
-    <DocumentPage
-      body={siteCopy.docs.body}
-      eyebrow={siteCopy.docs.eyebrow}
-      title={siteCopy.docs.title}
+    <section className="intro-hero" aria-labelledby="guide-home-title">
+      <div className="intro-copy">
+        <p className="section-kicker">{siteCopy.guide.eyebrow}</p>
+        <h1 className="intro-title" id="guide-home-title">
+          {siteCopy.guide.title}
+        </h1>
+        <p className="intro-brief">{siteCopy.guide.body}</p>
+        <div className="intro-actions">
+          <a className="button-primary" href={docsHref(language)}>
+            {siteCopy.guide.ctas.docs}
+          </a>
+          <a
+            className="button-secondary"
+            href={docsHref(language, 'api-reference')}
+          >
+            {siteCopy.guide.ctas.apiReference}
+          </a>
+          <a
+            className="button-tertiary"
+            href={githubUrl}
+            rel="noreferrer"
+            target="_blank"
+          >
+            {siteCopy.guide.ctas.github}
+          </a>
+        </div>
+      </div>
+      <DocumentSheet language={language} siteCopy={siteCopy} />
+    </section>
+  )
+}
+
+function DocumentSheet({
+  language,
+  siteCopy,
+}: {
+  language: Language
+  siteCopy: SiteCopy
+}) {
+  const labels = guideLabels[language]
+  const activeStep = siteCopy.guide.trustLoop[2]
+
+  return (
+    <aside className="document-sheet" aria-label={labels.documentPreview}>
+      <div className="sheet-topline">
+        <span>{labels.reviewedBadge}</span>
+        <span>{siteCopy.guide.documentPreview.documentVersion} v0.1</span>
+      </div>
+      <div className="sheet-ledger-code" aria-hidden="true">
+        <span>ledger://prod/openapi</span>
+        <span>branch:main</span>
+        <span>seal:human</span>
+      </div>
+      <div className="sheet-title-row">
+        <h2>{activeStep.label}</h2>
+        <span>{siteCopy.guide.documentPreview.immutable}</span>
+      </div>
+      <p>{activeStep.detail}</p>
+      <div className="sheet-change">
+        <div>
+          <span>{siteCopy.guide.documentPreview.semanticDiff}</span>
+          <strong>{siteCopy.guide.documentPreview.fieldRemoved}</strong>
+        </div>
+        <div>
+          <span>{siteCopy.guide.documentPreview.stableMarkdown}</span>
+          <em>{siteCopy.guide.documentPreview.breaking}</em>
+        </div>
+      </div>
+      <div className="sheet-footer-tags" aria-hidden="true">
+        {siteCopy.guide.documentPreview.nodes.map((node) => (
+          <span key={node}>{node}</span>
+        ))}
+      </div>
+    </aside>
+  )
+}
+
+function DocumentJourney({
+  language,
+  siteCopy,
+}: {
+  language: Language
+  siteCopy: SiteCopy
+}) {
+  const labels = guideLabels[language]
+
+  return (
+    <section
+      className="document-journey"
+      aria-labelledby="document-journey-title"
     >
-      <div className="route-categories mt-10">
-        <p className="text-muted leading-7">{siteCopy.docs.body}</p>
-        <a className="button-primary mt-6" href={docsHref(language)}>
-          {siteCopy.footer.docs}
-        </a>
+      <div className="section-heading-row">
+        <p className="section-kicker">{labels.journey}</p>
+        <h2 className="section-title" id="document-journey-title">
+          {labels.journeyTitle}
+        </h2>
       </div>
-    </DocumentPage>
-  )
-}
-
-function ArchivePreview({ siteCopy }: { siteCopy: SiteCopy }) {
-  return (
-    <div className="archive-preview" aria-hidden="true">
-      <div className="archive-sheet archive-sheet-back" />
-      <div className="archive-sheet archive-sheet-mid" />
-      <div className="archive-sheet archive-sheet-front">
-        <div className="archive-stamp">{siteCopy.hero.archive.reviewed}</div>
-        <p>{siteCopy.hero.archive.documentVersion}</p>
-        <strong>{siteCopy.hero.archive.immutable}</strong>
-        <div className="archive-rules">
-          {siteCopy.hero.archive.nodes.map((node) => (
-            <span key={node}>{node}</span>
-          ))}
-        </div>
-        <div className="archive-note">
-          <span>{siteCopy.hero.archive.semanticDiff}</span>
-          <b>{siteCopy.hero.archive.fieldRemoved}</b>
-          <em>{siteCopy.hero.archive.breaking}</em>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function FeatureCard({ feature }: { feature: Feature }) {
-  return (
-    <article className="feature-card">
-      <p className="card-meta">{feature.meta}</p>
-      <h2 className="font-display text-ink mt-4 text-2xl font-black">
-        {feature.title}
-      </h2>
-      <p className="text-muted mt-4 leading-7">{feature.body}</p>
-    </article>
+      <TrustLoop steps={siteCopy.guide.trustLoop} />
+    </section>
   )
 }
 
 function TrustLoop({ steps }: { steps: TrustLoopStep[] }) {
   return (
-    <ol className="trust-loop">
-      {steps.map((step) => (
-        <li className="trust-loop-step" key={step.label}>
-          <span className="trust-loop-node" aria-hidden="true" />
+    <ol className="trust-loop" aria-label="Draft to reviewed agent query">
+      {steps.map((step, index) => (
+        <li className="trust-loop-step" data-step={index + 1} key={step.label}>
+          <span className="step-index">
+            {String(index + 1).padStart(2, '0')}
+          </span>
           <strong>{step.label}</strong>
-          <span>{step.detail}</span>
+          <p>{step.detail}</p>
         </li>
       ))}
     </ol>
   )
 }
 
-function RouteCard({
-  body,
-  intent,
+function GuidePaths({
+  guideRoutes,
+  language,
   onNavigate,
-  title,
-  to,
+  siteCopy,
 }: {
-  body: string
-  intent: string
+  guideRoutes: GuideRoute[]
+  language: Language
   onNavigate: (to: string) => void
-  title: string
-  to: string
+  siteCopy: SiteCopy
 }) {
-  if (isDocsHref(to)) {
-    return (
-      <a className="route-card" href={to}>
-        <RouteCardContent body={body} intent={intent} title={title} />
-      </a>
-    )
-  }
+  const labels = guideLabels[language]
 
   return (
-    <RouteLink className="route-card" onNavigate={onNavigate} to={to}>
-      <RouteCardContent body={body} intent={intent} title={title} />
-    </RouteLink>
-  )
-}
-
-function RouteCardContent({
-  body,
-  intent,
-  title,
-}: {
-  body: string
-  intent: string
-  title: string
-}) {
-  return (
-    <>
-      <span className="card-meta">{intent}</span>
-      <strong className="font-display mt-3 block text-2xl leading-tight font-black">
-        {title}
-      </strong>
-      <span className="text-muted mt-4 block leading-7">{body}</span>
-      <span className="route-card-cue" aria-hidden="true">
-        →
-      </span>
-    </>
-  )
-}
-
-function DocumentPage({
-  aside,
-  body,
-  children,
-  eyebrow,
-  title,
-}: {
-  aside?: ReactNode
-  body: string
-  children: ReactNode
-  eyebrow: string
-  title: string
-}) {
-  return (
-    <section className="page-shell">
-      <div className="folio-paper">
-        <div className="page-title-row">
-          <div className="max-w-4xl">
-            <p className="eyebrow">{eyebrow}</p>
-            <h1 className="font-display mt-5 text-4xl leading-tight font-black text-balance md:text-6xl">
-              {title}
-            </h1>
-            <p className="text-muted mt-5 text-lg leading-8">{body}</p>
-          </div>
+    <section className="guide-paths" aria-labelledby="guide-paths-title">
+      <div className="guide-pages" aria-label={labels.guidePages}>
+        <p className="section-kicker">{labels.nextPages}</p>
+        <h2 className="section-title">{labels.guidePages}</h2>
+        <div className="guide-route-list">
+          {guideRoutes.map((route) => (
+            <RouteLink
+              className="guide-route"
+              key={route.to}
+              onNavigate={onNavigate}
+              to={route.to}
+            >
+              <span>{route.label}</span>
+              <strong>{route.title}</strong>
+              <p>{route.body}</p>
+            </RouteLink>
+          ))}
         </div>
-        <div className="paper-rule" />
-        <div className={aside ? 'document-layout' : undefined}>
-          {aside}
-          <div>{children}</div>
+      </div>
+      <div className="docs-paths" aria-labelledby="guide-paths-title">
+        <p className="section-kicker">{siteCopy.docs.eyebrow}</p>
+        <h2 className="section-title" id="guide-paths-title">
+          {siteCopy.docs.title}
+        </h2>
+        <p className="docs-paths-copy">{siteCopy.docs.body}</p>
+        <div className="docs-route-stack" aria-label={labels.docsPaths}>
+          {docsEntrypointCards[language].map((card, index) => (
+            <a
+              className="route-card"
+              href={docsHref(language, card.slug)}
+              key={card.slug}
+            >
+              <span className="path-number">
+                {String(index + 1).padStart(2, '0')}
+              </span>
+              <span className="card-meta">{card.intent}</span>
+              <strong>{card.title}</strong>
+              <span>{card.body}</span>
+              <span className="route-card-cue" aria-hidden="true">
+                {labels.docsPathCue}
+              </span>
+            </a>
+          ))}
         </div>
       </div>
     </section>
+  )
+}
+
+function ConceptsGuide({
+  language,
+  siteCopy,
+}: {
+  language: Language
+  siteCopy: SiteCopy
+}) {
+  const labels = guideLabels[language]
+
+  return (
+    <section className="concepts-guide" aria-labelledby="concepts-title">
+      <div className="page-intro">
+        <p className="section-kicker">{siteCopy.concepts.eyebrow}</p>
+        <h1 className="page-title" id="concepts-title">
+          {siteCopy.concepts.title}
+        </h1>
+        <p>{siteCopy.concepts.body}</p>
+      </div>
+      <div className="concept-list" aria-label={labels.conceptList}>
+        {siteCopy.concepts.cards.map((card) => (
+          <ConceptArticle card={card} key={card.title} />
+        ))}
+      </div>
+    </section>
+  )
+}
+
+function ConceptArticle({ card }: { card: Feature }) {
+  return (
+    <article className="concept-article">
+      <div>
+        <p className="card-meta">{card.meta}</p>
+        <h2>{card.title}</h2>
+        <p>{card.body}</p>
+      </div>
+    </article>
+  )
+}
+
+function WorkflowGuide({
+  language,
+  siteCopy,
+}: {
+  language: Language
+  siteCopy: SiteCopy
+}) {
+  const labels = guideLabels[language]
+
+  return (
+    <section className="workflow-guide" aria-labelledby="workflows-title">
+      <div className="page-intro">
+        <p className="section-kicker">{siteCopy.workflows.eyebrow}</p>
+        <h1 className="page-title" id="workflows-title">
+          {siteCopy.workflows.title}
+        </h1>
+        <p>{siteCopy.workflows.body}</p>
+      </div>
+      <ol className="workflow-sequence" aria-label={labels.workflowSequence}>
+        {siteCopy.workflows.steps.map((step, index) => (
+          <WorkflowStepItem index={index} key={step.label} step={step} />
+        ))}
+      </ol>
+    </section>
+  )
+}
+
+function WorkflowStepItem({
+  index,
+  step,
+}: {
+  index: number
+  step: WorkflowStep
+}) {
+  return (
+    <li className="workflow-step">
+      <span className="path-number">{String(index + 1).padStart(2, '0')}</span>
+      <div>
+        <h2>{step.label}</h2>
+        <p>{step.detail}</p>
+      </div>
+    </li>
+  )
+}
+
+function HelpfulNotFound({
+  language,
+  onNavigate,
+  siteCopy,
+}: {
+  language: Language
+  onNavigate: (to: string) => void
+  siteCopy: SiteCopy
+}) {
+  const labels = guideLabels[language]
+
+  return (
+    <section className="helpful-not-found" aria-labelledby="not-found-title">
+      <div>
+        <p className="section-kicker">404</p>
+        <h1 className="page-title" id="not-found-title">
+          {labels.missingPageTitle}
+        </h1>
+        <p>{siteCopy.docs.body}</p>
+        <div className="intro-actions">
+          <RouteLink className="button-primary" onNavigate={onNavigate} to="/">
+            {siteCopy.navItems[0].label}
+          </RouteLink>
+          <a className="button-secondary" href={docsHref(language)}>
+            {siteCopy.footer.docs}
+          </a>
+        </div>
+      </div>
+      <div className="not-found-paths" aria-label={labels.nextPages}>
+        <RouteLink
+          className="guide-route"
+          onNavigate={onNavigate}
+          to="/concepts"
+        >
+          <span>{siteCopy.concepts.eyebrow}</span>
+          <strong>{siteCopy.concepts.title}</strong>
+          <p>{siteCopy.concepts.body}</p>
+        </RouteLink>
+        <RouteLink
+          className="guide-route"
+          onNavigate={onNavigate}
+          to="/workflows"
+        >
+          <span>{siteCopy.workflows.eyebrow}</span>
+          <strong>{siteCopy.workflows.title}</strong>
+          <p>{siteCopy.workflows.body}</p>
+        </RouteLink>
+      </div>
+    </section>
+  )
+}
+
+function SiteFooter({
+  language,
+  siteCopy,
+}: {
+  language: Language
+  siteCopy: SiteCopy
+}) {
+  return (
+    <footer className="site-footer">
+      <div>
+        <strong>Vdoc</strong>
+        <p>{siteCopy.footer.body}</p>
+      </div>
+      <nav aria-label="Footer">
+        <a href={docsHref(language)}>{siteCopy.footer.docs}</a>
+        <a href={docsHref(language, 'deployment')}>
+          {siteCopy.footer.deployment}
+        </a>
+        <a href={docsHref(language, 'api-reference')}>
+          {siteCopy.footer.apiReference}
+        </a>
+        <a href={githubUrl} rel="noreferrer" target="_blank">
+          {siteCopy.github.footer}
+        </a>
+      </nav>
+    </footer>
   )
 }
 
@@ -679,6 +843,8 @@ function RouteLink({
   to: string
 }) {
   function handleClick(event: MouseEvent<HTMLAnchorElement>) {
+    props.onClick?.(event)
+
     if (
       event.defaultPrevented ||
       event.button !== 0 ||
@@ -695,57 +861,10 @@ function RouteLink({
   }
 
   return (
-    <a href={to} onClick={handleClick} {...props}>
+    <a href={to} {...props} onClick={handleClick}>
       {children}
     </a>
   )
-}
-
-function isActivePath(pathname: string, href: string) {
-  if (href === '/') {
-    return pathname === '/'
-  }
-
-  return pathname === href || pathname.startsWith(`${href}/`)
-}
-
-function SiteFooter({
-  language,
-  siteCopy,
-}: {
-  language: Language
-  siteCopy: SiteCopy
-}) {
-  return (
-    <footer className="border-line bg-paper/75 border-t px-6 py-10 lg:px-8">
-      <div className="text-muted mx-auto flex max-w-7xl flex-col gap-4 text-sm md:flex-row md:items-center md:justify-between">
-        <p>{siteCopy.footer.body}</p>
-        <div className="flex flex-wrap gap-3">
-          <a className="footer-link" href={docsHref(language)}>
-            {siteCopy.footer.docs}
-          </a>
-          <a className="footer-link" href={docsHref(language, 'deployment')}>
-            {siteCopy.footer.deployment}
-          </a>
-          <a className="footer-link" href={docsHref(language, 'api-reference')}>
-            {siteCopy.footer.apiReference}
-          </a>
-          <a
-            className="footer-link"
-            href={githubUrl}
-            rel="noreferrer"
-            target="_blank"
-          >
-            {siteCopy.footer.github}
-          </a>
-        </div>
-      </div>
-    </footer>
-  )
-}
-
-function isDocsHref(href: string) {
-  return href === '/docs/index.html' || href.startsWith('/docs/index.html#/')
 }
 
 export default App

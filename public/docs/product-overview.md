@@ -23,7 +23,9 @@ Vdoc 的目标不是替代工程评审，而是把“哪些事实已经被批准
 
 - Team：一组 Project 的归属边界。
 - Project：一个产品或服务的文档集合，拥有成员和权限。
-- Document：OpenAPI 或 Markdown 文档。`document_type=1` 表示 OpenAPI，`document_type=2` 表示 Markdown。
+- Document：OpenAPI 或 Markdown 文档。
+  - `document_type=1`：OpenAPI。
+  - `document_type=2`：Markdown。
 - `relative_path`：Document 的稳定身份，例如 `apis/petstore.yaml` 或 `docs/runbook.md`。显示名称可以变，`relative_path` 不应随意变。
 - Branch：Document 的工作分支。创建 Document 后会有 `dev`、`test`、受保护的 `prod`，也可以创建 `feature/*`。
 - Draft：待审核内容。Writer 或 Agent 可以创建和提交 Draft。

@@ -44,7 +44,7 @@ export type SiteCopy = {
     footer: string
   }
   navItems: NavItem[]
-  hero: {
+  guide: {
     eyebrow: string
     title: string
     body: string
@@ -54,7 +54,7 @@ export type SiteCopy = {
       github: string
     }
     trustLoop: TrustLoopStep[]
-    archive: {
+    documentPreview: {
       nodes: string[]
       semanticDiff: string
       fieldRemoved: string
@@ -110,7 +110,7 @@ export const copy: Record<Language, SiteCopy> = {
       languageOption: 'Switch language to',
     },
     header: {
-      tagline: 'Versioned docs for AI teams',
+      tagline: 'Review ledger for AI teams',
     },
     github: {
       label: 'GitHub',
@@ -123,8 +123,8 @@ export const copy: Record<Language, SiteCopy> = {
       { href: '/workflows', label: 'Workflows' },
       { href: '/docs/index.html', label: 'Docs' },
     ],
-    hero: {
-      eyebrow: 'Public portal and documentation',
+    guide: {
+      eyebrow: 'Review ledger field manual',
       title: 'A reviewed fact loop for humans and agents.',
       body: 'Vdoc turns every OpenAPI or Markdown change into a visible trust loop: draft, human review, immutable version, diff, then MCP or Skill query against approved facts.',
       ctas: {
@@ -159,7 +159,7 @@ export const copy: Record<Language, SiteCopy> = {
             'Agents retrieve the reviewed version through explicit tools instead of guessing contracts.',
         },
       ],
-      archive: {
+      documentPreview: {
         nodes: ['OpenAPI', 'Markdown', 'MCP', 'Skill'],
         semanticDiff: 'semantic diff',
         fieldRemoved: 'field removed',
@@ -235,7 +235,7 @@ export const copy: Record<Language, SiteCopy> = {
       ],
     },
     docs: {
-      eyebrow: 'Documentation',
+      eyebrow: 'Index rows',
       title: 'Vdoc documentation',
       body: 'A practical guide for understanding Vdoc, deploying the backend, using the Admin workbench, connecting MCP and Skill, and operating a v0.1 pilot end to end.',
     },
@@ -263,7 +263,7 @@ export const copy: Record<Language, SiteCopy> = {
       languageOption: '切换语言到',
     },
     header: {
-      tagline: '面向 AI 团队的版本化文档',
+      tagline: 'AI 团队审核账本',
     },
     github: {
       label: 'GitHub',
@@ -276,8 +276,8 @@ export const copy: Record<Language, SiteCopy> = {
       { href: '/workflows', label: '工作流' },
       { href: '/docs/index.html', label: '文档' },
     ],
-    hero: {
-      eyebrow: '公共门户与文档站',
+    guide: {
+      eyebrow: '审核账本现场手册',
       title: '给人和 Agent 共用的审核事实闭环。',
       body: 'Vdoc 把每一次 OpenAPI 或 Markdown 变更变成可见的可信闭环：草稿、人工审核、不可变版本、Diff，然后通过 MCP 或 Skill 查询已批准事实。',
       ctas: {
@@ -308,7 +308,7 @@ export const copy: Record<Language, SiteCopy> = {
           detail: 'Agent 通过明确工具读取已审核版本，而不是猜测契约。',
         },
       ],
-      archive: {
+      documentPreview: {
         nodes: ['OpenAPI', 'Markdown', 'MCP', 'Skill'],
         semanticDiff: '语义 Diff',
         fieldRemoved: '字段被移除',
@@ -383,7 +383,7 @@ export const copy: Record<Language, SiteCopy> = {
       ],
     },
     docs: {
-      eyebrow: '文档',
+      eyebrow: '索引行',
       title: 'Vdoc 文档',
       body: '一份从理解产品、部署后端、使用后台、接入 MCP/Skill 到发布回滚的实用文档，目标是让访问者能完整跑通 Vdoc。',
     },
