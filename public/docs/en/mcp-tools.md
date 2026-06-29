@@ -7,7 +7,17 @@
 - Vdoc backend is deployed and `/api/v1/open/health` succeeds.
 - An MCP Token has been created in Admin.
 - The target Agent runtime supports MCP stdio server configuration.
-- Do not write MCP Tokens, JWTs, or `Authorization` headers into repos, screenshots, logs, or README files.
+- Do not put raw MCP Tokens, JWTs, DB passwords, storage secrets, or `Authorization` header values in repos, screenshots, logs, README files, or issues.
+
+For a local backend, use the shared closure path:
+
+```sh
+scripts/vdoc-local-bootstrap.sh
+docker compose --env-file .env up -d --build
+cd Vdoc && go run ./tools/vdoc-demo-seed
+```
+
+The demo seed is optional. See [Deployment Guide](en/deployment) for the full local gate, where live E2E uses `./scripts/vdoc-e2e.sh live-compose --env-file ../.env --check-only` and `./scripts/vdoc-e2e.sh live-compose --env-file ../.env`, and the release gate uses `scripts/vdoc-release-dry-run.sh --list` and `scripts/vdoc-release-dry-run.sh`. Live E2E resets only the disposable `VDOC_TEST_POSTGRES_DB`, `vdoc_e2e` by default, not the application database.
 
 ## Installation Options
 
@@ -25,9 +35,8 @@ Local development or package smoke:
 cd Vdoc-mcp
 npm ci
 npm test
-VDOC_BASE_URL="http://127.0.0.1:8080" \
-VDOC_MCP_TOKEN="replace-with-local-mcp-token" \
-npm start
+# Set VDOC_MCP_TOKEN through a private shell environment or Agent secret env first.
+VDOC_BASE_URL="http://127.0.0.1:8080" npm start
 ```
 
 stdout is reserved for MCP protocol frames. Read stderr for diagnostics.
@@ -115,6 +124,7 @@ Use the current backend `tools/list` response as the final tool list. v0.1 does 
 - Treat published Versions as immutable facts.
 - Do not say a Draft is published unless Admin approval has created a Version.
 - If a tool call fails, report envelope `code`, `status`, `message`, and `trace_id` after masking secrets.
+- Do not put raw MCP Tokens, JWTs, DB passwords, storage secrets, or `Authorization` header values in repos, screenshots, logs, README files, or issues.
 
 ## Verification
 

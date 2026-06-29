@@ -45,7 +45,7 @@ Vdoc does not replace engineering review. It makes approved facts queryable, aud
 - Query published Markdown content and version diffs.
 - Let Agents query published facts through MCP, or create, update, and submit Drafts.
 - Use the Vdoc Skill to make Agents query Vdoc before integration, migration, or documentation changes.
-- Start backend API, Admin, and local dependencies with the root `docker-compose.yml`.
+- Complete the local loop with `scripts/vdoc-local-bootstrap.sh`, root `docker-compose.yml`, optional demo seed, live-compose E2E, and release dry-run.
 
 ## What v0.1 Does Not Do
 

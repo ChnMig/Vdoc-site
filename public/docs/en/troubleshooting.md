@@ -11,16 +11,16 @@ This page follows the path users experience: Compose startup, backend health, Ad
 
 ## Full Compose Does Not Start
 
-Check config from the workspace root:
+Validate config from the workspace root without printing interpolated values:
 
 ```sh
-docker compose --env-file .env config
+docker compose --env-file .env config --quiet
 docker compose --env-file .env ps
 ```
 
 Common causes:
 
-- `.env` was not copied from `.env.example`.
+- `scripts/vdoc-local-bootstrap.sh` was not run to create `.env`, or `.env.example` was copied by hand without replacing placeholders.
 - `VDOC_POSTGRES_PASSWORD`, `VDOC_STORAGE_ACCESS_KEY`, `VDOC_STORAGE_SECRET_KEY`, `VDOC_JWT_KEY`, or `VDOC_MCP_TOKEN_CIPHER_KEY` still contains placeholder text.
 - A local port is already in use. Change `VDOC_BACKEND_HOST_PORT`, `VDOC_ADMIN_HOST_PORT`, `VDOC_POSTGRES_HOST_PORT`, `VDOC_RUSTFS_HOST_PORT`, or `VDOC_RUSTFS_CONSOLE_HOST_PORT`.
 - Docker is building app images, so the first start takes longer.
@@ -30,6 +30,14 @@ Read logs:
 ```sh
 docker compose --env-file .env logs --tail=100 postgres rustfs backend admin
 ```
+
+To create a new disposable local `.env`, run:
+
+```sh
+scripts/vdoc-local-bootstrap.sh
+```
+
+If `.env` already exists, the script refuses to overwrite it. Use `--force` only when you intend to discard the local environment.
 
 ## Backend Health Fails
 
@@ -96,6 +104,18 @@ If `code` is not `200` or `status` is not `OK`, handle it as a business error.
 - `relative_path` is Document identity. Do not query across systems by display name.
 - Publishing requires approve. v0.1 does not support MCP direct publish.
 
+## Live E2E Fails
+
+From the backend directory, check the root Compose derived settings:
+
+```sh
+cd Vdoc
+./scripts/vdoc-e2e.sh live-compose --env-file ../.env --check-only
+./scripts/vdoc-e2e.sh live-compose --env-file ../.env
+```
+
+Live E2E resets the selected disposable `VDOC_TEST_POSTGRES_DB`, `vdoc_e2e` by default. It does not reset the application database from `VDOC_POSTGRES_DB`. Common causes include root Compose not running, a wrong `.env` path, changed host ports without a container restart, or `VDOC_TEST_POSTGRES_DB` pointing at the application database.
+
 ## MCP Adapter Fails
 
 - Agent MCP config must set `VDOC_MCP_TOKEN`.
@@ -120,3 +140,12 @@ If `code` is not `200` or `status` is not `OK`, handle it as a business error.
 - Agent ignores Vdoc facts: check MCP and Skill installation before rolling back the Skill package.
 
 Read [Upgrade and Rollback](en/release-rollback) before rolling back. Do not delete PostgreSQL or object storage data.
+
+The local gate can be listed and then run:
+
+```sh
+scripts/vdoc-release-dry-run.sh --list
+scripts/vdoc-release-dry-run.sh
+```
+
+It runs local checks only. It does not publish or deploy.

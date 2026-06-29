@@ -9,6 +9,14 @@
 - 确认 PostgreSQL 和对象存储都能访问。
 - 记录当前 Admin URL、backend health URL 和 Agent MCP 配置。
 - 在维护窗口中执行升级，避免用户正在提交 Draft 时中断。
+- 本机升级前先看 release dry-run 计划并运行本机门禁：
+
+```sh
+scripts/vdoc-release-dry-run.sh --list
+scripts/vdoc-release-dry-run.sh
+```
+
+Release dry-run 只运行本机检查，不会发布 package、部署服务、push image 或创建 git ref。
 
 ## 1. 备份 PostgreSQL
 
@@ -36,12 +44,12 @@ RustFS 或 S3 compatible storage 保存 raw 和 normalized 文档对象。升级
 如果使用 workspace root 的 Compose 包，从 workspace root 执行：
 
 ```sh
-docker compose --env-file .env config
+docker compose --env-file .env config --quiet
 docker compose --env-file .env pull
 docker compose --env-file .env up -d --build
 ```
 
-当前 root Compose 会从本地 `./Vdoc` 和 `./Vdoc-admin` build app services。`pull` 主要用于拉取 `postgres`、`rustfs`、`caddy`、`node` 等基础镜像；实际 app 更新来自你当前 workspace 内容。
+如果是全新一次性本机环境，先运行 `scripts/vdoc-local-bootstrap.sh` 生成 `.env`。已有环境不要为了升级而覆盖 `.env`。当前 root Compose 会从本地 `./Vdoc` 和 `./Vdoc-admin` build app services。`pull` 主要用于拉取 `postgres`、`rustfs`、`caddy`、`node` 等基础镜像；实际 app 更新来自你当前 workspace 内容。
 
 如果你直接部署组件，分别重新构建和发布：
 
@@ -101,6 +109,15 @@ curl -I http://127.0.0.1:8081/
 4. 新建一个测试 Draft，并确认审核流程仍可用。
 5. MCP `tools/list` 成功，至少一个 read-only tool call 成功。
 6. Agent 使用 Skill 时会先查 Vdoc MCP，再回答 endpoint 或 Markdown 问题。
+7. 如果本机 root Compose 可用，live E2E 通过：
+
+   ```sh
+   cd Vdoc
+   ./scripts/vdoc-e2e.sh live-compose --env-file ../.env --check-only
+   ./scripts/vdoc-e2e.sh live-compose --env-file ../.env
+   ```
+
+   Live E2E 会重置选中的一次性 `VDOC_TEST_POSTGRES_DB`，默认是 `vdoc_e2e`，不会重置 `VDOC_POSTGRES_DB` 指向的应用数据库。
 
 ## 回滚策略
 

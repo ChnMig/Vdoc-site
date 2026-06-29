@@ -7,7 +7,17 @@
 - Vdoc backend 已部署，`/api/v1/open/health` 成功。
 - Admin 中已经创建 MCP Token。
 - 目标 Agent runtime 支持 MCP stdio server 配置。
-- 不要把 MCP Token、JWT 或 `Authorization` header 写进仓库、截图、日志或 README。
+- 不要把原始 MCP Token、JWT、DB password、storage secret 或 `Authorization` header 值写进仓库、截图、日志、README 或 issue。
+
+本机 backend 推荐用统一闭环启动：
+
+```sh
+scripts/vdoc-local-bootstrap.sh
+docker compose --env-file .env up -d --build
+cd Vdoc && go run ./tools/vdoc-demo-seed
+```
+
+Demo seed 是可选步骤。完整本机门禁见 [部署指南](deployment)，其中 live E2E 使用 `./scripts/vdoc-e2e.sh live-compose --env-file ../.env --check-only` 和 `./scripts/vdoc-e2e.sh live-compose --env-file ../.env`，release gate 使用 `scripts/vdoc-release-dry-run.sh --list` 和 `scripts/vdoc-release-dry-run.sh`。Live E2E 只重置一次性 `VDOC_TEST_POSTGRES_DB`，默认 `vdoc_e2e`，不会重置应用数据库。
 
 ## 安装方式
 
@@ -25,9 +35,8 @@ npm install -g @vdoc/mcp
 cd Vdoc-mcp
 npm ci
 npm test
-VDOC_BASE_URL="http://127.0.0.1:8080" \
-VDOC_MCP_TOKEN="replace-with-local-mcp-token" \
-npm start
+# 先通过私密 shell 环境或 Agent secret env 设置 VDOC_MCP_TOKEN。
+VDOC_BASE_URL="http://127.0.0.1:8080" npm start
 ```
 
 stdout 保留给 MCP protocol，普通诊断看 stderr。
@@ -115,6 +124,7 @@ v0.1 draft tools 覆盖 OpenAPI 和 Markdown Draft 的创建、更新、查看�
 - 把 published Version 视为不可变事实。
 - 不要说 Draft 已发布，除非 Admin 审核后已经生成 Version。
 - tool call 失败时，遮盖 secret 后报告 envelope `code`、`status`、`message` 和 `trace_id`。
+- 不要把原始 MCP Token、JWT、DB password、storage secret 或 `Authorization` header 值写进仓库、截图、日志、README 或 issue。
 
 ## 如何验证
 

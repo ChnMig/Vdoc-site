@@ -47,7 +47,7 @@ Vdoc 的目标不是替代工程评审，而是把“哪些事实已经被批准
 - 查询已发布 Markdown 内容和版本差异。
 - 让 Agent 通过 MCP 查询已发布事实，或创建、更新、提交 Draft。
 - 用 Vdoc Skill 约束 Agent 在集成、迁移、文档变更前先查询 Vdoc。
-- 用根目录 `docker-compose.yml` 启动 backend API、Admin 和本地依赖。
+- 用 `scripts/vdoc-local-bootstrap.sh`、根目录 `docker-compose.yml`、可选 demo seed、live-compose E2E 和 release dry-run 完成本机闭环。
 
 ## v0.1 不做什么
 

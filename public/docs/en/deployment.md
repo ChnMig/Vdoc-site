@@ -18,10 +18,10 @@ When `VDOC_DATABASE_ENABLED=true`, backend connects to PostgreSQL and runs Vdoc 
 Run commands from the workspace root, the directory that contains `docker-compose.yml`, `.env.example`, `Vdoc/`, `Vdoc-admin/`, `Vdoc-mcp/`, and `Vdoc-skill/`.
 
 ```sh
-cp .env.example .env
+scripts/vdoc-local-bootstrap.sh
 ```
 
-Edit `.env` and replace at least these placeholders:
+Bootstrap writes a disposable local `.env` and does not print secrets. If you choose to copy `.env.example` by hand instead, replace at least these placeholders:
 
 - `VDOC_POSTGRES_PASSWORD`
 - `VDOC_STORAGE_ACCESS_KEY`
@@ -33,10 +33,12 @@ Edit `.env` and replace at least these placeholders:
 
 `VDOC_INITIAL_ADMIN_EMAIL` and `VDOC_INITIAL_ADMIN_PASSWORD` may stay blank. If set, backend creates that SuperAdmin only when the user table is empty. The password is bcrypt hashed before storage.
 
-Check the rendered Compose config:
+Do not commit `.env`, and do not put raw JWTs, MCP Tokens, DB passwords, storage secrets, or `Authorization` header values in docs, logs, screenshots, or issues.
+
+Validate the Compose config without printing interpolated values:
 
 ```sh
-docker compose --env-file .env config
+docker compose --env-file .env config --quiet
 ```
 
 Start the full stack:
@@ -67,6 +69,31 @@ Health examples:
 curl http://127.0.0.1:8080/api/v1/open/health
 curl -I http://127.0.0.1:8081/
 ```
+
+Optional: seed demo data after backend health succeeds:
+
+```sh
+cd Vdoc && go run ./tools/vdoc-demo-seed
+```
+
+Optional: run live E2E against the running root Compose stack:
+
+```sh
+cd Vdoc
+./scripts/vdoc-e2e.sh live-compose --env-file ../.env --check-only
+./scripts/vdoc-e2e.sh live-compose --env-file ../.env
+```
+
+Live E2E resets the selected disposable `VDOC_TEST_POSTGRES_DB`, `vdoc_e2e` by default. It does not use or reset the application database from `VDOC_POSTGRES_DB`. Never point `VDOC_TEST_POSTGRES_DB` at the application database.
+
+Use the release dry-run as the local gate:
+
+```sh
+scripts/vdoc-release-dry-run.sh --list
+scripts/vdoc-release-dry-run.sh
+```
+
+This dry-run runs local checks only. It does not publish packages, deploy services, push images, or create git refs.
 
 Stop while keeping containers and data:
 

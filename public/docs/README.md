@@ -11,6 +11,33 @@ Vdoc 文档面向想评估、部署和使用 Vdoc 的团队。它先说明 Vdoc 
 - 把 `@vdoc/mcp` 和 Vdoc Skill 接进 Agent，让 Agent 先查已发布事实再回答。
 - 备份、升级、验证和回滚 Vdoc 环境。
 
+## 本机闭环命令
+
+从 workspace root 执行同一条本机路径：
+
+```sh
+scripts/vdoc-local-bootstrap.sh
+docker compose --env-file .env up -d --build
+cd Vdoc && go run ./tools/vdoc-demo-seed
+```
+
+`vdoc-demo-seed` 是可选步骤。Root Compose 运行后，live E2E 使用：
+
+```sh
+cd Vdoc
+./scripts/vdoc-e2e.sh live-compose --env-file ../.env --check-only
+./scripts/vdoc-e2e.sh live-compose --env-file ../.env
+```
+
+Live E2E 会重置选中的一次性 `VDOC_TEST_POSTGRES_DB`，默认是 `vdoc_e2e`，不会重置应用数据库 `VDOC_POSTGRES_DB`。本机发布门禁使用：
+
+```sh
+scripts/vdoc-release-dry-run.sh --list
+scripts/vdoc-release-dry-run.sh
+```
+
+Release dry-run 只运行本机检查，不会发布 package 或部署服务。
+
 ## 推荐阅读路线
 
 1. 先读 [产品概览](product-overview)，确认 Vdoc 是否适合你的团队。
@@ -30,6 +57,7 @@ Vdoc 文档面向想评估、部署和使用 Vdoc 的团队。它先说明 Vdoc 
 ## 安全边界
 
 - 示例只使用占位符，不要提交真实 `.env`、JWT key、MCP Token、database password、storage secret 或 `Authorization` header。
+- 不要把原始 JWT、MCP Token、DB password、storage secret 或 `Authorization` header 值写进文档、日志、截图、issue 或 shell history。
 - Private REST 请求的 `Authorization` header 放原始 JWT，不加 `Bearer` 前缀。
 - MCP 配置通过环境变量放 `VDOC_MCP_TOKEN`，不要把 token 放进命令行参数。
 - v0.1 不提供 MCP 直接发布能力，Agent 可以提交 Draft，发布必须经过 Admin 或 SuperAdmin 审核。

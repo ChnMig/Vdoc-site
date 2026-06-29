@@ -9,6 +9,14 @@ This page is for users already running Vdoc. The goal is to back up data before 
 - Confirm PostgreSQL and object storage are reachable.
 - Record the current Admin URL, backend health URL, and Agent MCP config.
 - Use a maintenance window so users are not submitting Drafts during restart.
+- Before a local upgrade, inspect and run the local release gate:
+
+```sh
+scripts/vdoc-release-dry-run.sh --list
+scripts/vdoc-release-dry-run.sh
+```
+
+The release dry-run runs local checks only. It does not publish packages, deploy services, push images, or create git refs.
 
 ## 1. Back Up PostgreSQL
 
@@ -36,12 +44,12 @@ Do not print storage access keys or secret keys in backup script logs.
 If you use the workspace root Compose package, run from the workspace root:
 
 ```sh
-docker compose --env-file .env config
+docker compose --env-file .env config --quiet
 docker compose --env-file .env pull
 docker compose --env-file .env up -d --build
 ```
 
-The current root Compose builds app services from local `./Vdoc` and `./Vdoc-admin`. `pull` mainly pulls base images such as `postgres`, `rustfs`, `caddy`, and `node`; app updates come from your current workspace content.
+For a fresh disposable local environment, run `scripts/vdoc-local-bootstrap.sh` first to create `.env`. Do not overwrite an existing upgrade environment just to run the upgrade. The current root Compose builds app services from local `./Vdoc` and `./Vdoc-admin`. `pull` mainly pulls base images such as `postgres`, `rustfs`, `caddy`, and `node`; app updates come from your current workspace content.
 
 If you deploy components directly, rebuild and publish each one:
 
@@ -101,6 +109,15 @@ If you changed `.env` host ports, replace the ports in these commands. In deploy
 4. A test Draft can still move through review.
 5. MCP `tools/list` succeeds, and at least one read-only tool call succeeds.
 6. An Agent using the Skill queries Vdoc MCP before answering endpoint or Markdown questions.
+7. If local root Compose is available, live E2E passes:
+
+   ```sh
+   cd Vdoc
+   ./scripts/vdoc-e2e.sh live-compose --env-file ../.env --check-only
+   ./scripts/vdoc-e2e.sh live-compose --env-file ../.env
+   ```
+
+   Live E2E resets the selected disposable `VDOC_TEST_POSTGRES_DB`, `vdoc_e2e` by default. It does not reset the application database from `VDOC_POSTGRES_DB`.
 
 ## Rollback Strategy
 

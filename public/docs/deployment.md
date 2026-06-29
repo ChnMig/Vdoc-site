@@ -18,10 +18,10 @@ Backend 启动时，如果 `VDOC_DATABASE_ENABLED=true`，会连接 PostgreSQL �
 从 workspace root 执行命令，也就是包含 `docker-compose.yml`、`.env.example`、`Vdoc/`、`Vdoc-admin/`、`Vdoc-mcp/` 和 `Vdoc-skill/` 的目录。
 
 ```sh
-cp .env.example .env
+scripts/vdoc-local-bootstrap.sh
 ```
 
-编辑 `.env`，至少替换这些占位符：
+Bootstrap 会写入本机一次性 `.env`，并且不会把 secret 打印到终端。如果你改为手工复制 `.env.example`，至少替换这些占位符：
 
 - `VDOC_POSTGRES_PASSWORD`
 - `VDOC_STORAGE_ACCESS_KEY`
@@ -33,10 +33,12 @@ cp .env.example .env
 
 `VDOC_INITIAL_ADMIN_EMAIL` 和 `VDOC_INITIAL_ADMIN_PASSWORD` 可留空。如果填写，backend 只会在用户表为空时创建这个 SuperAdmin，密码入库前会做 bcrypt hash。
 
-先检查 Compose 渲染结果：
+不要提交 `.env`，也不要把原始 JWT、MCP Token、DB password、storage secret 或 `Authorization` header 值写入文档、日志、截图或 issue。
+
+先校验 Compose 配置，不打印渲染后的 secret：
 
 ```sh
-docker compose --env-file .env config
+docker compose --env-file .env config --quiet
 ```
 
 启动完整系统：
@@ -67,6 +69,31 @@ docker compose --env-file .env logs --tail=100 admin postgres rustfs
 curl http://127.0.0.1:8080/api/v1/open/health
 curl -I http://127.0.0.1:8081/
 ```
+
+可选：backend 健康后写入 demo 数据：
+
+```sh
+cd Vdoc && go run ./tools/vdoc-demo-seed
+```
+
+可选：用正在运行的 root Compose 做 live E2E：
+
+```sh
+cd Vdoc
+./scripts/vdoc-e2e.sh live-compose --env-file ../.env --check-only
+./scripts/vdoc-e2e.sh live-compose --env-file ../.env
+```
+
+Live E2E 会重置选中的一次性 `VDOC_TEST_POSTGRES_DB`，默认是 `vdoc_e2e`。它不会使用或重置 `VDOC_POSTGRES_DB` 指向的应用数据库。不要把 `VDOC_TEST_POSTGRES_DB` 指向应用数据库。
+
+本机发布门禁使用 release dry-run：
+
+```sh
+scripts/vdoc-release-dry-run.sh --list
+scripts/vdoc-release-dry-run.sh
+```
+
+这个 dry-run 只运行本机检查，不会发布 package、部署服务、push image 或创建 git ref。
 
 停止但保留容器和数据：
 

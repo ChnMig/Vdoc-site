@@ -8,9 +8,9 @@
 - 中文默认入口仍是 `/docs/index.html`。
 - 英文文档仍使用 `/docs/index.html#/en/...`，并保持同名主题路由。
 - 新增 [运行流程](how-it-works)，解释 Admin review、Draft、Version、MCP、Skill 和 Agent 的关系。
-- [部署指南](deployment) 已按 root Compose、直接部署、外部 PostgreSQL/S3 compatible storage 三种方式重写。
+- [部署指南](deployment) 已按 `scripts/vdoc-local-bootstrap.sh`、root Compose、可选 demo seed、live-compose E2E、release dry-run、直接部署和外部 PostgreSQL/S3 compatible storage 重写。
 - [首次使用](admin-usage) 已覆盖初始管理员、Project、Document、Draft、Version、MCP Token、MCP adapter 和 Skill 的第一条链路。
-- [升级与回滚](release-rollback) 已覆盖 PostgreSQL/object storage 备份、`docker compose --env-file .env up -d --build`、健康验证和回滚。
+- [升级与回滚](release-rollback) 已覆盖 PostgreSQL/object storage 备份、`docker compose --env-file .env up -d --build`、live E2E、`scripts/vdoc-release-dry-run.sh`、健康验证和回滚。
 
 ## 当前产品面
 
@@ -19,6 +19,7 @@
 - Admin Docker 支持 runtime `VDOC_ADMIN_API_BASE_URL`，用于生成浏览器可用的 backend API base URL。
 - `@vdoc/mcp` 是可安装 stdio MCP adapter，负责把 Agent MCP 请求转发到 backend。
 - `Vdoc-skill` 是可安装 Agent 工作流包，要求 Agent 使用 Vdoc MCP 查询事实后再给结论。
+- Live E2E 使用 `./scripts/vdoc-e2e.sh live-compose --env-file ../.env`，只重置一次性 `VDOC_TEST_POSTGRES_DB`，默认 `vdoc_e2e`。
 
 ## 仍需记住的边界
 

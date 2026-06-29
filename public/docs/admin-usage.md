@@ -4,6 +4,16 @@
 
 ## 开始前确认
 
+如果还没有启动本机环境，先从 workspace root 运行：
+
+```sh
+scripts/vdoc-local-bootstrap.sh
+docker compose --env-file .env up -d --build
+cd Vdoc && go run ./tools/vdoc-demo-seed
+```
+
+`vdoc-demo-seed` 是可选步骤。然后确认：
+
 - Backend health 成功：`/api/v1/open/health`。
 - Admin 可以在浏览器打开。
 - 如果使用 Admin Docker，`VDOC_ADMIN_API_BASE_URL` 指向浏览器能访问的 backend origin，例如 `http://127.0.0.1:8080`。
@@ -29,11 +39,11 @@ http://127.0.0.1:8081
 使用初始管理员登录。登录后，Admin 会用 raw JWT 调用 private API。手工调试时也要使用原始 JWT：
 
 ```sh
-curl -H "Authorization: replace-with-raw-jwt" \
+curl -H "Authorization: $JWT" \
   http://127.0.0.1:8080/api/v1/private/identity/me
 ```
 
-不要加 `Bearer` 前缀。
+把 `JWT` 放在私密 shell 变量中，不要把值写进命令记录、文档或日志。不要加 `Bearer` 前缀。
 
 ## 2. 创建 Team 和 Project
 
@@ -125,3 +135,20 @@ v0.1 不支持 MCP 直接发布。发布门禁在 Admin。
 - MCP Token 创建后没有出现在命令行参数或日志中。
 - Agent 的 `tools/list` 能返回 Vdoc tool schemas。
 - Agent 查询 endpoint 或 Markdown 时，先调用 Vdoc MCP，再基于返回结果回答。
+
+如果要把本机闭环跑完整，再执行：
+
+```sh
+cd Vdoc
+./scripts/vdoc-e2e.sh live-compose --env-file ../.env --check-only
+./scripts/vdoc-e2e.sh live-compose --env-file ../.env
+```
+
+Live E2E 会重置选中的一次性 `VDOC_TEST_POSTGRES_DB`，默认是 `vdoc_e2e`，不会重置应用数据库 `VDOC_POSTGRES_DB`。最后从 workspace root 运行：
+
+```sh
+scripts/vdoc-release-dry-run.sh --list
+scripts/vdoc-release-dry-run.sh
+```
+
+Release dry-run 不会发布 package 或部署服务。不要把原始 JWT、MCP Token、DB password、storage secret 或 `Authorization` header 值写进文档、日志、截图或 issue。

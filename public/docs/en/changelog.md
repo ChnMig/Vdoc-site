@@ -8,9 +8,9 @@ This page records the current user-visible v0.1 state covered by the Docsify doc
 - The Chinese default entry remains `/docs/index.html`.
 - English docs still use `/docs/index.html#/en/...` with matching topic routes.
 - Added [How It Works](en/how-it-works) to explain Admin review, Drafts, Versions, MCP, Skills, and Agents.
-- [Deployment Guide](en/deployment) has been rewritten around root Compose, direct deployment, and external PostgreSQL/S3 compatible storage.
+- [Deployment Guide](en/deployment) has been rewritten around `scripts/vdoc-local-bootstrap.sh`, root Compose, optional demo seed, live-compose E2E, release dry-run, direct deployment, and external PostgreSQL/S3 compatible storage.
 - [First Use](en/admin-usage) now covers the first chain from initial admin to Project, Document, Draft, Version, MCP Token, MCP adapter, and Skill.
-- [Upgrade and Rollback](en/release-rollback) now covers PostgreSQL/object storage backup, `docker compose --env-file .env up -d --build`, health verification, and rollback.
+- [Upgrade and Rollback](en/release-rollback) now covers PostgreSQL/object storage backup, `docker compose --env-file .env up -d --build`, live E2E, `scripts/vdoc-release-dry-run.sh`, health verification, and rollback.
 
 ## Current Product Surface
 
@@ -19,6 +19,7 @@ This page records the current user-visible v0.1 state covered by the Docsify doc
 - Admin Docker supports runtime `VDOC_ADMIN_API_BASE_URL` to generate a browser-usable backend API base URL.
 - `@vdoc/mcp` is an installable stdio MCP adapter that forwards Agent MCP requests to backend.
 - `Vdoc-skill` is an installable Agent workflow package that tells Agents to query Vdoc MCP before answering from facts.
+- Live E2E uses `./scripts/vdoc-e2e.sh live-compose --env-file ../.env` and resets only the disposable `VDOC_TEST_POSTGRES_DB`, `vdoc_e2e` by default.
 
 ## Boundaries to Remember
 

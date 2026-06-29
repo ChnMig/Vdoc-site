@@ -7,7 +7,17 @@ The Vdoc Skill is an Agent runtime workflow package. It does not store data, com
 - The Agent has configured [MCP Tools](en/mcp-tools), and Vdoc `tools/list` succeeds.
 - The target runtime supports skills or custom workflow instructions.
 - You know the skill folder location required by the runtime.
-- Do not write MCP Tokens, JWTs, or `Authorization` headers into Skill files or examples.
+- Do not put raw MCP Tokens, JWTs, DB passwords, storage secrets, or `Authorization` header values in Skill files, examples, logs, or issues.
+
+If no local Vdoc environment exists yet, run the shared closure path from the workspace root:
+
+```sh
+scripts/vdoc-local-bootstrap.sh
+docker compose --env-file .env up -d --build
+cd Vdoc && go run ./tools/vdoc-demo-seed
+```
+
+The demo seed is optional. See [Deployment Guide](en/deployment) for the full local gate, where live E2E uses `./scripts/vdoc-e2e.sh live-compose --env-file ../.env --check-only` and `./scripts/vdoc-e2e.sh live-compose --env-file ../.env`, and the release gate uses `scripts/vdoc-release-dry-run.sh --list` and `scripts/vdoc-release-dry-run.sh`.
 
 ## Installation
 
@@ -96,5 +106,6 @@ Read the reviewed runbook Markdown from Vdoc, then answer the deployment questio
 - Agent uses display names instead of stable IDs or `relative_path`.
 - Agent says a Draft is published before Admin has a new Version.
 - Agent puts MCP Tokens in CLI args, logs, or docs.
+- Live E2E points at the application database instead of the disposable `VDOC_TEST_POSTGRES_DB`, `vdoc_e2e` by default.
 
 When this happens, reload the Skill, verify MCP availability, and restate that the Agent must query Vdoc MCP first.

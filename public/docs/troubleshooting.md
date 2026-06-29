@@ -11,16 +11,16 @@
 
 ## 完整 Compose 起不来
 
-先在 workspace root 检查配置：
+先在 workspace root 校验配置，不打印渲染后的 secret：
 
 ```sh
-docker compose --env-file .env config
+docker compose --env-file .env config --quiet
 docker compose --env-file .env ps
 ```
 
 常见原因：
 
-- 没有从 `.env.example` 复制 `.env`。
+- 没有运行 `scripts/vdoc-local-bootstrap.sh` 生成 `.env`，或手工复制 `.env.example` 后没有替换占位符。
 - `VDOC_POSTGRES_PASSWORD`、`VDOC_STORAGE_ACCESS_KEY`、`VDOC_STORAGE_SECRET_KEY`、`VDOC_JWT_KEY` 或 `VDOC_MCP_TOKEN_CIPHER_KEY` 仍是占位符。
 - 本机端口被占用，需要修改 `VDOC_BACKEND_HOST_PORT`、`VDOC_ADMIN_HOST_PORT`、`VDOC_POSTGRES_HOST_PORT`、`VDOC_RUSTFS_HOST_PORT` 或 `VDOC_RUSTFS_CONSOLE_HOST_PORT`。
 - Docker 正在 build app images，第一次启动需要更久。
@@ -30,6 +30,14 @@ docker compose --env-file .env ps
 ```sh
 docker compose --env-file .env logs --tail=100 postgres rustfs backend admin
 ```
+
+重新创建一次性本机 `.env` 时，用：
+
+```sh
+scripts/vdoc-local-bootstrap.sh
+```
+
+如果 `.env` 已存在，脚本会拒绝覆盖。只有确认要丢弃本机环境时才使用 `--force`。
 
 ## Backend health 失败
 
@@ -96,6 +104,18 @@ Vdoc REST 使用 envelope。不要只看 HTTP status，要看 body：
 - `relative_path` 是 Document 身份，不要用显示名称跨系统查询。
 - 发布必须走 approve。v0.1 不支持 MCP direct publish。
 
+## Live E2E 失败
+
+从 backend 目录检查 root Compose 派生配置：
+
+```sh
+cd Vdoc
+./scripts/vdoc-e2e.sh live-compose --env-file ../.env --check-only
+./scripts/vdoc-e2e.sh live-compose --env-file ../.env
+```
+
+Live E2E 会重置选中的一次性 `VDOC_TEST_POSTGRES_DB`，默认是 `vdoc_e2e`。它不会重置 `VDOC_POSTGRES_DB` 指向的应用数据库。常见原因是 root Compose 没有运行、`.env` 路径不对、host port 被改过但容器未重启，或把 `VDOC_TEST_POSTGRES_DB` 错指向了应用数据库。
+
 ## MCP adapter 启动失败
 
 - Agent MCP config 必须设置 `VDOC_MCP_TOKEN`。
@@ -120,3 +140,12 @@ Vdoc REST 使用 envelope。不要只看 HTTP status，要看 body：
 - Agent 不遵守 Vdoc facts：先检查 MCP 和 Skill 安装，再回滚 Skill package。
 
 回滚前先看 [升级与回滚](release-rollback)，不要删除 PostgreSQL 或对象存储数据。
+
+本机门禁可以先列出再运行：
+
+```sh
+scripts/vdoc-release-dry-run.sh --list
+scripts/vdoc-release-dry-run.sh
+```
+
+它只运行本机检查，不会发布或部署。

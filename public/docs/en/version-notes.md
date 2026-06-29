@@ -7,6 +7,9 @@ These notes describe the v0.1 boundary. Before planning a pilot, writing Agent i
 - One Go backend for REST API, MCP endpoint, persistence, authentication, review workflow, automatic migrations, and object storage writes.
 - PostgreSQL persistence and S3 compatible object storage support.
 - Root `docker-compose.yml` that starts PostgreSQL, RustFS, backend, and Admin.
+- `scripts/vdoc-local-bootstrap.sh` for generating a disposable local `.env` while writing secrets only to the file.
+- `Vdoc/scripts/vdoc-e2e.sh live-compose` for deriving live E2E settings from the root `.env`.
+- `scripts/vdoc-release-dry-run.sh` as the local release gate, with no publishing or deployment.
 - Admin UI for Team, Project, Document, Branch, Draft, Review, Version, Diff, endpoint detail, and MCP Token management.
 - `@vdoc/mcp` package for Agent runtimes to query the Vdoc backend through MCP.
 - `Vdoc-skill` package that tells Agents to query Vdoc before relying on API or Markdown facts.
@@ -25,6 +28,7 @@ These notes describe the v0.1 boundary. Before planning a pilot, writing Agent i
 - When `VDOC_STORAGE_ENABLED=true`, backend connects to object storage and tries to create the bucket if it is missing.
 - Admin Docker reads `VDOC_ADMIN_API_BASE_URL` at container startup and writes `/runtime-config.js`.
 - In full Compose, backend uses `postgres:5432` and `rustfs:9000`; browsers and host commands use `127.0.0.1` or a domain.
+- Live E2E resets the disposable `VDOC_TEST_POSTGRES_DB`, `vdoc_e2e` by default. It does not reset the application database from `VDOC_POSTGRES_DB`.
 
 ## Not Included in v0.1
 
@@ -46,6 +50,8 @@ These notes describe the v0.1 boundary. Before planning a pilot, writing Agent i
 
 1. Backend health returns success.
 2. Admin can create or view Team, Project, Document, Draft, Version, Diff, and MCP Token records.
-3. MCP `tools/list` returns tool schemas from the deployed backend.
-4. Skill package tests pass, and Agents call Vdoc MCP before answering endpoint or migration questions.
-5. Release notes clearly state that v0.1 does not support MCP direct publishing.
+3. Live E2E passes `./scripts/vdoc-e2e.sh live-compose --env-file ../.env --check-only` and `./scripts/vdoc-e2e.sh live-compose --env-file ../.env`.
+4. `scripts/vdoc-release-dry-run.sh --list` and `scripts/vdoc-release-dry-run.sh` pass.
+5. MCP `tools/list` returns tool schemas from the deployed backend.
+6. Skill package tests pass, and Agents call Vdoc MCP before answering endpoint or migration questions.
+7. Release notes clearly state that v0.1 does not support MCP direct publishing.

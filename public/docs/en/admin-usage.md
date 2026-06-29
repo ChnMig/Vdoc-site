@@ -4,6 +4,16 @@ This page starts after deployment and walks through the first Vdoc data path tha
 
 ## Before You Start
 
+If no local environment is running yet, run this from the workspace root:
+
+```sh
+scripts/vdoc-local-bootstrap.sh
+docker compose --env-file .env up -d --build
+cd Vdoc && go run ./tools/vdoc-demo-seed
+```
+
+`vdoc-demo-seed` is optional. Then confirm:
+
 - Backend health succeeds at `/api/v1/open/health`.
 - Admin opens in a browser.
 - If you use Admin Docker, `VDOC_ADMIN_API_BASE_URL` points to a backend origin the browser can reach, such as `http://127.0.0.1:8080`.
@@ -29,11 +39,11 @@ http://127.0.0.1:8081
 Log in with the initial admin. Admin uses a raw JWT when calling private APIs. Manual debugging uses the same rule:
 
 ```sh
-curl -H "Authorization: replace-with-raw-jwt" \
+curl -H "Authorization: $JWT" \
   http://127.0.0.1:8080/api/v1/private/identity/me
 ```
 
-Do not add a `Bearer` prefix.
+Keep `JWT` in a private shell variable, and do not write the value into command history, docs, or logs. Do not add a `Bearer` prefix.
 
 ## 2. Create Team and Project
 
@@ -125,3 +135,20 @@ Install, copy, or link `Vdoc-skill/` as the Agent runtime's `vdoc` skill folder.
 - MCP Token does not appear in command-line arguments or logs.
 - Agent `tools/list` returns Vdoc tool schemas.
 - When answering endpoint or Markdown questions, the Agent calls Vdoc MCP first and uses the returned facts.
+
+To complete the local loop, run:
+
+```sh
+cd Vdoc
+./scripts/vdoc-e2e.sh live-compose --env-file ../.env --check-only
+./scripts/vdoc-e2e.sh live-compose --env-file ../.env
+```
+
+Live E2E resets the selected disposable `VDOC_TEST_POSTGRES_DB`, `vdoc_e2e` by default. It does not reset the application database from `VDOC_POSTGRES_DB`. Finally, run this from the workspace root:
+
+```sh
+scripts/vdoc-release-dry-run.sh --list
+scripts/vdoc-release-dry-run.sh
+```
+
+The release dry-run does not publish packages or deploy services. Do not put raw JWTs, MCP Tokens, DB passwords, storage secrets, or `Authorization` header values in docs, logs, screenshots, or issues.

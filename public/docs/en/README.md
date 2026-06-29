@@ -11,6 +11,33 @@ These docs are for teams that want to evaluate, deploy, and use Vdoc. They expla
 - Connect `@vdoc/mcp` and the Vdoc Skill so Agents query published facts before answering.
 - Back up, upgrade, verify, and roll back a Vdoc environment.
 
+## Local Closure Commands
+
+Run one local path from the workspace root:
+
+```sh
+scripts/vdoc-local-bootstrap.sh
+docker compose --env-file .env up -d --build
+cd Vdoc && go run ./tools/vdoc-demo-seed
+```
+
+`vdoc-demo-seed` is optional. After root Compose is running, live E2E uses:
+
+```sh
+cd Vdoc
+./scripts/vdoc-e2e.sh live-compose --env-file ../.env --check-only
+./scripts/vdoc-e2e.sh live-compose --env-file ../.env
+```
+
+Live E2E resets the selected disposable `VDOC_TEST_POSTGRES_DB`, `vdoc_e2e` by default. It does not reset the application database from `VDOC_POSTGRES_DB`. Use this as the local release gate:
+
+```sh
+scripts/vdoc-release-dry-run.sh --list
+scripts/vdoc-release-dry-run.sh
+```
+
+The release dry-run runs local checks only. It does not publish packages or deploy services.
+
 ## Recommended Reading Path
 
 1. Start with [Product Overview](en/product-overview) to decide whether Vdoc fits your team.
@@ -30,6 +57,7 @@ These docs are for teams that want to evaluate, deploy, and use Vdoc. They expla
 ## Safety Boundary
 
 - Examples use placeholders only. Never commit real `.env`, JWT keys, MCP Tokens, database passwords, storage secrets, or `Authorization` headers.
+- Do not put raw JWTs, MCP Tokens, DB passwords, storage secrets, or `Authorization` header values in docs, logs, screenshots, issues, or shell history.
 - Private REST requests use the raw JWT in `Authorization`; do not add `Bearer`.
 - MCP config should pass `VDOC_MCP_TOKEN` through environment variables, not command-line arguments.
 - v0.1 does not provide direct MCP publishing. Agents can submit Drafts, but publishing requires Admin or SuperAdmin approval.

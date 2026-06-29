@@ -7,7 +7,17 @@ Vdoc Skill 是安装到 Agent runtime 的工作流包。它不存数据、不计
 - Agent 已配置 [MCP 工具](mcp-tools)，并能成功调用 Vdoc `tools/list`。
 - 目标 runtime 支持安装 skill 或自定义工作流说明。
 - 你知道 runtime 要求的 skill folder 位置。
-- 不要把 MCP Token、JWT 或 `Authorization` header 写进 Skill 文件或示例。
+- 不要把原始 MCP Token、JWT、DB password、storage secret 或 `Authorization` header 值写进 Skill 文件、示例、日志或 issue。
+
+如果还没有本机 Vdoc 环境，先从 workspace root 运行统一闭环：
+
+```sh
+scripts/vdoc-local-bootstrap.sh
+docker compose --env-file .env up -d --build
+cd Vdoc && go run ./tools/vdoc-demo-seed
+```
+
+Demo seed 是可选步骤。完整本机门禁见 [部署指南](deployment)，其中 live E2E 使用 `./scripts/vdoc-e2e.sh live-compose --env-file ../.env --check-only` 和 `./scripts/vdoc-e2e.sh live-compose --env-file ../.env`，release gate 使用 `scripts/vdoc-release-dry-run.sh --list` 和 `scripts/vdoc-release-dry-run.sh`。
 
 ## 安装
 
@@ -96,5 +106,6 @@ npm test
 - Agent 使用显示名称替代 stable ID 或 `relative_path`。
 - Agent 说 Draft 已发布，但 Admin 中还没有新 Version。
 - Agent 把 MCP Token 放进 CLI args、日志或文档。
+- Live E2E 被指向应用数据库，而不是一次性 `VDOC_TEST_POSTGRES_DB`，默认 `vdoc_e2e`。
 
 出现这些情况时，重新加载 Skill，确认 MCP 可用，并明确要求 Agent 先查询 Vdoc MCP。
