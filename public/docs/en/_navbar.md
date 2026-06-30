@@ -1,2 +1,0 @@
-- <a class="vdoc-return-site" href="/" data-no-router>Return to site</a>
-- <a class="vdoc-language-switch" href="#/product-overview" data-vdoc-language-switch>中文</a>

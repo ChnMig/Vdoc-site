@@ -1,0 +1,7 @@
+allowBuilds:
+  esbuild: true
+ignoredBuiltDependencies:
+  - esbuild
+overrides:
+  '@vitejs/plugin-vue>vite': ^6.4.3
+  'vitepress>vite': ^6.4.3

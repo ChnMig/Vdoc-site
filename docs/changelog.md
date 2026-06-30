@@ -1,12 +1,12 @@
 # 变更记录
 
-本页记录当前 Docsify 文档覆盖的 v0.1 用户可见状态。它不是营销列表，而是评估、部署和试点前需要知道的变化。
+本页记录当前 VitePress 文档覆盖的 v0.1 用户可见状态。它不是营销列表，而是评估、部署和试点前需要知道的变化。
 
 ## 当前文档变化
 
 - 文档阅读路线从“运维手册”调整为“认识 Vdoc、理解运行流程、部署、首次使用、Agent 接入、升级排障”。
-- 中文默认入口仍是 `/docs/index.html`。
-- 英文文档仍使用 `/docs/index.html#/en/...`，并保持同名主题路由。
+- 中文默认入口是 `/`。
+- 英文文档使用 `/en/...`，并保持同名主题路由。
 - 新增 [运行流程](how-it-works)，解释 Admin review、Draft、Version、MCP、Skill 和 Agent 的关系。
 - [部署指南](deployment) 已按 `scripts/vdoc-local-bootstrap.sh`、root Compose、可选 demo seed、live-compose E2E、release dry-run、直接部署和外部 PostgreSQL/S3 compatible storage 重写。
 - [首次使用](admin-usage) 已覆盖初始管理员、Project、Document、Draft、Version、MCP Token、MCP adapter 和 Skill 的第一条链路。
@@ -30,7 +30,6 @@
 
 ## 如何验证文档
 
-1. 打开 `/docs/index.html`，确认默认中文页面加载。
-2. 打开 `/docs/index.html#/en/product-overview`，确认英文页面加载。
+1. 打开 `/`，确认默认中文页面加载。
+2. 打开 `/en/product-overview`，确认英文页面加载。
 3. 点击 [运行流程](how-it-works)、[部署指南](deployment)、[MCP 工具](mcp-tools) 和 [升级与回滚](release-rollback)，确认侧边栏路径连贯。
-4. 点击复制按钮，确认状态显示当前 Markdown 文件已复制。

@@ -1,3 +1,4 @@
 dist
 coverage
+docs/.vitepress/dist
 node_modules

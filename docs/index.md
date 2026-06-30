@@ -49,10 +49,9 @@ Release dry-run 只运行本机检查，不会发布 package 或部署服务。
 
 ## 语言和路由
 
-- `/docs/index.html` 默认打开中文文档。
-- 英文文档使用 `/docs/index.html#/en/...`，例如 `/docs/index.html#/en/deployment`。
-- 顶部语言切换会尽量跳到同一主题的另一种语言。
-- 每篇文章都有 `复制本页 Markdown` 按钮，只复制当前页面对应的 Markdown 文件。
+- `/` 默认打开中文文档。
+- 英文文档使用 `/en/...`，例如 `/en/deployment`。
+- 顶部语言切换入口位于导航栏，中文和英文文档使用同名主题。
 
 ## 安全边界
 

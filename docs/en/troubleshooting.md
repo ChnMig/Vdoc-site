@@ -139,7 +139,7 @@ Live E2E resets the selected disposable `VDOC_TEST_POSTGRES_DB`, `vdoc_e2e` by d
 - MCP `tools/list` fails: check token and backend before rolling back MCP package.
 - Agent ignores Vdoc facts: check MCP and Skill installation before rolling back the Skill package.
 
-Read [Upgrade and Rollback](en/release-rollback) before rolling back. Do not delete PostgreSQL or object storage data.
+Read [Upgrade and Rollback](release-rollback) before rolling back. Do not delete PostgreSQL or object storage data.
 
 The local gate can be listed and then run:
 

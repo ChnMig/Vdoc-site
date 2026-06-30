@@ -17,7 +17,7 @@ docker compose --env-file .env up -d --build
 cd Vdoc && go run ./tools/vdoc-demo-seed
 ```
 
-The demo seed is optional. See [Deployment Guide](en/deployment) for the full local gate, where live E2E uses `./scripts/vdoc-e2e.sh live-compose --env-file ../.env --check-only` and `./scripts/vdoc-e2e.sh live-compose --env-file ../.env`, and the release gate uses `scripts/vdoc-release-dry-run.sh --list` and `scripts/vdoc-release-dry-run.sh`. Live E2E resets only the disposable `VDOC_TEST_POSTGRES_DB`, `vdoc_e2e` by default, not the application database.
+The demo seed is optional. See [Deployment Guide](deployment) for the full local gate, where live E2E uses `./scripts/vdoc-e2e.sh live-compose --env-file ../.env --check-only` and `./scripts/vdoc-e2e.sh live-compose --env-file ../.env`, and the release gate uses `scripts/vdoc-release-dry-run.sh --list` and `scripts/vdoc-release-dry-run.sh`. Live E2E resets only the disposable `VDOC_TEST_POSTGRES_DB`, `vdoc_e2e` by default, not the application database.
 
 ## Installation Options
 

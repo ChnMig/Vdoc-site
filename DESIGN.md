@@ -2,65 +2,75 @@
 
 ## Surface
 
-Vdoc-site is the public marketing and documentation surface for Vdoc. It contains a Vite React portal with routes for `/`, `/concepts`, and `/workflows`, plus a Docsify documentation app under `public/docs/index.html` with English and Simplified Chinese content.
+Vdoc-site is now a docs-only VitePress site. The root `/` is the Simplified Chinese documentation entry, and `/en/` is the English documentation entry. There is no separate marketing portal, legacy documentation runtime, or client-side route layer.
 
 ## Visual Direction
 
-Use the Review Ledger Field Manual direction: a dark graphite review field with pale ledger/document artifacts laid over it. The site should feel like a platform engineer opening a release binder before agents are allowed to consume production-facing documentation. The hero reads as a manual cover and review desk, the document preview reads as a real version/diff dossier, the trust loop reads as a connected control process, and docs/guide paths read as index rows in a field manual. Avoid dense dashboards, abstract maps, route tables, generic SaaS purple, glass decoration, gradient text, decorative stripes, and identical icon-card grids.
+Use a light reading canvas for technical teams evaluating, installing, and operating Vdoc. The page should feel like a precise hosted documentation product: fast to scan, comfortable for long reading, bilingual, and explicit about the human review boundary. The visual reference is documentation-as-product in the Mintlify family, adapted for Vdoc with quieter whitespace and a restrained green accent.
 
-## Color
+Physical scene: a platform engineer is reading setup instructions beside a running terminal in a bright office, moving between Chinese and English pages while checking exact commands. The design is light because the task is sustained reading and command copying, not spectacle.
 
-Primary React tokens live in `src/index.css` and are exposed through Tailwind v4 `@theme inline`:
+## Color Tokens
 
-- `--canvas` is the dark graphite review field used behind the public portal.
-- `--surface` is the pale ledger sheet color for dossiers, path rows, articles, and docs surfaces.
-- `--surface-strong` and `--surface-tint` are graphite-toned panels used for manual cover blocks and connected process fields.
-- `--ink` is pale text on graphite; `--paper-ink` is the primary text color on ledger sheets; `--muted` and `--paper-muted` remain AA-safe supporting text colors.
-- `--review`, `--publish`, and `--query` mark review stamp, sealed version, and agent lookup moments in the document journey.
-- `--stamp`, `--stamp-strong`, and `--field` create the red review-stamp language without resorting to generic warning colors.
-- `--line` and `--line-strong` provide quiet graphite/ledger boundaries for navigation, sequence rows, and documentation paths.
-- `--shadow-field` is the only large depth token and is reserved for the main document dossier; other separation should use borders, tonal shifts, or grid placement.
+All visual color lives in `docs/.vitepress/theme/custom.css` as semantic VitePress variables.
 
-Docsify tokens live in `public/docs/vdoc-docs.css` and mirror the same graphite field, pale ledger sheet, review stamp, and index-row language.
+- `--vp-c-bg`: light reading canvas, near white with a faint green cast.
+- `--vp-c-bg-alt`: sidebar and navigation surface.
+- `--vp-c-bg-elv`: elevated documentation surface.
+- `--vp-c-bg-soft`: inline code and quiet callout surface.
+- `--vp-c-text-1`: near-black primary text.
+- `--vp-c-text-2`: body and secondary copy.
+- `--vp-c-text-3`: tertiary labels and metadata.
+- `--vp-c-border` and `--vp-c-divider`: subtle documentation borders.
+- `--vp-c-brand-1`, `--vp-c-brand-2`, `--vp-c-brand-3`: restrained green accent ramp for links, focus, and selected state.
+- `--vp-c-brand-soft`: pale green selection and hover field.
+- `--vdoc-focus-ring`: accessible green focus outline.
+
+Color strategy is restrained: near-black text, white and off-white surfaces, subtle borders, and green below 10% of the page. No purple SaaS gradients, decorative glass, dark panels, or heavy shadows.
 
 ## Typography
 
-The brand uses a bilingual-friendly technical manual stack:
+The documentation uses a CJK-safe system stack rather than remote fonts:
 
-- Display: `DIN Condensed`, `DIN Alternate`, `Arial Narrow`, `Noto Sans SC`, `Source Han Sans SC`, sans-serif.
-- Sans: `Avenir Next`, `Noto Sans SC`, `Source Han Sans SC`, `PingFang SC`, system-ui, sans-serif.
-- Mono: `Berkeley Mono`, `SFMono-Regular`, `SF Mono`, Consolas, monospace.
+- Base: `Avenir Next`, `Noto Sans SC`, `Source Han Sans SC`, `PingFang SC`, `system-ui`, sans-serif.
+- Mono: `SFMono-Regular`, `SF Mono`, `ui-monospace`, `Consolas`, monospace.
 
-Keep body copy in readable columns. Use balanced wrapping on headings and pretty wrapping on long prose. Display letter spacing stays above `-0.04em`. Use mono for ledger metadata, path coordinates, version IDs, and stamp-like short labels only, not as a generic developer costume.
+Rules:
+
+- Body copy targets 65-72 characters per line through the VitePress content container.
+- Headings use balanced wrapping, near-black text, and restrained negative tracking no tighter than `-0.025em`.
+- Body, list, and table text use generous line height for bilingual reading.
+- Mono is reserved for code, commands, environment variables, paths, and technical identifiers.
 
 ## Layout
 
-The React portal is a Review Ledger Field Manual:
+The site uses the official VitePress default theme with a small theme extension only:
 
-- `GuideHome` arranges the home route as a dark manual-cover hero, visual document dossier, connected trust loop, route handoffs, and docs path index.
-- `IntroHero` makes the public value proposition immediate and keeps the Docs, API reference, and GitHub CTAs above the fold without generic SaaS hero metrics.
-- `DocumentSheet` renders a pale ledger/diff dossier with review stamp, immutable version metadata, semantic diff line, and source tags.
-- `DocumentJourney` preserves the `Draft -> Human review -> Immutable Version -> Diff -> MCP / Skill query` labels while presenting them as an uneven connected process, not five equal cards.
-- `GuidePaths` keeps `.route-card` anchors for documentation entrypoints, but renders them as dense index rows with path numbers, intent labels, and row cues.
-- `ConceptsGuide` explains the concrete Vdoc product concepts as manual articles with ledger metadata.
-- `WorkflowGuide` presents the operating flow as an ordered procedure with a visible sequence rail.
-- `HelpfulNotFound` gives a short explanation plus direct links back to Home and Docs.
+- Source tree: `docs/.vitepress/config.ts`, `docs/.vitepress/theme/index.ts`, `docs/.vitepress/theme/custom.css`, `docs/index.md`, `docs/en/index.md`.
+- Navigation stays compact: docs home, deployment, API, MCP, language link, and GitHub social link.
+- Sidebars come from the former Markdown sidebar structure and are grouped as Understand, Follow, Reference, and Operate in both locales.
+- Root Chinese docs and `/en/` English docs preserve matching slugs for every topic.
+- Tables, code blocks, sidebars, and page outlines keep documentation-grade whitespace instead of card-heavy marketing sections.
 
-Reusable patterns:
+## Components And States
 
-- `.document-sheet` is the dossier artifact and may use `--shadow-field`; nested generic cards are not allowed inside it.
-- `.trust-loop` is a connected process rail; each `.trust-loop-step` may vary in span and tone to show control flow weight.
-- `.route-card` is an index row, not a card. It must preserve the class for tests/docs contracts.
-- `.guide-route`, `.concept-article`, and `.workflow-step` use ledger rows and ruled article sections rather than equal card grids.
-
-## Interaction
-
-- React navigation remains limited to `/`, `/concepts`, and `/workflows`; retired `/api` and `/agents` paths resolve to the helpful not-found route.
-- Docs links route to English `/docs/index.html#/en/...` and Chinese `/docs/index.html#/...`, with the Chinese overview at `/docs/index.html`.
-- The language switcher persists `vdoc-site-language`, updates `document.documentElement.lang`, and refreshes the document title/meta description.
-- The header keeps `.nav-link` for normal navigation and `.nav-link-github` for the repository link.
-- Hover and focus states should feel like a physical ledger row being selected: tonal shift, small transform, and visible focus outline. Reduced motion collapses transforms and animations.
+- VitePress `VPNav`, `VPSidebar`, `VPDoc`, `VPButton`, `VPFeature`, local search, outline, and doc footer are the only UI primitives.
+- Links use the green ramp and visible underline behavior.
+- Buttons use near-black fills for primary actions and subtle border treatment for secondary actions.
+- Code blocks use a dark code surface only inside fenced code, while the page itself remains light.
+- Focus states use a 3px green outline with offset on every keyboard-focusable element.
+- Motion is limited to small hover transforms on buttons and VitePress default transitions, with `prefers-reduced-motion` disabling transitions.
 
 ## Accessibility
 
-Maintain semantic landmarks, skip link, visible focus states, keyboard-safe custom navigation, high-contrast text, and reduced-motion-safe transitions. The public site should remain readable in both English and Simplified Chinese on narrow mobile screens without horizontal overflow.
+- The root locale is `zh-CN`; English pages set `lang="en"` through VitePress locales.
+- Text contrast targets WCAG AA or better: near-black text on a light canvas, darker green for links, and visible focus outlines.
+- The theme preserves semantic headings, skip navigation, keyboard sidebars, local search, and screen-reader labels provided by VitePress.
+- Documentation copy avoids secrets in examples and keeps command blocks readable on narrow screens.
+
+## Non-Goals
+
+- No React public app.
+- No legacy hash-route runtime, copy-button scripts, or compatibility shims.
+- No separate `/concepts` or `/workflows` marketing routes outside normal VitePress docs pages.
+- No inherited dark presentation, document-artifact metaphors, approval-mark motifs, or manual-cover styling.

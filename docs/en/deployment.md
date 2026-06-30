@@ -236,5 +236,5 @@ Percent encode PostgreSQL passwords before putting them in `VDOC_DATABASE_DSN` i
 
 1. Open backend health and confirm success.
 2. Open Admin and log in with the initial admin, or register the first user in a trusted pilot environment.
-3. Follow [First Use](en/admin-usage) to create Project, Document, Draft, Version, and MCP Token.
-4. Connect Agents with [MCP Tools](en/mcp-tools) and [Skill Workflows](en/skill-workflows).
+3. Follow [First Use](admin-usage) to create Project, Document, Draft, Version, and MCP Token.
+4. Connect Agents with [MCP Tools](mcp-tools) and [Skill Workflows](skill-workflows).

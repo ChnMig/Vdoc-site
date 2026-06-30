@@ -69,4 +69,4 @@ The Skill reduces guessing. Live facts still come from MCP tool results.
 
 In Docker Compose, containers talk to each other through service names, for example backend connects to `postgres:5432` and `rustfs:9000`. Browsers and host commands use `127.0.0.1` or your domain, for example `http://127.0.0.1:8081` for Admin.
 
-Next, start the system with [Deployment Guide](en/deployment), then create the first data path with [First Use](en/admin-usage).
+Next, start the system with [Deployment Guide](deployment), then create the first data path with [First Use](admin-usage).

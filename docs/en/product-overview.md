@@ -64,4 +64,4 @@ Vdoc does not replace engineering review. It makes approved facts queryable, aud
 6. Agent uses `@vdoc/mcp` to query Version, endpoint, diff, or Markdown content.
 7. If the Agent needs to change content, it submits a Draft. It cannot publish directly.
 
-Next, read [How It Works](en/how-it-works), then start the system with [Deployment Guide](en/deployment).
+Next, read [How It Works](how-it-works), then start the system with [Deployment Guide](deployment).

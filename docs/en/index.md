@@ -40,19 +40,18 @@ The release dry-run runs local checks only. It does not publish packages or depl
 
 ## Recommended Reading Path
 
-1. Start with [Product Overview](en/product-overview) to decide whether Vdoc fits your team.
-2. Read [How It Works](en/how-it-works) to understand Admin review, Drafts, Versions, MCP, Skills, and Agent use.
-3. Follow [Deployment Guide](en/deployment) to choose full Compose, direct deployment, or external dependencies.
-4. Use [First Use](en/admin-usage) to go from initial admin login to MCP Token creation.
-5. Connect Agents with [MCP Tools](en/mcp-tools) and [Skill Workflows](en/skill-workflows).
-6. Before upgrades, read [Upgrade and Rollback](en/release-rollback). If something fails, use [Troubleshooting](en/troubleshooting).
+1. Start with [Product Overview](product-overview) to decide whether Vdoc fits your team.
+2. Read [How It Works](how-it-works) to understand Admin review, Drafts, Versions, MCP, Skills, and Agent use.
+3. Follow [Deployment Guide](deployment) to choose full Compose, direct deployment, or external dependencies.
+4. Use [First Use](admin-usage) to go from initial admin login to MCP Token creation.
+5. Connect Agents with [MCP Tools](mcp-tools) and [Skill Workflows](skill-workflows).
+6. Before upgrades, read [Upgrade and Rollback](release-rollback). If something fails, use [Troubleshooting](troubleshooting).
 
 ## Language and Routes
 
-- `/docs/index.html` opens the Chinese docs by default.
-- English routes use `/docs/index.html#/en/...`, for example `/docs/index.html#/en/deployment`.
-- The language switch tries to keep you on the same topic.
-- Each article has a `Copy this Markdown` button that copies only the current Markdown file.
+- `/` opens the Chinese docs by default.
+- English routes use `/en/...`, for example `/en/deployment`.
+- The navigation includes a language link, and both locales keep matching topic slugs.
 
 ## Safety Boundary
 

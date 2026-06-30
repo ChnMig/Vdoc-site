@@ -4,7 +4,7 @@ The Vdoc Skill is an Agent runtime workflow package. It does not store data, com
 
 ## Before You Start
 
-- The Agent has configured [MCP Tools](en/mcp-tools), and Vdoc `tools/list` succeeds.
+- The Agent has configured [MCP Tools](mcp-tools), and Vdoc `tools/list` succeeds.
 - The target runtime supports skills or custom workflow instructions.
 - You know the skill folder location required by the runtime.
 - Do not put raw MCP Tokens, JWTs, DB passwords, storage secrets, or `Authorization` header values in Skill files, examples, logs, or issues.
@@ -17,7 +17,7 @@ docker compose --env-file .env up -d --build
 cd Vdoc && go run ./tools/vdoc-demo-seed
 ```
 
-The demo seed is optional. See [Deployment Guide](en/deployment) for the full local gate, where live E2E uses `./scripts/vdoc-e2e.sh live-compose --env-file ../.env --check-only` and `./scripts/vdoc-e2e.sh live-compose --env-file ../.env`, and the release gate uses `scripts/vdoc-release-dry-run.sh --list` and `scripts/vdoc-release-dry-run.sh`.
+The demo seed is optional. See [Deployment Guide](deployment) for the full local gate, where live E2E uses `./scripts/vdoc-e2e.sh live-compose --env-file ../.env --check-only` and `./scripts/vdoc-e2e.sh live-compose --env-file ../.env`, and the release gate uses `scripts/vdoc-release-dry-run.sh --list` and `scripts/vdoc-release-dry-run.sh`.
 
 ## Installation
 
