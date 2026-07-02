@@ -1,62 +1,25 @@
-# Vdoc Docs
+---
+layout: home
 
-These docs are for teams that want to evaluate, deploy, and use Vdoc. They explain the product first, then walk through deployment, first use, Agent setup, upgrades, and troubleshooting.
+hero:
+  name: Vdoc
+  tagline: 'Let agents cite only human-reviewed documentation facts: Draft, Version, Diff, MCP Token, Skill, and Admin.'
+  actions:
+    - theme: brand
+      text: Product overview
+      link: /en/product-overview
+    - theme: alt
+      text: Deploy Vdoc
+      link: /en/deployment
+    - theme: alt
+      text: MCP tools
+      link: /en/mcp-tools
 
-## What You Can Do Here
-
-- Learn how Vdoc connects OpenAPI, Markdown, human review, and Agent queries.
-- Start PostgreSQL, RustFS, backend API, and Admin with the Docker Compose package.
-- Use external PostgreSQL and S3 compatible storage instead.
-- Create Project, Document, Draft, Version, and MCP Token records in Admin.
-- Connect `@vdoc/mcp` and the Vdoc Skill so Agents query published facts before answering.
-- Back up, upgrade, verify, and roll back a Vdoc environment.
-
-## Local Closure Commands
-
-Run one local path from the workspace root:
-
-```sh
-scripts/vdoc-local-bootstrap.sh
-docker compose --env-file .env up -d --build
-cd Vdoc && go run ./tools/vdoc-demo-seed
-```
-
-`vdoc-demo-seed` is optional. After root Compose is running, live E2E uses:
-
-```sh
-cd Vdoc
-./scripts/vdoc-e2e.sh live-compose --env-file ../.env --check-only
-./scripts/vdoc-e2e.sh live-compose --env-file ../.env
-```
-
-Live E2E resets the selected disposable `VDOC_TEST_POSTGRES_DB`, `vdoc_e2e` by default. It does not reset the application database from `VDOC_POSTGRES_DB`. Use this as the local release gate:
-
-```sh
-scripts/vdoc-release-dry-run.sh --list
-scripts/vdoc-release-dry-run.sh
-```
-
-The release dry-run runs local checks only. It does not publish packages or deploy services.
-
-## Recommended Reading Path
-
-1. Start with [Product Overview](product-overview) to decide whether Vdoc fits your team.
-2. Read [How It Works](how-it-works) to understand Admin review, Drafts, Versions, MCP, Skills, and Agent use.
-3. Follow [Deployment Guide](deployment) to choose full Compose, direct deployment, or external dependencies.
-4. Use [First Use](admin-usage) to go from initial admin login to MCP Token creation.
-5. Connect Agents with [MCP Tools](mcp-tools) and [Skill Workflows](skill-workflows).
-6. Before upgrades, read [Upgrade and Rollback](release-rollback). If something fails, use [Troubleshooting](troubleshooting).
-
-## Language and Routes
-
-- `/` opens the Chinese docs by default.
-- English routes use `/en/...`, for example `/en/deployment`.
-- The navigation includes a language link, and both locales keep matching topic slugs.
-
-## Safety Boundary
-
-- Examples use placeholders only. Never commit real `.env`, JWT keys, MCP Tokens, database passwords, storage secrets, or `Authorization` headers.
-- Do not put raw JWTs, MCP Tokens, DB passwords, storage secrets, or `Authorization` header values in docs, logs, screenshots, issues, or shell history.
-- Private REST requests use the raw JWT in `Authorization`; do not add `Bearer`.
-- MCP config should pass `VDOC_MCP_TOKEN` through environment variables, not command-line arguments.
-- v0.1 does not provide direct MCP publishing. Agents can submit Drafts, but publishing requires Admin or SuperAdmin approval.
+features:
+  - title: Human-reviewed facts
+    details: A Draft becomes citable only after Admin review publishes it as an immutable Version for agent use.
+  - title: Version and Diff
+    details: Every release keeps a stable Version, while Diff views show what changed and what the team should inspect.
+  - title: MCP Token and Skill
+    details: Authorize agents with an MCP Token, then use the Vdoc Skill so they query published facts before answering.
+---

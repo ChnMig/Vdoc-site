@@ -8,9 +8,52 @@ const ignoredDirectories = new Set([
   '.git',
   '.impeccable',
   'coverage',
+  'docs/.vitepress/cache',
   'docs/.vitepress/dist',
   'node_modules',
 ])
+
+const localeHomeRequirements = [
+  {
+    path: 'docs/index.md',
+    statement: '让 Agent 只引用人工复核的文档事实',
+    nouns: [
+      '人工复核事实',
+      'Draft',
+      'Version',
+      'Diff',
+      'MCP Token',
+      'Skill',
+      'Admin',
+    ],
+    actions: ['/product-overview', '/deployment', '/mcp-tools'],
+  },
+  {
+    path: 'docs/en/index.md',
+    statement: 'Let agents cite only human-reviewed documentation facts',
+    nouns: [
+      'Human-reviewed facts',
+      'Draft',
+      'Version',
+      'Diff',
+      'MCP Token',
+      'Skill',
+      'Admin',
+    ],
+    actions: ['/en/product-overview', '/en/deployment', '/en/mcp-tools'],
+  },
+] as const
+
+const staleDirectionPatterns = [
+  /Mintlify/,
+  /restrained green accent/,
+  /radial-gradient/,
+  /linear-gradient/,
+  /\.VPHero::before/,
+  /oklch/,
+  /--vdoc-/,
+  /Review Ledger|Field Manual|dossier|stamp styling|dark graphite/i,
+] as const
 
 function readProjectFile(path: string): string {
   return readFileSync(join(projectRoot, path), 'utf8')
@@ -32,6 +75,11 @@ function listFiles(path: string): readonly string[] {
   })
 }
 
+function frontmatterOf(markdown: string): string {
+  const frontmatter = markdown.match(/^---\n(?<content>[\s\S]*?)\n---/)
+  return frontmatter?.groups?.['content'] ?? ''
+}
+
 describe('VitePress docs-only structure', () => {
   it('has paired Chinese and English Markdown docs for every required slug', () => {
     for (const slug of docsSlugs) {
@@ -41,6 +89,30 @@ describe('VitePress docs-only structure', () => {
 
     expect(statSync(join(docsRoot, 'index.md')).isFile()).toBe(true)
     expect(statSync(join(docsRoot, 'en', 'index.md')).isFile()).toBe(true)
+  })
+
+  it('uses VitePress home frontmatter for both locale home pages', () => {
+    for (const requirement of localeHomeRequirements) {
+      const source = readProjectFile(requirement.path)
+      const frontmatter = frontmatterOf(source)
+
+      expect(frontmatter).toContain('layout: home')
+      expect(frontmatter).toContain('hero:')
+      expect(frontmatter).toContain('name: Vdoc')
+      expect(frontmatter).not.toContain('\n  text:')
+      expect(frontmatter).toContain('tagline:')
+      expect(frontmatter).toContain(requirement.statement)
+      expect(frontmatter).toContain('actions:')
+      expect(frontmatter).toContain('features:')
+
+      for (const action of requirement.actions) {
+        expect(frontmatter).toContain(`link: ${action}`)
+      }
+
+      for (const noun of requirement.nouns) {
+        expect(frontmatter).toContain(noun)
+      }
+    }
   })
 
   it('uses VitePress source files instead of React or Docsify runtime files', () => {
@@ -74,8 +146,9 @@ describe('VitePress docs-only structure', () => {
 
     expect(combinedSource).not.toContain('/docs/index.html#')
     expect(combinedSource).not.toContain('Docsify')
-    expect(combinedSource).not.toMatch(
-      /Review Ledger|Field Manual|dossier|stamp styling|dark graphite/i,
-    )
+
+    for (const pattern of staleDirectionPatterns) {
+      expect(combinedSource).not.toMatch(pattern)
+    }
   })
 })

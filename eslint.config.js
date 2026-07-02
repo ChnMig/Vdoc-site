@@ -3,7 +3,7 @@ import globals from 'globals'
 import tseslint from 'typescript-eslint'
 
 export default tseslint.config(
-  { ignores: ['coverage', 'docs/.vitepress/dist'] },
+  { ignores: ['coverage', 'docs/.vitepress/cache', 'docs/.vitepress/dist'] },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {

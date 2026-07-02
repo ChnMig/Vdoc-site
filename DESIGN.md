@@ -2,75 +2,60 @@
 
 ## Surface
 
-Vdoc-site is now a docs-only VitePress site. The root `/` is the Simplified Chinese documentation entry, and `/en/` is the English documentation entry. There is no separate marketing portal, legacy documentation runtime, or client-side route layer.
+Vdoc-site is a docs-only VitePress portal. The root `/` is the Simplified Chinese help home, and `/en/` is the English help home. Topic pages stay in VitePress Markdown under matching Chinese and English slugs.
 
-## Visual Direction
+## Visual Contract
 
-Use a light reading canvas for technical teams evaluating, installing, and operating Vdoc. The page should feel like a precise hosted documentation product: fast to scan, comfortable for long reading, bilingual, and explicit about the human review boundary. The visual reference is documentation-as-product in the Mintlify family, adapted for Vdoc with quieter whitespace and a restrained green accent.
+Match the lean help-center style captured from `https://help.router-for.me/`: plain text VitePress nav, white background, left-aligned hero, compact CTA row, and a three-card `VPFeature` strip. The site should feel like default VitePress documentation that has been carefully configured, not like a custom marketing app.
 
-Physical scene: a platform engineer is reading setup instructions beside a running terminal in a bright office, moving between Chinese and English pages while checking exact commands. The design is light because the task is sustained reading and command copying, not spectacle.
+Physical scene: a platform engineer opens Vdoc docs beside an Admin session and an Agent terminal during daytime setup work. The page is bright, quiet, and fast to scan because the task is choosing the next trusted documentation step.
 
 ## Color Tokens
 
-All visual color lives in `docs/.vitepress/theme/custom.css` as semantic VitePress variables.
+All color customization uses VitePress theme variables in `docs/.vitepress/theme/custom.css`.
 
-- `--vp-c-bg`: light reading canvas, near white with a faint green cast.
-- `--vp-c-bg-alt`: sidebar and navigation surface.
-- `--vp-c-bg-elv`: elevated documentation surface.
-- `--vp-c-bg-soft`: inline code and quiet callout surface.
-- `--vp-c-text-1`: near-black primary text.
-- `--vp-c-text-2`: body and secondary copy.
-- `--vp-c-text-3`: tertiary labels and metadata.
-- `--vp-c-border` and `--vp-c-divider`: subtle documentation borders.
-- `--vp-c-brand-1`, `--vp-c-brand-2`, `--vp-c-brand-3`: restrained green accent ramp for links, focus, and selected state.
-- `--vp-c-brand-soft`: pale green selection and hover field.
-- `--vdoc-focus-ring`: accessible green focus outline.
+- Brand blue: `#3451b2` for links, primary actions, and the Vdoc hero name.
+- Hover blue: `#3f63c7` for active navigation and hover states.
+- Soft blue: `rgba(52, 81, 178, 0.14)` for subtle selected fields.
+- Background: VitePress white defaults.
+- Text, borders, code surfaces, feature cards, navigation, and sidebars: VitePress default theme values.
 
-Color strategy is restrained: near-black text, white and off-white surfaces, subtle borders, and green below 10% of the page. No purple SaaS gradients, decorative glass, dark panels, or heavy shadows.
+No custom hero background, no decorative gradient, no custom color-token namespace, and no dark or green article-home direction.
 
 ## Typography
 
-The documentation uses a CJK-safe system stack rather than remote fonts:
-
-- Base: `Avenir Next`, `Noto Sans SC`, `Source Han Sans SC`, `PingFang SC`, `system-ui`, sans-serif.
-- Mono: `SFMono-Regular`, `SF Mono`, `ui-monospace`, `Consolas`, monospace.
-
-Rules:
-
-- Body copy targets 65-72 characters per line through the VitePress content container.
-- Headings use balanced wrapping, near-black text, and restrained negative tracking no tighter than `-0.025em`.
-- Body, list, and table text use generous line height for bilingual reading.
-- Mono is reserved for code, commands, environment variables, paths, and technical identifiers.
+Use default VitePress typography, which follows system and Inter-like documentation conventions without external font loading. Do not define custom font stacks. Preserve VitePress heading scale, home hero sizing, body rhythm, code typography, and CJK fallback behavior.
 
 ## Layout
 
-The site uses the official VitePress default theme with a small theme extension only:
-
-- Source tree: `docs/.vitepress/config.ts`, `docs/.vitepress/theme/index.ts`, `docs/.vitepress/theme/custom.css`, `docs/index.md`, `docs/en/index.md`.
-- Navigation stays compact: docs home, deployment, API, MCP, language link, and GitHub social link.
-- Sidebars come from the former Markdown sidebar structure and are grouped as Understand, Follow, Reference, and Operate in both locales.
-- Root Chinese docs and `/en/` English docs preserve matching slugs for every topic.
-- Tables, code blocks, sidebars, and page outlines keep documentation-grade whitespace instead of card-heavy marketing sections.
+- Home pages use only VitePress `layout: home` frontmatter with `hero`, three `actions`, and three `features`.
+- Desktop follows the captured reference: 64px navigation, left-aligned content near the default VitePress gutter, a concise hero, and three feature columns.
+- Tablet keeps the three-feature strip when space allows.
+- Mobile uses VitePress hamburger navigation, wrapped CTA buttons, and stacked feature cards.
+- There are no extra custom home sections beyond the hero/actions/features structure.
 
 ## Components And States
 
-- VitePress `VPNav`, `VPSidebar`, `VPDoc`, `VPButton`, `VPFeature`, local search, outline, and doc footer are the only UI primitives.
-- Links use the green ramp and visible underline behavior.
-- Buttons use near-black fills for primary actions and subtle border treatment for secondary actions.
-- Code blocks use a dark code surface only inside fenced code, while the page itself remains light.
-- Focus states use a 3px green outline with offset on every keyboard-focusable element.
-- Motion is limited to small hover transforms on buttons and VitePress default transitions, with `prefers-reduced-motion` disabling transitions.
+- UI primitives are VitePress default theme components: `VPNav`, `VPButton`, `VPFeature`, `VPDoc`, sidebar, local search, outline, footer, and social link.
+- The nav title is plain text; `themeConfig.logo` is intentionally absent.
+- Primary actions use the VitePress brand button with the blue brand variable.
+- Secondary actions use VitePress alternate buttons.
+- Feature cards use default `VPFeature` treatment.
+- Motion and focus states stay with VitePress defaults; do not add hover transforms or custom runtime behavior.
+
+## Vdoc Semantics
+
+The home copy must keep the trust loop concrete in both locales: human-reviewed facts / 人工复核事实, Draft, Version, Diff, MCP Token, Skill, and Admin. Agents are described as reading approved facts through MCP and Skill workflows, while publishing remains a human/Admin responsibility.
 
 ## Accessibility
 
-- The root locale is `zh-CN`; English pages set `lang="en"` through VitePress locales.
-- Text contrast targets WCAG AA or better: near-black text on a light canvas, darker green for links, and visible focus outlines.
-- The theme preserves semantic headings, skip navigation, keyboard sidebars, local search, and screen-reader labels provided by VitePress.
-- Documentation copy avoids secrets in examples and keeps command blocks readable on narrow screens.
+- Root locale is `zh-CN`; `/en/` uses `en` through VitePress locales.
+- Use semantic VitePress home data rather than custom HTML so landmarks, links, focus, responsive navigation, and local search stay framework-owned.
+- Maintain WCAG AA contrast with blue `#3451b2` on white and VitePress default text colors.
+- Keep examples free of real JWT, MCP Token, DB password, storage secret, or `Authorization` header values.
 
 ## Non-Goals
 
-- No React public app.
-- No legacy hash-route runtime, copy-button scripts, or compatibility shims.
-- No separate `/concepts` or `/workflows` marketing routes outside normal VitePress docs pages.
-- No inherited dark presentation, document-artifact metaphors, approval-mark motifs, or manual-cover styling.
+- No custom app runtime.
+- No external fonts, image assets, utility CSS layer, legacy docs route layer, or extra dependencies.
+- No generic SaaS landing sections, metrics bands, screenshots, diagrams, or bespoke cards outside VitePress home frontmatter.

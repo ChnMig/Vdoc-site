@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Vdoc docs">
-  <rect width="64" height="64" rx="14" fill="oklch(0.985 0.006 155)" />
-  <rect x="14" y="12" width="36" height="40" rx="6" fill="oklch(1 0 0)" stroke="oklch(0.88 0.014 155)" stroke-width="3" />
-  <path d="M22 23h20M22 32h17M22 41h12" stroke="oklch(0.38 0.018 165)" stroke-width="3" stroke-linecap="round" />
-  <path d="M18 15l14 34 14-34" fill="none" stroke="oklch(0.52 0.13 156)" stroke-width="4.5" stroke-linejoin="round" />
+<rect width="64" height="64" rx="14" fill="#f6f8ff" />
+<rect x="14" y="12" width="36" height="40" rx="6" fill="#ffffff" stroke="#d8def8" stroke-width="3" />
+<path d="M22 23h20M22 32h17M22 41h12" stroke="#3f465c" stroke-width="3" stroke-linecap="round" />
+<path d="M18 15l14 34 14-34" fill="none" stroke="#3451b2" stroke-width="4.5" stroke-linejoin="round" />
 </svg>

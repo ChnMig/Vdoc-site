@@ -152,7 +152,6 @@ export default defineConfig({
     },
   },
   themeConfig: {
-    logo: '/favicon.svg',
     search: {
       provider: 'local',
     },
