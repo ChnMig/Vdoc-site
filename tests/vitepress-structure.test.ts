@@ -16,29 +16,29 @@ const ignoredDirectories = new Set([
 const localeHomeRequirements = [
   {
     path: 'docs/index.md',
-    statement: '让 Agent 只引用人工复核的文档事实',
-    nouns: [
-      '人工复核事实',
-      'Draft',
-      'Version',
-      'Diff',
-      'MCP Token',
-      'Skill',
-      'Admin',
+    statement: '把 OpenAPI 与 Markdown 变成人工复核事实',
+    messages: [
+      'OpenAPI 与 Markdown 变成人工复核事实',
+      'Draft 由 Admin 审核',
+      '不可变 Version',
+      'Diff 展示每次变更',
+      'MCP Token 控制读取权限',
+      'Vdoc Skill',
+      'Agent 只读取已批准事实，不能直接发布',
     ],
     actions: ['/product-overview', '/deployment', '/mcp-tools'],
   },
   {
     path: 'docs/en/index.md',
-    statement: 'Let agents cite only human-reviewed documentation facts',
-    nouns: [
-      'Human-reviewed facts',
-      'Draft',
-      'Version',
-      'Diff',
-      'MCP Token',
-      'Skill',
-      'Admin',
+    statement: 'OpenAPI and Markdown become human-reviewed facts',
+    messages: [
+      'OpenAPI and Markdown become human-reviewed facts',
+      'Drafts are reviewed in Admin',
+      'immutable Version',
+      'Diff shows every change',
+      'MCP Token controls read access',
+      'Vdoc Skill',
+      'agents read approved facts and cannot publish directly',
     ],
     actions: ['/en/product-overview', '/en/deployment', '/en/mcp-tools'],
   },
@@ -80,6 +80,19 @@ function frontmatterOf(markdown: string): string {
   return frontmatter?.groups?.['content'] ?? ''
 }
 
+function expectMessagesInOrder(
+  source: string,
+  messages: readonly string[],
+): void {
+  let cursor = 0
+
+  for (const message of messages) {
+    const index = source.indexOf(message, cursor)
+    expect(index).toBeGreaterThanOrEqual(cursor)
+    cursor = index + message.length
+  }
+}
+
 describe('VitePress docs-only structure', () => {
   it('has paired Chinese and English Markdown docs for every required slug', () => {
     for (const slug of docsSlugs) {
@@ -103,15 +116,15 @@ describe('VitePress docs-only structure', () => {
       expect(frontmatter).toContain('tagline:')
       expect(frontmatter).toContain(requirement.statement)
       expect(frontmatter).toContain('actions:')
+      expect(frontmatter.match(/\n {4}- theme:/g) ?? []).toHaveLength(3)
       expect(frontmatter).toContain('features:')
+      expect(frontmatter.match(/\n {2}- title:/g) ?? []).toHaveLength(3)
 
       for (const action of requirement.actions) {
         expect(frontmatter).toContain(`link: ${action}`)
       }
 
-      for (const noun of requirement.nouns) {
-        expect(frontmatter).toContain(noun)
-      }
+      expectMessagesInOrder(frontmatter, requirement.messages)
     }
   })
 

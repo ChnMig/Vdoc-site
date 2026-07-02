@@ -3,7 +3,7 @@ layout: home
 
 hero:
   name: Vdoc
-  tagline: '让 Agent 只引用人工复核的文档事实：Draft、Version、Diff、MCP Token、Skill 与 Admin。'
+  tagline: 'Vdoc 把 OpenAPI 与 Markdown 变成 Agent 可以放心引用的人工复核事实，并让每次审核、发布与变更都可追溯。'
   actions:
     - theme: brand
       text: 产品概览
@@ -16,10 +16,10 @@ hero:
       link: /mcp-tools
 
 features:
-  - title: 人工复核事实
-    details: Draft 只有经过 Admin 审核并发布为 Version 后，才会成为 Agent 可以引用的事实来源。
-  - title: Version 与 Diff
-    details: 每次发布都保留不可变 Version，并用 Diff 帮团队理解文档变更和影响。
-  - title: MCP Token 与 Skill
-    details: 通过 MCP Token 授权 Agent，再用 Vdoc Skill 要求它先查询已发布事实再回答。
+  - title: OpenAPI 与 Markdown
+    details: 把 OpenAPI 与 Markdown 变成人工复核事实：导入内容先进入 Draft，让团队在发布前逐条确认来源与含义。
+  - title: Admin、Version 与 Diff
+    details: Draft 由 Admin 审核，发布后形成不可变 Version；Diff 展示每次变更，团队能看清新增、删除与影响。
+  - title: MCP Token 与 Vdoc Skill
+    details: MCP Token 控制读取权限，Vdoc Skill 引导 Agent 查询；Agent 只读取已批准事实，不能直接发布，也可以提交新的 Draft 等待人工复核。
 ---
