@@ -11,6 +11,7 @@
 - `Vdoc/scripts/vdoc-e2e.sh live-compose`，可从 root `.env` 派生 live E2E 配置。
 - `scripts/vdoc-release-dry-run.sh`，作为本机 release gate，不发布、不部署。
 - Admin UI，用于管理 Team、Project、Document、Branch、Draft、Review、Version、Diff、endpoint detail 和 MCP Token。
+- 后台 [Admin AI](admin-ai)，包含系统和项目级 OpenAI-compatible provider、prompt 覆盖、provider test、Draft/Version 自动摘要、Draft/Version/Diff 摘要读取和重新生成、页面内对话及审计。
 - `@vdoc/mcp` package，用于 Agent runtime 通过 MCP 查询 Vdoc backend。
 - `Vdoc-skill` package，用于要求 Agent 在依赖 API 或 Markdown 事实前先查询 Vdoc。
 
@@ -33,6 +34,7 @@
 ## v0.1 不包含
 
 - MCP direct publish tools。
+- AI 直接 approve、request changes、reject、修改或 publish 的能力。
 - Invitation flows 和 notification robots。
 - PR bot automation。
 - Full SDK 或 code generation platform。
@@ -55,3 +57,4 @@
 5. MCP `tools/list` 返回来自已部署 backend 的 tool schemas。
 6. Skill package 测试通过，并且 Agent 在回答 endpoint 或 migration 问题前会调用 Vdoc MCP。
 7. 发布说明中明确写出 v0.1 不支持 MCP 直接发布。
+8. Admin AI provider test 成功，Draft 和 Version 摘要可读取，失败场景不阻塞机器 Diff 和人工审核。

@@ -7,7 +7,11 @@ Docs-only VitePress site for Vdoc. The site is the public documentation surface 
 - VitePress default theme with a small custom theme extension.
 - TypeScript for VitePress config and tests.
 - Vitest structure tests.
+- Playwright and axe browser checks.
 - ESLint and Prettier quality gates.
+
+Development requires Node.js `>=22.13` and pnpm `11.6.0`.
+Local browser checks use the installed Microsoft Edge Beta channel. CI installs only Playwright Chromium.
 
 ## Routes
 
@@ -15,7 +19,7 @@ Docs-only VitePress site for Vdoc. The site is the public documentation surface 
 - `/en/`: English documentation landing page.
 - Topic pages use matching slugs in both locales, for example `/deployment` and `/en/deployment`.
 
-Required topic slugs are `product-overview`, `how-it-works`, `version-notes`, `deployment`, `admin-usage`, `api-reference`, `changelog`, `mcp-tools`, `skill-workflows`, `release-rollback`, and `troubleshooting`.
+Required topic slugs are `product-overview`, `how-it-works`, `version-notes`, `deployment`, `admin-usage`, `admin-ai`, `api-reference`, `changelog`, `mcp-tools`, `skill-workflows`, `release-rollback`, and `troubleshooting`. Every topic is authored at both `/<slug>` and `/en/<slug>`.
 
 ## Local Development
 
@@ -27,12 +31,18 @@ pnpm dev
 ## Verification
 
 ```sh
-pnpm test
+pnpm format:check
 pnpm typecheck
 pnpm lint
-pnpm format:check
-pnpm build
+pnpm test:unit
+pnpm test:content
+pnpm test:browser:root
+pnpm test:browser:pages
+pnpm test:performance:root
+pnpm test:performance:pages
 ```
+
+`pnpm build:root` builds for `/`. `pnpm build:pages` builds for the GitHub Pages base `/Vdoc-site/`; navigation, local-search results, favicon, and generated assets stay inside the selected base. Both builds write to `docs/.vitepress/dist/`.
 
 ## Content Sources
 

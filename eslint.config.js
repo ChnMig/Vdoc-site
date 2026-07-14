@@ -3,7 +3,16 @@ import globals from 'globals'
 import tseslint from 'typescript-eslint'
 
 export default tseslint.config(
-  { ignores: ['coverage', 'docs/.vitepress/cache', 'docs/.vitepress/dist'] },
+  {
+    ignores: [
+      '.artifacts',
+      'coverage',
+      'docs/.vitepress/cache',
+      'docs/.vitepress/dist',
+      'playwright-report',
+      'test-results',
+    ],
+  },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {

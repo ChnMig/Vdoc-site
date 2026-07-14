@@ -10,8 +10,21 @@
   --vp-button-brand-border: #3451b2;
   --vp-button-brand-hover-border: #3f63c7;
   --vp-button-brand-active-border: #2b459a;
+  --vp-code-lang-color: #5f5f66;
+}
+
+.dark {
+  --vp-code-lang-color: #a6a6ad;
 }
 
 ::selection {
   background: rgba(52, 81, 178, 0.16);
+}
+
+html:not(.dark) .vp-code span[style*='--shiki-light:#D73A49'] {
+  --shiki-light: #c12a3a !important;
+}
+
+html:not(.dark) .vp-code span[style*='--shiki-light:#6A737D'] {
+  --shiki-light: #666f79 !important;
 }

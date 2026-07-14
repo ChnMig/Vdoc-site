@@ -104,6 +104,16 @@ If `code` is not `200` or `status` is not `OK`, handle it as a business error.
 - `relative_path` is Document identity. Do not query across systems by display name.
 - Publishing requires approve. v0.1 does not support MCP direct publish.
 
+## Admin AI Summary or Page Chat Fails
+
+- Read [Admin AI](admin-ai) first. Confirm the Project has an enabled project provider or can fall back to an enabled system provider.
+- Run the provider test for that scope. Check `base_url`, `api_mode`, `model`, and timeout without printing `api_key` in logs.
+- Confirm provider detail exposes only `api_key_set` and `api_key_last4`. If no encrypted key is set, have an authorized administrator save the configuration.
+- Check whether the matching `draft_review_summary`, `version_change_summary`, `diff_change_summary`, or `page_chat` prompt is enabled.
+- `skipped` usually means no usable provider or a disabled prompt. `failed` means the provider call failed. Neither state should block Draft submission, Version publishing, machine Diff, or human review.
+- Page chat must bind to the current Draft, Version, or Diff. Cross-Project access, missing read permission, or an empty message fails.
+- Diagnose with `trace_id` and audit status. Audit may contain a failure reason and token usage, while prompt overrides, summaries, and chat content are managed product records. Logs and audit metadata must not contain raw API keys, JWTs, MCP Tokens, `Authorization` headers, or secrets embedded in prompts.
+
 ## Live E2E Fails
 
 From the backend directory, check the root Compose derived settings:
@@ -138,6 +148,7 @@ Live E2E resets the selected disposable `VDOC_TEST_POSTGRES_DB`, `vdoc_e2e` by d
 - Admin page fails but backend is healthy: roll back Admin build or container first.
 - MCP `tools/list` fails: check token and backend before rolling back MCP package.
 - Agent ignores Vdoc facts: check MCP and Skill installation before rolling back the Skill package.
+- Admin AI fails while machine Diff and human review work: roll back provider or prompt configuration first. Do not roll back a published Version or let AI replace review.
 
 Read [Upgrade and Rollback](release-rollback) before rolling back. Do not delete PostgreSQL or object storage data.
 

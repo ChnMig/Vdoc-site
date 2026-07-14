@@ -1,5 +1,10 @@
 dist
 coverage
+.omo
+.playwright-mcp
+.artifacts
+playwright-report
+test-results
 docs/.vitepress/dist
 docs/.vitepress/cache
 node_modules

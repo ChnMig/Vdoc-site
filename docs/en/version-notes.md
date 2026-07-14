@@ -11,6 +11,7 @@ These notes describe the v0.1 boundary. Before planning a pilot, writing Agent i
 - `Vdoc/scripts/vdoc-e2e.sh live-compose` for deriving live E2E settings from the root `.env`.
 - `scripts/vdoc-release-dry-run.sh` as the local release gate, with no publishing or deployment.
 - Admin UI for Team, Project, Document, Branch, Draft, Review, Version, Diff, endpoint detail, and MCP Token management.
+- Built-in [Admin AI](admin-ai) with system and project OpenAI-compatible providers, prompt overrides, provider tests, automatic Draft and Version summaries, Draft/Version/Diff summary read and regeneration, page chat, and auditing.
 - `@vdoc/mcp` package for Agent runtimes to query the Vdoc backend through MCP.
 - `Vdoc-skill` package that tells Agents to query Vdoc before relying on API or Markdown facts.
 
@@ -33,6 +34,7 @@ These notes describe the v0.1 boundary. Before planning a pilot, writing Agent i
 ## Not Included in v0.1
 
 - MCP direct publish tools.
+- AI authority to approve, request changes, reject, modify, or publish.
 - Invitation flows and notification robots.
 - PR bot automation.
 - Full SDK or code generation platform.
@@ -55,3 +57,4 @@ These notes describe the v0.1 boundary. Before planning a pilot, writing Agent i
 5. MCP `tools/list` returns tool schemas from the deployed backend.
 6. Skill package tests pass, and Agents call Vdoc MCP before answering endpoint or migration questions.
 7. Release notes clearly state that v0.1 does not support MCP direct publishing.
+8. Admin AI provider tests succeed, Draft and Version summaries can be read, and failure cases do not block machine Diff or human review.

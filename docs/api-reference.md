@@ -23,7 +23,7 @@ curl "$API_BASE/api/v1/open/docs/openapi.yaml"
 
 Public auth 从 register 或 login 开始。Private REST 使用登录或注册返回的 JWT。MCP 使用 Admin 或 private REST 创建的 MCP Token。
 
-关键规则：`Authorization` header 放原始 JWT 或 MCP Token，不加 `Bearer` 前缀。不要把完整 header 写进文档、日志、截图或仓库。
+关键规则：`Authorization` header 放原始 JWT 或 MCP Token，不加 `Bearer` 前缀。不要把完整 header 写进文档、日志、截图或仓库。shell 环境变量不是 package CLI argument，不要把凭据放进 package 或进程 `args`。运行前用 `set +x` 关闭 xtrace，并用 stdin config 把 header 交给 `curl`，避免原始值进入 `curl` 的进程参数。
 
 ## 响应 envelope
 
@@ -52,13 +52,18 @@ REGISTER_RESPONSE=$(curl -sS "$API_BASE/api/v1/open/auth/register" \
 
 ADMIN_USER_ID=$(printf '%s' "$REGISTER_RESPONSE" | jq -r '.detail.user.id')
 JWT=$(printf '%s' "$REGISTER_RESPONSE" | jq -r '.detail.token')
+
+set +x
+curl_with_jwt() {
+  printf 'header = "Authorization: %s"\n' "$JWT" |
+    curl --config - "$@"
+}
 ```
 
 验证 private identity：
 
 ```sh
-curl -sS "$API_BASE/api/v1/private/identity/me" \
-  -H "Authorization: $JWT"
+curl_with_jwt -sS "$API_BASE/api/v1/private/identity/me"
 ```
 
 ## 角色和文档类型
@@ -74,21 +79,18 @@ curl -sS "$API_BASE/api/v1/private/identity/me" \
 ## 创建 Team、Project 和 Document
 
 ```sh
-TEAM_RESPONSE=$(curl -sS "$API_BASE/api/v1/private/teams" \
+TEAM_RESPONSE=$(curl_with_jwt -sS "$API_BASE/api/v1/private/teams" \
   -H 'Content-Type: application/json' \
-  -H "Authorization: $JWT" \
   -d '{"name":"Docs Team","description":"API docs smoke team"}')
 TEAM_ID=$(printf '%s' "$TEAM_RESPONSE" | jq -r '.detail.id')
 
-PROJECT_RESPONSE=$(curl -sS "$API_BASE/api/v1/private/projects" \
+PROJECT_RESPONSE=$(curl_with_jwt -sS "$API_BASE/api/v1/private/projects" \
   -H 'Content-Type: application/json' \
-  -H "Authorization: $JWT" \
   -d "{\"team_id\":\"$TEAM_ID\",\"name\":\"Docs Project\",\"description\":\"API docs smoke project\",\"admin_user_id\":\"$ADMIN_USER_ID\"}")
 PROJECT_ID=$(printf '%s' "$PROJECT_RESPONSE" | jq -r '.detail.id')
 
-DOCUMENT_RESPONSE=$(curl -sS "$API_BASE/api/v1/private/projects/$PROJECT_ID/documents" \
+DOCUMENT_RESPONSE=$(curl_with_jwt -sS "$API_BASE/api/v1/private/projects/$PROJECT_ID/documents" \
   -H 'Content-Type: application/json' \
-  -H "Authorization: $JWT" \
   -d '{"name":"petstore","document_type":1,"relative_path":"apis/petstore.yaml","description":"Docs sample document"}')
 DOCUMENT_ID=$(printf '%s' "$DOCUMENT_RESPONSE" | jq -r '.detail.id')
 ```
@@ -96,8 +98,8 @@ DOCUMENT_ID=$(printf '%s' "$DOCUMENT_RESPONSE" | jq -r '.detail.id')
 Document 创建后会生成 `dev`、`test` 和受保护的 `prod` branches。取 `dev` branch：
 
 ```sh
-BRANCH_ID=$(curl -sS "$API_BASE/api/v1/private/projects/$PROJECT_ID/documents/$DOCUMENT_ID/branches" \
-  -H "Authorization: $JWT" | jq -r '.detail[] | select(.name=="dev") | .id')
+BRANCH_ID=$(curl_with_jwt -sS "$API_BASE/api/v1/private/projects/$PROJECT_ID/documents/$DOCUMENT_ID/branches" |
+  jq -r '.detail[] | select(.name=="dev") | .id')
 ```
 
 ## Draft、Review 和 Version
@@ -107,19 +109,16 @@ OpenAPI Draft 可以提交 OpenAPI 3.0 或 3.1 内容为 `schema_content`。Mark
 运行下面的 OpenAPI 示例前，先把 `SCHEMA_V1` 设成合法 JSON 字符串，例如用 `jq -Rs . < openapi.yaml` 生成。
 
 ```sh
-DRAFT_RESPONSE=$(curl -sS "$API_BASE/api/v1/private/projects/$PROJECT_ID/documents/$DOCUMENT_ID/drafts" \
+DRAFT_RESPONSE=$(curl_with_jwt -sS "$API_BASE/api/v1/private/projects/$PROJECT_ID/documents/$DOCUMENT_ID/drafts" \
   -H 'Content-Type: application/json' \
-  -H "Authorization: $JWT" \
   -d "{\"branch_id\":\"$BRANCH_ID\",\"version_name\":\"1.0.0\",\"schema_content\":$SCHEMA_V1}")
 DRAFT_ID=$(printf '%s' "$DRAFT_RESPONSE" | jq -r '.detail.id')
 
-curl -sS "$API_BASE/api/v1/private/projects/$PROJECT_ID/documents/$DOCUMENT_ID/drafts/$DRAFT_ID/submit" \
-  -X POST \
-  -H "Authorization: $JWT"
+curl_with_jwt -sS "$API_BASE/api/v1/private/projects/$PROJECT_ID/documents/$DOCUMENT_ID/drafts/$DRAFT_ID/submit" \
+  -X POST
 
-VERSION_RESPONSE=$(curl -sS "$API_BASE/api/v1/private/projects/$PROJECT_ID/documents/$DOCUMENT_ID/drafts/$DRAFT_ID/approve" \
-  -X POST \
-  -H "Authorization: $JWT")
+VERSION_RESPONSE=$(curl_with_jwt -sS "$API_BASE/api/v1/private/projects/$PROJECT_ID/documents/$DOCUMENT_ID/drafts/$DRAFT_ID/approve" \
+  -X POST)
 VERSION_ID=$(printf '%s' "$VERSION_RESPONSE" | jq -r '.detail.id')
 ```
 
@@ -134,28 +133,23 @@ POST /api/v1/private/projects/{project_id}/documents/{document_id}/drafts/promot
 ## 查询 Version、Endpoint 和 Diff
 
 ```sh
-curl -sS "$API_BASE/api/v1/private/projects/$PROJECT_ID/documents/$DOCUMENT_ID/versions/$VERSION_ID/content/raw" \
-  -H "Authorization: $JWT"
+curl_with_jwt -sS "$API_BASE/api/v1/private/projects/$PROJECT_ID/documents/$DOCUMENT_ID/versions/$VERSION_ID/content/raw"
 
-ENDPOINTS_RESPONSE=$(curl -sS "$API_BASE/api/v1/private/projects/$PROJECT_ID/documents/$DOCUMENT_ID/versions/$VERSION_ID/endpoints?path=/pets" \
-  -H "Authorization: $JWT")
+ENDPOINTS_RESPONSE=$(curl_with_jwt -sS "$API_BASE/api/v1/private/projects/$PROJECT_ID/documents/$DOCUMENT_ID/versions/$VERSION_ID/endpoints?path=/pets")
 ENDPOINT_ID=$(printf '%s' "$ENDPOINTS_RESPONSE" | jq -r '.detail[0].id')
 
-curl -sS "$API_BASE/api/v1/private/projects/$PROJECT_ID/documents/$DOCUMENT_ID/versions/$VERSION_ID/endpoints/$ENDPOINT_ID" \
-  -H "Authorization: $JWT"
+curl_with_jwt -sS "$API_BASE/api/v1/private/projects/$PROJECT_ID/documents/$DOCUMENT_ID/versions/$VERSION_ID/endpoints/$ENDPOINT_ID"
 ```
 
 比较两个已发布 Version：
 
 ```sh
-DIFF_RESPONSE=$(curl -sS "$API_BASE/api/v1/private/projects/$PROJECT_ID/documents/$DOCUMENT_ID/diffs" \
+DIFF_RESPONSE=$(curl_with_jwt -sS "$API_BASE/api/v1/private/projects/$PROJECT_ID/documents/$DOCUMENT_ID/diffs" \
   -H 'Content-Type: application/json' \
-  -H "Authorization: $JWT" \
   -d "{\"from_version_id\":\"$VERSION_ONE_ID\",\"to_version_id\":\"$VERSION_TWO_ID\"}")
 DIFF_ID=$(printf '%s' "$DIFF_RESPONSE" | jq -r '.detail.id')
 
-curl -sS "$API_BASE/api/v1/private/projects/$PROJECT_ID/documents/$DOCUMENT_ID/diffs/$DIFF_ID/summary" \
-  -H "Authorization: $JWT"
+curl_with_jwt -sS "$API_BASE/api/v1/private/projects/$PROJECT_ID/documents/$DOCUMENT_ID/diffs/$DIFF_ID/summary"
 ```
 
 ## MCP Token 和 MCP JSON-RPC
@@ -163,32 +157,62 @@ curl -sS "$API_BASE/api/v1/private/projects/$PROJECT_ID/documents/$DOCUMENT_ID/d
 创建 MCP Token。`.detail.token` 是一次性可复制 secret，后续 list、get、revoke 返回会脱敏。
 
 ```sh
-MCP_TOKEN_RESPONSE=$(curl -sS "$API_BASE/api/v1/private/mcp-tokens" \
+MCP_TOKEN_RESPONSE=$(curl_with_jwt -sS "$API_BASE/api/v1/private/mcp-tokens" \
   -H 'Content-Type: application/json' \
-  -H "Authorization: $JWT" \
   -d '{"name":"docs-agent","scopes":[1,2]}')
 MCP_TOKEN=$(printf '%s' "$MCP_TOKEN_RESPONSE" | jq -r '.detail.token')
+
+curl_with_mcp_token() {
+  printf 'header = "Authorization: %s"\n' "$MCP_TOKEN" |
+    curl --config - "$@"
+}
 ```
 
 查询 MCP tools：
 
 ```sh
-curl -sS "$API_BASE/api/v1/open/mcp" \
+curl_with_mcp_token -sS "$API_BASE/api/v1/open/mcp" \
   -H 'Content-Type: application/json' \
-  -H "Authorization: $MCP_TOKEN" \
   -d '{"jsonrpc":"2.0","id":"tools-list","method":"tools/list"}'
 ```
 
 调用 read tool 示例：
 
 ```sh
-curl -sS "$API_BASE/api/v1/open/mcp" \
+curl_with_mcp_token -sS "$API_BASE/api/v1/open/mcp" \
   -H 'Content-Type: application/json' \
-  -H "Authorization: $MCP_TOKEN" \
   -d "{\"jsonrpc\":\"2.0\",\"id\":\"endpoint-detail\",\"method\":\"tools/call\",\"params\":{\"name\":\"get_endpoint_detail\",\"arguments\":{\"project_id\":\"$PROJECT_ID\",\"document_id\":\"$DOCUMENT_ID\",\"version_id\":\"$VERSION_ID\",\"endpoint_id\":\"$ENDPOINT_ID\"}}}"
 ```
 
 v0.1 不通过 MCP 暴露 direct publish tools。Agent 可以创建、更新、查看和提交 Draft，但发布仍由 Admin 或 SuperAdmin 审核。
+
+## Admin AI 路由
+
+[Admin AI](admin-ai) 使用 private JWT API。Provider 和 prompt 配置与外部 MCP/Skill Agent 分离，AI 结果不能替代机器 Diff 或人工审核。
+
+```text
+GET  /api/v1/private/ai/provider
+PUT  /api/v1/private/ai/provider
+POST /api/v1/private/ai/provider/test
+GET  /api/v1/private/projects/{project_id}/ai/provider
+PUT  /api/v1/private/projects/{project_id}/ai/provider
+POST /api/v1/private/projects/{project_id}/ai/provider/test
+GET  /api/v1/private/ai/prompts
+PUT  /api/v1/private/ai/prompts/{prompt_key}
+GET  /api/v1/private/projects/{project_id}/ai/prompts
+PUT  /api/v1/private/projects/{project_id}/ai/prompts/{prompt_key}
+GET  /api/v1/private/projects/{project_id}/documents/{document_id}/drafts/{draft_id}/ai-summary
+POST /api/v1/private/projects/{project_id}/documents/{document_id}/drafts/{draft_id}/ai-summary/regenerate
+GET  /api/v1/private/projects/{project_id}/documents/{document_id}/versions/{version_id}/ai-summary
+POST /api/v1/private/projects/{project_id}/documents/{document_id}/versions/{version_id}/ai-summary/regenerate
+GET  /api/v1/private/projects/{project_id}/documents/{document_id}/diffs/{diff_id}/ai-summary
+POST /api/v1/private/projects/{project_id}/documents/{document_id}/diffs/{diff_id}/ai-summary/regenerate
+POST /api/v1/private/projects/{project_id}/ai/chat-sessions
+GET  /api/v1/private/projects/{project_id}/ai/chat-sessions/{session_id}
+POST /api/v1/private/projects/{project_id}/ai/chat-sessions/{session_id}/messages
+```
+
+Provider payload 包含 `name`、`base_url`、`model`、`api_mode`、`api_key`、`enabled`、`temperature`、`timeout_ms` 和 `max_output_tokens`。读取响应只暴露 `api_key_set` 和 `api_key_last4`。系统和项目 provider 都有 test route，Draft、Version 和 Diff 都支持摘要读取和手动重新生成，chat session 固定在当前页面资源上下文。
 
 ## 接口分类
 
@@ -205,6 +229,7 @@ v0.1 不通过 MCP 暴露 direct publish tools。Agent 可以创建、更新、�
 | Versions     | Published document versions 和 raw、normalized 或 stable content。 |
 | Endpoints    | Published versions 中解析出的 endpoint list 和 detail。            |
 | Diffs        | Semantic version comparison 和 summaries。                         |
+| AI           | Provider、prompt、Draft/Version/Diff AI summary 和 page chat。     |
 | MCP Tokens   | User MCP token lifecycle。                                         |
 
 ## 如何验证

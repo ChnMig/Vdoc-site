@@ -10,6 +10,7 @@ This page records the current user-visible v0.1 state covered by the VitePress d
 - Added [How It Works](how-it-works) to explain Admin review, Drafts, Versions, MCP, Skills, and Agents.
 - [Deployment Guide](deployment) has been rewritten around `scripts/vdoc-local-bootstrap.sh`, root Compose, optional demo seed, live-compose E2E, release dry-run, direct deployment, and external PostgreSQL/S3 compatible storage.
 - [First Use](admin-usage) now covers the first chain from initial admin to Project, Document, Draft, Version, MCP Token, MCP adapter, and Skill.
+- Added [Admin AI](admin-ai) for system and project providers, two OpenAI-compatible API modes, prompt overrides, automatic summaries, page chat, audit behavior, and the human publishing boundary.
 - [Upgrade and Rollback](release-rollback) now covers PostgreSQL/object storage backup, `docker compose --env-file .env up -d --build`, live E2E, `scripts/vdoc-release-dry-run.sh`, health verification, and rollback.
 
 ## Current Product Surface
@@ -19,6 +20,7 @@ This page records the current user-visible v0.1 state covered by the VitePress d
 - Admin Docker supports runtime `VDOC_ADMIN_API_BASE_URL` to generate a browser-usable backend API base URL.
 - `@vdoc/mcp` is an installable stdio MCP adapter that forwards Agent MCP requests to backend.
 - `Vdoc-skill` is an installable Agent workflow package that tells Agents to query Vdoc MCP before answering from facts.
+- Built-in Admin AI can help explain Drafts, Versions, and Diffs, but it does not replace the external MCP/Skill Agent, machine Diff, or the human publishing gate.
 - Live E2E uses `./scripts/vdoc-e2e.sh live-compose --env-file ../.env` and resets only the disposable `VDOC_TEST_POSTGRES_DB`, `vdoc_e2e` by default.
 
 ## Boundaries to Remember
@@ -32,4 +34,4 @@ This page records the current user-visible v0.1 state covered by the VitePress d
 
 1. Open `/` and confirm the default Chinese page loads.
 2. Open `/en/product-overview` and confirm the English page loads.
-3. Click [How It Works](how-it-works), [Deployment Guide](deployment), [MCP Tools](mcp-tools), and [Upgrade and Rollback](release-rollback), and confirm the sidebar path is coherent.
+3. Click [How It Works](how-it-works), [Admin AI](admin-ai), [Deployment Guide](deployment), [MCP Tools](mcp-tools), and [Upgrade and Rollback](release-rollback), and confirm the topic path is coherent.

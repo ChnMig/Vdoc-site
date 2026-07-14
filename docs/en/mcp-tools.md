@@ -29,6 +29,8 @@ npm install -g @vdoc/mcp
 
 For one-off usage, prefer `npx` in the Agent MCP config. Do not put tokens in `args`.
 
+`VDOC_MCP_TOKEN` is an environment variable in the shell or Agent configuration, not a package CLI argument. Never put the raw token in `npx`, `npm`, or adapter `args`. Run `set +x` to disable xtrace before manual diagnosis, and keep credentials out of shell history, logs, and screenshots.
+
 Local development or package smoke:
 
 ```sh
@@ -61,7 +63,7 @@ For local full Compose, `VDOC_BASE_URL` is usually `http://127.0.0.1:8080`. For 
       "command": "npx",
       "args": ["-y", "@vdoc/mcp"],
       "env": {
-        "VDOC_BASE_URL": "http://your-vdoc.example.test",
+        "VDOC_BASE_URL": "https://your-vdoc.example.test",
         "VDOC_MCP_TOKEN": "REPLACE_WITH_LOCAL_VDOC_MCP_TOKEN"
       }
     }
@@ -74,7 +76,7 @@ If you already know the full MCP endpoint, use this form:
 ```json
 {
   "env": {
-    "VDOC_MCP_URL": "http://your-vdoc.example.test/api/v1/open/mcp",
+    "VDOC_MCP_URL": "https://your-vdoc.example.test/api/v1/open/mcp",
     "VDOC_MCP_TOKEN": "REPLACE_WITH_LOCAL_VDOC_MCP_TOKEN",
     "VDOC_MCP_TIMEOUT_MS": "30000"
   }

@@ -1,0 +1,32 @@
+{
+  "baseline": {
+    "totalFiles": 97,
+    "totalKiB": 2528,
+    "sharedJavaScriptGzipBytes": 88155,
+    "sharedCssGzipBytes": 19432,
+    "maxRouteRequests": 21,
+    "customFontFiles": 0,
+    "imageFiles": 0,
+    "crossOriginRuntimeResources": 0
+  },
+  "limits": {
+    "totalFiles": 110,
+    "totalBytes": 2718106,
+    "sharedJavaScriptGzipBytes": 92563,
+    "sharedCssGzipBytes": 20404,
+    "customFontFiles": 0,
+    "imageFiles": 0,
+    "maxRouteRequests": 30,
+    "lcpMilliseconds": 2500,
+    "tbtMilliseconds": 200,
+    "crossOriginRuntimeResources": 0
+  },
+  "sharedJavaScriptPrefixes": [
+    "assets/app.",
+    "assets/chunks/framework.",
+    "assets/chunks/theme.",
+    "assets/chunks/VPLocalSearchBox."
+  ],
+  "sharedCssPrefixes": ["assets/style.", "vp-icons.css"],
+  "allowedGeneratedFontPattern": "^assets/inter-(?:italic|roman)-.+\\.woff2$"
+}

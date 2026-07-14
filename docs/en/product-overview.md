@@ -45,11 +45,13 @@ Vdoc does not replace engineering review. It makes approved facts queryable, aud
 - Query published Markdown content and version diffs.
 - Let Agents query published facts through MCP, or create, update, and submit Drafts.
 - Use the Vdoc Skill to make Agents query Vdoc before integration, migration, or documentation changes.
+- Use built-in [Admin AI](admin-ai) for automatic Draft and Version helper summaries and context-bound chat on Draft, Version, and Diff pages.
 - Complete the local loop with `scripts/vdoc-local-bootstrap.sh`, root `docker-compose.yml`, optional demo seed, live-compose E2E, and release dry-run.
 
 ## What v0.1 Does Not Do
 
 - It does not let MCP publish Versions directly. Publishing requires Admin or SuperAdmin approval.
+- Admin AI does not replace machine Diff or human review, and it cannot approve, reject, modify, or publish content.
 - It does not provide a CLI token store. Tokens live in local Agent config or a secret manager.
 - It does not include invitation flow, notification bot, PR bot, full SDK, or code generation platform.
 - It does not include commercial billing or full tenant administration.
@@ -64,4 +66,6 @@ Vdoc does not replace engineering review. It makes approved facts queryable, aud
 6. Agent uses `@vdoc/mcp` to query Version, endpoint, diff, or Markdown content.
 7. If the Agent needs to change content, it submits a Draft. It cannot publish directly.
 
-Next, read [How It Works](how-it-works), then start the system with [Deployment Guide](deployment).
+Admin AI is a backend assistant inside this human workflow, not an external MCP or Skill Agent. It can explain Diffs, generate summaries, and answer page-context questions, but publishing authority stays with human administrators.
+
+Next, read [How It Works](how-it-works) and [Admin AI](admin-ai), then start the system with [Deployment Guide](deployment).

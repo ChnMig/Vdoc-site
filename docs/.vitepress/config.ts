@@ -1,6 +1,23 @@
 import { defineConfig, type DefaultTheme } from 'vitepress'
 
 const githubUrl = 'https://github.com/ChnMig/Vdoc'
+const base = process.env['VITEPRESS_BASE'] ?? '/'
+const baseHasTraversalSegment = base
+  .split('/')
+  .some((segment) => segment === '.' || segment === '..')
+
+if (
+  !base.startsWith('/') ||
+  !base.endsWith('/') ||
+  !/^\/(?:[A-Za-z0-9._~-]+\/)*$/.test(base) ||
+  baseHasTraversalSegment
+) {
+  throw new TypeError(
+    'VITEPRESS_BASE must start and end with "/" and contain only URL-safe path segments',
+  )
+}
+
+const faviconHref = `${base}favicon.svg`
 
 const docsSlugs = [
   'product-overview',
@@ -8,6 +25,7 @@ const docsSlugs = [
   'version-notes',
   'deployment',
   'admin-usage',
+  'admin-ai',
   'api-reference',
   'changelog',
   'mcp-tools',
@@ -30,6 +48,7 @@ const zhSidebar: DefaultTheme.SidebarItem[] = [
     items: [
       { text: '部署指南', link: '/deployment' },
       { text: '首次使用', link: '/admin-usage' },
+      { text: 'Admin AI', link: '/admin-ai' },
     ],
   },
   {
@@ -64,6 +83,7 @@ const enSidebar: DefaultTheme.SidebarItem[] = [
     items: [
       { text: 'Deployment Guide', link: '/en/deployment' },
       { text: 'First Use', link: '/en/admin-usage' },
+      { text: 'Admin AI', link: '/en/admin-ai' },
     ],
   },
   {
@@ -87,6 +107,7 @@ const enSidebar: DefaultTheme.SidebarItem[] = [
 export { docsSlugs }
 
 export default defineConfig({
+  base,
   title: 'Vdoc Docs',
   description:
     'Human-reviewed Vdoc documentation for installation, operation, MCP, and Skill use.',
@@ -95,7 +116,7 @@ export default defineConfig({
   appearance: false,
   lastUpdated: true,
   head: [
-    ['link', { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' }],
+    ['link', { rel: 'icon', type: 'image/svg+xml', href: faviconHref }],
     ['meta', { property: 'og:type', content: 'website' }],
     ['meta', { property: 'og:title', content: 'Vdoc Docs' }],
     [

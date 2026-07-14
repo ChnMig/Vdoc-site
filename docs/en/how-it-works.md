@@ -12,9 +12,10 @@ Drafts enter review first. Admin approval creates immutable Versions. MCP expose
 2. Document uses `relative_path` as stable identity, for example `apis/billing.yaml`.
 3. A Writer or Agent creates a Draft on a Branch.
 4. The Draft enters review.
-5. A Project Admin or SuperAdmin checks content, diff, endpoint detail, or Markdown changes.
-6. Approval creates an immutable Version in the backend.
-7. Admin, API, MCP, and Agents read that published Version.
+5. When available, built-in Admin AI attempts a Draft review summary. A skipped or failed attempt does not block the flow.
+6. A Project Admin or SuperAdmin checks machine Diff, content, endpoint detail, Markdown changes, and the AI helper summary.
+7. Approval creates an immutable Version and triggers a Version summary attempt.
+8. Admin, API, MCP, and Agents read that published Version.
 
 ## What Admin Does
 
@@ -25,6 +26,12 @@ Drafts enter review first. Admin approval creates immutable Versions. MCP expose
 - Creates MCP Tokens and shares them safely with Agent users.
 
 Admin is the publishing gate. In v0.1, MCP and Skill cannot bypass Admin to publish Versions directly.
+
+## What Admin AI Does
+
+[Admin AI](admin-ai) is a built-in backend product feature. A SuperAdmin configures the system provider, and a Project Admin can set a project override. It generates AI-generated summaries from Draft, Version, or Diff context and provides context-bound chat on those pages.
+
+Admin AI does not modify documents, replace machine Diff, or approve, request changes, reject, or publish. If the provider is missing, a prompt is disabled, or a call fails or times out, Vdoc records `skipped` or `failed` while the original Diff and human review remain available.
 
 ## What MCP Does
 
@@ -69,4 +76,4 @@ The Skill reduces guessing. Live facts still come from MCP tool results.
 
 In Docker Compose, containers talk to each other through service names, for example backend connects to `postgres:5432` and `rustfs:9000`. Browsers and host commands use `127.0.0.1` or your domain, for example `http://127.0.0.1:8081` for Admin.
 
-Next, start the system with [Deployment Guide](deployment), then create the first data path with [First Use](admin-usage).
+Next, start the system with [Deployment Guide](deployment), then create the first data path and configure [Admin AI](admin-ai) with [First Use](admin-usage).

@@ -12,9 +12,10 @@ Draft 先进入审核，Admin 批准后生成不可变 Version，MCP 只把已�
 2. Document 使用 `relative_path` 作为稳定身份，例如 `apis/billing.yaml`。
 3. Writer 或 Agent 在 Branch 上创建 Draft。
 4. Draft 进入 review。
-5. Project Admin 或 SuperAdmin 检查内容、diff、endpoint detail 或 Markdown 变化。
-6. 审核通过后，后端创建不可变 Version。
-7. 之后 Admin、API、MCP 和 Agent 都读取这个已发布 Version。
+5. 后台 Admin AI 在可用时尝试生成 Draft 审核摘要，失败或跳过不会阻塞流程。
+6. Project Admin 或 SuperAdmin 检查机器 Diff、内容、endpoint detail、Markdown 变化和 AI 辅助摘要。
+7. 审核通过后，后端创建不可变 Version，并尝试生成 Version 摘要。
+8. 之后 Admin、API、MCP 和 Agent 都读取这个已发布 Version。
 
 ## Admin 在流程中的职责
 
@@ -25,6 +26,12 @@ Draft 先进入审核，Admin 批准后生成不可变 Version，MCP 只把已�
 - 创建 MCP Token，并把 token 安全交给使用 Agent 的人。
 
 Admin 是发布门禁。v0.1 中，MCP 和 Skill 都不能绕过 Admin 直接发布 Version。
+
+## Admin AI 在流程中的职责
+
+[Admin AI](admin-ai) 是后台产品能力。SuperAdmin 配置系统提供商，Project Admin 可以设置项目覆盖。它基于 Draft、Version 或 Diff 上下文生成 AI-generated 摘要，并在对应页面提供限定上下文的对话。
+
+Admin AI 不修改文档，不覆盖机器 Diff，也不能 approve、request changes、reject 或 publish。提供商未配置、提示词禁用、调用失败或超时时，状态会记录为 `skipped` 或 `failed`，原始 Diff 和人工审核继续可用。
 
 ## MCP 在流程中的职责
 
@@ -69,4 +76,4 @@ Skill 的价值是减少 Agent 猜测。实时事实仍来自 MCP 返回结果�
 
 在 Docker Compose 中，容器互相访问时使用服务名，例如 backend 连接 `postgres:5432` 和 `rustfs:9000`。浏览器和宿主机命令访问时使用 `127.0.0.1` 或你的域名，例如 `http://127.0.0.1:8081` 打开 Admin。
 
-下一步按 [部署指南](deployment) 启动系统，再用 [首次使用](admin-usage) 创建第一条数据链路。
+下一步按 [部署指南](deployment) 启动系统，再用 [首次使用](admin-usage) 创建第一条数据链路并配置 [Admin AI](admin-ai)。

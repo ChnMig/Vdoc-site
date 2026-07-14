@@ -7,7 +7,7 @@
 - 确认你知道当前运行的代码版本、镜像 tag 或构建来源。
 - 保留当前 `.env`，但不要把真实 secret 写入 issue、聊天记录或 release notes。
 - 确认 PostgreSQL 和对象存储都能访问。
-- 记录当前 Admin URL、backend health URL 和 Agent MCP 配置。
+- 记录当前 Admin URL、backend health URL、Agent MCP 配置，以及 Pages URL、source SHA、workflow run ID、`github-pages` artifact ID/SHA-256、deployment URL 和 QA report 引用。
 - 在维护窗口中执行升级，避免用户正在提交 Draft 时中断。
 - 本机升级前先看 release dry-run 计划并运行本机门禁：
 
@@ -64,6 +64,24 @@ pnpm install --frozen-lockfile
 pnpm build
 ```
 
+Site 的 GitHub Pages candidate 必须使用 Pages base 构建，并在上传前验证同一份输出：
+
+```sh
+cd Vdoc-site
+pnpm install --frozen-lockfile
+pnpm format:check
+pnpm typecheck
+pnpm lint
+pnpm test:unit
+pnpm test:content
+pnpm build:pages
+pnpm check:budget
+PLAYWRIGHT_BASE_PATH=/Vdoc-site/ pnpm test:browser
+PLAYWRIGHT_BASE_PATH=/Vdoc-site/ pnpm test:performance
+```
+
+artifact 路径是仓库内的 `docs/.vitepress/dist/`，也就是 workspace root 下的 `Vdoc-site/docs/.vitepress/dist/`。browser 和 performance 通过后不要重新 build；上传并部署这份原样输出。首次部署前，仓库的 GitHub Pages source 必须由维护者设置为 **GitHub Actions**；workflow 不会启用 Pages 或修改仓库设置。
+
 MCP 和 Skill 包升级前也要跑测试：
 
 ```sh
@@ -109,15 +127,20 @@ curl -I http://127.0.0.1:8081/
 4. 新建一个测试 Draft，并确认审核流程仍可用。
 5. MCP `tools/list` 成功，至少一个 read-only tool call 成功。
 6. Agent 使用 Skill 时会先查 Vdoc MCP，再回答 endpoint 或 Markdown 问题。
-7. 如果本机 root Compose 可用，live E2E 通过：
+7. 按 [Admin AI](admin-ai) 运行系统或项目 provider test，提交测试 Draft，并确认 Draft/Version 摘要和页面 chat 可用。
+8. 禁用测试 prompt 或使用不可用 provider 时，确认 AI 结果为 `skipped` 或 `failed`，但机器 Diff、人工审核和发布流程不受影响。
+9. 检查 AI 审计不含原始 API key、JWT、MCP Token、`Authorization` header 或提示词中嵌入的秘密；prompt override、summary 和 chat 记录按产品定义保留。
+10. 如果本机 root Compose 可用，live E2E 通过：
 
-   ```sh
-   cd Vdoc
-   ./scripts/vdoc-e2e.sh live-compose --env-file ../.env --check-only
-   ./scripts/vdoc-e2e.sh live-compose --env-file ../.env
-   ```
+    ```sh
+    cd Vdoc
+    ./scripts/vdoc-e2e.sh live-compose --env-file ../.env --check-only
+    ./scripts/vdoc-e2e.sh live-compose --env-file ../.env
+    ```
 
-   Live E2E 会重置选中的一次性 `VDOC_TEST_POSTGRES_DB`，默认是 `vdoc_e2e`，不会重置 `VDOC_POSTGRES_DB` 指向的应用数据库。
+    Live E2E 会重置选中的一次性 `VDOC_TEST_POSTGRES_DB`，默认是 `vdoc_e2e`，不会重置 `VDOC_POSTGRES_DB` 指向的应用数据库。
+
+11. 检查公开 Pages 路由 `/Vdoc-site/`、`/Vdoc-site/en/`、`/Vdoc-site/admin-ai`、`/Vdoc-site/en/admin-ai`、`/Vdoc-site/release-rollback` 和 `/Vdoc-site/en/release-rollback`；导航、脚本、样式、字体和 favicon 必须保持在 `/Vdoc-site/` base 下，不能指向站点根路径的错误资源。
 
 ## 回滚策略
 
@@ -136,8 +159,11 @@ curl -I http://127.0.0.1:8081/
 4. 如果迁移已经写入不兼容 schema，按升级前 PostgreSQL 备份恢复。
 5. 如果对象写入出错，按升级前 bucket 备份恢复对象存储。
 6. 重新执行 backend health、Admin 登录和 MCP read-only call 验证。
+7. 重新执行 Admin AI provider test。若问题只在 AI provider 或 prompt，回滚该配置，不要修改或删除已发布 Version。
 
 直接部署时，恢复上一版 backend binary 或 container、Admin `dist/`、MCP package 和 Skill package。除非你正在恢复备份，不要删除数据库和对象存储。
+
+GitHub Pages 回滚必须选择仍保留 `github-pages` artifact 的上一条成功 workflow run，核对其 source SHA、run ID、artifact ID/SHA-256 和 QA report 后，只重跑该 run 的 `Deploy GitHub Pages` job。不要 checkout 旧 tree 后重新 build，因为重新构建的输出不是已验收的原 artifact。回滚后重新检查中英文入口、Admin AI 页面、release rollback 页面和所有 base-safe 静态资源；artifact 已过期时，改用另一条仍保留 artifact 的成功 run，或创建新的完整验收 candidate。
 
 ## 发布说明模板
 
@@ -145,18 +171,24 @@ curl -I http://127.0.0.1:8081/
 Version:
 Backend source or image:
 Admin source or image:
+Site source SHA:
+Site workflow run ID:
+Pages artifact ID and SHA-256:
+Pages deployment URL:
+Site QA report references:
 MCP package version:
 Skill package version:
 Backup location:
 Upgrade command:
 Health check result:
 Admin smoke result:
+Pages smoke result:
 MCP smoke result:
 Known limitations:
 Rollback artifact:
 ```
 
-Known limitations 至少写明：no direct MCP publish、no invitation flow、no notification bot、no PR Bot、no complete SDK/codegen platform、no commercial billing or tenant administration。
+Known limitations 至少写明：AI 不能替代机器 Diff 或人工审核、no direct MCP publish、no invitation flow、no notification bot、no PR Bot、no complete SDK/codegen platform、no commercial billing or tenant administration。
 
 ## 避免的操作
 

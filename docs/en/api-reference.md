@@ -23,7 +23,7 @@ curl "$API_BASE/api/v1/open/docs/openapi.yaml"
 
 Public auth starts with register or login. Private REST uses the JWT returned by login or registration. MCP uses an MCP Token created in Admin or private REST.
 
-Key rule: `Authorization` contains the raw JWT or MCP Token. Do not add `Bearer`. Never paste full header values into docs, logs, screenshots, or commits.
+Key rule: `Authorization` contains the raw JWT or MCP Token. Do not add `Bearer`. Never paste full header values into docs, logs, screenshots, or commits. Shell environment variables are not package CLI arguments, so never put credentials in package or process `args`. Run `set +x` to disable xtrace, then pass the header to `curl` through stdin config so the raw value does not enter `curl` process arguments.
 
 ## Response Envelope
 
@@ -52,13 +52,18 @@ REGISTER_RESPONSE=$(curl -sS "$API_BASE/api/v1/open/auth/register" \
 
 ADMIN_USER_ID=$(printf '%s' "$REGISTER_RESPONSE" | jq -r '.detail.user.id')
 JWT=$(printf '%s' "$REGISTER_RESPONSE" | jq -r '.detail.token')
+
+set +x
+curl_with_jwt() {
+  printf 'header = "Authorization: %s"\n' "$JWT" |
+    curl --config - "$@"
+}
 ```
 
 Verify private identity:
 
 ```sh
-curl -sS "$API_BASE/api/v1/private/identity/me" \
-  -H "Authorization: $JWT"
+curl_with_jwt -sS "$API_BASE/api/v1/private/identity/me"
 ```
 
 ## Roles and Document Types
@@ -74,21 +79,18 @@ curl -sS "$API_BASE/api/v1/private/identity/me" \
 ## Create Team, Project, and Document
 
 ```sh
-TEAM_RESPONSE=$(curl -sS "$API_BASE/api/v1/private/teams" \
+TEAM_RESPONSE=$(curl_with_jwt -sS "$API_BASE/api/v1/private/teams" \
   -H 'Content-Type: application/json' \
-  -H "Authorization: $JWT" \
   -d '{"name":"Docs Team","description":"API docs smoke team"}')
 TEAM_ID=$(printf '%s' "$TEAM_RESPONSE" | jq -r '.detail.id')
 
-PROJECT_RESPONSE=$(curl -sS "$API_BASE/api/v1/private/projects" \
+PROJECT_RESPONSE=$(curl_with_jwt -sS "$API_BASE/api/v1/private/projects" \
   -H 'Content-Type: application/json' \
-  -H "Authorization: $JWT" \
   -d "{\"team_id\":\"$TEAM_ID\",\"name\":\"Docs Project\",\"description\":\"API docs smoke project\",\"admin_user_id\":\"$ADMIN_USER_ID\"}")
 PROJECT_ID=$(printf '%s' "$PROJECT_RESPONSE" | jq -r '.detail.id')
 
-DOCUMENT_RESPONSE=$(curl -sS "$API_BASE/api/v1/private/projects/$PROJECT_ID/documents" \
+DOCUMENT_RESPONSE=$(curl_with_jwt -sS "$API_BASE/api/v1/private/projects/$PROJECT_ID/documents" \
   -H 'Content-Type: application/json' \
-  -H "Authorization: $JWT" \
   -d '{"name":"petstore","document_type":1,"relative_path":"apis/petstore.yaml","description":"Docs sample document"}')
 DOCUMENT_ID=$(printf '%s' "$DOCUMENT_RESPONSE" | jq -r '.detail.id')
 ```
@@ -96,8 +98,8 @@ DOCUMENT_ID=$(printf '%s' "$DOCUMENT_RESPONSE" | jq -r '.detail.id')
 After Document creation, Vdoc creates `dev`, `test`, and protected `prod` branches. Get the `dev` branch:
 
 ```sh
-BRANCH_ID=$(curl -sS "$API_BASE/api/v1/private/projects/$PROJECT_ID/documents/$DOCUMENT_ID/branches" \
-  -H "Authorization: $JWT" | jq -r '.detail[] | select(.name=="dev") | .id')
+BRANCH_ID=$(curl_with_jwt -sS "$API_BASE/api/v1/private/projects/$PROJECT_ID/documents/$DOCUMENT_ID/branches" |
+  jq -r '.detail[] | select(.name=="dev") | .id')
 ```
 
 ## Draft, Review, and Version
@@ -107,19 +109,16 @@ OpenAPI Drafts submit OpenAPI 3.0 or 3.1 content as `schema_content`. Markdown D
 Before running the OpenAPI example, set `SCHEMA_V1` to a valid JSON string, for example with `jq -Rs . < openapi.yaml`.
 
 ```sh
-DRAFT_RESPONSE=$(curl -sS "$API_BASE/api/v1/private/projects/$PROJECT_ID/documents/$DOCUMENT_ID/drafts" \
+DRAFT_RESPONSE=$(curl_with_jwt -sS "$API_BASE/api/v1/private/projects/$PROJECT_ID/documents/$DOCUMENT_ID/drafts" \
   -H 'Content-Type: application/json' \
-  -H "Authorization: $JWT" \
   -d "{\"branch_id\":\"$BRANCH_ID\",\"version_name\":\"1.0.0\",\"schema_content\":$SCHEMA_V1}")
 DRAFT_ID=$(printf '%s' "$DRAFT_RESPONSE" | jq -r '.detail.id')
 
-curl -sS "$API_BASE/api/v1/private/projects/$PROJECT_ID/documents/$DOCUMENT_ID/drafts/$DRAFT_ID/submit" \
-  -X POST \
-  -H "Authorization: $JWT"
+curl_with_jwt -sS "$API_BASE/api/v1/private/projects/$PROJECT_ID/documents/$DOCUMENT_ID/drafts/$DRAFT_ID/submit" \
+  -X POST
 
-VERSION_RESPONSE=$(curl -sS "$API_BASE/api/v1/private/projects/$PROJECT_ID/documents/$DOCUMENT_ID/drafts/$DRAFT_ID/approve" \
-  -X POST \
-  -H "Authorization: $JWT")
+VERSION_RESPONSE=$(curl_with_jwt -sS "$API_BASE/api/v1/private/projects/$PROJECT_ID/documents/$DOCUMENT_ID/drafts/$DRAFT_ID/approve" \
+  -X POST)
 VERSION_ID=$(printf '%s' "$VERSION_RESPONSE" | jq -r '.detail.id')
 ```
 
@@ -134,28 +133,23 @@ POST /api/v1/private/projects/{project_id}/documents/{document_id}/drafts/promot
 ## Query Version, Endpoint, and Diff
 
 ```sh
-curl -sS "$API_BASE/api/v1/private/projects/$PROJECT_ID/documents/$DOCUMENT_ID/versions/$VERSION_ID/content/raw" \
-  -H "Authorization: $JWT"
+curl_with_jwt -sS "$API_BASE/api/v1/private/projects/$PROJECT_ID/documents/$DOCUMENT_ID/versions/$VERSION_ID/content/raw"
 
-ENDPOINTS_RESPONSE=$(curl -sS "$API_BASE/api/v1/private/projects/$PROJECT_ID/documents/$DOCUMENT_ID/versions/$VERSION_ID/endpoints?path=/pets" \
-  -H "Authorization: $JWT")
+ENDPOINTS_RESPONSE=$(curl_with_jwt -sS "$API_BASE/api/v1/private/projects/$PROJECT_ID/documents/$DOCUMENT_ID/versions/$VERSION_ID/endpoints?path=/pets")
 ENDPOINT_ID=$(printf '%s' "$ENDPOINTS_RESPONSE" | jq -r '.detail[0].id')
 
-curl -sS "$API_BASE/api/v1/private/projects/$PROJECT_ID/documents/$DOCUMENT_ID/versions/$VERSION_ID/endpoints/$ENDPOINT_ID" \
-  -H "Authorization: $JWT"
+curl_with_jwt -sS "$API_BASE/api/v1/private/projects/$PROJECT_ID/documents/$DOCUMENT_ID/versions/$VERSION_ID/endpoints/$ENDPOINT_ID"
 ```
 
 Compare two published Versions:
 
 ```sh
-DIFF_RESPONSE=$(curl -sS "$API_BASE/api/v1/private/projects/$PROJECT_ID/documents/$DOCUMENT_ID/diffs" \
+DIFF_RESPONSE=$(curl_with_jwt -sS "$API_BASE/api/v1/private/projects/$PROJECT_ID/documents/$DOCUMENT_ID/diffs" \
   -H 'Content-Type: application/json' \
-  -H "Authorization: $JWT" \
   -d "{\"from_version_id\":\"$VERSION_ONE_ID\",\"to_version_id\":\"$VERSION_TWO_ID\"}")
 DIFF_ID=$(printf '%s' "$DIFF_RESPONSE" | jq -r '.detail.id')
 
-curl -sS "$API_BASE/api/v1/private/projects/$PROJECT_ID/documents/$DOCUMENT_ID/diffs/$DIFF_ID/summary" \
-  -H "Authorization: $JWT"
+curl_with_jwt -sS "$API_BASE/api/v1/private/projects/$PROJECT_ID/documents/$DOCUMENT_ID/diffs/$DIFF_ID/summary"
 ```
 
 ## MCP Token and MCP JSON-RPC
@@ -163,32 +157,62 @@ curl -sS "$API_BASE/api/v1/private/projects/$PROJECT_ID/documents/$DOCUMENT_ID/d
 Create an MCP Token. `.detail.token` is a one-time-copy secret; later list, get, and revoke responses are masked.
 
 ```sh
-MCP_TOKEN_RESPONSE=$(curl -sS "$API_BASE/api/v1/private/mcp-tokens" \
+MCP_TOKEN_RESPONSE=$(curl_with_jwt -sS "$API_BASE/api/v1/private/mcp-tokens" \
   -H 'Content-Type: application/json' \
-  -H "Authorization: $JWT" \
   -d '{"name":"docs-agent","scopes":[1,2]}')
 MCP_TOKEN=$(printf '%s' "$MCP_TOKEN_RESPONSE" | jq -r '.detail.token')
+
+curl_with_mcp_token() {
+  printf 'header = "Authorization: %s"\n' "$MCP_TOKEN" |
+    curl --config - "$@"
+}
 ```
 
 List MCP tools:
 
 ```sh
-curl -sS "$API_BASE/api/v1/open/mcp" \
+curl_with_mcp_token -sS "$API_BASE/api/v1/open/mcp" \
   -H 'Content-Type: application/json' \
-  -H "Authorization: $MCP_TOKEN" \
   -d '{"jsonrpc":"2.0","id":"tools-list","method":"tools/list"}'
 ```
 
 Example read tool call:
 
 ```sh
-curl -sS "$API_BASE/api/v1/open/mcp" \
+curl_with_mcp_token -sS "$API_BASE/api/v1/open/mcp" \
   -H 'Content-Type: application/json' \
-  -H "Authorization: $MCP_TOKEN" \
   -d "{\"jsonrpc\":\"2.0\",\"id\":\"endpoint-detail\",\"method\":\"tools/call\",\"params\":{\"name\":\"get_endpoint_detail\",\"arguments\":{\"project_id\":\"$PROJECT_ID\",\"document_id\":\"$DOCUMENT_ID\",\"version_id\":\"$VERSION_ID\",\"endpoint_id\":\"$ENDPOINT_ID\"}}}"
 ```
 
 v0.1 does not expose direct publish tools through MCP. Agents can create, update, view, and submit Drafts, but publishing still requires Admin or SuperAdmin approval.
+
+## Admin AI Routes
+
+[Admin AI](admin-ai) uses private JWT APIs. Provider and prompt configuration is separate from the external MCP/Skill Agent, and AI output cannot replace machine Diff or human review.
+
+```text
+GET  /api/v1/private/ai/provider
+PUT  /api/v1/private/ai/provider
+POST /api/v1/private/ai/provider/test
+GET  /api/v1/private/projects/{project_id}/ai/provider
+PUT  /api/v1/private/projects/{project_id}/ai/provider
+POST /api/v1/private/projects/{project_id}/ai/provider/test
+GET  /api/v1/private/ai/prompts
+PUT  /api/v1/private/ai/prompts/{prompt_key}
+GET  /api/v1/private/projects/{project_id}/ai/prompts
+PUT  /api/v1/private/projects/{project_id}/ai/prompts/{prompt_key}
+GET  /api/v1/private/projects/{project_id}/documents/{document_id}/drafts/{draft_id}/ai-summary
+POST /api/v1/private/projects/{project_id}/documents/{document_id}/drafts/{draft_id}/ai-summary/regenerate
+GET  /api/v1/private/projects/{project_id}/documents/{document_id}/versions/{version_id}/ai-summary
+POST /api/v1/private/projects/{project_id}/documents/{document_id}/versions/{version_id}/ai-summary/regenerate
+GET  /api/v1/private/projects/{project_id}/documents/{document_id}/diffs/{diff_id}/ai-summary
+POST /api/v1/private/projects/{project_id}/documents/{document_id}/diffs/{diff_id}/ai-summary/regenerate
+POST /api/v1/private/projects/{project_id}/ai/chat-sessions
+GET  /api/v1/private/projects/{project_id}/ai/chat-sessions/{session_id}
+POST /api/v1/private/projects/{project_id}/ai/chat-sessions/{session_id}/messages
+```
+
+Provider payloads contain `name`, `base_url`, `model`, `api_mode`, `api_key`, `enabled`, `temperature`, `timeout_ms`, and `max_output_tokens`. Read responses expose only `api_key_set` and `api_key_last4`. System and project providers both have test routes. Draft, Version, and Diff all support summary reads and manual regeneration, while chat sessions stay bound to the current page resource context.
 
 ## Route Categories
 
@@ -205,6 +229,7 @@ v0.1 does not expose direct publish tools through MCP. Agents can create, update
 | Versions     | Published document versions and raw, normalized, or stable content. |
 | Endpoints    | Endpoint list and detail parsed from published versions.            |
 | Diffs        | Semantic version comparison and summaries.                          |
+| AI           | Provider, prompts, Draft/Version/Diff AI summaries, and page chat.  |
 | MCP Tokens   | User MCP token lifecycle.                                           |
 
 ## Verification

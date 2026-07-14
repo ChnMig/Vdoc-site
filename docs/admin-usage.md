@@ -39,11 +39,12 @@ http://127.0.0.1:8081
 使用初始管理员登录。登录后，Admin 会用 raw JWT 调用 private API。手工调试时也要使用原始 JWT：
 
 ```sh
-curl -H "Authorization: $JWT" \
-  http://127.0.0.1:8080/api/v1/private/identity/me
+set +x
+printf 'header = "Authorization: %s"\n' "$JWT" |
+  curl --config - http://127.0.0.1:8080/api/v1/private/identity/me
 ```
 
-把 `JWT` 放在私密 shell 变量中，不要把值写进命令记录、文档或日志。不要加 `Bearer` 前缀。
+把 `JWT` 放在私密 shell 环境变量中，不要把值写进命令记录、文档、日志或截图。环境变量不是 package CLI argument，不要把 token 放进 `npx`、`npm` 或其他进程的 `args`。运行前关闭 xtrace，且不要加 `Bearer` 前缀。
 
 ## 2. 创建 Team 和 Project
 
@@ -91,7 +92,13 @@ Project Admin 或 SuperAdmin 打开待审核 Draft：
 
 v0.1 不支持 MCP 直接发布。发布门禁在 Admin。
 
-## 6. 创建 MCP Token
+## 6. 配置 Admin AI
+
+先由 SuperAdmin 打开系统 AI 设置，填写 OpenAI-compatible `base_url`、`api_mode`、`model`、`api_key`、`enabled` 和需要的 tuning 字段，再运行 provider test。项目需要独立网关、模型或 prompt 时，由 Project Admin 配置项目覆盖并测试。
+
+保存后只应看到 `api_key_set` 和 `api_key_last4` 掩码状态，不应看到原始密钥。提交一个测试 Draft，确认自动摘要可读取。由人类审核发布后，再确认 Version 摘要和页面 chat 可用。AI 只能辅助总结和解释，不能 approve、request changes、reject、modify 或 publish。完整操作和失败状态见 [Admin AI](admin-ai)。
+
+## 7. 创建 MCP Token
 
 在 Admin 中打开 MCP Token 页面：
 
@@ -102,7 +109,7 @@ v0.1 不支持 MCP 直接发布。发布门禁在 Admin。
 
 后续列表或详情可能只显示脱敏值，这是正常行为。
 
-## 7. 连接 MCP adapter
+## 8. 连接 MCP adapter
 
 本机完整 Compose 示例：
 
@@ -123,7 +130,7 @@ v0.1 不支持 MCP 直接发布。发布门禁在 Admin。
 
 部署环境把 `VDOC_BASE_URL` 改成浏览器或 Agent 所在机器能访问的 backend origin。也可以直接设置 `VDOC_MCP_URL` 为完整 `/api/v1/open/mcp` endpoint。
 
-## 8. 安装 Skill
+## 9. 安装 Skill
 
 把 `Vdoc-skill/` 安装、复制或链接到目标 Agent runtime 的 `vdoc` skill folder，并确保 `SKILL.md` 位于 skill root。Skill 不保存事实，事实来自 Vdoc MCP。
 
@@ -132,6 +139,7 @@ v0.1 不支持 MCP 直接发布。发布门禁在 Admin。
 - Admin Dashboard 能打开。
 - `GET /api/v1/private/identity/me` 成功。
 - 至少有一个 Project、Document、Draft 和已发布 Version。
+- Admin AI provider test 成功，Draft 和 Version 摘要可读取，AI 失败不阻塞机器 Diff 或人工审核。
 - MCP Token 创建后没有出现在命令行参数或日志中。
 - Agent 的 `tools/list` 能返回 Vdoc tool schemas。
 - Agent 查询 endpoint 或 Markdown 时，先调用 Vdoc MCP，再基于返回结果回答。

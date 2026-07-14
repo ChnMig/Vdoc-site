@@ -47,11 +47,13 @@ Vdoc 的目标不是替代工程评审，而是把“哪些事实已经被批准
 - 查询已发布 Markdown 内容和版本差异。
 - 让 Agent 通过 MCP 查询已发布事实，或创建、更新、提交 Draft。
 - 用 Vdoc Skill 约束 Agent 在集成、迁移、文档变更前先查询 Vdoc。
+- 用后台 [Admin AI](admin-ai) 为 Draft 和 Version 自动生成辅助摘要，在 Draft、Version 和 Diff 页面进行限定上下文的对话。
 - 用 `scripts/vdoc-local-bootstrap.sh`、根目录 `docker-compose.yml`、可选 demo seed、live-compose E2E 和 release dry-run 完成本机闭环。
 
 ## v0.1 不做什么
 
 - 不支持 MCP 直接发布 Version，发布必须由 Admin 或 SuperAdmin 审核。
+- Admin AI 不替代机器 Diff 或人工审核，也不能批准、拒绝、修改或发布内容。
 - 不提供 CLI token store，token 保存在本地 Agent 配置或密钥管理中。
 - 不包含邀请流、通知机器人、PR Bot、完整 SDK 或代码生成平台。
 - 不包含商业计费或完整租户管理。
@@ -66,4 +68,6 @@ Vdoc 的目标不是替代工程评审，而是把“哪些事实已经被批准
 6. Agent 通过 `@vdoc/mcp` 查询 Version、endpoint、diff 或 Markdown 内容。
 7. 如果 Agent 要修改内容，它只能提交 Draft，不能直接发布。
 
-下一步读 [运行流程](how-it-works)，再按 [部署指南](deployment) 启动系统。
+Admin AI 是这个人工流程中的后台助手，不是外部 MCP 或 Skill Agent。它可以解释 Diff、生成摘要和回答页面上下文问题，但发布权始终属于人类管理员。
+
+下一步读 [运行流程](how-it-works) 和 [Admin AI](admin-ai)，再按 [部署指南](deployment) 启动系统。

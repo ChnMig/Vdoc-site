@@ -39,11 +39,12 @@ http://127.0.0.1:8081
 Log in with the initial admin. Admin uses a raw JWT when calling private APIs. Manual debugging uses the same rule:
 
 ```sh
-curl -H "Authorization: $JWT" \
-  http://127.0.0.1:8080/api/v1/private/identity/me
+set +x
+printf 'header = "Authorization: %s"\n' "$JWT" |
+  curl --config - http://127.0.0.1:8080/api/v1/private/identity/me
 ```
 
-Keep `JWT` in a private shell variable, and do not write the value into command history, docs, or logs. Do not add a `Bearer` prefix.
+Keep `JWT` in a private shell environment variable, and do not write the value into command history, docs, logs, or screenshots. Environment variables are not package CLI arguments, so never place the token in `npx`, `npm`, or other process `args`. Disable xtrace before use, and do not add a `Bearer` prefix.
 
 ## 2. Create Team and Project
 
@@ -91,7 +92,13 @@ A Project Admin or SuperAdmin opens the Draft under review:
 
 v0.1 does not support MCP direct publishing. Admin is the publishing gate.
 
-## 6. Create an MCP Token
+## 6. Configure Admin AI
+
+First, have a SuperAdmin open system AI settings, enter the OpenAI-compatible `base_url`, `api_mode`, `model`, `api_key`, `enabled`, and needed tuning fields, then run the provider test. If a Project needs a separate gateway, model, or prompts, its Project Admin configures and tests the project override.
+
+After saving, the UI should show only `api_key_set` and masked `api_key_last4`, never the raw key. Submit a test Draft and confirm its automatic summary can be read. After a human publishes it, confirm the Version summary and page chat work. AI can only help summarize and explain. It cannot approve, request changes, reject, modify, or publish. See [Admin AI](admin-ai) for the full operation and failure states.
+
+## 7. Create an MCP Token
 
 Open the MCP Token area in Admin:
 
@@ -102,7 +109,7 @@ Open the MCP Token area in Admin:
 
 Later list or detail views may show only masked token values. That is expected.
 
-## 7. Connect the MCP Adapter
+## 8. Connect the MCP Adapter
 
 Local full Compose example:
 
@@ -123,7 +130,7 @@ Local full Compose example:
 
 For deployed environments, set `VDOC_BASE_URL` to a backend origin reachable from the Agent machine. You can also set `VDOC_MCP_URL` to the full `/api/v1/open/mcp` endpoint.
 
-## 8. Install the Skill
+## 9. Install the Skill
 
 Install, copy, or link `Vdoc-skill/` as the Agent runtime's `vdoc` skill folder. `SKILL.md` must be at the skill root. The Skill stores no facts. Live facts come from Vdoc MCP.
 
@@ -132,6 +139,7 @@ Install, copy, or link `Vdoc-skill/` as the Agent runtime's `vdoc` skill folder.
 - Admin Dashboard opens.
 - `GET /api/v1/private/identity/me` succeeds.
 - At least one Project, Document, Draft, and published Version exists.
+- The Admin AI provider test succeeds, Draft and Version summaries can be read, and AI failure does not block machine Diff or human review.
 - MCP Token does not appear in command-line arguments or logs.
 - Agent `tools/list` returns Vdoc tool schemas.
 - When answering endpoint or Markdown questions, the Agent calls Vdoc MCP first and uses the returned facts.

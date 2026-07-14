@@ -7,7 +7,7 @@ This page is for users already running Vdoc. The goal is to back up data before 
 - Know the currently running source version, image tag, or build source.
 - Keep the current `.env`, but never paste real secrets into issues, chat, or release notes.
 - Confirm PostgreSQL and object storage are reachable.
-- Record the current Admin URL, backend health URL, and Agent MCP config.
+- Record the current Admin URL, backend health URL, Agent MCP config, and the Pages URL, source SHA, workflow run ID, `github-pages` artifact ID/SHA-256, deployment URL, and QA report references.
 - Use a maintenance window so users are not submitting Drafts during restart.
 - Before a local upgrade, inspect and run the local release gate:
 
@@ -64,6 +64,24 @@ pnpm install --frozen-lockfile
 pnpm build
 ```
 
+The Site GitHub Pages candidate must use the Pages-base build and verify the same output before upload:
+
+```sh
+cd Vdoc-site
+pnpm install --frozen-lockfile
+pnpm format:check
+pnpm typecheck
+pnpm lint
+pnpm test:unit
+pnpm test:content
+pnpm build:pages
+pnpm check:budget
+PLAYWRIGHT_BASE_PATH=/Vdoc-site/ pnpm test:browser
+PLAYWRIGHT_BASE_PATH=/Vdoc-site/ pnpm test:performance
+```
+
+The artifact path is `docs/.vitepress/dist/` inside the repository, or `Vdoc-site/docs/.vitepress/dist/` from the workspace root. Do not rebuild after the browser and performance gates pass; upload and deploy that exact output. Before the first deployment, a maintainer must set the repository's GitHub Pages source to **GitHub Actions**. The workflow does not enable Pages or change repository settings.
+
 Test MCP and Skill packages before upgrading them:
 
 ```sh
@@ -109,15 +127,20 @@ If you changed `.env` host ports, replace the ports in these commands. In deploy
 4. A test Draft can still move through review.
 5. MCP `tools/list` succeeds, and at least one read-only tool call succeeds.
 6. An Agent using the Skill queries Vdoc MCP before answering endpoint or Markdown questions.
-7. If local root Compose is available, live E2E passes:
+7. Follow [Admin AI](admin-ai) to run a system or project provider test, submit a test Draft, and confirm Draft/Version summaries and page chat work.
+8. With a disabled test prompt or unavailable provider, confirm the AI result is `skipped` or `failed` while machine Diff, human review, and publishing still work.
+9. Check that AI audit data contains no raw API keys, JWTs, MCP Tokens, `Authorization` headers, or secrets embedded in prompts; prompt override, summary, and chat records remain available as defined by the product.
+10. If local root Compose is available, live E2E passes:
 
-   ```sh
-   cd Vdoc
-   ./scripts/vdoc-e2e.sh live-compose --env-file ../.env --check-only
-   ./scripts/vdoc-e2e.sh live-compose --env-file ../.env
-   ```
+    ```sh
+    cd Vdoc
+    ./scripts/vdoc-e2e.sh live-compose --env-file ../.env --check-only
+    ./scripts/vdoc-e2e.sh live-compose --env-file ../.env
+    ```
 
-   Live E2E resets the selected disposable `VDOC_TEST_POSTGRES_DB`, `vdoc_e2e` by default. It does not reset the application database from `VDOC_POSTGRES_DB`.
+    Live E2E resets the selected disposable `VDOC_TEST_POSTGRES_DB`, `vdoc_e2e` by default. It does not reset the application database from `VDOC_POSTGRES_DB`.
+
+11. Check the public Pages routes `/Vdoc-site/`, `/Vdoc-site/en/`, `/Vdoc-site/admin-ai`, `/Vdoc-site/en/admin-ai`, `/Vdoc-site/release-rollback`, and `/Vdoc-site/en/release-rollback`. Navigation, scripts, styles, fonts, and the favicon must stay under the `/Vdoc-site/` base instead of resolving to broken root-level assets.
 
 ## Rollback Strategy
 
@@ -136,8 +159,11 @@ Full Compose rollback approach:
 4. If migration wrote an incompatible schema, restore the PostgreSQL backup from before the upgrade.
 5. If object writes were corrupted, restore object storage from the bucket backup.
 6. Re-run backend health, Admin login, and MCP read-only call checks.
+7. Re-run the Admin AI provider test. If only the AI provider or prompt is broken, roll back that configuration without modifying or deleting published Versions.
 
 For direct deployments, restore the previous backend binary or container, Admin `dist/`, MCP package, and Skill package. Do not delete database or object storage unless you are restoring from backup.
+
+For a GitHub Pages rollback, select a previous successful workflow run whose `github-pages` artifact is still retained. Verify its source SHA, run ID, artifact ID/SHA-256, and QA reports, then re-run only that run's `Deploy GitHub Pages` job. Do not check out an old tree and rebuild it, because rebuilt output is not the artifact that passed verification. After rollback, recheck both locale entry points, the Admin AI pages, the release rollback pages, and all base-safe static assets. If the artifact expired, use another successful run with a retained artifact or create a new fully verified candidate.
 
 ## Release Notes Template
 
@@ -145,18 +171,24 @@ For direct deployments, restore the previous backend binary or container, Admin 
 Version:
 Backend source or image:
 Admin source or image:
+Site source SHA:
+Site workflow run ID:
+Pages artifact ID and SHA-256:
+Pages deployment URL:
+Site QA report references:
 MCP package version:
 Skill package version:
 Backup location:
 Upgrade command:
 Health check result:
 Admin smoke result:
+Pages smoke result:
 MCP smoke result:
 Known limitations:
 Rollback artifact:
 ```
 
-Known limitations should mention at least: no direct MCP publish, no invitation flow, no notification bot, no PR bot, no complete SDK/codegen platform, and no commercial billing or tenant administration.
+Known limitations should mention at least: AI cannot replace machine Diff or human review, no direct MCP publish, no invitation flow, no notification bot, no PR bot, no complete SDK/codegen platform, and no commercial billing or tenant administration.
 
 ## Avoid These Actions
 
