@@ -7,7 +7,7 @@ This page is for users already running Vdoc. The goal is to back up data before 
 - Know the currently running source version, image tag, or build source.
 - Keep the current `.env`, but never paste real secrets into issues, chat, or release notes.
 - Confirm PostgreSQL and object storage are reachable.
-- Record the current Admin URL, backend health URL, Agent MCP config, and the Pages URL, source SHA, workflow run ID, `github-pages` artifact ID/SHA-256, deployment URL, and QA report references.
+- Record the current Admin URL, backend health URL, Agent MCP config, Site URL, source SHA, workflow run ID, static-artifact identifier/checksum, deployment base path, and QA report references.
 - Use a maintenance window so users are not submitting Drafts during restart.
 - Before a local upgrade, inspect and run the local release gate:
 
@@ -64,7 +64,7 @@ pnpm install --frozen-lockfile
 pnpm build
 ```
 
-The Site GitHub Pages candidate must use the Pages-base build and verify the same output before upload:
+If Site is deployed below `/Vdoc-site/`, the candidate must use the Pages-compatible base build and verify the same output before upload:
 
 ```sh
 cd Vdoc-site
@@ -80,7 +80,7 @@ PLAYWRIGHT_BASE_PATH=/Vdoc-site/ pnpm test:browser
 PLAYWRIGHT_BASE_PATH=/Vdoc-site/ pnpm test:performance
 ```
 
-The artifact path is `docs/.vitepress/dist/` inside the repository, or `Vdoc-site/docs/.vitepress/dist/` from the workspace root. Do not rebuild after the browser and performance gates pass; upload and deploy that exact output. Before the first deployment, a maintainer must set the repository's GitHub Pages source to **GitHub Actions**. The workflow does not enable Pages or change repository settings.
+The artifact path is `docs/.vitepress/dist/` inside the repository, or `Vdoc-site/docs/.vitepress/dist/` from the workspace root. Do not rebuild after the browser and performance gates pass; retain its checksum and deploy that exact output through the operator-owned static-hosting process. The current repository workflow verifies only the self-hosted `/` base: it does not upload an artifact, configure GitHub Pages, or deploy. The workspace release dry-run verifies `/Vdoc-site/` compatibility.
 
 Test MCP and Skill packages before upgrading them:
 
@@ -140,7 +140,7 @@ If you changed `.env` host ports, replace the ports in these commands. In deploy
 
     Live E2E resets the selected disposable `VDOC_TEST_POSTGRES_DB`, `vdoc_e2e` by default. It does not reset the application database from `VDOC_POSTGRES_DB`.
 
-11. Check the public Pages routes `/Vdoc-site/`, `/Vdoc-site/en/`, `/Vdoc-site/admin-ai`, `/Vdoc-site/en/admin-ai`, `/Vdoc-site/release-rollback`, and `/Vdoc-site/en/release-rollback`. Navigation, scripts, styles, fonts, and the favicon must stay under the `/Vdoc-site/` base instead of resolving to broken root-level assets.
+11. If `/Vdoc-site/` is the selected base, check `/Vdoc-site/`, `/Vdoc-site/en/`, `/Vdoc-site/admin-ai`, `/Vdoc-site/en/admin-ai`, `/Vdoc-site/release-rollback`, and `/Vdoc-site/en/release-rollback`. Navigation, scripts, styles, fonts, and the favicon must stay under that base instead of resolving to broken root-level assets.
 
 ## Rollback Strategy
 
@@ -163,7 +163,7 @@ Full Compose rollback approach:
 
 For direct deployments, restore the previous backend binary or container, Admin `dist/`, MCP package, and Skill package. Do not delete database or object storage unless you are restoring from backup.
 
-For a GitHub Pages rollback, select a previous successful workflow run whose `github-pages` artifact is still retained. Verify its source SHA, run ID, artifact ID/SHA-256, and QA reports, then re-run only that run's `Deploy GitHub Pages` job. Do not check out an old tree and rebuild it, because rebuilt output is not the artifact that passed verification. After rollback, recheck both locale entry points, the Admin AI pages, the release rollback pages, and all base-safe static assets. If the artifact expired, use another successful run with a retained artifact or create a new fully verified candidate.
+For a Site rollback, select the previous retained static artifact that passed verification. Verify its source SHA, artifact checksum, base path, and QA evidence, then repoint the operator-owned static-hosting release to that exact artifact. Do not rebuild during rollback, because rebuilt output is not the artifact that passed verification. After rollback, recheck both locale entry points, the Admin AI pages, the release rollback pages, and all base-safe static assets. If the artifact expired, use another retained verified artifact, or rerun the full gate at the target source SHA and treat the output as a new candidate.
 
 ## Release Notes Template
 
@@ -173,8 +173,8 @@ Backend source or image:
 Admin source or image:
 Site source SHA:
 Site workflow run ID:
-Pages artifact ID and SHA-256:
-Pages deployment URL:
+Site artifact ID and checksum:
+Site deployment URL and base path:
 Site QA report references:
 MCP package version:
 Skill package version:
@@ -182,7 +182,7 @@ Backup location:
 Upgrade command:
 Health check result:
 Admin smoke result:
-Pages smoke result:
+Site smoke result:
 MCP smoke result:
 Known limitations:
 Rollback artifact:

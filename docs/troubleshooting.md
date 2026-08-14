@@ -110,7 +110,7 @@ Vdoc REST 使用 envelope。不要只看 HTTP status，要看 body：
 - 运行对应 scope 的 provider test，检查 `base_url`、`api_mode`、`model` 和 timeout，不要在日志中打印 `api_key`。
 - 确认 provider 详情只返回 `api_key_set` 和 `api_key_last4`。如果未设置加密密钥，先由有权限的管理员保存配置。
 - 检查对应 `draft_review_summary`、`version_change_summary`、`diff_change_summary` 或 `page_chat` prompt 是否启用。
-- `skipped` 通常表示没有可用 provider 或 prompt 已禁用，`failed` 表示调用失败。两者都不应阻塞 Draft 提交、Version 发布、机器 Diff 或人工审核。
+- `pending` 表示最新请求仍在生成；`skipped` 通常表示没有可用 provider 或 prompt 已禁用，`failed` 表示调用失败或请求完成前上下文已变化。这些状态都不应阻塞 Draft 提交、Version 发布、机器 Diff 或人工审核。
 - 页面 chat 必须绑定当前 Draft、Version 或 Diff。跨 Project、无读取权限或空消息会失败。
 - 用 `trace_id` 和 audit 状态排查。审计可以包含失败原因和 token usage，prompt override、summary 和 chat content 也属于受管产品记录；日志和审计元数据不得包含原始 API key、JWT、MCP Token、`Authorization` header 或提示词中嵌入的秘密。
 

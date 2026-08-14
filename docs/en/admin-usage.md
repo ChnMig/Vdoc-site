@@ -18,7 +18,7 @@ cd Vdoc && go run ./tools/vdoc-demo-seed
 - Admin opens in a browser.
 - If you use Admin Docker, `VDOC_ADMIN_API_BASE_URL` points to a backend origin the browser can reach, such as `http://127.0.0.1:8080`.
 - If you use Admin local development, `VITE_VDOC_API_BASE_URL` points to the backend origin.
-- You prepared an initial SuperAdmin, or you explicitly allow first-user registration in a trusted pilot environment.
+- You prepared an initial SuperAdmin through `initial_admin`. Anonymous registration is disabled by default; only a trusted disposable or pilot environment should temporarily set `VDOC_AUTH_ALLOW_REGISTRATION=true`, then disable it immediately after bootstrap.
 
 ## 1. Log In to Admin
 
@@ -92,6 +92,10 @@ A Project Admin or SuperAdmin opens the Draft under review:
 
 v0.1 does not support MCP direct publishing. Admin is the publishing gate.
 
+### 5.1 Create and manage public shares
+
+A Project Admin or SuperAdmin can create a public share from the Documents page after selecting a Branch with a published Version. The default expiry is three months; one month, six months, one year, and permanent are also available. An optional password must contain 12–72 UTF-8 bytes with no leading or trailing Unicode whitespace. Copy the complete capability link after creation, reveal it again when needed, or revoke it irreversibly. The list distinguishes active, expired, and revoked links. Changing the Project or Document immediately clears any displayed capability and unsubmitted password from the Admin page.
+
 ## 6. Configure Admin AI
 
 First, have a SuperAdmin open system AI settings, enter the OpenAI-compatible `base_url`, `api_mode`, `model`, `api_key`, `enabled`, and needed tuning fields, then run the provider test. If a Project needs a separate gateway, model, or prompts, its Project Admin configures and tests the project override.
@@ -103,11 +107,11 @@ After saving, the UI should show only `api_key_set` and masked `api_key_last4`, 
 Open the MCP Token area in Admin:
 
 1. Create a user-bound MCP Token.
-2. Copy the returned token once.
+2. Copy the returned token. Its owner can reveal and copy it again while it remains active.
 3. Put the token into the Agent runtime environment or secret manager.
 4. Do not store the token in command-line arguments, README files, screenshots, logs, or issues.
 
-Later list or detail views may show only masked token values. That is expected.
+List, revoked, and expired token views show only masked values. That is expected.
 
 ## 8. Connect the MCP Adapter
 
@@ -118,7 +122,7 @@ Local full Compose example:
   "mcpServers": {
     "vdoc": {
       "command": "npx",
-      "args": ["-y", "@vdoc/mcp"],
+      "args": ["--yes", "github:ChnMig/Vdoc-mcp"],
       "env": {
         "VDOC_BASE_URL": "http://127.0.0.1:8080",
         "VDOC_MCP_TOKEN": "REPLACE_WITH_LOCAL_VDOC_MCP_TOKEN"
@@ -132,7 +136,7 @@ For deployed environments, set `VDOC_BASE_URL` to a backend origin reachable fro
 
 ## 9. Install the Skill
 
-Install, copy, or link `Vdoc-skill/` as the Agent runtime's `vdoc` skill folder. `SKILL.md` must be at the skill root. The Skill stores no facts. Live facts come from Vdoc MCP.
+Install Vdoc Skill at `$HOME/.agents/skills/vdoc` for personal use or `.agents/skills/vdoc` for the current repository, with `SKILL.md` at the skill root. The Skill stores no facts. Live facts come from Vdoc MCP.
 
 ## Completion Checks
 

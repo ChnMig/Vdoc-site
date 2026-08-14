@@ -21,7 +21,17 @@ Demo seed 是可选步骤。完整本机门禁见 [部署指南](deployment)，�
 
 ## 安装
 
-把 `Vdoc-skill/` 目录安装、复制或链接到目标 Agent 的 skills folder，并让 `SKILL.md` 位于 skill root。
+把 Skill 安装到 `$HOME/.agents/skills/vdoc`（个人范围）或 `.agents/skills/vdoc`（当前仓库范围），并让 `SKILL.md` 位于 `vdoc` skill root：
+
+```sh
+# 个人安装，对所有工作区可用
+git clone --depth 1 https://github.com/ChnMig/Vdoc-skill.git "$HOME/.agents/skills/vdoc"
+
+# 或仅安装到当前仓库
+git clone --depth 1 https://github.com/ChnMig/Vdoc-skill.git .agents/skills/vdoc
+```
+
+如果目标目录已存在，请更新已有 checkout，不要覆盖克隆。
 
 目录内容应包含：
 

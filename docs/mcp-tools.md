@@ -21,10 +21,12 @@ Demo seed 是可选步骤。完整本机门禁见 [部署指南](deployment)，�
 
 ## 安装方式
 
-全局安装：
+当前 `@vdoc/mcp` 尚未发布到 npm registry。请直接从官方 GitHub 仓库运行或安装：
 
 ```sh
-npm install -g @vdoc/mcp
+npx --yes github:ChnMig/Vdoc-mcp
+# 或全局安装 GitHub 版本
+npm install -g git+https://github.com/ChnMig/Vdoc-mcp.git
 ```
 
 一次性使用时，推荐在 Agent MCP config 中通过 `npx` 调用，不要把 token 放在 `args`。
@@ -61,7 +63,7 @@ stdout 保留给 MCP protocol，普通诊断看 stderr。
   "mcpServers": {
     "vdoc": {
       "command": "npx",
-      "args": ["-y", "@vdoc/mcp"],
+      "args": ["--yes", "github:ChnMig/Vdoc-mcp"],
       "env": {
         "VDOC_BASE_URL": "https://your-vdoc.example.test",
         "VDOC_MCP_TOKEN": "REPLACE_WITH_LOCAL_VDOC_MCP_TOKEN"

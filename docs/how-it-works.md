@@ -12,7 +12,7 @@ Draft 先进入审核，Admin 批准后生成不可变 Version，MCP 只把已�
 2. Document 使用 `relative_path` 作为稳定身份，例如 `apis/billing.yaml`。
 3. Writer 或 Agent 在 Branch 上创建 Draft。
 4. Draft 进入 review。
-5. 后台 Admin AI 在可用时尝试生成 Draft 审核摘要，失败或跳过不会阻塞流程。
+5. 后台 Admin AI 在可用时尝试生成 Draft 审核摘要；生成中显示 `pending`，随后进入 `succeeded`、`skipped` 或 `failed`，任何结果都不会阻塞流程。
 6. Project Admin 或 SuperAdmin 检查机器 Diff、内容、endpoint detail、Markdown 变化和 AI 辅助摘要。
 7. 审核通过后，后端创建不可变 Version，并尝试生成 Version 摘要。
 8. 之后 Admin、API、MCP 和 Agent 都读取这个已发布 Version。
@@ -31,7 +31,7 @@ Admin 是发布门禁。v0.1 中，MCP 和 Skill 都不能绕过 Admin 直接发
 
 [Admin AI](admin-ai) 是后台产品能力。SuperAdmin 配置系统提供商，Project Admin 可以设置项目覆盖。它基于 Draft、Version 或 Diff 上下文生成 AI-generated 摘要，并在对应页面提供限定上下文的对话。
 
-Admin AI 不修改文档，不覆盖机器 Diff，也不能 approve、request changes、reject 或 publish。提供商未配置、提示词禁用、调用失败或超时时，状态会记录为 `skipped` 或 `failed`，原始 Diff 和人工审核继续可用。
+Admin AI 不修改文档，不覆盖机器 Diff，也不能 approve、request changes、reject 或 publish。最新请求生成中记录为 `pending`；提供商未配置或提示词禁用时记录为 `skipped`，调用失败、超时或完成前上下文变化时记录为 `failed`。旧请求不能覆盖新状态，原始 Diff 和人工审核始终继续可用。
 
 ## MCP 在流程中的职责
 

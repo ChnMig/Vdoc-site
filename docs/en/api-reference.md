@@ -21,7 +21,7 @@ curl "$API_BASE/api/v1/open/docs/openapi.yaml"
 
 ## Authentication Rule
 
-Public auth starts with register or login. Private REST uses the JWT returned by login or registration. MCP uses an MCP Token created in Admin or private REST.
+Public auth normally starts with login. Anonymous registration is disabled by default and should be enabled with `VDOC_AUTH_ALLOW_REGISTRATION=true` only in a trusted disposable or pilot environment. Private REST uses the JWT returned by login or registration. MCP uses an MCP Token created in Admin or private REST.
 
 Key rule: `Authorization` contains the raw JWT or MCP Token. Do not add `Bearer`. Never paste full header values into docs, logs, screenshots, or commits. Shell environment variables are not package CLI arguments, so never put credentials in package or process `args`. Run `set +x` to disable xtrace, then pass the header to `curl` through stdin config so the raw value does not enter `curl` process arguments.
 
@@ -46,6 +46,7 @@ This example is only for local smoke tests. Do not use a real user password.
 ```sh
 PASSWORD="sample-password-change-me"
 
+# The backend must explicitly set VDOC_AUTH_ALLOW_REGISTRATION=true.
 REGISTER_RESPONSE=$(curl -sS "$API_BASE/api/v1/open/auth/register" \
   -H 'Content-Type: application/json' \
   -d '{"email":"docs-admin@example.test","name":"Docs Admin","password":"sample-password-change-me"}')
@@ -154,7 +155,7 @@ curl_with_jwt -sS "$API_BASE/api/v1/private/projects/$PROJECT_ID/documents/$DOCU
 
 ## MCP Token and MCP JSON-RPC
 
-Create an MCP Token. `.detail.token` is a one-time-copy secret; later list, get, and revoke responses are masked.
+Create an MCP Token. `.detail.token` is copyable, and its owner can reveal an active token again through the detail endpoint. List, revoked, and expired responses are masked.
 
 ```sh
 MCP_TOKEN_RESPONSE=$(curl_with_jwt -sS "$API_BASE/api/v1/private/mcp-tokens" \
@@ -190,6 +191,8 @@ v0.1 does not expose direct publish tools through MCP. Agents can create, update
 
 [Admin AI](admin-ai) uses private JWT APIs. Provider and prompt configuration is separate from the external MCP/Skill Agent, and AI output cannot replace machine Diff or human review.
 
+Only SuperAdmins may read, update, or test system Provider/Prompt configuration. Only the corresponding Project Admin or a SuperAdmin may read, update, or test project Provider/Prompt configuration. Readers and Writers cannot read this configuration, but may still use summaries and page Chat where document permissions allow. Omitting the body from a project provider test tests the effective configuration; without an enabled project override, it tests the system fallback provider.
+
 ```text
 GET  /api/v1/private/ai/provider
 PUT  /api/v1/private/ai/provider
@@ -207,30 +210,51 @@ GET  /api/v1/private/projects/{project_id}/documents/{document_id}/versions/{ver
 POST /api/v1/private/projects/{project_id}/documents/{document_id}/versions/{version_id}/ai-summary/regenerate
 GET  /api/v1/private/projects/{project_id}/documents/{document_id}/diffs/{diff_id}/ai-summary
 POST /api/v1/private/projects/{project_id}/documents/{document_id}/diffs/{diff_id}/ai-summary/regenerate
+GET  /api/v1/private/projects/{project_id}/ai/chat-sessions?document_id={document_id}&context_type={draft|version|diff}&context_id={context_id}
 POST /api/v1/private/projects/{project_id}/ai/chat-sessions
 GET  /api/v1/private/projects/{project_id}/ai/chat-sessions/{session_id}
 POST /api/v1/private/projects/{project_id}/ai/chat-sessions/{session_id}/messages
 ```
 
-Provider payloads contain `name`, `base_url`, `model`, `api_mode`, `api_key`, `enabled`, `temperature`, `timeout_ms`, and `max_output_tokens`. Read responses expose only `api_key_set` and `api_key_last4`. System and project providers both have test routes. Draft, Version, and Diff all support summary reads and manual regeneration, while chat sessions stay bound to the current page resource context.
+Provider payloads contain `name`, `base_url`, `model`, `api_mode`, `api_key`, `enabled`, `temperature`, `timeout_ms`, and `max_output_tokens`. Read responses expose only `api_key_set` and `api_key_last4`. Prompt update bodies contain only `system_prompt`, `user_prompt_template`, and `enabled`; every user template requires `{{context}}`, while `page_chat` also requires `{{message}}`. System and project providers both have test routes. Draft, Version, and Diff all support summary reads and manual regeneration, while chat sessions stay bound to the current page resource context and can be recovered through the collection GET. After Project archival, only Project Admins and SuperAdmins retain read-only access to historical Provider/Prompt configuration. Historical summaries and Chat remain readable, but regeneration, session creation, and message sending are blocked.
+
+## Public Document Shares
+
+Project Admins and SuperAdmins can create, reveal, and revoke public links for Branches that already have published versions from the Documents page. The secret exists only in the URL fragment; the anonymous page removes it from the address and current history entry before any network request and never attaches account cookies or JWTs.
+
+Admin defaults to a three-month expiry and also offers one month, six months, one year, or permanent. An optional password must contain 12–72 UTF-8 bytes with no leading or trailing Unicode whitespace; multi-byte characters count by their encoded byte length.
+
+```text
+GET, POST /api/v1/private/projects/{project_id}/documents/{document_id}/shares
+POST      /api/v1/private/projects/{project_id}/documents/{document_id}/shares/{share_id}/reveal
+POST      /api/v1/private/projects/{project_id}/documents/{document_id}/shares/{share_id}/revoke
+GET       /api/v1/open/document-shares/{share_id}
+POST      /api/v1/open/document-shares/{share_id}/unlock
+GET       /api/v1/open/document-shares/{share_id}/versions
+GET       /api/v1/open/document-shares/{share_id}/versions/{version_id}/content
+GET       /api/v1/open/document-shares/{share_id}/versions/{version_id}/download
+```
+
+Public requests use `Authorization: VdocShare {secret}`. Password-protected links exchange the password at `/unlock` for a 15-minute proof bound to that share and send it as `X-Vdoc-Share-Unlock`. Revoked or expired links, invalid proofs, and inactive parent resources all return the same unavailable result. Markdown disables raw HTML, remote images, and unsafe links; OpenAPI is escaped read-only text; every download passes through backend authorization.
 
 ## Route Categories
 
-| Category     | Purpose                                                             |
-| ------------ | ------------------------------------------------------------------- |
-| Open         | Health, register/login, OpenAPI YAML, and MCP JSON-RPC.             |
-| Identity     | Current JWT user identity.                                          |
-| System Users | SuperAdmin user lifecycle and user MCP token oversight.             |
-| Teams        | Team lifecycle.                                                     |
-| Projects     | Project lifecycle and membership.                                   |
-| Documents    | Project document lifecycle.                                         |
-| Branches     | Document branch lifecycle.                                          |
-| Drafts       | Draft creation, update, submission, review, and promotion.          |
-| Versions     | Published document versions and raw, normalized, or stable content. |
-| Endpoints    | Endpoint list and detail parsed from published versions.            |
-| Diffs        | Semantic version comparison and summaries.                          |
-| AI           | Provider, prompts, Draft/Version/Diff AI summaries, and page chat.  |
-| MCP Tokens   | User MCP token lifecycle.                                           |
+| Category        | Purpose                                                             |
+| --------------- | ------------------------------------------------------------------- |
+| Open            | Health, login, opt-in register, OpenAPI YAML, and MCP JSON-RPC.     |
+| Identity        | Current JWT user identity.                                          |
+| System Users    | SuperAdmin user lifecycle and user MCP token oversight.             |
+| Teams           | Team lifecycle.                                                     |
+| Projects        | Project lifecycle and membership.                                   |
+| Documents       | Project document lifecycle.                                         |
+| Branches        | Document branch lifecycle.                                          |
+| Drafts          | Draft creation, update, submission, review, and promotion.          |
+| Versions        | Published document versions and raw, normalized, or stable content. |
+| Endpoints       | Endpoint list and detail parsed from published versions.            |
+| Diffs           | Semantic version comparison and summaries.                          |
+| AI              | Provider, prompts, Draft/Version/Diff AI summaries, and page chat.  |
+| MCP Tokens      | User MCP token lifecycle.                                           |
+| Document Shares | Admin-managed public links and anonymous published-content access.  |
 
 ## Verification
 

@@ -110,7 +110,7 @@ If `code` is not `200` or `status` is not `OK`, handle it as a business error.
 - Run the provider test for that scope. Check `base_url`, `api_mode`, `model`, and timeout without printing `api_key` in logs.
 - Confirm provider detail exposes only `api_key_set` and `api_key_last4`. If no encrypted key is set, have an authorized administrator save the configuration.
 - Check whether the matching `draft_review_summary`, `version_change_summary`, `diff_change_summary`, or `page_chat` prompt is enabled.
-- `skipped` usually means no usable provider or a disabled prompt. `failed` means the provider call failed. Neither state should block Draft submission, Version publishing, machine Diff, or human review.
+- `pending` means the latest request is still generating. `skipped` usually means no usable provider or a disabled prompt. `failed` means the provider call failed or its context changed before completion. None of these states should block Draft submission, Version publishing, machine Diff, or human review.
 - Page chat must bind to the current Draft, Version, or Diff. Cross-Project access, missing read permission, or an empty message fails.
 - Diagnose with `trace_id` and audit status. Audit may contain a failure reason and token usage, while prompt overrides, summaries, and chat content are managed product records. Logs and audit metadata must not contain raw API keys, JWTs, MCP Tokens, `Authorization` headers, or secrets embedded in prompts.
 

@@ -70,6 +70,8 @@ curl http://127.0.0.1:8080/api/v1/open/health
 curl -I http://127.0.0.1:8081/
 ```
 
+Do not check HTTP 200 alone: the Vdoc envelope may still use HTTP 200 when a dependency is unavailable. Deployment probes must require `.detail.healthy == true`. The official backend image healthcheck performs this semantic check.
+
 Optional: seed demo data after backend health succeeds:
 
 ```sh
@@ -107,6 +109,8 @@ Remove containers and networks while keeping named volumes:
 docker compose --env-file .env down
 ```
 
+PostgreSQL 18 stores data below a major-version-specific directory, so the Compose volume is mounted at `/var/lib/postgresql`. If `postgres-data` was created by PostgreSQL 17 or earlier, migrate it with `pg_upgrade` or dump/restore before starting PostgreSQL 18. Compose does not perform major-version migrations automatically; do not use `down -v` during an upgrade.
+
 Do not run `docker compose down -v` outside disposable environments. It deletes `postgres-data`, `rustfs-data`, and `rustfs-logs`.
 
 ## Localhost and Compose Service Names
@@ -127,6 +131,7 @@ Host ports can be changed in `.env`:
 
 ```sh
 VDOC_POSTGRES_HOST_PORT=5432
+VDOC_PUBLISH_ADDRESS=127.0.0.1
 VDOC_RUSTFS_HOST_PORT=9000
 VDOC_RUSTFS_CONSOLE_HOST_PORT=9001
 VDOC_BACKEND_HOST_PORT=8080
@@ -149,6 +154,12 @@ VDOC_STORAGE_PATH_STYLE=true
 VDOC_MCP_TOKEN_CIPHER_KEY=replace-with-at-least-32-characters-mcp-key
 VDOC_MCP_TOKEN_CIPHER_KID=local-aes-gcm-v1
 ```
+
+The full Compose setup adds `http://127.0.0.1:8081` and `http://localhost:8081` to the backend's exact CORS allowlist. If `VDOC_ADMIN_HOST_PORT` changes or a production domain is used, update `VDOC_SERVER_CORS_ALLOWED_ORIGINS` and recreate the backend container.
+
+All host ports bind only to `127.0.0.1` by default so disposable registration, PostgreSQL, and RustFS are not accidentally exposed to the LAN. Change `VDOC_PUBLISH_ADDRESS` only after firewall, TLS, and external access controls are in place. Keep RustFS CORS restricted to the exact Console origin; never use `*`.
+
+Leave `VDOC_SERVER_TRUSTED_PROXIES` unset when browsers connect directly to the backend. When Caddy, Nginx, or an Ingress terminates TLS, set it to the exact proxy IP/CIDR seen by the backend; separate multiple values with commas. Never use `0.0.0.0/0` or `::/0`. Configuration-file changes are validated but running configuration changes require a safe restart.
 
 Admin Docker runtime setting:
 
@@ -201,7 +212,7 @@ Admin Docker direct run example:
 
 ```sh
 docker build -t vdoc-admin ./Vdoc-admin
-docker run --rm -p 8081:80 \
+docker run --rm -p 8081:8080 \
   -e VDOC_ADMIN_API_BASE_URL=http://127.0.0.1:8080 \
   vdoc-admin
 ```
@@ -235,6 +246,6 @@ Percent encode PostgreSQL passwords before putting them in `VDOC_DATABASE_DSN` i
 ## Next Step After Deployment
 
 1. Open backend health and confirm success.
-2. Open Admin and log in with the initial admin, or register the first user in a trusted pilot environment.
+2. Open Admin and log in with the initial admin. Anonymous registration is disabled by default; only a trusted disposable or pilot environment should temporarily set `VDOC_AUTH_ALLOW_REGISTRATION=true` to register the first user, then disable it and recreate the backend container immediately after bootstrap.
 3. Follow [First Use](admin-usage) to create Project, Document, Draft, Version, and MCP Token.
 4. Connect Agents with [MCP Tools](mcp-tools) and [Skill Workflows](skill-workflows).

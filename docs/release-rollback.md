@@ -7,7 +7,7 @@
 - 确认你知道当前运行的代码版本、镜像 tag 或构建来源。
 - 保留当前 `.env`，但不要把真实 secret 写入 issue、聊天记录或 release notes。
 - 确认 PostgreSQL 和对象存储都能访问。
-- 记录当前 Admin URL、backend health URL、Agent MCP 配置，以及 Pages URL、source SHA、workflow run ID、`github-pages` artifact ID/SHA-256、deployment URL 和 QA report 引用。
+- 记录当前 Admin URL、backend health URL、Agent MCP 配置，以及 Site URL、source SHA、workflow run ID、静态 artifact 标识/校验和、部署 base path 和 QA report 引用。
 - 在维护窗口中执行升级，避免用户正在提交 Draft 时中断。
 - 本机升级前先看 release dry-run 计划并运行本机门禁：
 
@@ -64,7 +64,7 @@ pnpm install --frozen-lockfile
 pnpm build
 ```
 
-Site 的 GitHub Pages candidate 必须使用 Pages base 构建，并在上传前验证同一份输出：
+如果 Site 部署在 `/Vdoc-site/` 子路径，candidate 必须使用 Pages-compatible base 构建，并在上传前验证同一份输出：
 
 ```sh
 cd Vdoc-site
@@ -80,7 +80,7 @@ PLAYWRIGHT_BASE_PATH=/Vdoc-site/ pnpm test:browser
 PLAYWRIGHT_BASE_PATH=/Vdoc-site/ pnpm test:performance
 ```
 
-artifact 路径是仓库内的 `docs/.vitepress/dist/`，也就是 workspace root 下的 `Vdoc-site/docs/.vitepress/dist/`。browser 和 performance 通过后不要重新 build；上传并部署这份原样输出。首次部署前，仓库的 GitHub Pages source 必须由维护者设置为 **GitHub Actions**；workflow 不会启用 Pages 或修改仓库设置。
+artifact 路径是仓库内的 `docs/.vitepress/dist/`，也就是 workspace root 下的 `Vdoc-site/docs/.vitepress/dist/`。browser 和 performance 通过后不要重新 build；保留校验和并通过运维方自己的静态托管流程部署这份原样输出。当前仓库 workflow 只验证自托管 `/` base，不上传 artifact、不配置 GitHub Pages，也不执行部署；`/Vdoc-site/` 兼容构建由 workspace release dry-run 验收。
 
 MCP 和 Skill 包升级前也要跑测试：
 
@@ -140,7 +140,7 @@ curl -I http://127.0.0.1:8081/
 
     Live E2E 会重置选中的一次性 `VDOC_TEST_POSTGRES_DB`，默认是 `vdoc_e2e`，不会重置 `VDOC_POSTGRES_DB` 指向的应用数据库。
 
-11. 检查公开 Pages 路由 `/Vdoc-site/`、`/Vdoc-site/en/`、`/Vdoc-site/admin-ai`、`/Vdoc-site/en/admin-ai`、`/Vdoc-site/release-rollback` 和 `/Vdoc-site/en/release-rollback`；导航、脚本、样式、字体和 favicon 必须保持在 `/Vdoc-site/` base 下，不能指向站点根路径的错误资源。
+11. 如果选择 `/Vdoc-site/` base，检查公开路由 `/Vdoc-site/`、`/Vdoc-site/en/`、`/Vdoc-site/admin-ai`、`/Vdoc-site/en/admin-ai`、`/Vdoc-site/release-rollback` 和 `/Vdoc-site/en/release-rollback`；导航、脚本、样式、字体和 favicon 必须保持在该 base 下，不能指向站点根路径的错误资源。
 
 ## 回滚策略
 
@@ -163,7 +163,7 @@ curl -I http://127.0.0.1:8081/
 
 直接部署时，恢复上一版 backend binary 或 container、Admin `dist/`、MCP package 和 Skill package。除非你正在恢复备份，不要删除数据库和对象存储。
 
-GitHub Pages 回滚必须选择仍保留 `github-pages` artifact 的上一条成功 workflow run，核对其 source SHA、run ID、artifact ID/SHA-256 和 QA report 后，只重跑该 run 的 `Deploy GitHub Pages` job。不要 checkout 旧 tree 后重新 build，因为重新构建的输出不是已验收的原 artifact。回滚后重新检查中英文入口、Admin AI 页面、release rollback 页面和所有 base-safe 静态资源；artifact 已过期时，改用另一条仍保留 artifact 的成功 run，或创建新的完整验收 candidate。
+Site 回滚必须选择仍保留的上一份已验收静态 artifact，核对 source SHA、artifact 校验和、base path 和 QA 证据后，通过运维方自己的静态托管流程重新指向该 artifact。不要在回滚时重新 build，因为重新构建的输出不是原已验收 artifact。回滚后重新检查中英文入口、Admin AI 页面、release rollback 页面和所有 base-safe 静态资源；artifact 已过期时，使用另一份仍保留的已验收 artifact，或从目标 source SHA 重新跑完整门禁并把输出视为新的 candidate。
 
 ## 发布说明模板
 
@@ -173,8 +173,8 @@ Backend source or image:
 Admin source or image:
 Site source SHA:
 Site workflow run ID:
-Pages artifact ID and SHA-256:
-Pages deployment URL:
+Site artifact ID and checksum:
+Site deployment URL and base path:
 Site QA report references:
 MCP package version:
 Skill package version:
@@ -182,7 +182,7 @@ Backup location:
 Upgrade command:
 Health check result:
 Admin smoke result:
-Pages smoke result:
+Site smoke result:
 MCP smoke result:
 Known limitations:
 Rollback artifact:

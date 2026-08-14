@@ -12,7 +12,7 @@ Drafts enter review first. Admin approval creates immutable Versions. MCP expose
 2. Document uses `relative_path` as stable identity, for example `apis/billing.yaml`.
 3. A Writer or Agent creates a Draft on a Branch.
 4. The Draft enters review.
-5. When available, built-in Admin AI attempts a Draft review summary. A skipped or failed attempt does not block the flow.
+5. When available, built-in Admin AI attempts a Draft review summary. It is `pending` while in flight and then becomes `succeeded`, `skipped`, or `failed`; no outcome blocks the flow.
 6. A Project Admin or SuperAdmin checks machine Diff, content, endpoint detail, Markdown changes, and the AI helper summary.
 7. Approval creates an immutable Version and triggers a Version summary attempt.
 8. Admin, API, MCP, and Agents read that published Version.
@@ -31,7 +31,7 @@ Admin is the publishing gate. In v0.1, MCP and Skill cannot bypass Admin to publ
 
 [Admin AI](admin-ai) is a built-in backend product feature. A SuperAdmin configures the system provider, and a Project Admin can set a project override. It generates AI-generated summaries from Draft, Version, or Diff context and provides context-bound chat on those pages.
 
-Admin AI does not modify documents, replace machine Diff, or approve, request changes, reject, or publish. If the provider is missing, a prompt is disabled, or a call fails or times out, Vdoc records `skipped` or `failed` while the original Diff and human review remain available.
+Admin AI does not modify documents, replace machine Diff, or approve, request changes, reject, or publish. The latest in-flight request is `pending`; a missing provider or disabled prompt becomes `skipped`, while a failed, timed-out, or context-invalidated request becomes `failed`. Superseded requests cannot overwrite newer state, and the original Diff and human review remain available.
 
 ## What MCP Does
 

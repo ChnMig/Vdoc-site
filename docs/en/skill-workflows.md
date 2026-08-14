@@ -21,7 +21,17 @@ The demo seed is optional. See [Deployment Guide](deployment) for the full local
 
 ## Installation
 
-Install, copy, or link `Vdoc-skill/` into the target Agent skills folder. `SKILL.md` must be at the skill root.
+Install the Skill at `$HOME/.agents/skills/vdoc` for personal use or `.agents/skills/vdoc` for the current repository, with `SKILL.md` at the `vdoc` skill root:
+
+```sh
+# Personal installation, available to all workspaces
+git clone --depth 1 https://github.com/ChnMig/Vdoc-skill.git "$HOME/.agents/skills/vdoc"
+
+# Or install only for the current repository
+git clone --depth 1 https://github.com/ChnMig/Vdoc-skill.git .agents/skills/vdoc
+```
+
+If the target already exists, update that checkout instead of cloning over it.
 
 The directory should contain:
 

@@ -21,7 +21,7 @@ curl "$API_BASE/api/v1/open/docs/openapi.yaml"
 
 ## 鉴权规则
 
-Public auth 从 register 或 login 开始。Private REST 使用登录或注册返回的 JWT。MCP 使用 Admin 或 private REST 创建的 MCP Token。
+Public auth 通常从 login 开始。匿名注册默认关闭；只有可信的一次性或试点环境才应设置 `VDOC_AUTH_ALLOW_REGISTRATION=true`。Private REST 使用登录或注册返回的 JWT。MCP 使用 Admin 或 private REST 创建的 MCP Token。
 
 关键规则：`Authorization` header 放原始 JWT 或 MCP Token，不加 `Bearer` 前缀。不要把完整 header 写进文档、日志、截图或仓库。shell 环境变量不是 package CLI argument，不要把凭据放进 package 或进程 `args`。运行前用 `set +x` 关闭 xtrace，并用 stdin config 把 header 交给 `curl`，避免原始值进入 `curl` 的进程参数。
 
@@ -46,6 +46,7 @@ REST handler 对成功和业务错误都可能返回 HTTP 200，语义结果在 
 ```sh
 PASSWORD="sample-password-change-me"
 
+# backend 必须已显式设置 VDOC_AUTH_ALLOW_REGISTRATION=true。
 REGISTER_RESPONSE=$(curl -sS "$API_BASE/api/v1/open/auth/register" \
   -H 'Content-Type: application/json' \
   -d '{"email":"docs-admin@example.test","name":"Docs Admin","password":"sample-password-change-me"}')
@@ -154,7 +155,7 @@ curl_with_jwt -sS "$API_BASE/api/v1/private/projects/$PROJECT_ID/documents/$DOCU
 
 ## MCP Token 和 MCP JSON-RPC
 
-创建 MCP Token。`.detail.token` 是一次性可复制 secret，后续 list、get、revoke 返回会脱敏。
+创建 MCP Token。`.detail.token` 可复制；所属用户可以通过详情接口再次查看 active Token。列表、已撤销和已过期响应会脱敏。
 
 ```sh
 MCP_TOKEN_RESPONSE=$(curl_with_jwt -sS "$API_BASE/api/v1/private/mcp-tokens" \
@@ -190,6 +191,8 @@ v0.1 不通过 MCP 暴露 direct publish tools。Agent 可以创建、更新、�
 
 [Admin AI](admin-ai) 使用 private JWT API。Provider 和 prompt 配置与外部 MCP/Skill Agent 分离，AI 结果不能替代机器 Diff 或人工审核。
 
+系统 Provider/Prompt 的读取、更新和测试仅限 SuperAdmin；项目 Provider/Prompt 的读取、更新和测试仅限对应 Project Admin 或 SuperAdmin。Reader 和 Writer 不能读取这些配置，但仍可在文档权限允许时使用摘要和页面 Chat。项目 Provider 测试省略 body 时会测试有效配置；若无启用的项目覆盖，则测试系统回退 Provider。
+
 ```text
 GET  /api/v1/private/ai/provider
 PUT  /api/v1/private/ai/provider
@@ -207,30 +210,51 @@ GET  /api/v1/private/projects/{project_id}/documents/{document_id}/versions/{ver
 POST /api/v1/private/projects/{project_id}/documents/{document_id}/versions/{version_id}/ai-summary/regenerate
 GET  /api/v1/private/projects/{project_id}/documents/{document_id}/diffs/{diff_id}/ai-summary
 POST /api/v1/private/projects/{project_id}/documents/{document_id}/diffs/{diff_id}/ai-summary/regenerate
+GET  /api/v1/private/projects/{project_id}/ai/chat-sessions?document_id={document_id}&context_type={draft|version|diff}&context_id={context_id}
 POST /api/v1/private/projects/{project_id}/ai/chat-sessions
 GET  /api/v1/private/projects/{project_id}/ai/chat-sessions/{session_id}
 POST /api/v1/private/projects/{project_id}/ai/chat-sessions/{session_id}/messages
 ```
 
-Provider payload 包含 `name`、`base_url`、`model`、`api_mode`、`api_key`、`enabled`、`temperature`、`timeout_ms` 和 `max_output_tokens`。读取响应只暴露 `api_key_set` 和 `api_key_last4`。系统和项目 provider 都有 test route，Draft、Version 和 Diff 都支持摘要读取和手动重新生成，chat session 固定在当前页面资源上下文。
+Provider payload 包含 `name`、`base_url`、`model`、`api_mode`、`api_key`、`enabled`、`temperature`、`timeout_ms` 和 `max_output_tokens`。读取响应只暴露 `api_key_set` 和 `api_key_last4`。Prompt 更新 body 只包含 `system_prompt`、`user_prompt_template` 和 `enabled`；所有 user template 必须包含 `{{context}}`，`page_chat` 还必须包含 `{{message}}`。系统和项目 provider 都有 test route，Draft、Version 和 Diff 都支持摘要读取和手动重新生成，chat session 固定在当前页面资源上下文并可通过集合 GET 恢复历史。Project 归档后仅 Project Admin/SuperAdmin 可只读查看 Provider/Prompt 历史配置；历史摘要和 Chat 仍可读，但禁止重新生成、创建会话或发送消息。
+
+## 文档公开分享
+
+Project Admin 或 SuperAdmin 可在 Documents 页面为已有发布版本的 Branch 创建、重新显示和撤销公开链接。链接 secret 只放在 URL fragment；匿名页面在网络请求前从地址和浏览历史中移除 fragment，且不附带账号 Cookie 或 JWT。
+
+Admin 默认选择三个月有效期，也可选择一个月、六个月、一年或永久。可选密码必须为 12–72 个 UTF-8 字节，且首尾不能包含 Unicode 空白字符；中文等多字节字符按编码后的字节数计算。
+
+```text
+GET, POST /api/v1/private/projects/{project_id}/documents/{document_id}/shares
+POST      /api/v1/private/projects/{project_id}/documents/{document_id}/shares/{share_id}/reveal
+POST      /api/v1/private/projects/{project_id}/documents/{document_id}/shares/{share_id}/revoke
+GET       /api/v1/open/document-shares/{share_id}
+POST      /api/v1/open/document-shares/{share_id}/unlock
+GET       /api/v1/open/document-shares/{share_id}/versions
+GET       /api/v1/open/document-shares/{share_id}/versions/{version_id}/content
+GET       /api/v1/open/document-shares/{share_id}/versions/{version_id}/download
+```
+
+公开请求使用 `Authorization: VdocShare {secret}`。密码保护链接先通过 `/unlock` 获取 15 分钟、绑定当前 share 的 proof，再用 `X-Vdoc-Share-Unlock` 访问。撤销、过期、proof 错误或上级资源停用统一返回 unavailable。Markdown 禁 raw HTML、远程图片和危险链接；OpenAPI 只显示转义文本；下载始终经过后端授权。
 
 ## 接口分类
 
-| Category     | 作用                                                               |
-| ------------ | ------------------------------------------------------------------ |
-| Open         | Health、register/login、OpenAPI YAML、MCP JSON-RPC。               |
-| Identity     | 当前 JWT 用户身份。                                                |
-| System Users | SuperAdmin user lifecycle 和 user MCP token oversight。            |
-| Teams        | Team lifecycle。                                                   |
-| Projects     | Project lifecycle 和 membership。                                  |
-| Documents    | Project document lifecycle。                                       |
-| Branches     | Document branch lifecycle。                                        |
-| Drafts       | Draft creation、update、submission、review、promotion。            |
-| Versions     | Published document versions 和 raw、normalized 或 stable content。 |
-| Endpoints    | Published versions 中解析出的 endpoint list 和 detail。            |
-| Diffs        | Semantic version comparison 和 summaries。                         |
-| AI           | Provider、prompt、Draft/Version/Diff AI summary 和 page chat。     |
-| MCP Tokens   | User MCP token lifecycle。                                         |
+| Category        | 作用                                                               |
+| --------------- | ------------------------------------------------------------------ |
+| Open            | Health、login、显式开启的 register、OpenAPI YAML、MCP JSON-RPC。   |
+| Identity        | 当前 JWT 用户身份。                                                |
+| System Users    | SuperAdmin user lifecycle 和 user MCP token oversight。            |
+| Teams           | Team lifecycle。                                                   |
+| Projects        | Project lifecycle 和 membership。                                  |
+| Documents       | Project document lifecycle。                                       |
+| Branches        | Document branch lifecycle。                                        |
+| Drafts          | Draft creation、update、submission、review、promotion。            |
+| Versions        | Published document versions 和 raw、normalized 或 stable content。 |
+| Endpoints       | Published versions 中解析出的 endpoint list 和 detail。            |
+| Diffs           | Semantic version comparison 和 summaries。                         |
+| AI              | Provider、prompt、Draft/Version/Diff AI summary 和 page chat。     |
+| MCP Tokens      | User MCP token lifecycle。                                         |
+| Document Shares | 管理员公开链接管理和匿名已发布内容读取。                           |
 
 ## 如何验证
 

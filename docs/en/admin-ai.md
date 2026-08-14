@@ -6,6 +6,7 @@ Admin AI is the review assistant built into the Vdoc backend. It reads Draft, Ve
 
 - SuperAdmins configure the system default AI provider and system prompts.
 - Project Admins can configure a project provider and project prompt overrides.
+- Only SuperAdmins may read, update, or test system configuration. Only the corresponding Project Admin or a SuperAdmin may read, update, or test project configuration. Readers and Writers cannot read Provider/Prompt configuration, but may still use page summaries and Chat where document permissions allow.
 - An enabled project provider takes precedence over the system provider. If the project provider is absent or disabled, Vdoc falls back to the enabled system provider.
 - Project prompt overrides affect only that Project. Every AI read remains limited by the current user's Project permissions.
 
@@ -31,7 +32,7 @@ Vdoc uses OpenAI-compatible providers and supports two API modes:
 
 `name` is an optional display name. Provider reads use `api_key_set` to report whether a key exists and expose only `api_key_last4` as masked state. You can keep the existing encrypted key while updating other fields. Never copy the key into docs, logs, or screenshots.
 
-Run a system or project provider test before or after saving. A test uses the current form payload or the saved effective configuration for a short connectivity call, then returns `ok` and non-secret `content`. Test results and failures are audited.
+Run a system or project provider test before or after saving. A test uses the current form payload or the saved effective configuration for a short connectivity call, then returns `ok` and non-secret `content`. When a project has no enabled override, an empty-form test does not submit an incomplete provider; it tests the currently enabled system fallback. Test results and failures are audited.
 
 ## Configure Prompts
 
@@ -42,7 +43,7 @@ System and project scopes can override these prompt keys:
 - `diff_change_summary`
 - `page_chat`
 
-Each prompt has `system_prompt`, `user_prompt_template`, and `enabled`. A project override takes precedence over the system or built-in template. Disabling a summary prompt records the matching generation as `skipped` and does not block Draft submission or Version publishing. Prompt overrides are managed product data; logs and audit metadata must exclude keys, tokens, and other secrets embedded in prompts.
+Each prompt has `system_prompt`, `user_prompt_template`, and `enabled`. Both text fields must be non-blank. Every `user_prompt_template` must retain the literal `{{context}}`, and `page_chat` must also retain `{{message}}`. The request path is the source of truth for `prompt_key`; update bodies do not repeat it. A project override takes precedence over the system or built-in template. Disabling a summary prompt records the matching generation as `skipped` and does not block Draft submission or Version publishing. Prompt overrides are managed product data; logs and audit metadata must exclude keys, tokens, and other secrets embedded in prompts.
 
 ## Automatic Summaries and Regeneration
 
@@ -53,13 +54,17 @@ Each prompt has `system_prompt`, `user_prompt_template`, and `enabled`. A projec
 
 Backend context is target-specific and bounded: Draft includes bounded normalized content plus its `ID`, version name, status, and `changelog`; Version includes bounded normalized content plus its `ID`, version name, and `changelog`; Diff includes the Diff `ID`, from-version ID, to-version ID, and aggregate `added`, `removed`, `modified`, and `breaking` counts; each item includes `method`, `path`, `location`, `breaking`, and `message`. Summaries are AI-generated helper text. Machine Diff remains the change record, and human review decides whether to publish.
 
-Automatic outcomes are `succeeded`, `skipped`, or `failed`. No usable provider or a disabled prompt produces `skipped`; provider call errors produce `failed`. Both outcomes are non-blocking. They do not roll back Draft submission or Version publishing, and the original Diff, Version view, and human review remain available.
+Automatic outcomes include `pending` while generation is in flight, followed by `succeeded`, `skipped`, or `failed`. No usable provider or a disabled prompt produces `skipped`; provider call errors produce `failed`. Before accepting a provider response, Vdoc rechecks permissions, target content, provider configuration, and prompt configuration, so stale output cannot overwrite newer state. These outcomes are non-blocking. They do not roll back Draft submission or Version publishing, and the original Diff, Version view, and human review remain available.
+
+Page AI Chat includes a bounded window of the current session history. A persisted generation token ensures that only the latest request can append messages across multiple Vdoc instances; an older delayed response is rejected. Admin lists retained sessions for the current page context so existing conversations can be recovered and switched after refresh.
 
 ## Page Chat
 
 Draft Review, Version, and Compare / Diff pages can create page-scoped chat sessions. A session is bound to the current Project, Document, and Draft, Version, or Diff, and can read only context the current user may access. Page chat reuses the same Draft, Version, and Diff context builder and adds no other page data.
 
 Answers must be marked AI-generated. Page chat cannot read across Projects or present an answer as machine Diff or a human review decision.
+
+After the Project, Document, or target Branch is archived, Project Admins and SuperAdmins retain read-only access to historical provider/prompt configuration, and existing summaries and Chat history remain readable. Provider update/test, prompt update, summary regeneration, new sessions, and new messages are blocked. Readers and Writers do not gain configuration-read access from archival. Readers may use Chat in an active context, while manual summary regeneration requires Project Admin or SuperAdmin permission.
 
 ## API Routes
 
@@ -68,7 +73,7 @@ See [API Reference](api-reference#admin-ai-routes) for the complete route and au
 - System and project provider reads, updates, and tests.
 - System and project prompt reads and overrides.
 - Draft, Version, and Diff summary reads and regeneration.
-- Page chat session creation, retrieval, and message sending.
+- Page chat session listing/recovery, creation, retrieval, and message sending.
 
 ## Audit and Secret Safety
 

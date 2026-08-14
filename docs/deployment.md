@@ -70,6 +70,8 @@ curl http://127.0.0.1:8080/api/v1/open/health
 curl -I http://127.0.0.1:8081/
 ```
 
+不要只检查 HTTP 200；Vdoc 的业务 envelope 在依赖异常时仍可能返回 HTTP 200。部署探针必须确认 `.detail.healthy == true`。官方 backend image 的 healthcheck 已执行该语义检查。
+
 可选：backend 健康后写入 demo 数据：
 
 ```sh
@@ -107,6 +109,8 @@ docker compose --env-file .env stop
 docker compose --env-file .env down
 ```
 
+PostgreSQL 18 会把数据放在带主版本号的子目录中，因此 Compose 把 named volume 挂载到 `/var/lib/postgresql`。如果 `postgres-data` 是由 PostgreSQL 17 或更早版本创建的，必须先通过 `pg_upgrade` 或 dump/restore 完成迁移，再启动 PostgreSQL 18。Compose 不会自动执行数据库主版本迁移，升级过程中也不要使用 `down -v`。
+
 不要在非一次性环境运行 `docker compose down -v`，它会删除 `postgres-data`、`rustfs-data` 和 `rustfs-logs`。
 
 ## 本机地址和 Compose 服务名
@@ -127,6 +131,7 @@ docker compose --env-file .env down
 
 ```sh
 VDOC_POSTGRES_HOST_PORT=5432
+VDOC_PUBLISH_ADDRESS=127.0.0.1
 VDOC_RUSTFS_HOST_PORT=9000
 VDOC_RUSTFS_CONSOLE_HOST_PORT=9001
 VDOC_BACKEND_HOST_PORT=8080
@@ -149,6 +154,12 @@ VDOC_STORAGE_PATH_STYLE=true
 VDOC_MCP_TOKEN_CIPHER_KEY=replace-with-at-least-32-characters-mcp-key
 VDOC_MCP_TOKEN_CIPHER_KID=local-aes-gcm-v1
 ```
+
+完整 Compose 已把 `http://127.0.0.1:8081` 和 `http://localhost:8081` 加入 backend 的精确 CORS allowlist。修改 `VDOC_ADMIN_HOST_PORT` 或使用正式域名时，必须同步更新 `VDOC_SERVER_CORS_ALLOWED_ORIGINS` 并重建 backend container。
+
+所有 host ports 默认只绑定 `127.0.0.1`，避免本地一次性环境、公开注册、PostgreSQL 或 RustFS 意外暴露到局域网。只有在已经配置防火墙、TLS 和外部访问控制时才显式修改 `VDOC_PUBLISH_ADDRESS`；RustFS CORS 也应保持精确 Console origin，禁止使用 `*`。
+
+Backend 直连浏览器时不要设置 `VDOC_SERVER_TRUSTED_PROXIES`。若 TLS 由 Caddy、Nginx 或 Ingress 终止，应将该变量设置为 backend 实际连接到的代理 IP/CIDR，多个值使用逗号分隔。禁止使用 `0.0.0.0/0` 或 `::/0`；配置文件变化只会被校验，运行配置需要安全重启后才生效。
 
 Admin Docker runtime 配置：
 
@@ -201,7 +212,7 @@ Admin Docker 直接运行示例：
 
 ```sh
 docker build -t vdoc-admin ./Vdoc-admin
-docker run --rm -p 8081:80 \
+docker run --rm -p 8081:8080 \
   -e VDOC_ADMIN_API_BASE_URL=http://127.0.0.1:8080 \
   vdoc-admin
 ```
@@ -235,6 +246,6 @@ VDOC_STORAGE_PATH_STYLE=true
 ## 部署完成后的下一步
 
 1. 打开 backend health，确认返回成功。
-2. 打开 Admin，使用初始管理员登录，或在可信试点环境注册第一个用户。
+2. 打开 Admin，使用初始管理员登录。匿名注册默认关闭；只有可信的一次性或试点环境才可显式设置 `VDOC_AUTH_ALLOW_REGISTRATION=true` 后注册第一个用户，并应在引导完成后立即关闭并重建 backend container。
 3. 按 [首次使用](admin-usage) 创建 Project、Document、Draft、Version 和 MCP Token。
 4. 按 [MCP 工具](mcp-tools) 和 [Skill 工作流](skill-workflows) 连接 Agent。

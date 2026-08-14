@@ -18,7 +18,7 @@ cd Vdoc && go run ./tools/vdoc-demo-seed
 - Admin 可以在浏览器打开。
 - 如果使用 Admin Docker，`VDOC_ADMIN_API_BASE_URL` 指向浏览器能访问的 backend origin，例如 `http://127.0.0.1:8080`。
 - 如果使用 Admin 本地开发，`VITE_VDOC_API_BASE_URL` 指向 backend origin。
-- 你准备了初始 SuperAdmin，或明确允许在可信试点环境注册第一个用户。
+- 你已经通过 `initial_admin` 准备了初始 SuperAdmin。匿名注册默认关闭；只有可信的一次性或试点环境才可临时设置 `VDOC_AUTH_ALLOW_REGISTRATION=true`，并在引导后立即关闭。
 
 ## 1. 登录 Admin
 
@@ -92,6 +92,10 @@ Project Admin 或 SuperAdmin 打开待审核 Draft：
 
 v0.1 不支持 MCP 直接发布。发布门禁在 Admin。
 
+### 5.1 创建和管理公开分享
+
+Project Admin 或 SuperAdmin 在 Documents 页面选择已有发布版本的 Branch 后，可以创建公开分享。默认有效期为三个月，也可选择一个月、六个月、一年或永久；可选密码必须为 12–72 个 UTF-8 字节，且首尾不能包含 Unicode 空白字符。创建后复制完整能力链接，按需重新显示或不可逆撤销。列表会分别标记有效、已过期和已撤销状态；切换 Project 或 Document 后，Admin 会立即清除当前页面展示的能力链接和未提交密码。
+
 ## 6. 配置 Admin AI
 
 先由 SuperAdmin 打开系统 AI 设置，填写 OpenAI-compatible `base_url`、`api_mode`、`model`、`api_key`、`enabled` 和需要的 tuning 字段，再运行 provider test。项目需要独立网关、模型或 prompt 时，由 Project Admin 配置项目覆盖并测试。
@@ -103,11 +107,11 @@ v0.1 不支持 MCP 直接发布。发布门禁在 Admin。
 在 Admin 中打开 MCP Token 页面：
 
 1. 创建用户绑定的 MCP Token。
-2. 只复制一次创建响应中的 token。
+2. 复制创建响应中的 token；active Token 之后也可以在详情中再次查看和复制。
 3. 把 token 放入 Agent runtime 的环境变量或密钥管理。
 4. 不要把 token 写入命令行参数、README、截图、日志或 issue。
 
-后续列表或详情可能只显示脱敏值，这是正常行为。
+列表、已撤销或已过期 Token 只显示脱敏值，这是正常行为。
 
 ## 8. 连接 MCP adapter
 
@@ -118,7 +122,7 @@ v0.1 不支持 MCP 直接发布。发布门禁在 Admin。
   "mcpServers": {
     "vdoc": {
       "command": "npx",
-      "args": ["-y", "@vdoc/mcp"],
+      "args": ["--yes", "github:ChnMig/Vdoc-mcp"],
       "env": {
         "VDOC_BASE_URL": "http://127.0.0.1:8080",
         "VDOC_MCP_TOKEN": "REPLACE_WITH_LOCAL_VDOC_MCP_TOKEN"
@@ -132,7 +136,7 @@ v0.1 不支持 MCP 直接发布。发布门禁在 Admin。
 
 ## 9. 安装 Skill
 
-把 `Vdoc-skill/` 安装、复制或链接到目标 Agent runtime 的 `vdoc` skill folder，并确保 `SKILL.md` 位于 skill root。Skill 不保存事实，事实来自 Vdoc MCP。
+把 Vdoc Skill 安装到 `$HOME/.agents/skills/vdoc`（个人范围）或 `.agents/skills/vdoc`（当前仓库范围），并确保 `SKILL.md` 位于 skill root。Skill 不保存事实，事实来自 Vdoc MCP。
 
 ## 完成验证
 
