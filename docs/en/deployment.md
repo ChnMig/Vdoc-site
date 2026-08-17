@@ -13,6 +13,22 @@ The root `docker-compose.yml` starts four services:
 
 When `VDOC_DATABASE_ENABLED=true`, backend connects to PostgreSQL and runs Vdoc migrations at startup. Connection or migration failure stops startup instead of falling back to memory mode. When `VDOC_STORAGE_ENABLED=true`, backend connects to object storage and creates the bucket if it is missing.
 
+## Acquire the Locked Workspace
+
+The `v0.1.0-rc.1` prerelease provides the checksummed, single-entry bootstrap. Do not assemble a workspace from five moving `main` branches. Download the archive and checksum, verify it, and let the initializer fetch the five exact commits from `workspace.lock.json`:
+
+```sh
+VDOC_BOOTSTRAP_BASE=https://github.com/ChnMig/Vdoc/releases/download/v0.1.0-rc.1
+curl -fLO "$VDOC_BOOTSTRAP_BASE/vdoc-workspace-bootstrap-v0.2.tar.gz"
+curl -fLO "$VDOC_BOOTSTRAP_BASE/vdoc-workspace-bootstrap-v0.2.tar.gz.sha256"
+shasum -a 256 -c vdoc-workspace-bootstrap-v0.2.tar.gz.sha256
+tar -xzf vdoc-workspace-bootstrap-v0.2.tar.gz
+cd vdoc-workspace
+scripts/vdoc-workspace-init.sh
+```
+
+Release page: <https://github.com/ChnMig/Vdoc/releases/tag/v0.1.0-rc.1>. This is a release candidate, not a production-readiness or completed-Pilot claim.
+
 ## Option 1: Full Docker Compose
 
 Run commands from the workspace root, the directory that contains `docker-compose.yml`, `.env.example`, `Vdoc/`, `Vdoc-admin/`, `Vdoc-mcp/`, and `Vdoc-skill/`.
@@ -33,7 +49,9 @@ Bootstrap writes a disposable local `.env` and does not print secrets. If you ch
 
 Bootstrap also records build version, Git commit, and build time from the current `Vdoc/` and `Vdoc-admin/` checkouts. A modified worktree produces a `-dirty` commit, which is local-development provenance only and cannot identify a release or formal Pilot. When `.env.example` is maintained manually, update these values together with `workspace.lock.json`.
 
-`VDOC_INITIAL_ADMIN_EMAIL` and `VDOC_INITIAL_ADMIN_PASSWORD` may stay blank. If set, backend creates that SuperAdmin only when the user table is empty. The password is bcrypt hashed before storage.
+When registration remains disabled by default (`VDOC_AUTH_ALLOW_REGISTRATION=false`), the first startup against an empty database must provide all three of `VDOC_INITIAL_ADMIN_EMAIL`, `VDOC_INITIAL_ADMIN_NAME`, and `VDOC_INITIAL_ADMIN_PASSWORD`. Backend creates that SuperAdmin only when the user table is empty, and bcrypt hashes the password before storage. The triplet may be blank only in a trusted disposable environment that explicitly enables registration and will disable it immediately after the first account is created.
+
+`.env.example` intentionally leaves the initial-admin placeholders blank so a deployment without a bootstrap path fails closed; it is not a ready-to-run configuration. Use `scripts/vdoc-local-bootstrap.sh` to generate complete values, or fill the triplet manually before startup.
 
 Do not commit `.env`, and do not put raw JWTs, MCP Tokens, DB passwords, storage secrets, or `Authorization` header values in docs, logs, screenshots, or issues.
 

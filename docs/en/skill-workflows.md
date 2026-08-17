@@ -26,7 +26,7 @@ Install the Skill at `$HOME/.agents/skills/vdoc` for personal use or `.agents/sk
 ```sh
 # Personal installation; use .agents/skills/vdoc for repository scope instead.
 VDOC_SKILL_DIR="$HOME/.agents/skills/vdoc"
-VDOC_SKILL_COMMIT=73a203c4bd0d7d96997fab8e1fa478a859f32e91
+VDOC_SKILL_COMMIT=9f3a1807e7cd09c677475b4a2397faff2a985829
 test ! -e "$VDOC_SKILL_DIR"
 mkdir -p "$(dirname -- "$VDOC_SKILL_DIR")"
 git init "$VDOC_SKILL_DIR"

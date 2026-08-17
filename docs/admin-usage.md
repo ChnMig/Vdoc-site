@@ -124,7 +124,7 @@ Project Admin 或 SuperAdmin 在 Documents 页面选择已有发布版本的 Bra
       "command": "npx",
       "args": [
         "--yes",
-        "github:ChnMig/Vdoc-mcp#7d641fadb8cc28fabfebe2fd229a22f63acd5113"
+        "github:ChnMig/Vdoc-mcp#b65f346453525a3f35a6ce466cf47a4488d5c8f8"
       ],
       "env": {
         "VDOC_BASE_URL": "http://127.0.0.1:8080",

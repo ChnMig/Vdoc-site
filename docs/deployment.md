@@ -13,6 +13,22 @@
 
 Backend 启动时，如果 `VDOC_DATABASE_ENABLED=true`，会连接 PostgreSQL 并自动运行 Vdoc migrations。连接或迁移失败会让启动失败，不会静默退回内存模式。如果 `VDOC_STORAGE_ENABLED=true`，backend 会连接对象存储，bucket 不存在时会自动创建。
 
+## 获取已锁定的 workspace
+
+`v0.1.0-rc.1` prerelease 提供 checksummed 单入口 bootstrap。不要从五个移动中的 `main` 分支手工拼 workspace；下载 archive 和 checksum，校验后让 initializer 按 `workspace.lock.json` 获取五个精确提交：
+
+```sh
+VDOC_BOOTSTRAP_BASE=https://github.com/ChnMig/Vdoc/releases/download/v0.1.0-rc.1
+curl -fLO "$VDOC_BOOTSTRAP_BASE/vdoc-workspace-bootstrap-v0.2.tar.gz"
+curl -fLO "$VDOC_BOOTSTRAP_BASE/vdoc-workspace-bootstrap-v0.2.tar.gz.sha256"
+shasum -a 256 -c vdoc-workspace-bootstrap-v0.2.tar.gz.sha256
+tar -xzf vdoc-workspace-bootstrap-v0.2.tar.gz
+cd vdoc-workspace
+scripts/vdoc-workspace-init.sh
+```
+
+发布页：<https://github.com/ChnMig/Vdoc/releases/tag/v0.1.0-rc.1>。这是 release candidate，不代表生产就绪或真实 Pilot 已完成。
+
 ## 方式 1：完整 Docker Compose
 
 从 workspace root 执行命令，也就是包含 `docker-compose.yml`、`.env.example`、`Vdoc/`、`Vdoc-admin/`、`Vdoc-mcp/` 和 `Vdoc-skill/` 的目录。
@@ -33,7 +49,9 @@ Bootstrap 会写入本机一次性 `.env`，并且不会把 secret 打印到终�
 
 Bootstrap 还会从当前 `Vdoc/` 和 `Vdoc-admin/` checkout 写入 build version、Git commit 和 build time。工作树有修改时 commit 会带 `-dirty`，这只适用于本机开发，不能作为发布或正式 Pilot 来源。手工维护 `.env.example` 时，这些 provenance 必须和 `workspace.lock.json` 一起更新。
 
-`VDOC_INITIAL_ADMIN_EMAIL` 和 `VDOC_INITIAL_ADMIN_PASSWORD` 可留空。如果填写，backend 只会在用户表为空时创建这个 SuperAdmin，密码入库前会做 bcrypt hash。
+当注册保持默认关闭（`VDOC_AUTH_ALLOW_REGISTRATION=false`）时，空数据库首次启动必须同时提供 `VDOC_INITIAL_ADMIN_EMAIL`、`VDOC_INITIAL_ADMIN_NAME` 和 `VDOC_INITIAL_ADMIN_PASSWORD`。Backend 只会在用户表为空时创建这个 SuperAdmin，密码入库前会做 bcrypt hash。只有可信的一次性环境显式开启注册、并计划在首个账号创建后立即关闭注册时，才可以留空这组三元组。
+
+`.env.example` 故意把初始管理员字段留成空占位符，以便缺少引导入口时安全失败；它不是可直接启动的配置。请使用 `scripts/vdoc-local-bootstrap.sh` 生成完整值，或在启动前手工填写三元组。
 
 不要提交 `.env`，也不要把原始 JWT、MCP Token、DB password、storage secret 或 `Authorization` header 值写入文档、日志、截图或 issue。
 

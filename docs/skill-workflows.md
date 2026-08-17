@@ -26,7 +26,7 @@ Demo seed 是可选步骤。完整本机门禁见 [部署指南](deployment)，�
 ```sh
 # 个人安装；仓库范围请改成 .agents/skills/vdoc
 VDOC_SKILL_DIR="$HOME/.agents/skills/vdoc"
-VDOC_SKILL_COMMIT=73a203c4bd0d7d96997fab8e1fa478a859f32e91
+VDOC_SKILL_COMMIT=9f3a1807e7cd09c677475b4a2397faff2a985829
 test ! -e "$VDOC_SKILL_DIR"
 mkdir -p "$(dirname -- "$VDOC_SKILL_DIR")"
 git init "$VDOC_SKILL_DIR"
