@@ -4,7 +4,7 @@
 
 ## 升级前准备
 
-- 确认你知道当前运行的代码版本、镜像 tag 或构建来源。
+- 记录当前 `workspace.lock.json` 的 remote ref/commit、backend/Admin 内嵌版本和实际镜像 digest；可移动 tag 不能单独作为回滚身份。
 - 保留当前 `.env`，但不要把真实 secret 写入 issue、聊天记录或 release notes。
 - 确认 PostgreSQL 和对象存储都能访问。
 - 记录当前 Admin URL、backend health URL、Agent MCP 配置，以及 Site URL、source SHA、workflow run ID、静态 artifact 标识/校验和、部署 base path 和 QA report 引用。
@@ -44,14 +44,12 @@ RustFS 或 S3 compatible storage 保存 raw 和 normalized 文档对象。升级
 如果使用 workspace root 的 Compose 包，从 workspace root 执行：
 
 ```sh
+scripts/vdoc-workspace-verify.sh
 docker compose --env-file .env config --quiet
-docker compose --env-file .env pull
 docker compose --env-file .env up -d --build
 ```
 
-如果是全新一次性本机环境，先运行 `scripts/vdoc-local-bootstrap.sh` 生成 `.env`。已有环境不要为了升级而覆盖 `.env`。当前 root Compose 会从本地 `./Vdoc` 和 `./Vdoc-admin` build app services。`pull` 主要用于拉取 `postgres`、`rustfs`、`caddy`、`node` 等基础镜像；实际 app 更新来自你当前 workspace 内容。
-
-如果你直接部署组件，分别重新构建和发布：
+如果是全新一次性本机环境，先运行 `scripts/vdoc-local-bootstrap.sh` 生成 `.env`。已有环境不要为了升级而覆盖 `.env`。当前 root Compose 的依赖和 Dockerfile base image 都绑定 OCI digest，不能在升级时把它们临时改回移动 tag。Compose 从本地 `./Vdoc` 和 `./Vdoc-admin` build app services，且要求 `.env` 提供与 lock 对应的版本、commit 和 build time。如果你直接部署组件，分别重新构建和发布：
 
 ```sh
 cd Vdoc
@@ -115,9 +113,10 @@ docker compose --env-file .env ps
 ```sh
 curl http://127.0.0.1:8080/api/v1/open/health
 curl -I http://127.0.0.1:8081/
+docker compose --env-file .env exec backend /app/vdoc --version
 ```
 
-如果你改过 `.env` host ports，请把命令中的端口替换成实际端口。部署到域名时使用你的 backend 和 Admin 域名。
+如果你改过 `.env` host ports，请把命令中的端口替换成实际端口。部署到域名时使用你的 backend 和 Admin 域名。版本不能是 `dev`/`unknown` 或 `-dirty`，Git commit 必须等于 lock。
 
 ## 5. 升级后功能验证
 
@@ -149,7 +148,7 @@ curl -I http://127.0.0.1:8081/
 完整 Compose 的快速回滚思路：
 
 1. 回到上一版 workspace 内容或上一版镜像 tag。
-2. 保持 `.env` 不变，除非失败原因就是配置错误。
+2. 保持 `.env` 不变，除非失败原因就是配置错误。若本次升级包含 cipher KID 轮换，必须保留旧 KID/key 的历史 keyring，直到新版本完成三类密文的一次事务重写并在清空历史 keyring 后再次启动成功；不要仅回滚二进制却丢掉仍被旧记录需要的 key。
 3. 运行：
 
    ```sh
@@ -170,7 +169,9 @@ Site 回滚必须选择仍保留的上一份已验收静态 artifact，核对 so
 ```text
 Version:
 Backend source or image:
+Backend embedded Git commit and image digest:
 Admin source or image:
+Admin image digest:
 Site source SHA:
 Site workflow run ID:
 Site artifact ID and checksum:

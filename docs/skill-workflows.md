@@ -21,17 +21,23 @@ Demo seed 是可选步骤。完整本机门禁见 [部署指南](deployment)，�
 
 ## 安装
 
-把 Skill 安装到 `$HOME/.agents/skills/vdoc`（个人范围）或 `.agents/skills/vdoc`（当前仓库范围），并让 `SKILL.md` 位于 `vdoc` skill root：
+把 Skill 安装到 `$HOME/.agents/skills/vdoc`（个人范围）或 `.agents/skills/vdoc`（当前仓库范围），并让 `SKILL.md` 位于 `vdoc` skill root。安装 commit 必须和发布包 `workspace.lock.json` 中的 `Vdoc-skill` 一致：
 
 ```sh
-# 个人安装，对所有工作区可用
-git clone --depth 1 https://github.com/ChnMig/Vdoc-skill.git "$HOME/.agents/skills/vdoc"
-
-# 或仅安装到当前仓库
-git clone --depth 1 https://github.com/ChnMig/Vdoc-skill.git .agents/skills/vdoc
+# 个人安装；仓库范围请改成 .agents/skills/vdoc
+VDOC_SKILL_DIR="$HOME/.agents/skills/vdoc"
+VDOC_SKILL_COMMIT=73a203c4bd0d7d96997fab8e1fa478a859f32e91
+test ! -e "$VDOC_SKILL_DIR"
+mkdir -p "$(dirname -- "$VDOC_SKILL_DIR")"
+git init "$VDOC_SKILL_DIR"
+git -C "$VDOC_SKILL_DIR" remote add origin https://github.com/ChnMig/Vdoc-skill.git
+git -C "$VDOC_SKILL_DIR" fetch --depth 1 origin "$VDOC_SKILL_COMMIT"
+git -C "$VDOC_SKILL_DIR" checkout --detach FETCH_HEAD
+test "$(git -C "$VDOC_SKILL_DIR" rev-parse HEAD)" = "$VDOC_SKILL_COMMIT"
+test -f "$VDOC_SKILL_DIR/SKILL.md"
 ```
 
-如果目标目录已存在，请更新已有 checkout，不要覆盖克隆。
+如果目标目录已存在，先核对当前 `HEAD`；升级时只 fetch 并 checkout 新版已审核 lock 中的 commit，不要对已安装 Skill 执行未固定来源的 `git pull`。
 
 目录内容应包含：
 

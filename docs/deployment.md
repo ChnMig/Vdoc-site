@@ -31,6 +31,8 @@ Bootstrap 会写入本机一次性 `.env`，并且不会把 secret 打印到终�
 - `VDOC_INITIAL_ADMIN_EMAIL`
 - `VDOC_INITIAL_ADMIN_PASSWORD`
 
+Bootstrap 还会从当前 `Vdoc/` 和 `Vdoc-admin/` checkout 写入 build version、Git commit 和 build time。工作树有修改时 commit 会带 `-dirty`，这只适用于本机开发，不能作为发布或正式 Pilot 来源。手工维护 `.env.example` 时，这些 provenance 必须和 `workspace.lock.json` 一起更新。
+
 `VDOC_INITIAL_ADMIN_EMAIL` 和 `VDOC_INITIAL_ADMIN_PASSWORD` 可留空。如果填写，backend 只会在用户表为空时创建这个 SuperAdmin，密码入库前会做 bcrypt hash。
 
 不要提交 `.env`，也不要把原始 JWT、MCP Token、DB password、storage secret 或 `Authorization` header 值写入文档、日志、截图或 issue。
@@ -68,9 +70,11 @@ docker compose --env-file .env logs --tail=100 admin postgres rustfs
 ```sh
 curl http://127.0.0.1:8080/api/v1/open/health
 curl -I http://127.0.0.1:8081/
+docker compose --env-file .env exec backend /app/vdoc --version
+jq -r '.repositories[] | select(.path == "Vdoc") | .commit' workspace.lock.json
 ```
 
-不要只检查 HTTP 200；Vdoc 的业务 envelope 在依赖异常时仍可能返回 HTTP 200。部署探针必须确认 `.detail.healthy == true`。官方 backend image 的 healthcheck 已执行该语义检查。
+不要只检查 HTTP 200；Vdoc 的业务 envelope 在依赖异常时仍可能返回 HTTP 200。部署探针必须确认 `.detail.healthy == true`。官方 backend image 的 healthcheck 已执行该语义检查。版本输出不能是 `dev`/`unknown`，正式候选的 Git commit 必须和 lock 完全一致且不能带 `-dirty`。受支持 Dockerfile、Compose 和 backend CI service 的基础镜像都同时固定 tag 与 OCI digest。
 
 可选：backend 健康后写入 demo 数据：
 
@@ -153,6 +157,7 @@ VDOC_STORAGE_USE_SSL=false
 VDOC_STORAGE_PATH_STYLE=true
 VDOC_MCP_TOKEN_CIPHER_KEY=replace-with-at-least-32-characters-mcp-key
 VDOC_MCP_TOKEN_CIPHER_KID=local-aes-gcm-v1
+VDOC_MCP_TOKEN_CIPHER_KEYRING={}
 ```
 
 完整 Compose 已把 `http://127.0.0.1:8081` 和 `http://localhost:8081` 加入 backend 的精确 CORS allowlist。修改 `VDOC_ADMIN_HOST_PORT` 或使用正式域名时，必须同步更新 `VDOC_SERVER_CORS_ALLOWED_ORIGINS` 并重建 backend container。
@@ -168,6 +173,18 @@ VDOC_ADMIN_API_BASE_URL=http://127.0.0.1:8080
 ```
 
 这个值会在 admin container 启动时写入 `/runtime-config.js`。它必须是浏览器能访问的 backend origin。
+
+## 密文 KID 轮换
+
+`VDOC_MCP_TOKEN_CIPHER_KEY` 同时保护 MCP Token reveal 密文、AI Provider API key 和 public-share capability，三类数据必须作为一个轮换单元处理。`VDOC_MCP_TOKEN_CIPHER_KEYRING` 是历史 `KID -> key` 的 secret JSON map；active KID 不能在历史 keyring 中重复，同一个 KID 也绝不能换成另一把 key。
+
+1. 备份 PostgreSQL，并把 backend writer 缩到一个实例。
+2. 把旧 active KID/key 放进历史 keyring，设置全新 active KID 和 key。例如：`VDOC_MCP_TOKEN_CIPHER_KEYRING={"local-aes-gcm-v1":"<old-key>"}`。
+3. 启动一个 backend。启动阶段会先解密并验证全部三类记录，再在一个 repository transaction 中改写为新 active KID。未知 KID、错误 key 或 hash 不一致会中止启动，不会保存一半轮换结果。
+4. 核对 `mcp_tokens`、`ai_providers` 和 `document_shares` 只剩 active KID，并分别验证一个 MCP Token、Provider 和 share。
+5. 清空历史 keyring 后再次重启和验证，成功后再恢复正常实例数。
+
+不要在完成第 5 步前删除旧 key，也不要把 keyring JSON 放进命令参数、Git、日志、截图或 issue。完整 SQL 检查和发布门禁见 workspace root 的 `RELEASE_DEPLOY.md`。
 
 ## 方式 2：直接运行 backend 和 Admin
 
@@ -191,6 +208,7 @@ export VDOC_STORAGE_USE_SSL=false
 export VDOC_STORAGE_PATH_STYLE=true
 export VDOC_MCP_TOKEN_CIPHER_KEY="replace-with-at-least-32-characters-mcp-key"
 export VDOC_MCP_TOKEN_CIPHER_KID="local-aes-gcm-v1"
+export VDOC_MCP_TOKEN_CIPHER_KEYRING='{}'
 export VDOC_INITIAL_ADMIN_EMAIL="admin@example.com"
 export VDOC_INITIAL_ADMIN_NAME="Vdoc Admin"
 export VDOC_INITIAL_ADMIN_PASSWORD="replace-with-initial-admin-password"
@@ -211,7 +229,15 @@ pnpm dev
 Admin Docker 直接运行示例：
 
 ```sh
-docker build -t vdoc-admin ./Vdoc-admin
+test -z "$(git -C Vdoc-admin status --porcelain=v1 --untracked-files=all)"
+ADMIN_COMMIT="$(git -C Vdoc-admin rev-parse HEAD)"
+ADMIN_VERSION="$(git -C Vdoc-admin describe --tags --always HEAD)"
+ADMIN_BUILD_TIME="$(git -C Vdoc-admin show -s --format=%cI HEAD)"
+docker build -t vdoc-admin \
+  --build-arg VERSION="$ADMIN_VERSION" \
+  --build-arg GIT_COMMIT="$ADMIN_COMMIT" \
+  --build-arg BUILD_TIME="$ADMIN_BUILD_TIME" \
+  ./Vdoc-admin
 docker run --rm -p 8081:8080 \
   -e VDOC_ADMIN_API_BASE_URL=http://127.0.0.1:8080 \
   vdoc-admin

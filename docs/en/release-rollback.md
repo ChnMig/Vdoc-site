@@ -4,7 +4,7 @@ This page is for users already running Vdoc. The goal is to back up data before 
 
 ## Before Upgrading
 
-- Know the currently running source version, image tag, or build source.
+- Record the current `workspace.lock.json` remote refs/commits, embedded backend/Admin versions, and actual image digests. A moving tag alone is not a rollback identity.
 - Keep the current `.env`, but never paste real secrets into issues, chat, or release notes.
 - Confirm PostgreSQL and object storage are reachable.
 - Record the current Admin URL, backend health URL, Agent MCP config, Site URL, source SHA, workflow run ID, static-artifact identifier/checksum, deployment base path, and QA report references.
@@ -44,14 +44,12 @@ Do not print storage access keys or secret keys in backup script logs.
 If you use the workspace root Compose package, run from the workspace root:
 
 ```sh
+scripts/vdoc-workspace-verify.sh
 docker compose --env-file .env config --quiet
-docker compose --env-file .env pull
 docker compose --env-file .env up -d --build
 ```
 
-For a fresh disposable local environment, run `scripts/vdoc-local-bootstrap.sh` first to create `.env`. Do not overwrite an existing upgrade environment just to run the upgrade. The current root Compose builds app services from local `./Vdoc` and `./Vdoc-admin`. `pull` mainly pulls base images such as `postgres`, `rustfs`, `caddy`, and `node`; app updates come from your current workspace content.
-
-If you deploy components directly, rebuild and publish each one:
+For a fresh disposable local environment, run `scripts/vdoc-local-bootstrap.sh` first to create `.env`. Do not overwrite an existing upgrade environment just to run the upgrade. Root Compose dependencies and Dockerfile base images are pinned by OCI digest; do not replace them with moving tags during an upgrade. Compose builds app services from local `./Vdoc` and `./Vdoc-admin` and requires `.env` version, commit, and build-time values that correspond to the lock. If you deploy components directly, rebuild and publish each one:
 
 ```sh
 cd Vdoc
@@ -115,9 +113,10 @@ Check health:
 ```sh
 curl http://127.0.0.1:8080/api/v1/open/health
 curl -I http://127.0.0.1:8081/
+docker compose --env-file .env exec backend /app/vdoc --version
 ```
 
-If you changed `.env` host ports, replace the ports in these commands. In deployed environments, use your backend and Admin domains.
+If you changed `.env` host ports, replace the ports in these commands. In deployed environments, use your backend and Admin domains. Version output must not contain `dev`, `unknown`, or `-dirty`, and the Git commit must equal the lock.
 
 ## 5. Post-Upgrade Verification
 
@@ -149,7 +148,7 @@ If backend health fails or a core workflow is unusable after upgrade, stop addit
 Full Compose rollback approach:
 
 1. Return to the previous workspace content or previous image tag.
-2. Keep `.env` unchanged unless the failure is a configuration mistake.
+2. Keep `.env` unchanged unless the failure is a configuration mistake. If the upgrade included a cipher-KID rotation, retain the old KID/key in the historical keyring until one transaction has rewritten all three ciphertext classes and a second startup without that historical key succeeds. Never roll back only the binary while discarding a key that persisted records still need.
 3. Run:
 
    ```sh
@@ -170,7 +169,9 @@ For a Site rollback, select the previous retained static artifact that passed ve
 ```text
 Version:
 Backend source or image:
+Backend embedded Git commit and image digest:
 Admin source or image:
+Admin image digest:
 Site source SHA:
 Site workflow run ID:
 Site artifact ID and checksum:

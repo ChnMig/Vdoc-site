@@ -21,17 +21,25 @@ The demo seed is optional. See [Deployment Guide](deployment) for the full local
 
 ## Installation
 
-Install the Skill at `$HOME/.agents/skills/vdoc` for personal use or `.agents/skills/vdoc` for the current repository, with `SKILL.md` at the `vdoc` skill root:
+Install the Skill at `$HOME/.agents/skills/vdoc` for personal use or `.agents/skills/vdoc` for the current repository, with `SKILL.md` at the `vdoc` skill root. The installed commit must equal the `Vdoc-skill` entry in the release package's `workspace.lock.json`:
 
 ```sh
-# Personal installation, available to all workspaces
-git clone --depth 1 https://github.com/ChnMig/Vdoc-skill.git "$HOME/.agents/skills/vdoc"
-
-# Or install only for the current repository
-git clone --depth 1 https://github.com/ChnMig/Vdoc-skill.git .agents/skills/vdoc
+# Personal installation; use .agents/skills/vdoc for repository scope instead.
+VDOC_SKILL_DIR="$HOME/.agents/skills/vdoc"
+VDOC_SKILL_COMMIT=73a203c4bd0d7d96997fab8e1fa478a859f32e91
+test ! -e "$VDOC_SKILL_DIR"
+mkdir -p "$(dirname -- "$VDOC_SKILL_DIR")"
+git init "$VDOC_SKILL_DIR"
+git -C "$VDOC_SKILL_DIR" remote add origin https://github.com/ChnMig/Vdoc-skill.git
+git -C "$VDOC_SKILL_DIR" fetch --depth 1 origin "$VDOC_SKILL_COMMIT"
+git -C "$VDOC_SKILL_DIR" checkout --detach FETCH_HEAD
+test "$(git -C "$VDOC_SKILL_DIR" rev-parse HEAD)" = "$VDOC_SKILL_COMMIT"
+test -f "$VDOC_SKILL_DIR/SKILL.md"
 ```
 
-If the target already exists, update that checkout instead of cloning over it.
+If the target already exists, verify its current `HEAD`. Upgrade only by
+fetching and checking out the commit from a newer reviewed lock; do not run an
+unpinned `git pull` in an installed Skill.
 
 The directory should contain:
 

@@ -122,7 +122,10 @@ Local full Compose example:
   "mcpServers": {
     "vdoc": {
       "command": "npx",
-      "args": ["--yes", "github:ChnMig/Vdoc-mcp"],
+      "args": [
+        "--yes",
+        "github:ChnMig/Vdoc-mcp#7d641fadb8cc28fabfebe2fd229a22f63acd5113"
+      ],
       "env": {
         "VDOC_BASE_URL": "http://127.0.0.1:8080",
         "VDOC_MCP_TOKEN": "REPLACE_WITH_LOCAL_VDOC_MCP_TOKEN"

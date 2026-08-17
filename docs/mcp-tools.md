@@ -24,12 +24,12 @@ Demo seed 是可选步骤。完整本机门禁见 [部署指南](deployment)，�
 当前 `@vdoc/mcp` 尚未发布到 npm registry。请直接从官方 GitHub 仓库运行或安装：
 
 ```sh
-npx --yes github:ChnMig/Vdoc-mcp
+npx --yes github:ChnMig/Vdoc-mcp#7d641fadb8cc28fabfebe2fd229a22f63acd5113
 # 或全局安装 GitHub 版本
-npm install -g git+https://github.com/ChnMig/Vdoc-mcp.git
+npm install -g git+https://github.com/ChnMig/Vdoc-mcp.git#7d641fadb8cc28fabfebe2fd229a22f63acd5113
 ```
 
-一次性使用时，推荐在 Agent MCP config 中通过 `npx` 调用，不要把 token 放在 `args`。
+一次性使用时，推荐在 Agent MCP config 中通过固定 commit 的 `npx` 调用，不要把 token 放在 `args`。上面的 40 位 commit 必须和已审核发布包 `workspace.lock.json` 的 `Vdoc-mcp` 项一致；不要删掉 fragment 或改成可移动 branch。
 
 `VDOC_MCP_TOKEN` 是 shell 或 Agent 配置中的环境变量，不是 package CLI argument。不要把原始 token 放进 `npx`、`npm` 或 adapter 的 `args`。手工排查前运行 `set +x` 关闭 xtrace，并确保凭据不进入 shell history、日志或截图。
 
@@ -63,7 +63,10 @@ stdout 保留给 MCP protocol，普通诊断看 stderr。
   "mcpServers": {
     "vdoc": {
       "command": "npx",
-      "args": ["--yes", "github:ChnMig/Vdoc-mcp"],
+      "args": [
+        "--yes",
+        "github:ChnMig/Vdoc-mcp#7d641fadb8cc28fabfebe2fd229a22f63acd5113"
+      ],
       "env": {
         "VDOC_BASE_URL": "https://your-vdoc.example.test",
         "VDOC_MCP_TOKEN": "REPLACE_WITH_LOCAL_VDOC_MCP_TOKEN"

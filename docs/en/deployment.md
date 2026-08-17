@@ -31,6 +31,8 @@ Bootstrap writes a disposable local `.env` and does not print secrets. If you ch
 - `VDOC_INITIAL_ADMIN_EMAIL`
 - `VDOC_INITIAL_ADMIN_PASSWORD`
 
+Bootstrap also records build version, Git commit, and build time from the current `Vdoc/` and `Vdoc-admin/` checkouts. A modified worktree produces a `-dirty` commit, which is local-development provenance only and cannot identify a release or formal Pilot. When `.env.example` is maintained manually, update these values together with `workspace.lock.json`.
+
 `VDOC_INITIAL_ADMIN_EMAIL` and `VDOC_INITIAL_ADMIN_PASSWORD` may stay blank. If set, backend creates that SuperAdmin only when the user table is empty. The password is bcrypt hashed before storage.
 
 Do not commit `.env`, and do not put raw JWTs, MCP Tokens, DB passwords, storage secrets, or `Authorization` header values in docs, logs, screenshots, or issues.
@@ -68,9 +70,11 @@ Health examples:
 ```sh
 curl http://127.0.0.1:8080/api/v1/open/health
 curl -I http://127.0.0.1:8081/
+docker compose --env-file .env exec backend /app/vdoc --version
+jq -r '.repositories[] | select(.path == "Vdoc") | .commit' workspace.lock.json
 ```
 
-Do not check HTTP 200 alone: the Vdoc envelope may still use HTTP 200 when a dependency is unavailable. Deployment probes must require `.detail.healthy == true`. The official backend image healthcheck performs this semantic check.
+Do not check HTTP 200 alone: the Vdoc envelope may still use HTTP 200 when a dependency is unavailable. Deployment probes must require `.detail.healthy == true`. The official backend image healthcheck performs this semantic check. Version output must not be `dev`/`unknown`; a release candidate's Git commit must equal the lock exactly and must not carry `-dirty`. Supported Dockerfiles, Compose files, and the backend CI service pin both the human-readable tag and OCI digest for every base image.
 
 Optional: seed demo data after backend health succeeds:
 
@@ -153,6 +157,7 @@ VDOC_STORAGE_USE_SSL=false
 VDOC_STORAGE_PATH_STYLE=true
 VDOC_MCP_TOKEN_CIPHER_KEY=replace-with-at-least-32-characters-mcp-key
 VDOC_MCP_TOKEN_CIPHER_KID=local-aes-gcm-v1
+VDOC_MCP_TOKEN_CIPHER_KEYRING={}
 ```
 
 The full Compose setup adds `http://127.0.0.1:8081` and `http://localhost:8081` to the backend's exact CORS allowlist. If `VDOC_ADMIN_HOST_PORT` changes or a production domain is used, update `VDOC_SERVER_CORS_ALLOWED_ORIGINS` and recreate the backend container.
@@ -168,6 +173,18 @@ VDOC_ADMIN_API_BASE_URL=http://127.0.0.1:8080
 ```
 
 The admin container writes this value to `/runtime-config.js` at startup. It must be a backend origin that the browser can reach.
+
+## Cipher KID Rotation
+
+`VDOC_MCP_TOKEN_CIPHER_KEY` protects MCP Token reveal ciphertext, AI Provider API keys, and public-share capabilities. Rotate all three classes as one unit. `VDOC_MCP_TOKEN_CIPHER_KEYRING` is a secret JSON map of historical `KID -> key` entries. The active KID must not also appear in the historical keyring, and one KID must never identify two different keys.
+
+1. Back up PostgreSQL and reduce backend writers to one instance.
+2. Put the old active KID/key in the historical keyring and configure a new unique active KID/key, for example `VDOC_MCP_TOKEN_CIPHER_KEYRING={"local-aes-gcm-v1":"<old-key>"}`.
+3. Start one backend. Startup first decrypts and validates every record in all three classes, then rewrites historical KIDs to the active KID in one repository transaction. An unknown KID, wrong key, or hash mismatch aborts startup without saving a partial rotation.
+4. Confirm `mcp_tokens`, `ai_providers`, and `document_shares` contain only the active KID, then exercise one MCP Token, Provider, and share.
+5. Clear the historical keyring, restart and verify again, and only then restore normal backend concurrency.
+
+Do not remove the old key before step 5 succeeds. Never put keyring JSON in command arguments, Git, logs, screenshots, or issues. See workspace-root `RELEASE_DEPLOY.md` for the complete SQL check and release gate.
 
 ## Option 2: Run Backend and Admin Directly
 
@@ -191,6 +208,7 @@ export VDOC_STORAGE_USE_SSL=false
 export VDOC_STORAGE_PATH_STYLE=true
 export VDOC_MCP_TOKEN_CIPHER_KEY="replace-with-at-least-32-characters-mcp-key"
 export VDOC_MCP_TOKEN_CIPHER_KID="local-aes-gcm-v1"
+export VDOC_MCP_TOKEN_CIPHER_KEYRING='{}'
 export VDOC_INITIAL_ADMIN_EMAIL="admin@example.com"
 export VDOC_INITIAL_ADMIN_NAME="Vdoc Admin"
 export VDOC_INITIAL_ADMIN_PASSWORD="replace-with-initial-admin-password"
@@ -211,7 +229,15 @@ pnpm dev
 Admin Docker direct run example:
 
 ```sh
-docker build -t vdoc-admin ./Vdoc-admin
+test -z "$(git -C Vdoc-admin status --porcelain=v1 --untracked-files=all)"
+ADMIN_COMMIT="$(git -C Vdoc-admin rev-parse HEAD)"
+ADMIN_VERSION="$(git -C Vdoc-admin describe --tags --always HEAD)"
+ADMIN_BUILD_TIME="$(git -C Vdoc-admin show -s --format=%cI HEAD)"
+docker build -t vdoc-admin \
+  --build-arg VERSION="$ADMIN_VERSION" \
+  --build-arg GIT_COMMIT="$ADMIN_COMMIT" \
+  --build-arg BUILD_TIME="$ADMIN_BUILD_TIME" \
+  ./Vdoc-admin
 docker run --rm -p 8081:8080 \
   -e VDOC_ADMIN_API_BASE_URL=http://127.0.0.1:8080 \
   vdoc-admin

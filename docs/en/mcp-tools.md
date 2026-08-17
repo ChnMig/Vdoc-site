@@ -24,12 +24,12 @@ The demo seed is optional. See [Deployment Guide](deployment) for the full local
 `@vdoc/mcp` is not published to the npm registry yet. Run or install it directly from the official GitHub repository:
 
 ```sh
-npx --yes github:ChnMig/Vdoc-mcp
+npx --yes github:ChnMig/Vdoc-mcp#7d641fadb8cc28fabfebe2fd229a22f63acd5113
 # Or install the GitHub version globally
-npm install -g git+https://github.com/ChnMig/Vdoc-mcp.git
+npm install -g git+https://github.com/ChnMig/Vdoc-mcp.git#7d641fadb8cc28fabfebe2fd229a22f63acd5113
 ```
 
-For one-off usage, prefer `npx` in the Agent MCP config. Do not put tokens in `args`.
+For one-off usage, prefer the commit-pinned `npx` source in the Agent MCP config. The 40-character commit above must equal the `Vdoc-mcp` entry in the reviewed release package's `workspace.lock.json`; do not remove the fragment or replace it with a moving branch. Do not put tokens in `args`.
 
 `VDOC_MCP_TOKEN` is an environment variable in the shell or Agent configuration, not a package CLI argument. Never put the raw token in `npx`, `npm`, or adapter `args`. Run `set +x` to disable xtrace before manual diagnosis, and keep credentials out of shell history, logs, and screenshots.
 
@@ -63,7 +63,10 @@ For local full Compose, `VDOC_BASE_URL` is usually `http://127.0.0.1:8080`. For 
   "mcpServers": {
     "vdoc": {
       "command": "npx",
-      "args": ["--yes", "github:ChnMig/Vdoc-mcp"],
+      "args": [
+        "--yes",
+        "github:ChnMig/Vdoc-mcp#7d641fadb8cc28fabfebe2fd229a22f63acd5113"
+      ],
       "env": {
         "VDOC_BASE_URL": "https://your-vdoc.example.test",
         "VDOC_MCP_TOKEN": "REPLACE_WITH_LOCAL_VDOC_MCP_TOKEN"
