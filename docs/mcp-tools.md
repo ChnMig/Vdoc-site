@@ -94,16 +94,22 @@ v0.1 read tools 覆盖：
 - projects
 - documents
 - API versions
+- Markdown versions
 - endpoint detail
 - API diffs
 - Markdown docs
 - change summaries
 
-v0.1 draft tools 覆盖 OpenAPI 和 Markdown Draft 的创建、更新、查看和提交。常见 tool names 包括：
+`list_documents` 会按 token scope 过滤结果：只有 `api:read` 时仅返回 OpenAPI，只有 `doc:read` 时仅返回 Markdown，同时具备两者时返回两类文档。API read tools 也会校验目标是 OpenAPI，Markdown read tools 会校验目标是 Markdown，不能用一种 read scope 绕过另一种。
+
+v0.1 draft tools 覆盖 OpenAPI 和 Markdown Draft 的创建、更新、查看和提交。规范工具清单如下（必须与后端 `tools/list` 一致）：
+
+<!-- VDOC_MCP_TOOL_INVENTORY_START -->
 
 - `list_projects`
 - `list_documents`
 - `list_api_versions`
+- `list_doc_versions`
 - `get_latest_schema`
 - `get_endpoint_detail`
 - `compare_api_versions`
@@ -118,6 +124,8 @@ v0.1 draft tools 覆盖 OpenAPI 和 Markdown Draft 的创建、更新、查看�
 - `update_doc_draft`
 - `submit_doc_draft`
 - `get_doc_draft`
+
+<!-- VDOC_MCP_TOOL_INVENTORY_END -->
 
 实际工具列表以当前 backend `tools/list` 返回为准。v0.1 不暴露 direct publish tools。
 

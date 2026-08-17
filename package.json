@@ -18,7 +18,7 @@
     "test:browser": "playwright test tests/browser/routes.spec.ts tests/browser/interactions.desktop.spec.ts tests/browser/interactions.mobile.spec.ts",
     "test:browser:root": "pnpm build:root && pnpm check:budget && PLAYWRIGHT_BASE_PATH=/ pnpm test:browser",
     "test:browser:pages": "pnpm build:pages && pnpm check:budget && PLAYWRIGHT_BASE_PATH=/Vdoc-site/ pnpm test:browser",
-    "test:performance": "playwright test tests/browser/performance.spec.ts",
+    "test:performance": "playwright test tests/browser/performance.spec.ts --workers=1",
     "test:performance:root": "pnpm build:root && pnpm check:budget && PLAYWRIGHT_BASE_PATH=/ pnpm test:performance",
     "test:performance:pages": "pnpm build:pages && pnpm check:budget && PLAYWRIGHT_BASE_PATH=/Vdoc-site/ pnpm test:performance",
     "check:budget": "node scripts/check-build-budget.mjs",

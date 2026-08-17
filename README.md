@@ -44,6 +44,8 @@ pnpm test:performance:pages
 
 `pnpm build:root` builds for `/`. `pnpm build:pages` builds for the GitHub Pages base `/Vdoc-site/`; navigation, local-search results, favicon, and generated assets stay inside the selected base. Both builds write to `docs/.vitepress/dist/`.
 
+The performance suite runs with one Playwright worker so browser teardown and measurements remain deterministic across both base paths. Route, interaction, and accessibility checks keep their normal parallel execution.
+
 ## Content Sources
 
 The documentation is grounded in the workspace product and backend documents:

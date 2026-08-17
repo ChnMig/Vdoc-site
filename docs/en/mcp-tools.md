@@ -94,16 +94,22 @@ v0.1 read tools cover:
 - projects
 - documents
 - API versions
+- Markdown versions
 - endpoint detail
 - API diffs
 - Markdown docs
 - change summaries
 
-v0.1 draft tools cover creating, updating, viewing, and submitting OpenAPI and Markdown Drafts. Common tool names include:
+`list_documents` filters results by token scope: `api:read` alone sees only OpenAPI documents, `doc:read` alone sees only Markdown documents, and a token with both sees both types. API read tools also require an OpenAPI target and Markdown read tools require a Markdown target, so one read scope cannot bypass the other.
+
+v0.1 draft tools cover creating, updating, viewing, and submitting OpenAPI and Markdown Drafts. The normative inventory is (and must match backend `tools/list`):
+
+<!-- VDOC_MCP_TOOL_INVENTORY_START -->
 
 - `list_projects`
 - `list_documents`
 - `list_api_versions`
+- `list_doc_versions`
 - `get_latest_schema`
 - `get_endpoint_detail`
 - `compare_api_versions`
@@ -118,6 +124,8 @@ v0.1 draft tools cover creating, updating, viewing, and submitting OpenAPI and M
 - `update_doc_draft`
 - `submit_doc_draft`
 - `get_doc_draft`
+
+<!-- VDOC_MCP_TOOL_INVENTORY_END -->
 
 Use the current backend `tools/list` response as the final tool list. v0.1 does not expose direct publish tools.
 
