@@ -6,7 +6,7 @@ Vdoc-site is a docs-only VitePress portal. The root `/` is the Simplified Chines
 
 ## Visual Contract
 
-Match the lean help-center style captured from `https://help.router-for.me/`: plain text VitePress nav, white background, left-aligned hero, compact CTA row, and a three-card `VPFeature` strip. The site should feel like default VitePress documentation that has been carefully configured, not like a custom marketing app.
+Match the lean help-center style captured from `https://help.router-for.me/`: compact VitePress nav, white background, left-aligned hero, compact CTA row, and a three-card `VPFeature` strip. The site should feel like default VitePress documentation that has been carefully configured, not like a custom marketing app.
 
 Physical scene: a platform engineer opens Vdoc docs beside an Admin session and an Agent terminal during daytime setup work. The page is bright, quiet, and fast to scan because the task is choosing the next trusted documentation step.
 
@@ -45,7 +45,8 @@ Use default VitePress typography, which follows system and Inter-like documentat
 ## Components And States
 
 - UI primitives are VitePress default theme components: `VPNav`, `VPButton`, `VPFeature`, `VPDoc`, sidebar, local search, outline, footer, and social link.
-- The nav title is plain text; `themeConfig.logo` is intentionally absent.
+- The nav title pairs the supplied Vdoc mark with the Vdoc text. Use `themeConfig.logo` with explicit 24px dimensions and empty alt text because the adjacent title names the brand. VitePress owns locale links and base-path handling.
+- The supplied blue-and-cyan artwork is the brand authority. `docs/public/vdoc-logo.png` is the shared 256px mark and `docs/public/favicon.png` is its 64px browser variant. Keep the transparent background and original colors; see `branding/README.md` for the retained source and export details.
 - Primary actions use the VitePress brand button with the blue brand variable.
 - Secondary actions use VitePress alternate buttons.
 - Feature cards use default `VPFeature` treatment.
@@ -70,5 +71,5 @@ The home copy leads with the reader's outcome: teams and AI share reviewed OpenA
 ## Non-Goals
 
 - No custom app runtime or additional runtime/UI dependency.
-- No external fonts, image assets, utility CSS layer, legacy docs route layer, or extra runtime dependencies.
+- No external fonts, remote image assets, utility CSS layer, legacy docs route layer, or extra runtime dependencies. The two local brand PNGs are the only raster-image exception; their assets and shared navigation markup receive a 16 KiB addition to the build budget. Other performance limits stay unchanged.
 - No generic SaaS landing sections, metrics bands, screenshots, diagrams, or bespoke cards outside VitePress home frontmatter.

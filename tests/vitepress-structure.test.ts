@@ -122,7 +122,7 @@ describe('VitePress docs-only structure', () => {
     expect(sourceFiles).toContain('docs/.vitepress/config.ts')
     expect(sourceFiles).toContain('docs/.vitepress/theme/index.ts')
     expect(sourceFiles).toContain('docs/.vitepress/theme/custom.css')
-    expect(sourceFiles).toContain('docs/public/favicon.svg')
+    expect(sourceFiles).toContain('docs/public/favicon.png')
     expect(sourceFiles.some((path) => path.startsWith('src/'))).toBe(false)
     expect(sourceFiles).not.toContain('index.html')
     expect(sourceFiles).not.toContain('vite.config.ts')
@@ -143,6 +143,7 @@ describe('VitePress docs-only structure', () => {
   it('removes Docsify hash links and old visual language from maintained sources', () => {
     const maintainedFiles = listFiles('docs')
       .filter((path) => !path.startsWith('docs/.vitepress/dist/'))
+      .filter((path) => /\.(md|ts|css|svg)$/.test(path))
       .concat(['README.md', 'DESIGN.md'])
     const combinedSource = maintainedFiles.map(readProjectFile).join('\n')
 

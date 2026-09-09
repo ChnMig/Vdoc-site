@@ -17,7 +17,7 @@ if (
   )
 }
 
-const faviconHref = `${base}favicon.svg`
+const faviconHref = `${base}favicon.png`
 
 const docsSlugs = [
   'product-overview',
@@ -116,7 +116,10 @@ export default defineConfig({
   appearance: false,
   lastUpdated: true,
   head: [
-    ['link', { rel: 'icon', type: 'image/svg+xml', href: faviconHref }],
+    [
+      'link',
+      { rel: 'icon', type: 'image/png', sizes: '64x64', href: faviconHref },
+    ],
     ['meta', { property: 'og:type', content: 'website' }],
     ['meta', { property: 'og:title', content: 'Vdoc' }],
     [
@@ -180,6 +183,7 @@ export default defineConfig({
     },
   },
   themeConfig: {
+    logo: { src: '/vdoc-logo.png', alt: '', width: 24, height: 24 },
     search: {
       provider: 'local',
       options: {

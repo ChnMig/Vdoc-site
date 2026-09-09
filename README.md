@@ -1,3 +1,7 @@
+<p>
+  <img src="docs/public/vdoc-logo.png" width="96" height="96" alt="Vdoc logo" />
+</p>
+
 # Vdoc Site
 
 Docs-only VitePress site for Vdoc. The site is the public documentation surface for people evaluating, installing, operating, and integrating Vdoc.

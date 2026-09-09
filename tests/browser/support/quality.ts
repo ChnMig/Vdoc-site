@@ -17,8 +17,8 @@ type RuntimeEvidence = {
 function isTrackedResource(request: Request): boolean {
   const resourceType = request.resourceType()
   return (
-    ['stylesheet', 'script', 'font'].includes(resourceType) ||
-    new URL(request.url()).pathname.endsWith('/favicon.svg')
+    ['stylesheet', 'script', 'font', 'image'].includes(resourceType) ||
+    new URL(request.url()).pathname.endsWith('/favicon.png')
   )
 }
 

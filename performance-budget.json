@@ -11,11 +11,11 @@
   },
   "limits": {
     "totalFiles": 110,
-    "totalBytes": 2718106,
+    "totalBytes": 2734490,
     "sharedJavaScriptGzipBytes": 92563,
     "sharedCssGzipBytes": 20404,
     "customFontFiles": 0,
-    "imageFiles": 0,
+    "imageFiles": 2,
     "maxRouteRequests": 30,
     "lcpMilliseconds": 2500,
     "tbtMilliseconds": 200,
