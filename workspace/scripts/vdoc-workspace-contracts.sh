@@ -106,9 +106,7 @@ mcp_marked_markdown_inventory() {
 }
 
 mcp_skill_test_tools() {
-  sed -n '/^const v01ToolSchemas = new Map/,/^]);/p' "$ROOT_DIR/Vdoc-skill/test/skill-validation.test.mjs" |
-    sed -nE 's/^[[:space:]]*\["([a-z][a-z0-9_]+)".*/\1/p' |
-    sort -u
+  jq -r '.tools[].name' "$ROOT_DIR/Vdoc-skill/references/mcp-tools.json" | sort -u
 }
 
 assert_mcp_inventory_matches() {
@@ -241,9 +239,9 @@ fi
 
 [[ "$(jq -r '.version' "$ROOT_DIR/contracts/mcp-tools-v0.1.json")" == '0.1' ]] || \
   fail 'MCP tool manifest version must be 0.1'
-[[ "$(jq -r '.tools | length' "$ROOT_DIR/contracts/mcp-tools-v0.1.json")" == '18' ]] || \
-  fail 'MCP v0.1 manifest must contain exactly 18 tools'
-[[ "$(jq -r '[.tools[].name] | unique | length' "$ROOT_DIR/contracts/mcp-tools-v0.1.json")" == '18' ]] || \
+mcp_tool_count="$(jq -r '.tools | length' "$ROOT_DIR/contracts/mcp-tools-v0.1.json")"
+[[ "$mcp_tool_count" -gt 0 ]] || fail 'MCP tool manifest must not be empty'
+[[ "$(jq -r '[.tools[].name] | unique | length' "$ROOT_DIR/contracts/mcp-tools-v0.1.json")" == "$mcp_tool_count" ]] || \
   fail 'MCP v0.1 manifest contains duplicate tool names'
 [[ "$(jq -r '.tools[] | select(.name == "get_doc_draft") | .scopes_any | join(",")' "$ROOT_DIR/contracts/mcp-tools-v0.1.json")" == 'doc:read' ]] || \
   fail 'get_doc_draft must require doc:read in the MCP manifest'
@@ -255,6 +253,16 @@ assert_mcp_inventory_matches 'Chinese site docs' mcp_marked_markdown_inventory "
 assert_mcp_inventory_matches 'English site docs' mcp_marked_markdown_inventory "$ROOT_DIR/Vdoc-site/docs/en/mcp-tools.md"
 assert_mcp_inventory_matches 'Vdoc Skill' mcp_marked_plain_inventory "$ROOT_DIR/Vdoc-skill/SKILL.md"
 assert_mcp_inventory_matches 'Vdoc Skill validation' mcp_skill_test_tools
+
+if ! diff -u <(jq -S . "$ROOT_DIR/contracts/mcp-tools-v0.1.json") <(jq -S . "$ROOT_DIR/Vdoc-skill/references/mcp-tools.json"); then
+  fail 'Skill argument contract must match the workspace MCP manifest'
+fi
+
+(
+  cd "$ROOT_DIR/Vdoc"
+  VDOC_MCP_CONTRACT_FILE="$ROOT_DIR/contracts/mcp-tools-v0.1.json" \
+    go test ./api/app/v1/open/mcp -run '^TestMCPToolArgumentManifest$' -count=1
+) || fail 'MCP argument manifest must match runtime tool schemas'
 
 if sed -n '/^### 9\.2 MCP Tools/,/^## 10\./p' "$ROOT_DIR/PRD.md" |
   rg -n 'projectId|documentId|branchId|versionName|draftId|schemaContent|sourceGitCommitId|fromVersion|toVersion|endpointId|diffId|addedEndpoints|removedEndpoints|modifiedEndpoints|breakingChanges|mustHandle'; then

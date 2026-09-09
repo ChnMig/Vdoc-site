@@ -105,6 +105,8 @@ v0.1 draft tools 覆盖 OpenAPI 和 Markdown Draft 的创建、更新、查看�
 
 - `list_projects`
 - `list_documents`
+- `list_document_branches`
+- `list_api_endpoints`
 - `list_api_versions`
 - `list_doc_versions`
 - `get_latest_schema`
@@ -123,6 +125,8 @@ v0.1 draft tools 覆盖 OpenAPI 和 Markdown Draft 的创建、更新、查看�
 - `get_doc_draft`
 
 <!-- VDOC_MCP_TOOL_INVENTORY_END -->
+
+当前源码新增 `list_document_branches`，可查询分支 ID、名称、默认及保护状态，尚未发布版本的分支也能查询；`list_api_endpoints` 查询指定版本的接口 ID，可用 `method` 和精确 OpenAPI `path` 筛选。先取得这些 ID，再查询详情或创建首份草稿。分支查询要求对应文档类型的 read scope。旧发布包可能尚无这两个工具，请检查实际工具列表，并配套升级 Backend 与 Skill。
 
 实际工具列表以当前 backend `tools/list` 返回为准。v0.1 不暴露 direct publish tools。
 

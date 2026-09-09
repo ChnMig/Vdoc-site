@@ -105,6 +105,8 @@ v0.1 draft tools cover creating, updating, viewing, and submitting OpenAPI and M
 
 - `list_projects`
 - `list_documents`
+- `list_document_branches`
+- `list_api_endpoints`
 - `list_api_versions`
 - `list_doc_versions`
 - `get_latest_schema`
@@ -123,6 +125,8 @@ v0.1 draft tools cover creating, updating, viewing, and submitting OpenAPI and M
 - `get_doc_draft`
 
 <!-- VDOC_MCP_TOOL_INVENTORY_END -->
+
+The current source version adds `list_document_branches` for branch IDs, names, defaults and protection status, including unpublished branches, and `list_api_endpoints` for endpoint IDs in a selected version. The endpoint list accepts optional `method` and exact OpenAPI `path` filters. Resolve these IDs before querying details or creating the first draft. Branch discovery requires the target document type's read scope. Older release deployments may not include these tools; check their runtime inventory and upgrade Backend with Skill.
 
 Use the current backend `tools/list` response as the final tool list. v0.1 does not expose direct publish tools.
 

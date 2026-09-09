@@ -225,6 +225,8 @@ MCP 只提供查询和草稿写入能力。正式版本发布必须由 Admin 或
 VDOC_MCP_TOOL_INVENTORY_START
 list_projects
 list_documents
+list_document_branches
+list_api_endpoints
 list_api_versions
 list_doc_versions
 get_latest_schema

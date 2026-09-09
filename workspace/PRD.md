@@ -1888,6 +1888,8 @@ v0.1 MVP 必做查询工具和草稿写入工具。MCP 不提供绕过后台人�
 ```text
 list_projects
 list_documents
+list_document_branches
+list_api_endpoints
 list_api_versions
 list_doc_versions
 get_latest_schema
