@@ -18,6 +18,16 @@ const artifactName = `${manifest.artifact_name}.tar.gz`
 const archivePath = join(projectRoot, 'docs/public/downloads', artifactName)
 
 describe('public Compose workspace distribution', () => {
+  it('keeps generated downloads and the built site out of Git', () => {
+    expect(
+      execFileSync(
+        'git',
+        ['ls-files', '--', 'docs/public/downloads', 'docs/.vitepress/dist'],
+        { cwd: projectRoot, encoding: 'utf8' },
+      ).trim(),
+    ).toBe('')
+  })
+
   it('validates the exported inventory, lock digest, modes, and available source files', () => {
     expect(
       execFileSync(
@@ -78,7 +88,7 @@ describe('public Compose workspace distribution', () => {
       }
       expect(
         staleFiles,
-        'Download archive is stale; run pnpm workspace:package and commit both the .tar.gz and .sha256 files with workspace/ changes',
+        'Generated download differs from workspace/; run pnpm workspace:package before content tests and site builds',
       ).toEqual([])
     } finally {
       rmSync(stage, { recursive: true, force: true })

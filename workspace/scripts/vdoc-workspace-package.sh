@@ -227,14 +227,15 @@ archive_list="$stage/archive.list"
   cd "$stage"
   find "$root_directory" -print | LC_ALL=C sort >"$archive_list"
 )
+tar_ownership=(--uid 0 --gid 0 --uname root --gname root)
+if tar --version | grep -q 'GNU tar'; then
+  tar_ownership=(--owner=root:0 --group=root:0)
+fi
 COPYFILE_DISABLE=1 tar \
   --format=ustar \
   --no-recursion \
   --no-xattrs \
-  --uid 0 \
-  --gid 0 \
-  --uname root \
-  --gname root \
+  "${tar_ownership[@]}" \
   -cf - \
   -C "$stage" \
   -T "$archive_list" | gzip -n >"$artifact"
@@ -243,4 +244,4 @@ printf '%s  %s\n' "$digest" "$(basename -- "$artifact")" >"$checksum"
 
 printf 'Docker Compose bootstrap artifact: %s\n' "$artifact"
 printf 'SHA-256: %s\n' "$checksum"
-printf 'Publish both files together; publication and URL ownership remain a human release gate.\n'
+printf 'Publish both files together through the Site tag release workflow or the documented release process.\n'

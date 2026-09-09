@@ -39,6 +39,7 @@ pnpm format:check
 pnpm typecheck
 pnpm lint
 pnpm test:unit
+pnpm workspace:package
 pnpm test:content
 pnpm test:browser:root
 pnpm test:browser:pages
@@ -67,7 +68,7 @@ The workspace root is not a Git repository. Public copies of its product documen
 
 ## Public Workspace Resources
 
-The website serves the [Compose archive](docs/public/downloads/vdoc-compose-bootstrap-v0.3.tar.gz) and [SHA-256 file](docs/public/downloads/vdoc-compose-bootstrap-v0.3.tar.gz.sha256) under `/downloads/` (or `/Vdoc-site/downloads/` for the subpath build). Both files are included in the static site deployment. The archive contains the exact allowlist in [workspace-distribution.json](workspace/workspace-distribution.json), including only the `.env.example` template, with no real `.env` or repository checkouts.
+The website serves the [Compose archive](https://vibe-doc.com/downloads/vdoc-compose-bootstrap-v0.3.tar.gz) and [SHA-256 file](https://vibe-doc.com/downloads/vdoc-compose-bootstrap-v0.3.tar.gz.sha256) under `/downloads/` (or `/Vdoc-site/downloads/` for the subpath build). CI generates both files from [workspace/](workspace/README.md) before content tests and includes them in the static site deployment. Generated downloads and website build outputs are ignored by Git. The archive contains the exact allowlist in [workspace-distribution.json](workspace/workspace-distribution.json), including only the `.env.example` template, with no real `.env` or repository checkouts.
 
 Maintain planning documents at the original workspace root, then run from Vdoc-site:
 
@@ -82,9 +83,20 @@ pnpm check:budget
 
 `workspace:sync` copies only the manifest's files, preserves executable modes, and updates the exported lock's control-plane digest without changing its repository refs or commits. `workspace:check` checks the exported inventory and digest; when the original workspace is present, it also detects source drift. Standalone Site clones can validate the committed export without the parent workspace.
 
-After changing `workspace/`, run `workspace:package` and commit the updated export, `.tar.gz`, and `.sha256` together. `workspace:sync` and `workspace:check` do not refresh the download. The content tests compare every archived file with the export and report all stale files if packaging was missed.
+Commit the updated `workspace/` sources after syncing. CI regenerates the downloads from that checkout; do not commit `.tar.gz`, `.sha256`, or the built site. For local content tests, download previews, and site builds, run `workspace:package` first and rerun it after changing workspace sources. The content tests compare every generated file with the export and reject tracked build outputs.
 
-`workspace:package` requires Bash, Git, jq, tar, gzip, and shasum. It initializes a temporary workspace from the public locked refs, verifies all five checkouts, and invokes the existing strict package script before updating the two download files. It preserves the developer's checkouts. Packaging requires network access; normal site builds use the committed archive and do not clone repositories. Publish the source changes and deploy the new Site build before announcing the new links. The website snapshot is mutable; a formal immutable release follows [RELEASE_DEPLOY.md](workspace/RELEASE_DEPLOY.md).
+`workspace:package` requires Bash, Git, jq, tar (GNU or BSD), gzip, and shasum. It initializes a temporary workspace from the public locked refs, verifies all five checkouts, and invokes the strict package script before generating the two ignored files in `docs/public/downloads/`. Packaging requires network access and preserves the developer's checkouts. Subsequent VitePress builds copy those generated files into the site output.
+
+## Automated Releases
+
+[Site CI](.github/workflows/ci.yml) generates and tests the Compose download, builds the root site, and runs browser and performance checks. After those checks pass, `site:package` bundles the verified site and its downloads. Every successful run uploads a `site-distribution` Actions artifact containing four files:
+
+- `vdoc-site-static.tar.gz` and its `.sha256`: extract this archive into the static hosting directory.
+- `vdoc-compose-bootstrap-v0.3.tar.gz` and its `.sha256`: the same Compose download included in the site.
+
+Pushing a Site tag named `vMAJOR.MINOR.PATCH` or `vMAJOR.MINOR.PATCH-prerelease` runs the same checks, then automatically creates a [GitHub Release](https://github.com/ChnMig/Vdoc-site/releases) with those verified artifacts and generated release notes. Prerelease tags create prereleases. The publish job downloads the exact CI artifacts, verifies their checksums, and uses the existing tag; it does not rebuild or overwrite an existing release. Ordinary branch pushes and pull requests upload Actions artifacts only, retained for 14 days.
+
+The workflow publishes release downloads; deployment to the self-hosted website remains separate. The mutable website snapshot and each tagged release are distinct. The Compose archive retains the application commits in `workspace.lock.json`; a new Site tag alone does not upgrade Backend or Admin. See [RELEASE_DEPLOY.md](workspace/RELEASE_DEPLOY.md) for application release checks.
 
 The build budget reserves two files and 256 KiB for downloads. Page assets and shared JavaScript/CSS retain their existing limits; browsers fetch the archive only when a reader downloads it.
 

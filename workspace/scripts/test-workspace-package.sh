@@ -94,7 +94,7 @@ assert_not_contains "$tmp/archive-list.txt" '/._'
 assert_not_contains "$tmp/archive-list.txt" '.DS_Store'
 
 tar -tvzf "$artifact_one" >"$tmp/archive-verbose.txt"
-grep -Eq ' root[[:space:]]+root[[:space:]]' "$tmp/archive-verbose.txt" || \
+grep -Eq ' root([[:space:]]+|/)root[[:space:]]' "$tmp/archive-verbose.txt" || \
   fail 'archive owner/group are not normalized to root/root'
 assert_not_contains "$tmp/archive-verbose.txt" 'chenming'
 assert_not_contains "$tmp/archive-verbose.txt" 'staff'

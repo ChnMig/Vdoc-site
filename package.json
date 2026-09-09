@@ -8,6 +8,7 @@
     "workspace:sync": "node scripts/sync-workspace.mjs",
     "workspace:check": "node scripts/sync-workspace.mjs --check",
     "workspace:package": "bash scripts/package-workspace.sh",
+    "site:package": "bash scripts/package-site.sh",
     "dev": "vitepress dev docs",
     "build": "vitepress build docs",
     "build:root": "VITEPRESS_BASE=/ vitepress build docs",

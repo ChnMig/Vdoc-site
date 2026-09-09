@@ -184,6 +184,7 @@ pnpm format:check
 pnpm typecheck
 pnpm lint
 pnpm test:unit
+pnpm workspace:package
 pnpm test:content
 
 pnpm build:root
@@ -198,6 +199,10 @@ PLAYWRIGHT_BASE_PATH=/Vdoc-site/ pnpm test:performance
 ```
 
 Each base build overwrites the same output directory, so build once per base and run its browser and performance gates before building the other base. The deployable Pages output is `Vdoc-site/docs/.vitepress/dist/` from the workspace root, or `docs/.vitepress/dist/` inside `Vdoc-site`.
+
+The Site repository tracks the workspace sources only. Its CI regenerates the Compose archive and checksum, verifies their contents, runs the root-site gates, and uploads a `site-distribution` Actions artifact containing the static-site archive, Compose archive, and both checksums. These generated files are excluded from Git.
+
+Pushing a Site `vMAJOR.MINOR.PATCH` tag (optionally with a prerelease suffix) automatically creates a GitHub Release after those checks pass. The publish job downloads and verifies the exact CI artifacts; it does not rebuild them or overwrite an existing release. Prerelease tags create prereleases. Deploy the retained static-site archive to the self-hosted website separately. Application commits remain pinned by `workspace.lock.json`; publishing a Site tag does not change those pins or approve the separate live/Pilot gates.
 
 The repository workflow is intentionally verification-only and targets the self-hosted `/` base. It does not configure GitHub Pages, upload a deployable Pages artifact, or deploy the site. If the chosen host needs `/Vdoc-site/`, build and verify that base locally through the root dry-run, retain the exact `docs/.vitepress/dist/` output as the release artifact, and deploy it through the operator-owned hosting process without rebuilding it.
 
@@ -289,11 +294,11 @@ The single-entry artifact is a Docker Compose bootstrap, not an application bina
 
 Vdoc-site provides the public workspace sources and website evaluation downloads; see [README.md](README.md#docker-compose-bootstrap-artifact). Those mutable website snapshots are not an immutable GitHub Release. No `v0.1.0-rc.2` GitHub Release has been published.
 
-For a formal release, upload both the tarball and `.sha256` file to an immutable GitHub Release location, authenticate/sign the release record, and record the exact URL and checksum. Substitute an actually published tag below, then verify the public bytes instead of trusting the README link:
+The Site tag workflow publishes both the tarball and `.sha256` file to GitHub Releases automatically. Record the exact tagged URL and checksum, together with any required release sign-off. Substitute an actually published Site tag below, then verify the public bytes instead of trusting the README link:
 
 ```sh
 scripts/vdoc-workspace-release-assets-verify.sh \
-  --release-base-url 'https://github.com/ChnMig/Vdoc/releases/download/<published-release-tag>' \
+  --release-base-url 'https://github.com/ChnMig/Vdoc-site/releases/download/<published-release-tag>' \
   --expected-sha256 <archive-sha256> \
   --local-artifact dist/vdoc-compose-bootstrap-v0.3.tar.gz
 ```
