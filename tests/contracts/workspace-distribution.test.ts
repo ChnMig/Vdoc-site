@@ -60,6 +60,7 @@ describe('public Compose workspace distribution', () => {
     const stage = mkdtempSync(join(tmpdir(), 'vdoc-site-archive-test-'))
     try {
       execFileSync('tar', ['-xzf', archivePath, '-C', stage])
+      const staleFiles: string[] = []
       for (const file of manifest.files) {
         const extracted = join(stage, manifest.root_directory, file)
         const stat = lstatSync(extracted)
@@ -67,13 +68,18 @@ describe('public Compose workspace distribution', () => {
         expect(stat.mode & 0o777, file).toBe(
           manifest.executables.includes(file) ? 0o755 : 0o644,
         )
-        expect(
-          readFileSync(extracted).equals(
+        if (
+          !readFileSync(extracted).equals(
             readFileSync(join(workspaceRoot, file)),
-          ),
-          file,
-        ).toBe(true)
+          )
+        ) {
+          staleFiles.push(file)
+        }
       }
+      expect(
+        staleFiles,
+        'Download archive is stale; run pnpm workspace:package and commit both the .tar.gz and .sha256 files with workspace/ changes',
+      ).toEqual([])
     } finally {
       rmSync(stage, { recursive: true, force: true })
     }

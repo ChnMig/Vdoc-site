@@ -82,6 +82,8 @@ pnpm check:budget
 
 `workspace:sync` copies only the manifest's files, preserves executable modes, and updates the exported lock's control-plane digest without changing its repository refs or commits. `workspace:check` checks the exported inventory and digest; when the original workspace is present, it also detects source drift. Standalone Site clones can validate the committed export without the parent workspace.
 
+After changing `workspace/`, run `workspace:package` and commit the updated export, `.tar.gz`, and `.sha256` together. `workspace:sync` and `workspace:check` do not refresh the download. The content tests compare every archived file with the export and report all stale files if packaging was missed.
+
 `workspace:package` requires Bash, Git, jq, tar, gzip, and shasum. It initializes a temporary workspace from the public locked refs, verifies all five checkouts, and invokes the existing strict package script before updating the two download files. It preserves the developer's checkouts. Packaging requires network access; normal site builds use the committed archive and do not clone repositories. Publish the source changes and deploy the new Site build before announcing the new links. The website snapshot is mutable; a formal immutable release follows [RELEASE_DEPLOY.md](workspace/RELEASE_DEPLOY.md).
 
 The build budget reserves two files and 256 KiB for downloads. Page assets and shared JavaScript/CSS retain their existing limits; browsers fetch the archive only when a reader downloads it.
