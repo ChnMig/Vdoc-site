@@ -122,6 +122,8 @@ release logs, screenshots, or committed Compose files.
 
 ## 3. Backend Release
 
+The Backend CI automatically packages and publishes a GitHub Release when a `vMAJOR.MINOR.PATCH` tag (optionally with a prerelease suffix) passes its existing checks. It produces Linux amd64/arm64, macOS amd64/arm64, and Windows amd64 archives plus `SHA256SUMS`; binaries embed the tag, full commit, and commit time. The publisher uses the verified CI artifacts and does not overwrite existing releases. Local packaging is available through `make release-package RELEASE_TAG=<version-tag>`.
+
 Build a local artifact:
 
 ```sh
@@ -150,6 +152,8 @@ The health response must report ready dependencies for database and storage when
 
 ## 4. Admin Release
 
+The Admin tag workflow runs its existing build, lint, unit, container-entrypoint, and browser checks before publishing `vdoc-admin_<tag>.tar.gz` and `SHA256SUMS` to GitHub Releases. The archive contains the verified static site, runtime configuration stub, and license notices. For a local packaging check, build first, then run `pnpm release:package <version-tag>`; outputs are ignored by Git.
+
 ```sh
 cd Vdoc-admin
 pnpm install --frozen-lockfile
@@ -164,7 +168,7 @@ pnpm test:browser
 
 Admin unit tests run in Vitest's jsdom environment; the browser gate additionally requires a locally installed Playwright-compatible browser.
 
-Deploy the generated `dist/` directory to the chosen static hosting platform. Configure `VITE_VDOC_API_BASE_URL` at build time so private and anonymous public-share API calls target the deployed backend origin. Public share browser links use the Admin origin by default; set `VITE_VDOC_PUBLIC_SHARE_BASE_URL` only when the public-share frontend is intentionally hosted on a different HTTP(S) origin. That frontend origin must also appear in `VDOC_SERVER_CORS_ALLOWED_ORIGINS`.
+Deploy the generated `dist/` directory or extract the tagged static archive to the chosen hosting platform with SPA fallback. Configure `window.__VDOC_ADMIN_CONFIG__.apiBaseUrl` in the included `runtime-config.js` for a prebuilt archive, or `VITE_VDOC_API_BASE_URL` when building locally, so authenticated and anonymous API calls target the deployed backend. Public share browser links use the Admin origin by default; set `VITE_VDOC_PUBLIC_SHARE_BASE_URL` when building for a separate public-share frontend origin. That frontend origin must also appear in `VDOC_SERVER_CORS_ALLOWED_ORIGINS`.
 
 Post-deploy smoke:
 
@@ -204,13 +208,15 @@ The Site repository tracks the workspace sources only. Its CI regenerates the Co
 
 Pushing a Site `vMAJOR.MINOR.PATCH` tag (optionally with a prerelease suffix) automatically creates a GitHub Release after those checks pass. The publish job downloads and verifies the exact CI artifacts; it does not rebuild them or overwrite an existing release. Prerelease tags create prereleases. Deploy the retained static-site archive to the self-hosted website separately. Application commits remain pinned by `workspace.lock.json`; publishing a Site tag does not change those pins or approve the separate live/Pilot gates.
 
-The repository workflow is intentionally verification-only and targets the self-hosted `/` base. It does not configure GitHub Pages, upload a deployable Pages artifact, or deploy the site. If the chosen host needs `/Vdoc-site/`, build and verify that base locally through the root dry-run, retain the exact `docs/.vitepress/dist/` output as the release artifact, and deploy it through the operator-owned hosting process without rebuilding it.
+The repository workflow builds and releases for the self-hosted `/` base. It does not configure GitHub Pages or deploy to a hosting service. If the chosen host needs `/Vdoc-site/`, build and verify that base locally through the root dry-run, retain the exact `docs/.vitepress/dist/` output as the release artifact, and deploy it through the operator-owned hosting process without rebuilding it.
 
 For every site candidate, record the source SHA, CI workflow run ID, retained static-artifact identifier and checksum, deployment URL, selected base path, and references to the format/typecheck/lint/unit/content/build-budget/browser/performance evidence. The CI workflow retains browser/performance failure evidence for 14 days. After a `/Vdoc-site/` deployment, check `/Vdoc-site/`, `/Vdoc-site/en/`, `/Vdoc-site/admin-ai`, `/Vdoc-site/en/admin-ai`, and their local assets; links, scripts, styles, fonts, and the favicon must remain under `/Vdoc-site/`.
 
 This site delivery chain changes no backend or Admin runtime behavior. Confirm public pages still describe the same backend, Admin, MCP, Skill, and Admin AI behavior as this checklist.
 
 ## 6. MCP Package Release
+
+The MCP tag workflow publishes an npm-format `.tgz` and `SHA256SUMS` to GitHub Releases after its existing checks pass. Before tagging, use `npm version <next-version> --no-git-tag-version`, commit both package manifests, and push the matching `v<next-version>` tag. Packaging rejects a mismatch with `package.json` or `package-lock.json`. The adapter reports that package version in its MCP handshake and HTTP user-agent. This workflow does not publish to the npm registry.
 
 ```sh
 cd Vdoc-mcp
@@ -226,6 +232,8 @@ Before publishing, verify:
 - No docs include real tokens or Authorization headers.
 
 ## 7. Skill Package Release
+
+The Skill tag workflow uses the same package-version check and GitHub Release process as MCP. Update both manifests with `npm version <next-version> --no-git-tag-version`, commit, and push the matching tag. Release assets contain the installable `.tgz` and `SHA256SUMS`; extracting with `--strip-components=1` places `SKILL.md` at the skill root. Generated artifacts are ignored by Git, and npm registry publication remains separate.
 
 ```sh
 cd Vdoc-skill
