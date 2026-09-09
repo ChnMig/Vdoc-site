@@ -1,0 +1,127 @@
+name: vdoc
+
+services:
+  postgres:
+    image: postgres:18@sha256:06cad38a5d9f5d24b4d83d86def30795d5e4b757fedbf5281172b576dedcd941
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${VDOC_POSTGRES_DB:-vdoc}
+      POSTGRES_USER: ${VDOC_POSTGRES_USER:-vdoc}
+      POSTGRES_PASSWORD: ${VDOC_POSTGRES_PASSWORD:?set VDOC_POSTGRES_PASSWORD}
+      VDOC_TEST_POSTGRES_DB: ${VDOC_TEST_POSTGRES_DB:-vdoc_e2e}
+      TZ: ${TZ:-Asia/Shanghai}
+    ports:
+      - "${VDOC_PUBLISH_ADDRESS:-127.0.0.1}:${VDOC_POSTGRES_HOST_PORT:-5432}:5432"
+    volumes:
+      # PostgreSQL 18+ stores data below a major-version-specific subdirectory.
+      # Mount the parent so upgrades can use pg_upgrade --link across versions.
+      - postgres-data:/var/lib/postgresql
+      - ./scripts/postgres-init-e2e-db.sh:/docker-entrypoint-initdb.d/20-create-vdoc-e2e-db.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  rustfs:
+    # Pin the multi-architecture OCI index so the same deployment cannot
+    # silently pick up a different prerelease on the next pull.
+    image: rustfs/rustfs:1.0.0-beta.10@sha256:60f4f2f41ce95216f8cac676e69f9d90c0bfec458a3bc7fd7fb9b7c2452ac57a
+    restart: unless-stopped
+    environment:
+      RUSTFS_VOLUMES: /data
+      RUSTFS_ADDRESS: 0.0.0.0:9000
+      RUSTFS_CONSOLE_ADDRESS: 0.0.0.0:9001
+      RUSTFS_CONSOLE_ENABLE: "true"
+      RUSTFS_CORS_ALLOWED_ORIGINS: ${VDOC_RUSTFS_CORS_ALLOWED_ORIGINS:-http://127.0.0.1:9001,http://localhost:9001}
+      RUSTFS_CONSOLE_CORS_ALLOWED_ORIGINS: ${VDOC_RUSTFS_CONSOLE_CORS_ALLOWED_ORIGINS:-http://127.0.0.1:9001,http://localhost:9001}
+      RUSTFS_ACCESS_KEY: ${VDOC_STORAGE_ACCESS_KEY:?set VDOC_STORAGE_ACCESS_KEY}
+      RUSTFS_SECRET_KEY: ${VDOC_STORAGE_SECRET_KEY:?set VDOC_STORAGE_SECRET_KEY}
+      RUSTFS_OBS_LOGGER_LEVEL: ${VDOC_RUSTFS_LOG_LEVEL:-info}
+    ports:
+      - "${VDOC_PUBLISH_ADDRESS:-127.0.0.1}:${VDOC_RUSTFS_HOST_PORT:-9000}:9000"
+      - "${VDOC_PUBLISH_ADDRESS:-127.0.0.1}:${VDOC_RUSTFS_CONSOLE_HOST_PORT:-9001}:9001"
+    volumes:
+      - rustfs-data:/data
+      - rustfs-logs:/app/logs
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "sh",
+          "-c",
+          "curl -f http://127.0.0.1:9000/health && curl -f http://127.0.0.1:9001/rustfs/console/health",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  backend:
+    build:
+      context: ./Vdoc
+      args:
+        VERSION: ${VDOC_BACKEND_VERSION:?set VDOC_BACKEND_VERSION}
+        BUILD_TIME: ${VDOC_BACKEND_BUILD_TIME:?set VDOC_BACKEND_BUILD_TIME}
+        GIT_COMMIT: ${VDOC_BACKEND_GIT_COMMIT:?set VDOC_BACKEND_GIT_COMMIT}
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rustfs:
+        condition: service_healthy
+    environment:
+      model: release
+      VDOC_SERVER_PORT: ${VDOC_BACKEND_CONTAINER_PORT:-8080}
+      # Docker is the process supervisor. Disable the host-style PID file so
+      # SIGKILL/OOM restarts cannot be blocked by a stale writable-layer file.
+      VDOC_SERVER_PID_FILE: ""
+      VDOC_SERVER_CORS_ALLOWED_ORIGINS: ${VDOC_SERVER_CORS_ALLOWED_ORIGINS:-http://127.0.0.1:8081,http://localhost:8081}
+      VDOC_AUTH_ALLOW_REGISTRATION: ${VDOC_AUTH_ALLOW_REGISTRATION:-false}
+      VDOC_AUTH_RATE_LIMIT: ${VDOC_AUTH_RATE_LIMIT:-2}
+      VDOC_AUTH_RATE_BURST: ${VDOC_AUTH_RATE_BURST:-5}
+      VDOC_JWT_KEY: ${VDOC_JWT_KEY:?set VDOC_JWT_KEY}
+      VDOC_DATABASE_ENABLED: "true"
+      VDOC_DATABASE_DSN: postgres://${VDOC_POSTGRES_USER:-vdoc}:${VDOC_POSTGRES_PASSWORD:?set VDOC_POSTGRES_PASSWORD}@postgres:5432/${VDOC_POSTGRES_DB:-vdoc}?sslmode=disable
+      VDOC_STORAGE_ENABLED: "true"
+      VDOC_STORAGE_ENDPOINT: rustfs:9000
+      VDOC_STORAGE_BUCKET: ${VDOC_STORAGE_BUCKET:-vdoc}
+      VDOC_STORAGE_ACCESS_KEY: ${VDOC_STORAGE_ACCESS_KEY:?set VDOC_STORAGE_ACCESS_KEY}
+      VDOC_STORAGE_SECRET_KEY: ${VDOC_STORAGE_SECRET_KEY:?set VDOC_STORAGE_SECRET_KEY}
+      VDOC_STORAGE_USE_SSL: "false"
+      VDOC_STORAGE_PATH_STYLE: "true"
+      VDOC_MCP_TOKEN_CIPHER_KEY: ${VDOC_MCP_TOKEN_CIPHER_KEY:-}
+      VDOC_MCP_TOKEN_CIPHER_KID: ${VDOC_MCP_TOKEN_CIPHER_KID:-local-aes-gcm-v1}
+      VDOC_MCP_TOKEN_CIPHER_KEYRING: ${VDOC_MCP_TOKEN_CIPHER_KEYRING:-{}}
+      VDOC_INITIAL_ADMIN_EMAIL: ${VDOC_INITIAL_ADMIN_EMAIL:-}
+      VDOC_INITIAL_ADMIN_NAME: ${VDOC_INITIAL_ADMIN_NAME:-}
+      VDOC_INITIAL_ADMIN_PASSWORD: ${VDOC_INITIAL_ADMIN_PASSWORD:-}
+    ports:
+      - "${VDOC_PUBLISH_ADDRESS:-127.0.0.1}:${VDOC_BACKEND_HOST_PORT:-8080}:${VDOC_BACKEND_CONTAINER_PORT:-8080}"
+
+  admin:
+    build:
+      context: ./Vdoc-admin
+      args:
+        VERSION: ${VDOC_ADMIN_VERSION:?set VDOC_ADMIN_VERSION}
+        BUILD_TIME: ${VDOC_ADMIN_BUILD_TIME:?set VDOC_ADMIN_BUILD_TIME}
+        GIT_COMMIT: ${VDOC_ADMIN_GIT_COMMIT:?set VDOC_ADMIN_GIT_COMMIT}
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    environment:
+      VDOC_ADMIN_API_BASE_URL: ${VDOC_ADMIN_API_BASE_URL:-${VDOC_BACKEND_PUBLIC_ORIGIN:-http://127.0.0.1:8080}}
+    ports:
+      - "${VDOC_PUBLISH_ADDRESS:-127.0.0.1}:${VDOC_ADMIN_HOST_PORT:-8081}:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/ || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  postgres-data:
+  rustfs-data:
+  rustfs-logs:

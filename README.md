@@ -52,18 +52,43 @@ The performance suite runs with one Playwright worker so browser teardown and me
 
 ## Content Sources
 
-The documentation is grounded in the workspace product and backend documents:
+The workspace root is not a Git repository. Public copies of its product documents and deployment resources are versioned in [workspace/](workspace/README.md); the original planning documents remain at the maintainer's workspace root.
 
-- `../PRD.md`
-- `../IMPLEMENTATION_PLAN.md`
-- `../IMPROVEMENTS.md`
-- `../PILOT_RUNBOOK.md`
-- `../RELEASE_DEPLOY.md`
-- `../Vdoc/README.md`
-- `../Vdoc/docs/api/API.md`
-- `../Vdoc-mcp/README.md`
-- `../Vdoc-skill/README.md`
-- `../Vdoc-skill/SKILL.md`
+- [Product PRD](workspace/PRD.md)
+- [Implementation plan](workspace/IMPLEMENTATION_PLAN.md)
+- [Database schema](workspace/DATABASE_SCHEMA.md)
+- [Roadmap](workspace/IMPROVEMENTS.md) / [中文路线图](workspace/IMPROVEMENTS.zh-CN.md)
+- [Pilot runbook](workspace/PILOT_RUNBOOK.md)
+- [Release and rollback](workspace/RELEASE_DEPLOY.md)
+- [Compose deployment](workspace/COMPOSE_DEPLOY.md), [docker-compose.yml](workspace/docker-compose.yml), and [.env.example](workspace/.env.example)
+- [Backend README](https://github.com/ChnMig/Vdoc/blob/main/README.md) and [API reference](https://github.com/ChnMig/Vdoc/blob/main/docs/api/API.md)
+- [MCP README](https://github.com/ChnMig/Vdoc-mcp/blob/main/README.md)
+- [Skill README](https://github.com/ChnMig/Vdoc-skill/blob/main/README.md) and [SKILL.md](https://github.com/ChnMig/Vdoc-skill/blob/main/SKILL.md)
+
+## Public Workspace Resources
+
+The website serves the [Compose archive](docs/public/downloads/vdoc-compose-bootstrap-v0.3.tar.gz) and [SHA-256 file](docs/public/downloads/vdoc-compose-bootstrap-v0.3.tar.gz.sha256) under `/downloads/` (or `/Vdoc-site/downloads/` for the subpath build). Both files are included in the static site deployment. The archive contains the exact allowlist in [workspace-distribution.json](workspace/workspace-distribution.json), including only the `.env.example` template, with no real `.env` or repository checkouts.
+
+Maintain planning documents at the original workspace root, then run from Vdoc-site:
+
+```sh
+pnpm workspace:sync
+pnpm workspace:check
+pnpm workspace:package
+pnpm test:content
+pnpm build:root
+pnpm check:budget
+```
+
+`workspace:sync` copies only the manifest's files, preserves executable modes, and updates the exported lock's control-plane digest without changing its repository refs or commits. `workspace:check` checks the exported inventory and digest; when the original workspace is present, it also detects source drift. Standalone Site clones can validate the committed export without the parent workspace.
+
+`workspace:package` requires Bash, Git, jq, tar, gzip, and shasum. It initializes a temporary workspace from the public locked refs, verifies all five checkouts, and invokes the existing strict package script before updating the two download files. It preserves the developer's checkouts. Packaging requires network access; normal site builds use the committed archive and do not clone repositories. Publish the source changes and deploy the new Site build before announcing the new links. The website snapshot is mutable; a formal immutable release follows [RELEASE_DEPLOY.md](workspace/RELEASE_DEPLOY.md).
+
+The build budget reserves two files and 256 KiB for downloads. Page assets and shared JavaScript/CSS retain their existing limits; browsers fetch the archive only when a reader downloads it.
+
+Serve `.tar.gz` downloads as `application/gzip` without `Content-Encoding: gzip` on the production static host, so browsers retain the archive bytes. VitePress's local preview marks `.gz` files as HTTP gzip; use the documented `curl -fLO` commands to check its original bytes. After deploying, verify the public archive against its checksum before announcing availability.
+
+Use explicit `.md` paths for authored links between Markdown documents so they work on GitHub and VitePress. Use full repository URLs when linking to another repository; a parent-directory link cannot cross GitHub repository boundaries.
 
 ## Design Direction
 

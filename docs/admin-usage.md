@@ -4,7 +4,7 @@
 
 ## 开始前确认
 
-- 已按 [部署指南](deployment#quick-start) 启动 Vdoc，并设置初始管理员账号。
+- 已按 [部署指南](deployment.md#quick-start) 启动 Vdoc，并设置初始管理员账号。
 - 工作台可以打开，Backend 健康检查的 `detail.healthy` 为 `true`。
 - 用于接入的 Agent 支持 MCP stdio；运行 Agent 的机器已安装 Node.js 20 或更新版本、npm 和 Git。
 
@@ -16,7 +16,7 @@
 
 在工作台创建或选择一个 Team，然后创建名为 **Vdoc 试用** 的 Project。用初始 SuperAdmin 完成这次试用即可；团队协作时再添加 Reader、Writer 和 Project Admin 成员。
 
-账号尚未设置时，返回 [初始管理员配置](deployment#initial-admin)。已有数据库时修改初始化字段不会重置账号。
+账号尚未设置时，返回 [初始管理员配置](deployment.md#initial-admin)。已有数据库时修改初始化字段不会重置账号。
 
 ## 2. 创建示例文档
 
@@ -63,7 +63,9 @@
 
 有效令牌可在详情中再次查看和复制；列表、已撤销或已过期的令牌只显示脱敏值。不要将原始令牌放进命令行参数、仓库、截图或日志。
 
-## 6. 连接 Agent {#connect-agent}
+<div id="connect-agent"></div>
+
+## 6. 连接 Agent
 
 在 Agent 的 MCP 配置中添加 Vdoc。下面适用于支持 `mcpServers` JSON 的客户端；其他客户端用各自的 MCP 设置入口填写相同的命令、参数和环境变量。
 
@@ -87,11 +89,13 @@
 
 将占位符替换为第 5 步的令牌，保存到客户端的私密配置中，然后重新加载 MCP 连接。这里使用官方 GitHub 仓库的固定提交，版本须与部署包 `workspace.lock.json` 中的 `Vdoc-mcp` 一致；当前包尚未发布到 npm registry。
 
-`VDOC_BASE_URL` 必须能从 **Agent 运行的机器** 访问。`127.0.0.1` 只适用于 Agent 和 Backend 在同一台机器上；远程 Agent 请使用它能访问的 Backend 地址。完整选项见 [MCP 接入与工具](mcp-tools)。
+`VDOC_BASE_URL` 必须能从 **Agent 运行的机器** 访问。`127.0.0.1` 只适用于 Agent 和 Backend 在同一台机器上；远程 Agent 请使用它能访问的 Backend 地址。完整选项见 [MCP 接入与工具](mcp-tools.md)。
 
 客户端应显示 Vdoc 工具已连接，工具清单中应有 `list_projects`、`list_documents` 和 `get_latest_doc`。
 
-## 7. 让 Agent 读取文档 {#first-query}
+<div id="first-query"></div>
+
+## 7. 让 Agent 读取文档
 
 把下面这句话发送给 Agent：
 
@@ -119,15 +123,15 @@
 | 找到文档，但没有已发布版本 | 回到审核页批准草稿，再确认版本页已有 `v1`。                                               |
 | Agent 没有查询就回答       | 确认 MCP 已启用，明确要求先调用 `get_latest_doc`；必要时新开会话重试。                    |
 
-更多排查方法见 [故障排查](troubleshooting)。
+更多排查方法见 [故障排查](troubleshooting.md)。
 
 ## 查询成功后，再按需要配置
 
-- **让 Agent 持续按文档协作：** 安装 [Vdoc Skill](skill-workflows#安装)。它引导 Agent 在接口集成、迁移分析和文档修改前先查 Vdoc；实时内容仍来自 MCP。
-- **体验接口变更：** 创建 OpenAPI 文档（支持 OpenAPI 3.0 / 3.1），提交并审核两个版本，按 [接口变更示例](how-it-works#example) 查询 Diff。令牌需有 `api:read`。
-- **启用后台 AI 助手：** 按 [Admin AI](admin-ai) 配置 OpenAI-compatible 提供商，可使用自动摘要和页面内对话。它不能批准、拒绝、修改或发布文档；配置缺失或调用失败不阻塞人工审核。
+- **让 Agent 持续按文档协作：** 安装 [Vdoc Skill](skill-workflows.md#安装)。它引导 Agent 在接口集成、迁移分析和文档修改前先查 Vdoc；实时内容仍来自 MCP。
+- **体验接口变更：** 创建 OpenAPI 文档（支持 OpenAPI 3.0 / 3.1），提交并审核两个版本，按 [接口变更示例](how-it-works.md#example) 查询 Diff。令牌需有 `api:read`。
+- **启用后台 AI 助手：** 按 [Admin AI](admin-ai.md) 配置 OpenAI-compatible 提供商，可使用自动摘要和页面内对话。它不能批准、拒绝、修改或发布文档；配置缺失或调用失败不阻塞人工审核。
 - **向项目外分享文档：** 按下面的说明创建公开链接。
-- **验证发布候选：** 维护者可继续执行 [工程验证与发布检查](deployment#工程验证与发布检查)。
+- **验证发布候选：** 维护者可继续执行 [工程验证与发布检查](deployment.md#工程验证与发布检查)。
 
 ### 创建和管理公开分享
 

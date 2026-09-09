@@ -1,0 +1,179 @@
+{
+  "schema_version": 2,
+  "pilot_id": "REPLACE_ME",
+  "product_version": "0.1",
+  "environment": {
+    "name": "REPLACE_ME",
+    "base_url": "https://REPLACE_ME",
+    "started_at": null,
+    "ended_at": null
+  },
+  "repository_commits": {
+    "Vdoc": "",
+    "Vdoc-admin": "",
+    "Vdoc-site": "",
+    "Vdoc-mcp": "",
+    "Vdoc-skill": ""
+  },
+  "participants": [],
+  "criteria": [
+    {
+      "criterion_id": "prd-3.3-01",
+      "title": "OpenAPI draft can be submitted within one minute and published after review",
+      "status": "not_run",
+      "participant_ids": [],
+      "executed_at": null,
+      "evidence_refs": [],
+      "observed_result": ""
+    },
+    {
+      "criterion_id": "prd-3.3-02",
+      "title": "Markdown draft can be submitted and published after review",
+      "status": "not_run",
+      "participant_ids": [],
+      "executed_at": null,
+      "evidence_refs": [],
+      "observed_result": ""
+    },
+    {
+      "criterion_id": "prd-3.3-03",
+      "title": "Frontend developers no longer need a manual full API comparison",
+      "status": "not_run",
+      "participant_ids": [],
+      "executed_at": null,
+      "evidence_refs": [],
+      "observed_result": ""
+    },
+    {
+      "criterion_id": "prd-3.3-04",
+      "title": "Reviewers can inspect a Markdown file diff",
+      "status": "not_run",
+      "participant_ids": [],
+      "executed_at": null,
+      "evidence_refs": [],
+      "observed_result": ""
+    },
+    {
+      "criterion_id": "prd-3.3-05",
+      "title": "Version changes are understandable for OpenAPI and Markdown",
+      "status": "not_run",
+      "participant_ids": [],
+      "executed_at": null,
+      "evidence_refs": [],
+      "observed_result": ""
+    },
+    {
+      "criterion_id": "prd-3.3-06",
+      "title": "Common API breaking changes are identified",
+      "status": "not_run",
+      "participant_ids": [],
+      "executed_at": null,
+      "evidence_refs": [],
+      "observed_result": ""
+    },
+    {
+      "criterion_id": "prd-3.3-07",
+      "title": "Endpoint detail, version diff, and change summary are queryable through Web or MCP",
+      "status": "not_run",
+      "participant_ids": [],
+      "executed_at": null,
+      "evidence_refs": [],
+      "observed_result": ""
+    },
+    {
+      "criterion_id": "prd-3.3-08",
+      "title": "Agents can submit OpenAPI and Markdown drafts without bypassing human publish review",
+      "status": "not_run",
+      "participant_ids": [],
+      "executed_at": null,
+      "evidence_refs": [],
+      "observed_result": ""
+    },
+    {
+      "criterion_id": "prd-3.3-09",
+      "title": "Agents use MCP facts without fabricating fields or document content",
+      "status": "not_run",
+      "participant_ids": [],
+      "executed_at": null,
+      "evidence_refs": [],
+      "observed_result": ""
+    },
+    {
+      "criterion_id": "prd-3.3-10",
+      "title": "The workbench supports the complete first-run product workflow",
+      "status": "not_run",
+      "participant_ids": [],
+      "executed_at": null,
+      "evidence_refs": [],
+      "observed_result": ""
+    },
+    {
+      "criterion_id": "prd-3.3-11",
+      "title": "The developer portal supports daily API discovery and diff work",
+      "status": "not_run",
+      "participant_ids": [],
+      "executed_at": null,
+      "evidence_refs": [],
+      "observed_result": ""
+    },
+    {
+      "criterion_id": "prd-3.3-12",
+      "title": "Admin AI configuration, summaries, and contextual chat work",
+      "status": "not_run",
+      "participant_ids": [],
+      "executed_at": null,
+      "evidence_refs": [],
+      "observed_result": ""
+    },
+    {
+      "criterion_id": "prd-3.3-13",
+      "title": "Admins can create independent public links with the required policies",
+      "status": "not_run",
+      "participant_ids": [],
+      "executed_at": null,
+      "evidence_refs": [],
+      "observed_result": ""
+    },
+    {
+      "criterion_id": "prd-3.3-14",
+      "title": "Anonymous public viewing, password, history, download, and revocation behavior work",
+      "status": "not_run",
+      "participant_ids": [],
+      "executed_at": null,
+      "evidence_refs": [],
+      "observed_result": ""
+    }
+  ],
+  "feedback": [],
+  "automated_gates": {
+    "release_dry_run": {
+      "status": "not_run",
+      "attestation": null
+    },
+    "live_persistence_e2e": {
+      "status": "not_run",
+      "attestation": null
+    }
+  },
+  "metrics": {
+    "openapi_draft_seconds": null
+  },
+  "known_issues": [],
+  "sign_off": {
+    "pilot_operator": {
+      "name": "",
+      "decision": "pending",
+      "signed_at": null,
+      "payload_sha256": null,
+      "approval_record": null
+    },
+    "product_owner": {
+      "name": "",
+      "decision": "pending",
+      "signed_at": null,
+      "payload_sha256": null,
+      "approval_record": null
+    }
+  },
+  "pilot_outcome": "pending"
+}

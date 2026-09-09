@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 2,
+  "repositories": [
+    {
+      "path": "Vdoc",
+      "remote": "https://github.com/ChnMig/Vdoc.git",
+      "ref": "refs/tags/v0.1.0-rc.1",
+      "commit": "cda7c46f2f47e3f924b1080df3780fbbb624fdc6"
+    },
+    {
+      "path": "Vdoc-admin",
+      "remote": "https://github.com/ChnMig/Vdoc-admin.git",
+      "ref": "refs/tags/v0.1.0-rc.1",
+      "commit": "0fb2294086def26c88be3ae6807a6356139bbbdb"
+    },
+    {
+      "path": "Vdoc-site",
+      "remote": "https://github.com/ChnMig/Vdoc-site.git",
+      "ref": "refs/tags/v0.1.0-rc.1",
+      "commit": "e6d72775c67b19f60deaa2b32f5fc4f9c28c3254"
+    },
+    {
+      "path": "Vdoc-mcp",
+      "remote": "https://github.com/ChnMig/Vdoc-mcp.git",
+      "ref": "refs/tags/v0.1.0-rc.1",
+      "commit": "b65f346453525a3f35a6ce466cf47a4488d5c8f8"
+    },
+    {
+      "path": "Vdoc-skill",
+      "remote": "https://github.com/ChnMig/Vdoc-skill.git",
+      "ref": "refs/tags/v0.1.0-rc.1",
+      "commit": "9f3a1807e7cd09c677475b4a2397faff2a985829"
+    }
+  ],
+  "controlPlane": {
+    "manifest": "workspace-distribution.json",
+    "sha256": "3cb173311df4c517f1901cbbe226943f2c9b0eb3aec837674d82b6cbe2de6348"
+  }
+}

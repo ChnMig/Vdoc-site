@@ -8,3 +8,5 @@ test-results
 docs/.vitepress/dist
 docs/.vitepress/cache
 node_modules
+workspace
+docs/public/downloads

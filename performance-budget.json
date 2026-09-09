@@ -10,8 +10,10 @@
     "crossOriginRuntimeResources": 0
   },
   "limits": {
-    "totalFiles": 110,
-    "totalBytes": 2734490,
+    "totalFiles": 112,
+    "totalBytes": 2996634,
+    "downloadFiles": 2,
+    "downloadBytes": 262144,
     "sharedJavaScriptGzipBytes": 92563,
     "sharedCssGzipBytes": 20404,
     "customFontFiles": 0,

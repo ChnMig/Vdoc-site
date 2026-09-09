@@ -1,6 +1,6 @@
 # MCP 接入与工具
 
-把 Agent 连接到 Vdoc，让它查询已发布的 OpenAPI 和 Markdown 文档，或提交草稿等待人工审核。首次接入可以直接跟随 [连接 Agent](admin-usage#connect-agent)，再 [读取第一份文档](admin-usage#first-query)。
+把 Agent 连接到 Vdoc，让它查询已发布的 OpenAPI 和 Markdown 文档，或提交草稿等待人工审核。首次接入可以直接跟随 [连接 Agent](admin-usage.md#connect-agent)，再 [读取第一份文档](admin-usage.md#first-query)。
 
 `@vdoc/mcp` 是 stdio 适配器，把 `tools/list` 和 `tools/call` 转发到后端 `/api/v1/open/mcp`；文档存储和业务逻辑由 Backend 负责。
 
@@ -11,7 +11,7 @@
 - 目标 Agent runtime 支持 MCP stdio server 配置。
 - 不要把原始 MCP Token、JWT、DB password、storage secret 或 `Authorization` header 值写进仓库、截图、日志、README 或 issue。
 
-Agent 运行的机器还需安装 Node.js 20 或更新版本、npm 和 Git。尚未启动 Vdoc 时，先按 [Docker Compose 部署步骤](deployment#quick-start) 完成初始化和管理员设置。第一次查询需要一份已发布文档；demo 数据和工程发布检查可以后续再做。
+Agent 运行的机器还需安装 Node.js 20 或更新版本、npm 和 Git。尚未启动 Vdoc 时，先按 [Docker Compose 部署步骤](deployment.md#quick-start) 完成初始化和管理员设置。第一次查询需要一份已发布文档；demo 数据和工程发布检查可以后续再做。
 
 ## 安装方式
 

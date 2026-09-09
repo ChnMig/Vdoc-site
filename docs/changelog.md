@@ -7,11 +7,11 @@
 - 文档阅读路线从“运维手册”调整为“认识 Vdoc、理解运行流程、部署、首次使用、Agent 接入、升级排障”。
 - 中文默认入口是 `/`。
 - 英文文档使用 `/en/...`，并保持同名主题路由。
-- 新增 [运行流程](how-it-works)，解释 Admin review、Draft、Version、MCP、Skill 和 Agent 的关系。
-- [部署指南](deployment) 已按 `scripts/vdoc-local-bootstrap.sh`、root Compose、可选 demo seed、live-compose E2E、release dry-run、直接部署和外部 PostgreSQL/S3 compatible storage 重写。
-- [首次使用](admin-usage) 已覆盖初始管理员、Project、Document、Draft、Version、MCP Token、MCP adapter 和 Skill 的第一条链路。
-- 新增 [Admin AI](admin-ai)，记录系统和项目 provider、两种 OpenAI-compatible API 模式、prompt 覆盖、自动摘要、页面对话、审计和人工发布边界。
-- [升级与回滚](release-rollback) 已覆盖 PostgreSQL/object storage 备份、`docker compose --env-file .env up -d --build`、live E2E、`scripts/vdoc-release-dry-run.sh`、健康验证和回滚。
+- 新增 [运行流程](how-it-works.md)，解释 Admin review、Draft、Version、MCP、Skill 和 Agent 的关系。
+- [部署指南](deployment.md) 已按 `scripts/vdoc-local-bootstrap.sh`、root Compose、可选 demo seed、live-compose E2E、release dry-run、直接部署和外部 PostgreSQL/S3 compatible storage 重写。
+- [首次使用](admin-usage.md) 已覆盖初始管理员、Project、Document、Draft、Version、MCP Token、MCP adapter 和 Skill 的第一条链路。
+- 新增 [Admin AI](admin-ai.md)，记录系统和项目 provider、两种 OpenAI-compatible API 模式、prompt 覆盖、自动摘要、页面对话、审计和人工发布边界。
+- [升级与回滚](release-rollback.md) 已覆盖 PostgreSQL/object storage 备份、`docker compose --env-file .env up -d --build`、live E2E、`scripts/vdoc-release-dry-run.sh`、健康验证和回滚。
 
 ## 当前产品面
 
@@ -34,4 +34,4 @@
 
 1. 打开 `/`，确认默认中文页面加载。
 2. 打开 `/en/product-overview`，确认英文页面加载。
-3. 点击 [运行流程](how-it-works)、[Admin AI](admin-ai)、[部署指南](deployment)、[MCP 工具](mcp-tools) 和 [升级与回滚](release-rollback)，确认主题路径连贯。
+3. 点击 [运行流程](how-it-works.md)、[Admin AI](admin-ai.md)、[部署指南](deployment.md)、[MCP 工具](mcp-tools.md) 和 [升级与回滚](release-rollback.md)，确认主题路径连贯。

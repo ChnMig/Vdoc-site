@@ -4,12 +4,12 @@ Vdoc Skill 是安装到 Agent runtime 的工作流包。它不存数据、不计
 
 ## 使用前准备
 
-- Agent 已配置 [MCP 工具](mcp-tools)，并能成功调用 Vdoc `tools/list`。
+- Agent 已配置 [MCP 工具](mcp-tools.md)，并能成功调用 Vdoc `tools/list`。
 - 目标 runtime 支持安装 skill 或自定义工作流说明。
 - 你知道 runtime 要求的 skill folder 位置。
 - 不要把原始 MCP Token、JWT、DB password、storage secret 或 `Authorization` header 值写进 Skill 文件、示例、日志或 issue。
 
-尚未启动 Vdoc 时，先按 [部署指南](deployment#quick-start) 完成初始化。建议在安装 Skill 前先完成 [第一次已发布文档查询](admin-usage#first-query)，确认 MCP 连接和文档权限已经可用。
+尚未启动 Vdoc 时，先按 [部署指南](deployment.md#quick-start) 完成初始化。建议在安装 Skill 前先完成 [第一次已发布文档查询](admin-usage.md#first-query)，确认 MCP 连接和文档权限已经可用。
 
 ## 安装
 

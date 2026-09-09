@@ -10,7 +10,7 @@ Vdoc 是面向 AI 协作开发团队的文档协作中心。把 OpenAPI 接口�
 | Agent 需要项目约定，但上下文里的文档已经过时 | 通过 MCP 查询已发布的 Markdown，使用 Skill 引导 Agent 先查文档再回答。   |
 | 团队或 Agent 修改了文档，需要有人检查        | 先提交草稿，查看 Diff，由管理员审核后发布；历史版本保持不可变。          |
 
-先看 **[一个接口变更如何流转](how-it-works#example)**，或直接 **[用 Docker Compose 部署试用](deployment#quick-start)**。部署后可跟随 [首次使用](admin-usage)，发布一份示例文档并让 Agent 查询。
+先看 **[一个接口变更如何流转](how-it-works.md#example)**，或直接 **[用 Docker Compose 部署试用](deployment.md#quick-start)**。部署后可跟随 [首次使用](admin-usage.md)，发布一份示例文档并让 Agent 查询。
 
 ## 谁适合使用
 
@@ -27,12 +27,12 @@ Vdoc 是面向 AI 协作开发团队的文档协作中心。把 OpenAPI 接口�
 
 ## 首次试用之后
 
-用 [Admin AI](admin-ai) 配置 OpenAI-compatible 模型，可以获得自动变更摘要和页面内对话；通过 [公开分享](admin-usage#创建和管理公开分享)，可以让项目外的人查看已发布文档，按需设置密码并撤销链接。
+用 [Admin AI](admin-ai.md) 配置 OpenAI-compatible 模型，可以获得自动变更摘要和页面内对话；通过 [公开分享](admin-usage.md#创建和管理公开分享)，可以让项目外的人查看已发布文档，按需设置密码并撤销链接。
 
 ## 当前版本边界
 
 发布必须由人审核：MCP 不能直接发布，Admin AI 不能批准、拒绝、修改或发布内容，也不能替代机器 Diff。
 
-当前提供 Docker Compose 自部署候选版本，能力和限制见 [版本说明](version-notes)。邀请流、通知机器人、PR Bot、完整 SDK、代码生成平台和商业计费不在当前范围内。
+当前提供 Docker Compose 自部署候选版本，能力和限制见 [版本说明](version-notes.md)。邀请流、通知机器人、PR Bot、完整 SDK、代码生成平台和商业计费不在当前范围内。
 
-准备试用时，从 [部署指南](deployment#quick-start) 开始，再完成 [第一次 Agent 查询](admin-usage)。
+准备试用时，从 [部署指南](deployment.md#quick-start) 开始，再完成 [第一次 Agent 查询](admin-usage.md)。

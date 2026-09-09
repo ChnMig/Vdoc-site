@@ -68,7 +68,7 @@ Project、Document 或目标 Branch 归档后，Project Admin 或 SuperAdmin 仍
 
 ## API 路由
 
-完整路由和鉴权说明见 [API 参考](api-reference#admin-ai-路由)。主要接口分为：
+完整路由和鉴权说明见 [API 参考](api-reference.md#admin-ai-路由)。主要接口分为：
 
 - 系统和项目 provider 的读取、更新与测试。
 - 系统和项目 prompt 的读取与覆盖。
@@ -93,4 +93,4 @@ Project、Document 或目标 Branch 归档后，Project Admin 或 SuperAdmin 仍
 6. 确认失败或禁用场景显示 `skipped` 或 `failed`，同时 Diff 和人工审核仍可用。
 7. 检查审计中有状态和 token usage，但没有原始凭据、credential header 或提示词中嵌入的秘密；prompt override、summary 和 chat 记录仍按产品定义可用。
 
-外部 Agent 接入请读 [MCP 工具](mcp-tools) 和 [Skill 工作流](skill-workflows)。它们可以查询事实或提交 Draft，但同样不能替代人类审核和发布。
+外部 Agent 接入请读 [MCP 工具](mcp-tools.md) 和 [Skill 工作流](skill-workflows.md)。它们可以查询事实或提交 Draft，但同样不能替代人类审核和发布。

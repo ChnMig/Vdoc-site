@@ -2,7 +2,9 @@
 
 Start with one API change and see how a document is reviewed, published, and made available to both your team and agents.
 
-## Example: An Order Amount Changes Type {#example}
+<div id="example"></div>
+
+## Example: An Order Amount Changes Type
 
 Suppose your team keeps an order API in `apis/orders.yaml`. This illustrative example changes a response field on the same `GET /orders/{id}` endpoint:
 
@@ -28,14 +30,14 @@ Cite the document, branch, and version. If either version is missing, do not gue
 
 Document changes do not automatically update your code. Vdoc provides versions, Diffs, and endpoint content; the agent uses those results to suggest changes, and your team validates the code.
 
-Markdown follows the same draft, review, and publish flow, with file Diffs for changes. To try it yourself, **[deploy Vdoc](deployment#quick-start)** and follow **[First Use](admin-usage)** with a shorter Markdown example.
+Markdown follows the same draft, review, and publish flow, with file Diffs for changes. To try it yourself, **[deploy Vdoc](deployment.md#quick-start)** and follow **[First Use](admin-usage.md)** with a shorter Markdown example.
 
 ## What People, MCP, and the Skill Each Do
 
 - **Your team manages and publishes in Admin.** Create Teams, Projects, Documents, and Branches, inspect draft content and Diffs, approve versions, and configure MCP Tokens. Writers can create and submit drafts; a Project Admin or SuperAdmin approves publication.
 - **MCP provides document tools.** `@vdoc/mcp` forwards agent requests to Backend `/api/v1/open/mcp`. It queries published endpoints, Markdown, versions, and Diffs, and can create, update, or submit drafts according to token permissions. It does not store Vdoc documents locally or expose direct-publish tools.
-- **The Skill guides when to query.** Before endpoint integration, version migration, or Markdown edits, agents call MCP and use its results to answer or submit drafts. The Skill itself holds no live documents. See [Skill Workflows](skill-workflows).
-- **Built-in AI helps reviewers.** Optional [Admin AI](admin-ai) uses an administrator-configured model for summaries, Diff explanations, and page chat. Summaries are labeled AI-generated. They cannot replace machine Diff, approve, reject, modify, or publish content. Missing providers or failed calls leave the original Diff and human review available.
+- **The Skill guides when to query.** Before endpoint integration, version migration, or Markdown edits, agents call MCP and use its results to answer or submit drafts. The Skill itself holds no live documents. See [Skill Workflows](skill-workflows.md).
+- **Built-in AI helps reviewers.** Optional [Admin AI](admin-ai.md) uses an administrator-configured model for summaries, Diff explanations, and page chat. Summaries are labeled AI-generated. They cannot replace machine Diff, approve, reject, modify, or publish content. Missing providers or failed calls leave the original Diff and human review available.
 
 ## Identify the Document and Version
 
@@ -47,8 +49,8 @@ To change a document, the agent first reads the current version, then submits a 
 
 ## Where to Start
 
-1. [Deploy Vdoc](deployment#quick-start): start Backend, Admin, PostgreSQL, and RustFS.
-2. [First Use](admin-usage): publish a sample document and complete one MCP query.
-3. [MCP Setup and Tools](mcp-tools): look up connection settings, read access, and draft operations.
+1. [Deploy Vdoc](deployment.md#quick-start): start Backend, Admin, PostgreSQL, and RustFS.
+2. [First Use](admin-usage.md): publish a sample document and complete one MCP query.
+3. [MCP Setup and Tools](mcp-tools.md): look up connection settings, read access, and draft operations.
 
-Browsers access Admin; agents access Backend through MCP. Neither connects directly to the database or object storage. Containers use Compose service names, while browsers and agents need addresses reachable from their own machines. See the [Deployment Guide](deployment) for configuration.
+Browsers access Admin; agents access Backend through MCP. Neither connects directly to the database or object storage. Containers use Compose service names, while browsers and agents need addresses reachable from their own machines. See the [Deployment Guide](deployment.md) for configuration.

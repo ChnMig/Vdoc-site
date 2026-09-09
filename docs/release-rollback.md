@@ -126,7 +126,7 @@ docker compose --env-file .env exec backend /app/vdoc --version
 4. 新建一个测试 Draft，并确认审核流程仍可用。
 5. MCP `tools/list` 成功，至少一个 read-only tool call 成功。
 6. Agent 使用 Skill 时会先查 Vdoc MCP，再回答 endpoint 或 Markdown 问题。
-7. 按 [Admin AI](admin-ai) 运行系统或项目 provider test，提交测试 Draft，并确认 Draft/Version 摘要和页面 chat 可用。
+7. 按 [Admin AI](admin-ai.md) 运行系统或项目 provider test，提交测试 Draft，并确认 Draft/Version 摘要和页面 chat 可用。
 8. 禁用测试 prompt 或使用不可用 provider 时，确认 AI 结果为 `skipped` 或 `failed`，但机器 Diff、人工审核和发布流程不受影响。
 9. 检查 AI 审计不含原始 API key、JWT、MCP Token、`Authorization` header 或提示词中嵌入的秘密；prompt override、summary 和 chat 记录按产品定义保留。
 10. 如果本机 root Compose 可用，live E2E 通过：

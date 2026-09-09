@@ -10,7 +10,7 @@ Vdoc is a documentation hub for teams developing with AI. Keep OpenAPI contracts
 | Your agent needs team conventions, but its context is out of date      | Query published Markdown through MCP and use the Skill to guide the agent to read before answering.                  |
 | A teammate or agent changed a document and someone needs to check it   | Submit a draft, inspect its Diff, and have an administrator approve publication. Historical versions stay immutable. |
 
-See **[how one API change moves through Vdoc](how-it-works#example)**, or **[deploy with Docker Compose](deployment#quick-start)**. Then follow [First Use](admin-usage) to publish a sample document and query it with your agent.
+See **[how one API change moves through Vdoc](how-it-works.md#example)**, or **[deploy with Docker Compose](deployment.md#quick-start)**. Then follow [First Use](admin-usage.md) to publish a sample document and query it with your agent.
 
 ## Who It Is For
 
@@ -27,12 +27,12 @@ Your team manages these in the Admin workbench. MCP Tokens grant agents scoped r
 
 ## After Your First Trial
 
-Configure an OpenAI-compatible model with [Admin AI](admin-ai) for automatic change summaries and page chat. Use [public sharing](admin-usage#create-and-manage-public-shares) to let people outside the project read published documents, optionally with a password and revocable access.
+Configure an OpenAI-compatible model with [Admin AI](admin-ai.md) for automatic change summaries and page chat. Use [public sharing](admin-usage.md#create-and-manage-public-shares) to let people outside the project read published documents, optionally with a password and revocable access.
 
 ## Current Version Boundaries
 
 Publishing requires human review. MCP cannot publish directly. Admin AI cannot approve, reject, modify, or publish content, and it does not replace machine Diff.
 
-The current candidate supports Docker Compose self-hosting; see [Version Notes](version-notes) for capabilities and limits. Invitation flows, notification bots, PR Bots, full SDKs, a code-generation platform, and commercial billing are outside the current scope.
+The current candidate supports Docker Compose self-hosting; see [Version Notes](version-notes.md) for capabilities and limits. Invitation flows, notification bots, PR Bots, full SDKs, a code-generation platform, and commercial billing are outside the current scope.
 
-Start with the [Deployment Guide](deployment#quick-start), then complete [your first agent query](admin-usage).
+Start with the [Deployment Guide](deployment.md#quick-start), then complete [your first agent query](admin-usage.md).

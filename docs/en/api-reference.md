@@ -189,7 +189,7 @@ v0.1 does not expose direct publish tools through MCP. Agents can create, update
 
 ## Admin AI Routes
 
-[Admin AI](admin-ai) uses private JWT APIs. Provider and prompt configuration is separate from the external MCP/Skill Agent, and AI output cannot replace machine Diff or human review.
+[Admin AI](admin-ai.md) uses private JWT APIs. Provider and prompt configuration is separate from the external MCP/Skill Agent, and AI output cannot replace machine Diff or human review.
 
 Only SuperAdmins may read, update, or test system Provider/Prompt configuration. Only the corresponding Project Admin or a SuperAdmin may read, update, or test project Provider/Prompt configuration. Readers and Writers cannot read this configuration, but may still use summaries and page Chat where document permissions allow. Omitting the body from a project provider test tests the effective configuration; without an enabled project override, it tests the system fallback provider.
 

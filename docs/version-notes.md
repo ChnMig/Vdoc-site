@@ -11,7 +11,7 @@
 - `Vdoc/scripts/vdoc-e2e.sh live-compose`，可从 root `.env` 派生 live E2E 配置。
 - `scripts/vdoc-release-dry-run.sh`，作为本机 release gate，不发布、不部署。
 - Admin UI，用于管理 Team、Project、Document、Branch、Draft、Review、Version、Diff、endpoint detail 和 MCP Token。
-- 后台 [Admin AI](admin-ai)，包含系统和项目级 OpenAI-compatible provider、prompt 覆盖、provider test、Draft/Version 自动摘要、Draft/Version/Diff 摘要读取和重新生成、页面内对话及审计。
+- 后台 [Admin AI](admin-ai.md)，包含系统和项目级 OpenAI-compatible provider、prompt 覆盖、provider test、Draft/Version 自动摘要、Draft/Version/Diff 摘要读取和重新生成、页面内对话及审计。
 - `@vdoc/mcp` package，用于 Agent runtime 通过 MCP 查询 Vdoc backend。
 - `Vdoc-skill` package，用于要求 Agent 在依赖 API 或 Markdown 事实前先查询 Vdoc。
 

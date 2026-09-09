@@ -106,7 +106,7 @@ Vdoc REST 使用 envelope。不要只看 HTTP status，要看 body：
 
 ## Admin AI 摘要或页面对话失败
 
-- 先读 [Admin AI](admin-ai)，确认当前 Project 使用已启用的项目 provider，或能回退到已启用的系统 provider。
+- 先读 [Admin AI](admin-ai.md)，确认当前 Project 使用已启用的项目 provider，或能回退到已启用的系统 provider。
 - 运行对应 scope 的 provider test，检查 `base_url`、`api_mode`、`model` 和 timeout，不要在日志中打印 `api_key`。
 - 确认 provider 详情只返回 `api_key_set` 和 `api_key_last4`。如果未设置加密密钥，先由有权限的管理员保存配置。
 - 检查对应 `draft_review_summary`、`version_change_summary`、`diff_change_summary` 或 `page_chat` prompt 是否启用。
@@ -150,7 +150,7 @@ Live E2E 会重置选中的一次性 `VDOC_TEST_POSTGRES_DB`，默认是 `vdoc_e
 - Agent 不遵守 Vdoc facts：先检查 MCP 和 Skill 安装，再回滚 Skill package。
 - Admin AI 失败但机器 Diff 和人工审核正常：先回滚 provider 或 prompt 配置，不要回滚已发布 Version，也不要让 AI 代替审核。
 
-回滚前先看 [升级与回滚](release-rollback)，不要删除 PostgreSQL 或对象存储数据。
+回滚前先看 [升级与回滚](release-rollback.md)，不要删除 PostgreSQL 或对象存储数据。
 
 本机门禁可以先列出再运行：
 

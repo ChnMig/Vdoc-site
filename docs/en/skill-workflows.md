@@ -4,12 +4,12 @@ The Vdoc Skill is an Agent runtime workflow package. It does not store data, com
 
 ## Before You Start
 
-- The Agent has configured [MCP Tools](mcp-tools), and Vdoc `tools/list` succeeds.
+- The Agent has configured [MCP Tools](mcp-tools.md), and Vdoc `tools/list` succeeds.
 - The target runtime supports skills or custom workflow instructions.
 - You know the skill folder location required by the runtime.
 - Do not put raw MCP Tokens, JWTs, DB passwords, storage secrets, or `Authorization` header values in Skill files, examples, logs, or issues.
 
-If Vdoc is not running yet, follow the [Deployment Guide](deployment#quick-start). Complete [your first published document query](admin-usage#first-query) before installing the Skill, so you know the MCP connection and document permissions work.
+If Vdoc is not running yet, follow the [Deployment Guide](deployment.md#quick-start). Complete [your first published document query](admin-usage.md#first-query) before installing the Skill, so you know the MCP connection and document permissions work.
 
 ## Installation
 

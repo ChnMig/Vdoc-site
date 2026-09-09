@@ -11,7 +11,7 @@ These notes describe the v0.1 boundary. Before planning a pilot, writing Agent i
 - `Vdoc/scripts/vdoc-e2e.sh live-compose` for deriving live E2E settings from the root `.env`.
 - `scripts/vdoc-release-dry-run.sh` as the local release gate, with no publishing or deployment.
 - Admin UI for Team, Project, Document, Branch, Draft, Review, Version, Diff, endpoint detail, and MCP Token management.
-- Built-in [Admin AI](admin-ai) with system and project OpenAI-compatible providers, prompt overrides, provider tests, automatic Draft and Version summaries, Draft/Version/Diff summary read and regeneration, page chat, and auditing.
+- Built-in [Admin AI](admin-ai.md) with system and project OpenAI-compatible providers, prompt overrides, provider tests, automatic Draft and Version summaries, Draft/Version/Diff summary read and regeneration, page chat, and auditing.
 - `@vdoc/mcp` package for Agent runtimes to query the Vdoc backend through MCP.
 - `Vdoc-skill` package that tells Agents to query Vdoc before relying on API or Markdown facts.
 

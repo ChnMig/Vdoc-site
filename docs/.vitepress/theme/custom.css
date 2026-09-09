@@ -21,6 +21,11 @@
   background: rgba(52, 81, 178, 0.16);
 }
 
+/* Keep explicit Markdown anchors below the sticky navigation on native hash jumps. */
+.vp-doc div[id]:empty {
+  scroll-margin-top: calc(var(--vp-nav-height) + 72px);
+}
+
 html:not(.dark) .vp-code span[style*='--shiki-light:#D73A49'] {
   --shiki-light: #c12a3a !important;
 }

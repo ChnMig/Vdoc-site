@@ -4,7 +4,7 @@ Publish a short team guide and let your agent read it from Vdoc. By the end, you
 
 ## Before You Start
 
-- Complete the [Deployment Guide](deployment#quick-start), including the initial-admin account.
+- Complete the [Deployment Guide](deployment.md#quick-start), including the initial-admin account.
 - Confirm the workbench opens and Backend health reports `detail.healthy` as `true`.
 - Use an agent that supports MCP stdio, with Node.js 20 or later, npm, and Git installed on the machine running it.
 
@@ -16,7 +16,7 @@ Open the [local workbench](http://127.0.0.1:8081) and log in with the email and 
 
 Create or select a Team, then create a Project named **Vdoc Trial**. Use the initial SuperAdmin for this trial; add Reader, Writer, and Project Admin members when you start collaborating.
 
-If the account is not set up, return to [initial-admin configuration](deployment#initial-admin). Changing initialization fields does not reset accounts in an existing database.
+If the account is not set up, return to [initial-admin configuration](deployment.md#initial-admin). Changing initialization fields does not reset accounts in an existing database.
 
 ## 2. Create the Sample Document
 
@@ -63,7 +63,9 @@ Open the MCP Token page and create a user-bound token:
 
 Active tokens can be revealed and copied again from their details. Lists, revoked tokens, and expired tokens show masked values. Never put a raw token in command-line arguments, repositories, screenshots, or logs.
 
-## 6. Connect Your Agent {#connect-agent}
+<div id="connect-agent"></div>
+
+## 6. Connect Your Agent
 
 Add Vdoc to your agent's MCP configuration. This example is for clients that accept `mcpServers` JSON; for other clients, enter the same command, arguments, and environment variables through their MCP settings.
 
@@ -87,11 +89,13 @@ Add Vdoc to your agent's MCP configuration. This example is for clients that acc
 
 Replace the placeholder with the token from step 5 in your client's private configuration, save, and reload the MCP connection. This example uses a fixed commit from the official GitHub repository. It must match `Vdoc-mcp` in your deployment's `workspace.lock.json`; the package is not currently published to the npm registry.
 
-`VDOC_BASE_URL` must be reachable from **the machine running your agent**. Use `127.0.0.1` only when the agent and Backend run on the same machine; remote agents need a Backend address they can reach. See [MCP Setup and Tools](mcp-tools) for all options.
+`VDOC_BASE_URL` must be reachable from **the machine running your agent**. Use `127.0.0.1` only when the agent and Backend run on the same machine; remote agents need a Backend address they can reach. See [MCP Setup and Tools](mcp-tools.md) for all options.
 
 The client should show Vdoc as connected, with `list_projects`, `list_documents`, and `get_latest_doc` in its tool list.
 
-## 7. Ask Your Agent to Read the Document {#first-query}
+<div id="first-query"></div>
+
+## 7. Ask Your Agent to Read the Document
 
 Send this prompt to your agent:
 
@@ -120,15 +124,15 @@ You have now completed the first flow from human review to agent use. A successf
 | The document exists, but no published version is available | Approve the draft on the review page and confirm `v1` appears in versions.                                                    |
 | The agent answers without querying                         | Enable MCP and explicitly request `get_latest_doc`; retry in a new conversation if needed.                                    |
 
-See [Troubleshooting](troubleshooting) for more detail.
+See [Troubleshooting](troubleshooting.md) for more detail.
 
 ## After Your First Successful Query
 
-- **Keep your agent following the docs:** install [Vdoc Skill](skill-workflows#installation). It guides agents to query Vdoc before integration, migration analysis, and document changes; live content still comes from MCP.
-- **Try an API change:** create an OpenAPI document (3.0 / 3.1 supported), submit and approve two versions, then query the Diff using the [API change example](how-it-works#example). Your token needs `api:read`.
-- **Enable the built-in AI assistant:** follow [Admin AI](admin-ai) to configure an OpenAI-compatible provider for automatic summaries and page chat. It cannot approve, reject, modify, or publish content. Missing configuration or provider failures do not block human review.
+- **Keep your agent following the docs:** install [Vdoc Skill](skill-workflows.md#installation). It guides agents to query Vdoc before integration, migration analysis, and document changes; live content still comes from MCP.
+- **Try an API change:** create an OpenAPI document (3.0 / 3.1 supported), submit and approve two versions, then query the Diff using the [API change example](how-it-works.md#example). Your token needs `api:read`.
+- **Enable the built-in AI assistant:** follow [Admin AI](admin-ai.md) to configure an OpenAI-compatible provider for automatic summaries and page chat. It cannot approve, reject, modify, or publish content. Missing configuration or provider failures do not block human review.
 - **Share outside your project:** create a public link as described below.
-- **Verify a release candidate:** maintainers can continue to [Engineering and Release Checks](deployment#engineering-and-release-checks).
+- **Verify a release candidate:** maintainers can continue to [Engineering and Release Checks](deployment.md#engineering-and-release-checks).
 
 ### Create and Manage Public Shares
 

@@ -1,6 +1,6 @@
 # 部署指南
 
-用 Docker Compose 在自己的机器上运行 Vdoc，打开工作台，再让 Agent 查询第一份文档。首次试用按下面四步完成；已有环境可直接去 [首次使用](admin-usage)。
+用 Docker Compose 在自己的机器上运行 Vdoc，打开工作台，再让 Agent 查询第一份文档。首次试用按下面四步完成；已有环境可直接去 [首次使用](admin-usage.md)。
 
 ## 开始前准备
 
@@ -10,16 +10,20 @@
 
 这仍然是 Docker 部署。下载的是 Docker Compose bootstrap，不是 Backend 二进制，也不包含预构建镜像；它提供 Compose、配置模板、初始化脚本和精确源码锁。
 
-当前下载入口为 [v0.1.0-rc.2 候选版本](https://github.com/ChnMig/Vdoc/releases/tag/v0.1.0-rc.2)，适合评估试用。正式使用前请阅读 [版本说明](version-notes) 和 [升级与回滚](release-rollback)。
+[公开工作区文件](https://github.com/ChnMig/Vdoc-site/tree/main/workspace)和 Compose 下载均由 Vdoc-site 提供。包内源码锁使用 `v0.1.0-rc.1` 标签，`v0.3` 是 bootstrap 格式版本，适合评估试用。正式使用前请阅读 [版本说明](version-notes.md) 和 [升级与回滚](release-rollback.md)。
 
-## 快速开始（推荐） {#quick-start}
+<div id="quick-start"></div>
+
+## 快速开始（推荐）
 
 ### 1. 下载并初始化
+
+可直接下载 [Compose 压缩包](https://vibe-doc.com/downloads/vdoc-compose-bootstrap-v0.3.tar.gz)和 [SHA-256 校验文件](https://vibe-doc.com/downloads/vdoc-compose-bootstrap-v0.3.tar.gz.sha256)，也可使用下面的命令。官网快照可能更新，复现部署时请保留压缩包和校验文件。
 
 在一个新的工作目录里执行。先校验下载文件，再让初始化脚本按 `workspace.lock.json` 获取五个仓库的精确提交：
 
 ```sh
-VDOC_BOOTSTRAP_BASE=https://github.com/ChnMig/Vdoc/releases/download/v0.1.0-rc.2
+VDOC_BOOTSTRAP_BASE=https://vibe-doc.com/downloads
 curl -fLO "$VDOC_BOOTSTRAP_BASE/vdoc-compose-bootstrap-v0.3.tar.gz"
 curl -fLO "$VDOC_BOOTSTRAP_BASE/vdoc-compose-bootstrap-v0.3.tar.gz.sha256"
 shasum -a 256 -c vdoc-compose-bootstrap-v0.3.tar.gz.sha256
@@ -35,7 +39,9 @@ scripts/vdoc-workspace-init.sh
 
 后续命令都在这个 workspace 根目录执行。已有 workspace 请核对原有版本，不要用五个移动中的 `main` 分支拼装，也不要覆盖原配置。
 
-### 2. 生成配置，设置登录账号 {#initial-admin}
+<div id="initial-admin"></div>
+
+### 2. 生成配置，设置登录账号
 
 ```sh
 scripts/vdoc-local-bootstrap.sh
@@ -79,9 +85,9 @@ curl -fsS http://127.0.0.1:8080/api/v1/open/health | jq -e '.detail.healthy == t
 
 健康检查应输出 `true`。仅 HTTP 200 不足以说明依赖正常；必须确认 `.detail.healthy == true`。首次构建后，等待服务就绪再检查。
 
-在浏览器打开 [Vdoc 工作台](http://127.0.0.1:8081)，用第 2 步设置的账号登录。能打开工作台且健康检查通过后，继续 **[发布第一份文档并让 Agent 查询](admin-usage)**。无需先配置 Admin AI 或执行工程发布检查。
+在浏览器打开 [Vdoc 工作台](http://127.0.0.1:8081)，用第 2 步设置的账号登录。能打开工作台且健康检查通过后，继续 **[发布第一份文档并让 Agent 查询](admin-usage.md)**。无需先配置 Admin AI 或执行工程发布检查。
 
-如果页面打不开，先查看 `docker compose --env-file .env ps` 和 Backend 日志。健康检查失败、端口冲突或登录失败时，参阅 [故障排查](troubleshooting)。
+如果页面打不开，先查看 `docker compose --env-file .env ps` 和 Backend 日志。健康检查失败、端口冲突或登录失败时，参阅 [故障排查](troubleshooting.md)。
 
 ## 部署后的日常管理
 
@@ -195,7 +201,7 @@ VDOC_ADMIN_API_BASE_URL=http://127.0.0.1:8080
 4. 核对 `mcp_tokens`、`ai_providers` 和 `document_shares` 只剩 active KID，并分别验证一个 MCP Token、Provider 和 share。
 5. 清空历史 keyring 后再次重启和验证，成功后再恢复正常实例数。
 
-不要在完成第 5 步前删除旧 key，也不要把 keyring JSON 放进命令参数、Git、日志、截图或 issue。完整 SQL 检查和发布门禁见 workspace root 的 `RELEASE_DEPLOY.md`。
+不要在完成第 5 步前删除旧 key，也不要把 keyring JSON 放进命令参数、Git、日志、截图或 issue。完整 SQL 检查和发布门禁见 [RELEASE_DEPLOY.md](https://github.com/ChnMig/Vdoc-site/blob/main/workspace/RELEASE_DEPLOY.md)。
 
 ## 方式 2：直接运行 backend 和 Admin
 
@@ -315,6 +321,6 @@ scripts/vdoc-release-dry-run.sh --list
 scripts/vdoc-release-dry-run.sh
 ```
 
-这些命令不会发布 package、部署服务、推送镜像或创建 Git ref；通过自动化检查不代表真实 Pilot 已完成。完整发布要求见 [升级与回滚](release-rollback)。
+这些命令不会发布 package、部署服务、推送镜像或创建 Git ref；通过自动化检查不代表真实 Pilot 已完成。完整发布要求见 [升级与回滚](release-rollback.md)。
 
-部署试用的下一步是 [首次使用](admin-usage)：发布一份 Markdown，再让 Agent 读到它。
+部署试用的下一步是 [首次使用](admin-usage.md)：发布一份 Markdown，再让 Agent 读到它。

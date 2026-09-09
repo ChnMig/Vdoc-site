@@ -68,7 +68,7 @@ After the Project, Document, or target Branch is archived, Project Admins and Su
 
 ## API Routes
 
-See [API Reference](api-reference#admin-ai-routes) for the complete route and auth list. The API groups cover:
+See [API Reference](api-reference.md#admin-ai-routes) for the complete route and auth list. The API groups cover:
 
 - System and project provider reads, updates, and tests.
 - System and project prompt reads and overrides.
@@ -93,4 +93,4 @@ See [API Reference](api-reference#admin-ai-routes) for the complete route and au
 6. Confirm disabled or failed cases show `skipped` or `failed` while Diff and human review still work.
 7. Check that audit data has status and token usage, but no raw credentials, credential headers, or secrets embedded in prompts; prompt override, summary, and chat records remain available as defined by the product.
 
-For external Agent access, read [MCP Tools](mcp-tools) and [Skill Workflows](skill-workflows). They can query facts or submit Drafts, but they also cannot replace human review and publishing.
+For external Agent access, read [MCP Tools](mcp-tools.md) and [Skill Workflows](skill-workflows.md). They can query facts or submit Drafts, but they also cannot replace human review and publishing.

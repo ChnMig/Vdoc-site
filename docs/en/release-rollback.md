@@ -126,7 +126,7 @@ If you changed `.env` host ports, replace the ports in these commands. In deploy
 4. A test Draft can still move through review.
 5. MCP `tools/list` succeeds, and at least one read-only tool call succeeds.
 6. An Agent using the Skill queries Vdoc MCP before answering endpoint or Markdown questions.
-7. Follow [Admin AI](admin-ai) to run a system or project provider test, submit a test Draft, and confirm Draft/Version summaries and page chat work.
+7. Follow [Admin AI](admin-ai.md) to run a system or project provider test, submit a test Draft, and confirm Draft/Version summaries and page chat work.
 8. With a disabled test prompt or unavailable provider, confirm the AI result is `skipped` or `failed` while machine Diff, human review, and publishing still work.
 9. Check that AI audit data contains no raw API keys, JWTs, MCP Tokens, `Authorization` headers, or secrets embedded in prompts; prompt override, summary, and chat records remain available as defined by the product.
 10. If local root Compose is available, live E2E passes:

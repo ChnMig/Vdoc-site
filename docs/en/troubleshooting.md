@@ -106,7 +106,7 @@ If `code` is not `200` or `status` is not `OK`, handle it as a business error.
 
 ## Admin AI Summary or Page Chat Fails
 
-- Read [Admin AI](admin-ai) first. Confirm the Project has an enabled project provider or can fall back to an enabled system provider.
+- Read [Admin AI](admin-ai.md) first. Confirm the Project has an enabled project provider or can fall back to an enabled system provider.
 - Run the provider test for that scope. Check `base_url`, `api_mode`, `model`, and timeout without printing `api_key` in logs.
 - Confirm provider detail exposes only `api_key_set` and `api_key_last4`. If no encrypted key is set, have an authorized administrator save the configuration.
 - Check whether the matching `draft_review_summary`, `version_change_summary`, `diff_change_summary`, or `page_chat` prompt is enabled.
@@ -150,7 +150,7 @@ Live E2E resets the selected disposable `VDOC_TEST_POSTGRES_DB`, `vdoc_e2e` by d
 - Agent ignores Vdoc facts: check MCP and Skill installation before rolling back the Skill package.
 - Admin AI fails while machine Diff and human review work: roll back provider or prompt configuration first. Do not roll back a published Version or let AI replace review.
 
-Read [Upgrade and Rollback](release-rollback) before rolling back. Do not delete PostgreSQL or object storage data.
+Read [Upgrade and Rollback](release-rollback.md) before rolling back. Do not delete PostgreSQL or object storage data.
 
 The local gate can be listed and then run:
 

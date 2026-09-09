@@ -1,6 +1,6 @@
 # MCP Setup and Tools
 
-Connect your agent to Vdoc so it can query published OpenAPI and Markdown documents or submit drafts for human review. For a first connection, follow [Connect Your Agent](admin-usage#connect-agent), then [read your first document](admin-usage#first-query).
+Connect your agent to Vdoc so it can query published OpenAPI and Markdown documents or submit drafts for human review. For a first connection, follow [Connect Your Agent](admin-usage.md#connect-agent), then [read your first document](admin-usage.md#first-query).
 
 `@vdoc/mcp` is the stdio adapter. It forwards `tools/list` and `tools/call` to Backend `/api/v1/open/mcp`; document storage and business logic stay on the Backend.
 
@@ -11,7 +11,7 @@ Connect your agent to Vdoc so it can query published OpenAPI and Markdown docume
 - The target Agent runtime supports MCP stdio server configuration.
 - Do not put raw MCP Tokens, JWTs, DB passwords, storage secrets, or `Authorization` header values in repos, screenshots, logs, README files, or issues.
 
-The agent machine also needs Node.js 20 or later, npm, and Git. If Vdoc is not running yet, start with [Docker Compose deployment](deployment#quick-start), including initial-admin setup. A first query needs a published document; demo seeding and engineering release checks are optional.
+The agent machine also needs Node.js 20 or later, npm, and Git. If Vdoc is not running yet, start with [Docker Compose deployment](deployment.md#quick-start), including initial-admin setup. A first query needs a published document; demo seeding and engineering release checks are optional.
 
 ## Installation Options
 

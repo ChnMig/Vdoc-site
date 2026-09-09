@@ -1,6 +1,6 @@
 # Deployment Guide
 
-Run Vdoc on your own machine with Docker Compose, open the workbench, then let your agent query its first document. Follow the four steps below for a first trial. Already running Vdoc? Go to [First Use](admin-usage).
+Run Vdoc on your own machine with Docker Compose, open the workbench, then let your agent query its first document. Follow the four steps below for a first trial. Already running Vdoc? Go to [First Use](admin-usage.md).
 
 ## Before You Start
 
@@ -10,16 +10,20 @@ Run Vdoc on your own machine with Docker Compose, open the workbench, then let y
 
 This remains a Docker deployment. The download is a Docker Compose bootstrap, not a Backend binary or a bundle of prebuilt images. It supplies Compose, configuration templates, initialization scripts, and an exact source lock.
 
-The current download is the [v0.1.0-rc.2 release candidate](https://github.com/ChnMig/Vdoc/releases/tag/v0.1.0-rc.2), intended for evaluation. Read [Version Notes](version-notes) and [Upgrade and Rollback](release-rollback) before production use.
+[Public workspace files](https://github.com/ChnMig/Vdoc-site/tree/main/workspace) and the Compose download are provided by Vdoc-site. The archive uses the `v0.1.0-rc.1` source tags in its lock; `v0.3` is the bootstrap format version. It is intended for evaluation. Read [Version Notes](version-notes.md) and [Upgrade and Rollback](release-rollback.md) before production use.
 
-## Quick Start (Recommended) {#quick-start}
+<div id="quick-start"></div>
+
+## Quick Start (Recommended)
 
 ### 1. Download and Initialize
+
+Download the [Compose archive](https://vibe-doc.com/downloads/vdoc-compose-bootstrap-v0.3.tar.gz) and [SHA-256 file](https://vibe-doc.com/downloads/vdoc-compose-bootstrap-v0.3.tar.gz.sha256), or use the commands below. Keep both files for reproducing your deployment; website snapshots may be replaced.
 
 Run this in a new working directory. Verify the download first, then let the initializer fetch the five exact repository commits from `workspace.lock.json`:
 
 ```sh
-VDOC_BOOTSTRAP_BASE=https://github.com/ChnMig/Vdoc/releases/download/v0.1.0-rc.2
+VDOC_BOOTSTRAP_BASE=https://vibe-doc.com/downloads
 curl -fLO "$VDOC_BOOTSTRAP_BASE/vdoc-compose-bootstrap-v0.3.tar.gz"
 curl -fLO "$VDOC_BOOTSTRAP_BASE/vdoc-compose-bootstrap-v0.3.tar.gz.sha256"
 shasum -a 256 -c vdoc-compose-bootstrap-v0.3.tar.gz.sha256
@@ -35,7 +39,9 @@ scripts/vdoc-workspace-init.sh
 
 Run the remaining commands from this workspace root. For an existing workspace, check its version and retain its configuration. Do not assemble a release from five moving `main` branches.
 
-### 2. Generate Configuration and Set Your Login {#initial-admin}
+<div id="initial-admin"></div>
+
+### 2. Generate Configuration and Set Your Login
 
 ```sh
 scripts/vdoc-local-bootstrap.sh
@@ -79,9 +85,9 @@ curl -fsS http://127.0.0.1:8080/api/v1/open/health | jq -e '.detail.healthy == t
 
 The health check should print `true`. HTTP 200 alone does not prove dependency health; require `.detail.healthy == true`. After the first build, allow the services to become ready before checking.
 
-Open the [Vdoc workbench](http://127.0.0.1:8081) and sign in with the account from step 2. Once the workbench opens and health passes, continue to **[publish your first document and query it with an agent](admin-usage)**. Admin AI configuration and engineering release checks can follow later.
+Open the [Vdoc workbench](http://127.0.0.1:8081) and sign in with the account from step 2. Once the workbench opens and health passes, continue to **[publish your first document and query it with an agent](admin-usage.md)**. Admin AI configuration and engineering release checks can follow later.
 
-If the page does not open, check `docker compose --env-file .env ps` and the Backend logs. See [Troubleshooting](troubleshooting) for health failures, port conflicts, or login issues.
+If the page does not open, check `docker compose --env-file .env ps` and the Backend logs. See [Troubleshooting](troubleshooting.md) for health failures, port conflicts, or login issues.
 
 ## Everyday Operations
 
@@ -195,7 +201,7 @@ The admin container writes this value to `/runtime-config.js` at startup. It mus
 4. Confirm `mcp_tokens`, `ai_providers`, and `document_shares` contain only the active KID, then exercise one MCP Token, Provider, and share.
 5. Clear the historical keyring, restart and verify again, and only then restore normal backend concurrency.
 
-Do not remove the old key before step 5 succeeds. Never put keyring JSON in command arguments, Git, logs, screenshots, or issues. See workspace-root `RELEASE_DEPLOY.md` for the complete SQL check and release gate.
+Do not remove the old key before step 5 succeeds. Never put keyring JSON in command arguments, Git, logs, screenshots, or issues. See [RELEASE_DEPLOY.md](https://github.com/ChnMig/Vdoc-site/blob/main/workspace/RELEASE_DEPLOY.md) for the complete SQL check and release gate.
 
 ## Option 2: Run Backend and Admin Directly
 
@@ -315,6 +321,6 @@ scripts/vdoc-release-dry-run.sh --list
 scripts/vdoc-release-dry-run.sh
 ```
 
-These commands do not publish packages, deploy services, push images, or create Git refs. Passing automation does not prove a completed real Pilot. See [Upgrade and Rollback](release-rollback) for release requirements.
+These commands do not publish packages, deploy services, push images, or create Git refs. Passing automation does not prove a completed real Pilot. See [Upgrade and Rollback](release-rollback.md) for release requirements.
 
-Next for your trial: [First Use](admin-usage), where you publish a Markdown document and let your agent read it.
+Next for your trial: [First Use](admin-usage.md), where you publish a Markdown document and let your agent read it.

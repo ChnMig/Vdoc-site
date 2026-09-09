@@ -79,6 +79,12 @@ function measure(files) {
   return {
     totalFiles: files.length,
     totalBytes: files.reduce((total, file) => total + statSync(file).size, 0),
+    downloadFiles: files.filter((file) =>
+      relativePath(file).startsWith('downloads/'),
+    ).length,
+    downloadBytes: files
+      .filter((file) => relativePath(file).startsWith('downloads/'))
+      .reduce((total, file) => total + statSync(file).size, 0),
     sharedJavaScriptGzipBytes: gzipBytesForPrefixes(
       files,
       budget.sharedJavaScriptPrefixes,
@@ -93,6 +99,30 @@ function compare(metrics, limits) {
   const failures = []
   checkMaximum(failures, 'total files', metrics.totalFiles, limits.totalFiles)
   checkMaximum(failures, 'total bytes', metrics.totalBytes, limits.totalBytes)
+  checkMaximum(
+    failures,
+    'download files',
+    metrics.downloadFiles,
+    limits.downloadFiles,
+  )
+  checkMaximum(
+    failures,
+    'download bytes',
+    metrics.downloadBytes,
+    limits.downloadBytes,
+  )
+  checkMaximum(
+    failures,
+    'page files',
+    metrics.totalFiles - metrics.downloadFiles,
+    limits.totalFiles - limits.downloadFiles,
+  )
+  checkMaximum(
+    failures,
+    'page bytes',
+    metrics.totalBytes - metrics.downloadBytes,
+    limits.totalBytes - limits.downloadBytes,
+  )
   checkMaximum(
     failures,
     'shared JavaScript gzip bytes',

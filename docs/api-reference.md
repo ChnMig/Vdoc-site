@@ -189,7 +189,7 @@ v0.1 不通过 MCP 暴露 direct publish tools。Agent 可以创建、更新、�
 
 ## Admin AI 路由
 
-[Admin AI](admin-ai) 使用 private JWT API。Provider 和 prompt 配置与外部 MCP/Skill Agent 分离，AI 结果不能替代机器 Diff 或人工审核。
+[Admin AI](admin-ai.md) 使用 private JWT API。Provider 和 prompt 配置与外部 MCP/Skill Agent 分离，AI 结果不能替代机器 Diff 或人工审核。
 
 系统 Provider/Prompt 的读取、更新和测试仅限 SuperAdmin；项目 Provider/Prompt 的读取、更新和测试仅限对应 Project Admin 或 SuperAdmin。Reader 和 Writer 不能读取这些配置，但仍可在文档权限允许时使用摘要和页面 Chat。项目 Provider 测试省略 body 时会测试有效配置；若无启用的项目覆盖，则测试系统回退 Provider。
 
