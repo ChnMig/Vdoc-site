@@ -1,6 +1,8 @@
-# MCP 工具
+# MCP 接入与工具
 
-`@vdoc/mcp` 是 Vdoc 给 Agent runtime 使用的 stdio MCP adapter。它不在本地实现 Vdoc 业务逻辑，只把 MCP `tools/list` 和 `tools/call` 请求转发到后端 `/api/v1/open/mcp`。
+把 Agent 连接到 Vdoc，让它查询已发布的 OpenAPI 和 Markdown 文档，或提交草稿等待人工审核。首次接入可以直接跟随 [连接 Agent](admin-usage#connect-agent)，再 [读取第一份文档](admin-usage#first-query)。
+
+`@vdoc/mcp` 是 stdio 适配器，把 `tools/list` 和 `tools/call` 转发到后端 `/api/v1/open/mcp`；文档存储和业务逻辑由 Backend 负责。
 
 ## 使用前准备
 
@@ -9,15 +11,7 @@
 - 目标 Agent runtime 支持 MCP stdio server 配置。
 - 不要把原始 MCP Token、JWT、DB password、storage secret 或 `Authorization` header 值写进仓库、截图、日志、README 或 issue。
 
-本机 backend 推荐用统一闭环启动：
-
-```sh
-scripts/vdoc-local-bootstrap.sh
-docker compose --env-file .env up -d --build
-cd Vdoc && go run ./tools/vdoc-demo-seed
-```
-
-Demo seed 是可选步骤。完整本机门禁见 [部署指南](deployment)，其中 live E2E 使用 `./scripts/vdoc-e2e.sh live-compose --env-file ../.env --check-only` 和 `./scripts/vdoc-e2e.sh live-compose --env-file ../.env`，release gate 使用 `scripts/vdoc-release-dry-run.sh --list` 和 `scripts/vdoc-release-dry-run.sh`。Live E2E 只重置一次性 `VDOC_TEST_POSTGRES_DB`，默认 `vdoc_e2e`，不会重置应用数据库。
+Agent 运行的机器还需安装 Node.js 20 或更新版本、npm 和 Git。尚未启动 Vdoc 时，先按 [Docker Compose 部署步骤](deployment#quick-start) 完成初始化和管理员设置。第一次查询需要一份已发布文档；demo 数据和工程发布检查可以后续再做。
 
 ## 安装方式
 

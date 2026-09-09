@@ -1,73 +1,38 @@
 # 产品概览
 
-Vdoc 是给人和 Agent 共用的文档事实系统。团队把 OpenAPI 合约和 Markdown 知识放进 Vdoc，通过人工审核发布不可变 Version，再让 Admin、脚本、MCP 和 Agent 只读取已发布事实。
+Vdoc 是面向 AI 协作开发团队的文档协作中心。把 OpenAPI 接口、AGENTS.md 和运行手册放在同一个项目中，查看每次变更，审核后发布，再让团队和 Agent 查询同一份已发布内容。
 
-## Vdoc 解决什么问题
+## 什么时候用 Vdoc
 
-- API 字段、枚举、响应结构和鉴权说明散落在仓库、聊天记录和个人记忆里。
-- Agent 写代码时容易根据训练记忆猜接口，而不是读取你团队审核过的事实。
-- 文档变更缺少 Draft、review、diff 和可回滚版本。
-- 后端 API、Admin、MCP 和 Skill 经常缺少清晰的启动顺序，试点用户不知道从哪一步开始。
+| 你遇到的情况                                 | 在 Vdoc 中怎么做                                                         |
+| -------------------------------------------- | ------------------------------------------------------------------------ |
+| 后端改了接口，前端需要判断对接影响           | 比较 OpenAPI 版本，查看字段变化和 Breaking Changes，再读取完整接口定义。 |
+| Agent 需要项目约定，但上下文里的文档已经过时 | 通过 MCP 查询已发布的 Markdown，使用 Skill 引导 Agent 先查文档再回答。   |
+| 团队或 Agent 修改了文档，需要有人检查        | 先提交草稿，查看 Diff，由管理员审核后发布；历史版本保持不可变。          |
 
-Vdoc 的目标不是替代工程评审，而是把“哪些事实已经被批准”变成可以查询、可以审计、可以接入 Agent 的系统。
+先看 **[一个接口变更如何流转](how-it-works#example)**，或直接 **[用 Docker Compose 部署试用](deployment#quick-start)**。部署后可跟随 [首次使用](admin-usage)，发布一份示例文档并让 Agent 查询。
 
-## 谁会使用 Vdoc
+## 谁适合使用
 
-- 产品或平台团队，用 Vdoc 管理对外 API 和项目知识。
-- 后端维护者，用 Vdoc 发布 OpenAPI 和 Markdown 文档版本。
-- 前端开发者，用 Vdoc 查询 endpoint detail、request body、response body 和 diff。
-- 文档维护者，用 Draft 和 review 管理 Markdown 变更。
-- Agent 用户，用 MCP 和 Skill 要求 Agent 先查 Vdoc，再写代码、做迁移分析或提交 Draft。
+使用 AI 编程的产品和平台团队：后端维护接口契约，前端检查对接影响，文档维护者审核项目约定，Agent 通过 MCP 获取已发布内容。团队可以在自己的基础设施上部署 Vdoc。
 
-## 核心对象
+## 文档怎样组织
 
-- Team：一组 Project 的归属边界。
-- Project：一个产品或服务的文档集合，拥有成员和权限。
-- Document：OpenAPI 或 Markdown 文档。
-  - `document_type=1`：OpenAPI。
-  - `document_type=2`：Markdown。
-- `relative_path`：Document 的稳定身份，例如 `apis/petstore.yaml` 或 `docs/runbook.md`。显示名称可以变，`relative_path` 不应随意变。
-- Branch：Document 的工作分支。创建 Document 后会有 `dev`、`test`、受保护的 `prod`，也可以创建 `feature/*`。
-- Draft：待审核内容。Writer 或 Agent 可以创建和提交 Draft。
-- Version：审核通过后生成的不可变发布结果。
-- MCP Token：Agent 访问 Vdoc MCP 的凭据，由 Admin 流程创建，放在 Agent 环境变量或密钥管理中。
+- **Project（项目）**：一个产品或服务的文档集合，按成员与角色管理访问。
+- **Document（文档）**：OpenAPI 或 Markdown，以稳定的 `relative_path` 定位，例如 `apis/orders.yaml` 或 `docs/team-guide.md`。
+- **Branch（分支）**：同一份文档可以分别维护 `dev`、`test` 和受保护的 `prod` 内容，也可创建自定义分支。
+- **Draft 与 Version（草稿与版本）**：修改先进入草稿；Project Admin 或 SuperAdmin 审核通过后生成不可变版本。Writer 和 Agent 可以提交草稿。
 
-## 角色
+团队在 Admin 工作台管理这些内容。Agent 使用 MCP Token 获得授权范围内的读取或草稿操作权限，Vdoc Skill 提供先查询再协作的工作流。
 
-- SuperAdmin：系统级管理和审核。
-- Project Reader：查询项目内已发布事实。
-- Project Writer：上传 Draft 并提交审核。
-- Project Admin：审核、批准、要求修改或拒绝 Draft。
+## 首次试用之后
 
-## v0.1 能做什么
+用 [Admin AI](admin-ai) 配置 OpenAI-compatible 模型，可以获得自动变更摘要和页面内对话；通过 [公开分享](admin-usage#创建和管理公开分享)，可以让项目外的人查看已发布文档，按需设置密码并撤销链接。
 
-- 在 Admin 中管理 Team、Project、Document、Branch、Draft、Review、Version、Diff、endpoint 浏览和 MCP Token。
-- 管理 OpenAPI 和 Markdown 两类文档。
-- 查询已发布 OpenAPI endpoint、字段、响应结构、diff 和 change summary。
-- 查询已发布 Markdown 内容和版本差异。
-- 让 Agent 通过 MCP 查询已发布事实，或创建、更新、提交 Draft。
-- 用 Vdoc Skill 约束 Agent 在集成、迁移、文档变更前先查询 Vdoc。
-- 用后台 [Admin AI](admin-ai) 为 Draft 和 Version 自动生成辅助摘要，在 Draft、Version 和 Diff 页面进行限定上下文的对话。
-- 用 `scripts/vdoc-local-bootstrap.sh`、根目录 `docker-compose.yml`、可选 demo seed、live-compose E2E 和 release dry-run 完成本机闭环。
+## 当前版本边界
 
-## v0.1 不做什么
+发布必须由人审核：MCP 不能直接发布，Admin AI 不能批准、拒绝、修改或发布内容，也不能替代机器 Diff。
 
-- 不支持 MCP 直接发布 Version，发布必须由 Admin 或 SuperAdmin 审核。
-- Admin AI 不替代机器 Diff 或人工审核，也不能批准、拒绝、修改或发布内容。
-- 不提供 CLI token store，token 保存在本地 Agent 配置或密钥管理中。
-- 不包含邀请流、通知机器人、PR Bot、完整 SDK 或代码生成平台。
-- 不包含商业计费或完整租户管理。
+当前提供 Docker Compose 自部署候选版本，能力和限制见 [版本说明](version-notes)。邀请流、通知机器人、PR Bot、完整 SDK、代码生成平台和商业计费不在当前范围内。
 
-## 正确心智模型
-
-1. Admin 创建 Team 和 Project。
-2. Project 中创建 OpenAPI 或 Markdown Document。
-3. Writer 或 Agent 在 Branch 上创建 Draft。
-4. Admin 审核 Draft，批准后生成 Version。
-5. 用户创建 MCP Token。
-6. Agent 通过 `@vdoc/mcp` 查询 Version、endpoint、diff 或 Markdown 内容。
-7. 如果 Agent 要修改内容，它只能提交 Draft，不能直接发布。
-
-Admin AI 是这个人工流程中的后台助手，不是外部 MCP 或 Skill Agent。它可以解释 Diff、生成摘要和回答页面上下文问题，但发布权始终属于人类管理员。
-
-下一步读 [运行流程](how-it-works) 和 [Admin AI](admin-ai)，再按 [部署指南](deployment) 启动系统。
+准备试用时，从 [部署指南](deployment#quick-start) 开始，再完成 [第一次 Agent 查询](admin-usage)。

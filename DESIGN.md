@@ -24,6 +24,7 @@ All color customization uses VitePress theme variables in `docs/.vitepress/theme
 - Code language label, dark: `#a6a6ad` on VitePress dark code background `#161618`, measured at `7.47:1`.
 - Light Shiki red override: `#c12a3a` replaces only generated light token `#D73A49` on `#f6f6f7`, measured at `5.31:1`; the generated dark token remains unchanged.
 - Light Shiki comment override: `#666f79` replaces only generated light token `#6A737D` on `#f6f6f7`, measured at `4.73:1`; the generated dark token remains unchanged.
+- Light Shiki orange override: `#9f4100` replaces only generated light token `#E36209` for readable environment configuration values; the generated dark token remains unchanged.
 - Background: VitePress white defaults.
 - Text, borders, remaining code syntax, code surfaces, feature cards, navigation, and sidebars: VitePress default theme values.
 
@@ -35,7 +36,7 @@ Use default VitePress typography, which follows system and Inter-like documentat
 
 ## Layout
 
-- Home pages use only VitePress `layout: home` frontmatter with `hero`, three `actions`, and three `features`.
+- Home pages use only VitePress `layout: home` frontmatter with `hero`, three `actions`, and three `features`. The hero includes the Vdoc name, a plain-language value headline, and a supporting description; each feature links to the next relevant guide.
 - Desktop follows the captured reference: 64px navigation, left-aligned content near the default VitePress gutter, a concise hero, and three feature columns.
 - Tablet keeps the three-feature strip when space allows.
 - Mobile uses VitePress hamburger navigation, wrapped CTA buttons, and stacked feature cards.
@@ -52,7 +53,7 @@ Use default VitePress typography, which follows system and Inter-like documentat
 
 ## Vdoc Semantics
 
-The home copy must keep the trust loop concrete in both locales: human-reviewed facts / 人工复核事实, Draft, Version, Diff, MCP Token, Skill, and Admin. Agents are described as reading approved facts through MCP and Skill workflows, while publishing remains a human/Admin responsibility.
+The home copy leads with the reader's outcome: teams and AI share reviewed OpenAPI and Markdown documents. Its primary action is deployment, followed by a concrete workflow example and Agent setup. Explain version history, Diff, and MCP/Skill through their use; introduce Draft, Version, MCP Token, and Admin terminology in the guides when the reader needs it. Agents query published content and may submit drafts, while publishing remains a human/Admin responsibility. The first-use guide reaches one published Markdown query before offering Admin AI, public sharing, or release checks.
 
 ## Accessibility
 
@@ -61,7 +62,7 @@ The home copy must keep the trust loop concrete in both locales: human-reviewed 
 - Root locale is `zh-CN`; `/en/` uses `en` through VitePress locales.
 - Use semantic VitePress home data rather than custom HTML so landmarks, links, focus, responsive navigation, and local search stay framework-owned.
 - Maintain WCAG AA contrast with blue `#3451b2` on white and VitePress default text colors.
-- Measured overrides are scoped to `--vp-code-lang-color` in light/dark themes and the generated light Shiki `#D73A49` and `#6A737D` tokens. They do not alter code layout, font sizing, wrapping, or dark-theme syntax.
+- Measured overrides are scoped to `--vp-code-lang-color` in light/dark themes and the generated light Shiki `#D73A49`, `#6A737D`, and `#E36209` tokens. They do not alter code layout, font sizing, wrapping, or dark-theme syntax.
 - Browser verification uses dev-only `@playwright/test` and `@axe-core/playwright`. They add no production runtime or UI dependency.
 - No critical or serious accessibility debt is accepted; browser axe checks must report zero serious or critical WCAG A/AA violations.
 - Keep examples free of real JWT, MCP Token, DB password, storage secret, or `Authorization` header values.

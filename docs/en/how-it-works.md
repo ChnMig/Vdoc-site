@@ -1,79 +1,54 @@
 # How It Works
 
-This page connects the human workflow and the Agent workflow. After reading it, you should know how content enters Vdoc, when it becomes queryable fact, what Agents can do, and what they cannot do.
+Start with one API change and see how a document is reviewed, published, and made available to both your team and agents.
 
-## The Short Flow
+## Example: An Order Amount Changes Type {#example}
 
-Drafts enter review first. Admin approval creates immutable Versions. MCP exposes published facts and allowed Draft actions to Agents. The Skill tells Agents to query Vdoc before answering.
+Suppose your team keeps an order API in `apis/orders.yaml`. This illustrative example changes a response field on the same `GET /orders/{id}` endpoint:
 
-## From Content to Fact
+| Compare                        | Published v1                | v2 awaiting review                             |
+| ------------------------------ | --------------------------- | ---------------------------------------------- |
+| OpenAPI type of `total`        | `number`                    | `string`                                       |
+| Value in a sample response     | `42.5`                      | `"42.50"`                                      |
+| What the frontend should check | Handling amounts as numbers | Type definitions, calculations, and formatting |
 
-1. Admin creates Team, Project, and Document.
-2. Document uses `relative_path` as stable identity, for example `apis/billing.yaml`.
-3. A Writer or Agent creates a Draft on a Branch.
-4. The Draft enters review.
-5. When available, built-in Admin AI attempts a Draft review summary. It is `pending` while in flight and then becomes `succeeded`, `skipped`, or `failed`; no outcome blocks the flow.
-6. A Project Admin or SuperAdmin checks machine Diff, content, endpoint detail, Markdown changes, and the AI helper summary.
-7. Approval creates an immutable Version and triggers a Version summary attempt.
-8. Admin, API, MCP, and Agents read that published Version.
+1. **Submit the change.** A backend developer or agent submits the new OpenAPI content as a draft. Published v1 remains unchanged.
+2. **Inspect the Diff.** Vdoc's OpenAPI semantic Diff shows the `total` type change and compatibility impact. Reviewers can inspect the original document and endpoint details.
+3. **Publish after human review.** A Project Admin or SuperAdmin checks and approves the draft, creating immutable v2. MCP cannot bypass this step to publish directly.
+4. **Let the agent query.** A frontend developer asks an agent to compare published v1 and v2 through MCP and read the new endpoint details before suggesting code changes.
 
-## What Admin Does
+Once both versions are published, try this prompt, using your actual project and versions:
 
-- Initializes Team, Project, members, and permissions.
-- Creates OpenAPI or Markdown Documents.
-- Reviews Drafts, then approves, rejects, or requests changes.
-- Views Versions, Diffs, endpoint details, and Markdown content.
-- Creates MCP Tokens and shares them safely with Agent users.
+```text
+Query published v1 and v2 of apis/orders.yaml in Vdoc.
+Compare GET /orders/{id}, then read the v2 endpoint details.
+Explain which integration code the total type change affects and suggest updates.
+Cite the document, branch, and version. If either version is missing, do not guess.
+```
 
-Admin is the publishing gate. In v0.1, MCP and Skill cannot bypass Admin to publish Versions directly.
+Document changes do not automatically update your code. Vdoc provides versions, Diffs, and endpoint content; the agent uses those results to suggest changes, and your team validates the code.
 
-## What Admin AI Does
+Markdown follows the same draft, review, and publish flow, with file Diffs for changes. To try it yourself, **[deploy Vdoc](deployment#quick-start)** and follow **[First Use](admin-usage)** with a shorter Markdown example.
 
-[Admin AI](admin-ai) is a built-in backend product feature. A SuperAdmin configures the system provider, and a Project Admin can set a project override. It generates AI-generated summaries from Draft, Version, or Diff context and provides context-bound chat on those pages.
+## What People, MCP, and the Skill Each Do
 
-Admin AI does not modify documents, replace machine Diff, or approve, request changes, reject, or publish. The latest in-flight request is `pending`; a missing provider or disabled prompt becomes `skipped`, while a failed, timed-out, or context-invalidated request becomes `failed`. Superseded requests cannot overwrite newer state, and the original Diff and human review remain available.
+- **Your team manages and publishes in Admin.** Create Teams, Projects, Documents, and Branches, inspect draft content and Diffs, approve versions, and configure MCP Tokens. Writers can create and submit drafts; a Project Admin or SuperAdmin approves publication.
+- **MCP provides document tools.** `@vdoc/mcp` forwards agent requests to Backend `/api/v1/open/mcp`. It queries published endpoints, Markdown, versions, and Diffs, and can create, update, or submit drafts according to token permissions. It does not store Vdoc documents locally or expose direct-publish tools.
+- **The Skill guides when to query.** Before endpoint integration, version migration, or Markdown edits, agents call MCP and use its results to answer or submit drafts. The Skill itself holds no live documents. See [Skill Workflows](skill-workflows).
+- **Built-in AI helps reviewers.** Optional [Admin AI](admin-ai) uses an administrator-configured model for summaries, Diff explanations, and page chat. Summaries are labeled AI-generated. They cannot replace machine Diff, approve, reject, modify, or publish content. Missing providers or failed calls leave the original Diff and human review available.
 
-## What MCP Does
+## Identify the Document and Version
 
-`@vdoc/mcp` is the stdio MCP adapter used by Agent runtimes. It does not store Vdoc data or implement business logic locally. It forwards `tools/list` and `tools/call` to backend `/api/v1/open/mcp`.
+The same document may have different published content on `dev`, `test`, and `prod`. Locate it by Project, stable `relative_path`, Branch, and Version. Display names may change; the relative path supports ongoing references.
 
-MCP can do two kinds of work:
+Read endpoint definitions with `get_endpoint_detail`, compare published API versions with `compare_api_versions`, and read Markdown with `get_latest_doc`. IDs and content should come from actual query results. If a target is missing or unpublished, the agent should explain what is missing instead of filling in fields.
 
-- Read published facts, such as Project, Document, API Version, endpoint detail, diff, change summary, and Markdown content.
-- Create, update, view, and submit Drafts so human review can continue.
+To change a document, the agent first reads the current version, then submits a new Draft for human review. Publication is complete only when the versions page shows a new Version.
 
-MCP cannot publish Versions directly. If an Agent says it published content, treat that as wrong unless Admin shows a new Version after approval.
+## Where to Start
 
-## What the Skill Does
+1. [Deploy Vdoc](deployment#quick-start): start Backend, Admin, PostgreSQL, and RustFS.
+2. [First Use](admin-usage): publish a sample document and complete one MCP query.
+3. [MCP Setup and Tools](mcp-tools): look up connection settings, read access, and draft operations.
 
-The Vdoc Skill is workflow guidance for Agents. It does not store data and does not call the backend by itself. It tells Agents to query Vdoc through MCP before these tasks:
-
-- Writing endpoint integration code.
-- Checking fields, enums, auth, servers, or response shapes.
-- Comparing two API or Markdown Versions.
-- Answering from reviewed Markdown content.
-- Creating or updating Drafts.
-
-The Skill reduces guessing. Live facts still come from MCP tool results.
-
-## Good Agent Path
-
-1. User asks an Agent to integrate an endpoint, analyze migration impact, or edit docs.
-2. Agent follows the Skill and calls Vdoc MCP first.
-3. Agent uses `relative_path`, Project, Document, Branch, or Version to find the target.
-4. Agent calls a read tool, such as `get_endpoint_detail`, `compare_api_versions`, or `get_latest_doc`.
-5. Agent writes code, writes an explanation, or creates a Draft from returned facts.
-6. If Vdoc content must change, Agent submits a Draft.
-7. Admin review and approval create the Version that becomes the new fact.
-
-## Runtime Surfaces
-
-- Backend provides REST, MCP endpoint, persistence, and object storage writes.
-- Admin is the human workbench opened in a browser.
-- PostgreSQL stores metadata and workflow state.
-- RustFS or another S3 compatible store keeps raw and normalized document objects.
-- Agents reach backend through the MCP adapter. They do not connect to PostgreSQL or object storage.
-
-In Docker Compose, containers talk to each other through service names, for example backend connects to `postgres:5432` and `rustfs:9000`. Browsers and host commands use `127.0.0.1` or your domain, for example `http://127.0.0.1:8081` for Admin.
-
-Next, start the system with [Deployment Guide](deployment), then create the first data path and configure [Admin AI](admin-ai) with [First Use](admin-usage).
+Browsers access Admin; agents access Backend through MCP. Neither connects directly to the database or object storage. Containers use Compose service names, while browsers and agents need addresses reachable from their own machines. See the [Deployment Guide](deployment) for configuration.

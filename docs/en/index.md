@@ -3,23 +3,30 @@ layout: home
 
 hero:
   name: Vdoc
-  tagline: 'Vdoc turns OpenAPI and Markdown into human-reviewed facts agents can safely cite, with every review, release, and change traceable.'
+  text: Reviewed docs for your team and AI
+  tagline: Manage OpenAPI contracts and Markdown docs, inspect version changes, and let AI query published content through MCP. Self-host with Docker Compose.
   actions:
     - theme: brand
-      text: Product overview
-      link: /en/product-overview
-    - theme: alt
-      text: Deploy Vdoc
+      text: Deploy and try
       link: /en/deployment
     - theme: alt
-      text: MCP tools
+      text: See how it works
+      link: /en/how-it-works
+    - theme: alt
+      text: Connect your agent
       link: /en/mcp-tools
 
 features:
-  - title: OpenAPI and Markdown
-    details: OpenAPI and Markdown become human-reviewed facts by entering Draft first, so teams can check source, wording, and intent before release.
-  - title: Admin, Version, and Diff
-    details: Drafts are reviewed in Admin, then published as an immutable Version; Diff shows every change so teams can inspect what moved and why.
-  - title: MCP Token and Vdoc Skill
-    details: MCP Token controls read access, and the Vdoc Skill guides agent lookup; agents read approved facts and cannot publish directly, though they may submit Drafts for human review.
+  - title: Shared docs with a version history
+    details: Keep API contracts, AGENTS.md, and runbooks in one project. Publish after human review and retain a traceable history of immutable versions.
+    link: /en/product-overview
+    linkText: Meet Vdoc
+  - title: See what an API change affects
+    details: OpenAPI semantic Diff flags field changes and breaking changes. Markdown file Diff shows content additions and removals for review.
+    link: /en/how-it-works#example
+    linkText: Explore a change example
+  - title: Give AI published context
+    details: MCP provides published content; Vdoc Skill guides agents to query before answering. Agents can submit drafts, while publishing requires human approval.
+    link: /en/admin-usage
+    linkText: Make your first agent query
 ---

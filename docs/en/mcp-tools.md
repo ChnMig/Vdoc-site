@@ -1,6 +1,8 @@
-# MCP Tools
+# MCP Setup and Tools
 
-`@vdoc/mcp` is the stdio MCP adapter for Agent runtimes. It does not implement Vdoc business logic locally. It forwards MCP `tools/list` and `tools/call` requests to backend `/api/v1/open/mcp`.
+Connect your agent to Vdoc so it can query published OpenAPI and Markdown documents or submit drafts for human review. For a first connection, follow [Connect Your Agent](admin-usage#connect-agent), then [read your first document](admin-usage#first-query).
+
+`@vdoc/mcp` is the stdio adapter. It forwards `tools/list` and `tools/call` to Backend `/api/v1/open/mcp`; document storage and business logic stay on the Backend.
 
 ## Before You Start
 
@@ -9,15 +11,7 @@
 - The target Agent runtime supports MCP stdio server configuration.
 - Do not put raw MCP Tokens, JWTs, DB passwords, storage secrets, or `Authorization` header values in repos, screenshots, logs, README files, or issues.
 
-For a local backend, use the shared closure path:
-
-```sh
-scripts/vdoc-local-bootstrap.sh
-docker compose --env-file .env up -d --build
-cd Vdoc && go run ./tools/vdoc-demo-seed
-```
-
-The demo seed is optional. See [Deployment Guide](deployment) for the full local gate, where live E2E uses `./scripts/vdoc-e2e.sh live-compose --env-file ../.env --check-only` and `./scripts/vdoc-e2e.sh live-compose --env-file ../.env`, and the release gate uses `scripts/vdoc-release-dry-run.sh --list` and `scripts/vdoc-release-dry-run.sh`. Live E2E resets only the disposable `VDOC_TEST_POSTGRES_DB`, `vdoc_e2e` by default, not the application database.
+The agent machine also needs Node.js 20 or later, npm, and Git. If Vdoc is not running yet, start with [Docker Compose deployment](deployment#quick-start), including initial-admin setup. A first query needs a published document; demo seeding and engineering release checks are optional.
 
 ## Installation Options
 

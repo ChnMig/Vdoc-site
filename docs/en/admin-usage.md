@@ -1,121 +1,71 @@
 # First Use
 
-This page starts after deployment and walks through the first Vdoc data path that an Agent can query: Project, Document, Draft, Version, MCP Token, MCP adapter, and Skill.
+Publish a short team guide and let your agent read it from Vdoc. By the end, you will see an actual query: the agent reads published Markdown and answers from that document.
 
 ## Before You Start
 
-If no local environment is running yet, run this from the workspace root:
+- Complete the [Deployment Guide](deployment#quick-start), including the initial-admin account.
+- Confirm the workbench opens and Backend health reports `detail.healthy` as `true`.
+- Use an agent that supports MCP stdio, with Node.js 20 or later, npm, and Git installed on the machine running it.
 
-```sh
-scripts/vdoc-local-bootstrap.sh
-docker compose --env-file .env up -d --build
-cd Vdoc && go run ./tools/vdoc-demo-seed
+This trial uses Markdown to cover create, review, publish, and query. Admin AI, public sharing, and the Skill can follow your first successful query.
+
+## 1. Log In and Create a Trial Project
+
+Open the [local workbench](http://127.0.0.1:8081) and log in with the email and password you set in `.env` during deployment. For a remote deployment, open its workbench URL.
+
+Create or select a Team, then create a Project named **Vdoc Trial**. Use the initial SuperAdmin for this trial; add Reader, Writer, and Project Admin members when you start collaborating.
+
+If the account is not set up, return to [initial-admin configuration](deployment#initial-admin). Changing initialization fields does not reset accounts in an existing database.
+
+## 2. Create the Sample Document
+
+In document management, select your new project and fill in:
+
+| Field                    | Sample value                               |
+| ------------------------ | ------------------------------------------ |
+| Document name            | Team Guide                                 |
+| Document type            | Markdown                                   |
+| Repository-relative path | `docs/team-guide.md`                       |
+| Working branch           | `dev` (select after creating the document) |
+
+The relative path identifies the document consistently. New documents have `dev`, `test`, and protected `prod` branches; use `dev` for this trial.
+
+## 3. Submit Your First Draft
+
+On the drafts page, select the project, document, and `dev` branch. Set the version name to `v1` and paste this sample Markdown into the content field, or upload it as an `.md` file:
+
+```md
+# Team Guide
+
+- The demo project codename is Northstar.
+- Run the project tests before committing code.
+- Submit documentation changes as drafts for a project administrator to review and publish.
 ```
 
-`vdoc-demo-seed` is optional. Then confirm:
+This content is a trial example. Create the Draft, then submit it for review. Saving a draft alone does not make it a published document for your agent.
 
-- Backend health succeeds at `/api/v1/open/health`.
-- Admin opens in a browser.
-- If you use Admin Docker, `VDOC_ADMIN_API_BASE_URL` points to a backend origin the browser can reach, such as `http://127.0.0.1:8080`.
-- If you use Admin local development, `VITE_VDOC_API_BASE_URL` points to the backend origin.
-- You prepared an initial SuperAdmin through `initial_admin`. Anonymous registration is disabled by default; only a trusted disposable or pilot environment should temporarily set `VDOC_AUTH_ALLOW_REGISTRATION=true`, then disable it immediately after bootstrap.
+## 4. Review and Publish
 
-## 1. Log In to Admin
+Open the review page, select the submitted `v1` draft, inspect its content and Diff, then approve publication. A Project Admin or SuperAdmin performs this step.
 
-Full Compose deployments should set these in `.env`:
+On the versions page, confirm that `dev` contains published `v1` and that its content includes the three rules above. This is an immutable Version; further changes require a new draft.
 
-```sh
-VDOC_INITIAL_ADMIN_EMAIL=admin@example.com
-VDOC_INITIAL_ADMIN_NAME=Vdoc Admin
-VDOC_INITIAL_ADMIN_PASSWORD=replace-with-initial-admin-password
-```
+**Publishing is a human action.** MCP can submit drafts but cannot publish Versions directly.
 
-Backend creates that SuperAdmin only when the user table is empty. After startup, open Admin:
+## 5. Create a Read Token
 
-```text
-http://127.0.0.1:8081
-```
+Open the MCP Token page and create a user-bound token:
 
-Log in with the initial admin. Admin uses a raw JWT when calling private APIs. Manual debugging uses the same rule:
+- Select **`doc:read`** for Markdown access. This query does not need draft-write permissions.
+- Confirm the token's user can access **Vdoc Trial** and set a future expiry.
+- Copy the token into your agent's private configuration or secret manager.
 
-```sh
-set +x
-printf 'header = "Authorization: %s"\n' "$JWT" |
-  curl --config - http://127.0.0.1:8080/api/v1/private/identity/me
-```
+Active tokens can be revealed and copied again from their details. Lists, revoked tokens, and expired tokens show masked values. Never put a raw token in command-line arguments, repositories, screenshots, or logs.
 
-Keep `JWT` in a private shell environment variable, and do not write the value into command history, docs, logs, or screenshots. Environment variables are not package CLI arguments, so never place the token in `npx`, `npm`, or other process `args`. Disable xtrace before use, and do not add a `Bearer` prefix.
+## 6. Connect Your Agent {#connect-agent}
 
-## 2. Create Team and Project
-
-1. Create or select a Team.
-2. Create a Project under that Team.
-3. Add members.
-4. Use Reader for read access, Writer for Draft creation and submission, and Admin for review.
-
-Project is the main permission and Agent query boundary. Do not mix unrelated products in one Project unless they share the same permission model.
-
-## 3. Create a Document
-
-Choose a Document type:
-
-- `document_type=1`: OpenAPI.
-- `document_type=2`: Markdown.
-
-Set a stable `relative_path`:
-
-- `apis/petstore.yaml`
-- `apis/billing.yaml`
-- `docs/runbook.md`
-
-Display names can change, but `relative_path` should be the cross-system identity. New Documents get `dev`, `test`, and protected `prod` branches. You can also create `feature/*` branches.
-
-## 4. Create and Submit a Draft
-
-1. Choose Project, Document, and Branch.
-2. Create a Draft.
-3. Use OpenAPI 3.0 or 3.1 content for OpenAPI Drafts.
-4. Use Markdown text for Markdown Drafts.
-5. Submit the Draft for review.
-
-After submission, the Draft is not yet the source of truth. Agents should treat it as published fact only after approval creates a Version.
-
-## 5. Review and Publish a Version
-
-A Project Admin or SuperAdmin opens the Draft under review:
-
-1. Check raw content, normalized content, or Markdown content.
-2. For OpenAPI, check endpoint list, endpoint detail, diff, and breaking changes.
-3. Request changes or reject if the content is wrong.
-4. Approve if the content is correct.
-5. Confirm the Version list shows a new immutable Version.
-
-v0.1 does not support MCP direct publishing. Admin is the publishing gate.
-
-### 5.1 Create and manage public shares
-
-A Project Admin or SuperAdmin can create a public share from the Documents page after selecting a Branch with a published Version. The default expiry is three months; one month, six months, one year, and permanent are also available. An optional password must contain 12–72 UTF-8 bytes with no leading or trailing Unicode whitespace. Copy the complete capability link after creation, reveal it again when needed, or revoke it irreversibly. The list distinguishes active, expired, and revoked links. Changing the Project or Document immediately clears any displayed capability and unsubmitted password from the Admin page.
-
-## 6. Configure Admin AI
-
-First, have a SuperAdmin open system AI settings, enter the OpenAI-compatible `base_url`, `api_mode`, `model`, `api_key`, `enabled`, and needed tuning fields, then run the provider test. If a Project needs a separate gateway, model, or prompts, its Project Admin configures and tests the project override.
-
-After saving, the UI should show only `api_key_set` and masked `api_key_last4`, never the raw key. Submit a test Draft and confirm its automatic summary can be read. After a human publishes it, confirm the Version summary and page chat work. AI can only help summarize and explain. It cannot approve, request changes, reject, modify, or publish. See [Admin AI](admin-ai) for the full operation and failure states.
-
-## 7. Create an MCP Token
-
-Open the MCP Token area in Admin:
-
-1. Create a user-bound MCP Token.
-2. Copy the returned token. Its owner can reveal and copy it again while it remains active.
-3. Put the token into the Agent runtime environment or secret manager.
-4. Do not store the token in command-line arguments, README files, screenshots, logs, or issues.
-
-List, revoked, and expired token views show only masked values. That is expected.
-
-## 8. Connect the MCP Adapter
-
-Local full Compose example:
+Add Vdoc to your agent's MCP configuration. This example is for clients that accept `mcpServers` JSON; for other clients, enter the same command, arguments, and environment variables through their MCP settings.
 
 ```json
 {
@@ -135,35 +85,51 @@ Local full Compose example:
 }
 ```
 
-For deployed environments, set `VDOC_BASE_URL` to a backend origin reachable from the Agent machine. You can also set `VDOC_MCP_URL` to the full `/api/v1/open/mcp` endpoint.
+Replace the placeholder with the token from step 5 in your client's private configuration, save, and reload the MCP connection. This example uses a fixed commit from the official GitHub repository. It must match `Vdoc-mcp` in your deployment's `workspace.lock.json`; the package is not currently published to the npm registry.
 
-## 9. Install the Skill
+`VDOC_BASE_URL` must be reachable from **the machine running your agent**. Use `127.0.0.1` only when the agent and Backend run on the same machine; remote agents need a Backend address they can reach. See [MCP Setup and Tools](mcp-tools) for all options.
 
-Install Vdoc Skill at `$HOME/.agents/skills/vdoc` for personal use or `.agents/skills/vdoc` for the current repository, with `SKILL.md` at the skill root. The Skill stores no facts. Live facts come from Vdoc MCP.
+The client should show Vdoc as connected, with `list_projects`, `list_documents`, and `get_latest_doc` in its tool list.
 
-## Completion Checks
+## 7. Ask Your Agent to Read the Document {#first-query}
 
-- Admin Dashboard opens.
-- `GET /api/v1/private/identity/me` succeeds.
-- At least one Project, Document, Draft, and published Version exists.
-- The Admin AI provider test succeeds, Draft and Version summaries can be read, and AI failure does not block machine Diff or human review.
-- MCP Token does not appear in command-line arguments or logs.
-- Agent `tools/list` returns Vdoc tool schemas.
-- When answering endpoint or Markdown questions, the Agent calls Vdoc MCP first and uses the returned facts.
+Send this prompt to your agent:
 
-To complete the local loop, run:
-
-```sh
-cd Vdoc
-./scripts/vdoc-e2e.sh live-compose --env-file ../.env --check-only
-./scripts/vdoc-e2e.sh live-compose --env-file ../.env
+```text
+First use Vdoc MCP to find the latest published document at
+docs/team-guide.md on the dev branch in the Vdoc Trial project.
+Based on the document, what is the project codename, and what should I do
+before committing code? Cite the document path, branch, and version.
+If you cannot find it, say so instead of filling in the content yourself.
 ```
 
-Live E2E resets the selected disposable `VDOC_TEST_POSTGRES_DB`, `vdoc_e2e` by default. It does not reset the application database from `VDOC_POSTGRES_DB`. Finally, run this from the workspace root:
+Check these three results:
 
-```sh
-scripts/vdoc-release-dry-run.sh --list
-scripts/vdoc-release-dry-run.sh
-```
+- The agent actually calls Vdoc MCP and reads published content with `get_latest_doc`.
+- The answer includes **Northstar** and **run the project tests before committing code** from the sample.
+- It cites `docs/team-guide.md`, the `dev` branch, and published `v1`. The document ID can also help verify the source.
 
-The release dry-run does not publish packages or deploy services. Do not put raw JWTs, MCP Tokens, DB passwords, storage secrets, or `Authorization` header values in docs, logs, screenshots, or issues.
+You have now completed the first flow from human review to agent use. A successful `tools/list` call or a similar-looking answer alone does not prove the agent read this document.
+
+## If the Result Is Different
+
+| Symptom                                                    | Next step                                                                                                                     |
+| ---------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| MCP does not start or connect                              | Check Node.js, npx, Git, and Backend reachability on the agent's machine, then inspect the client's MCP error.                |
+| Tools appear, but the project or document is missing       | Check that the token is active, has `doc:read`, and belongs to a user with project access. Confirm the path and `dev` branch. |
+| The document exists, but no published version is available | Approve the draft on the review page and confirm `v1` appears in versions.                                                    |
+| The agent answers without querying                         | Enable MCP and explicitly request `get_latest_doc`; retry in a new conversation if needed.                                    |
+
+See [Troubleshooting](troubleshooting) for more detail.
+
+## After Your First Successful Query
+
+- **Keep your agent following the docs:** install [Vdoc Skill](skill-workflows#installation). It guides agents to query Vdoc before integration, migration analysis, and document changes; live content still comes from MCP.
+- **Try an API change:** create an OpenAPI document (3.0 / 3.1 supported), submit and approve two versions, then query the Diff using the [API change example](how-it-works#example). Your token needs `api:read`.
+- **Enable the built-in AI assistant:** follow [Admin AI](admin-ai) to configure an OpenAI-compatible provider for automatic summaries and page chat. It cannot approve, reject, modify, or publish content. Missing configuration or provider failures do not block human review.
+- **Share outside your project:** create a public link as described below.
+- **Verify a release candidate:** maintainers can continue to [Engineering and Release Checks](deployment#engineering-and-release-checks).
+
+### Create and Manage Public Shares
+
+A Project Admin or SuperAdmin can create a public share from the Documents page after selecting a Branch with a published Version. The default expiry is three months; one month, six months, one year, and permanent are also available. An optional password must contain 12–72 UTF-8 bytes with no leading or trailing Unicode whitespace. Copy the complete capability link after creation, reveal it again when needed, or revoke it irreversibly. The list distinguishes active, expired, and revoked links. Changing the Project or Document immediately clears any displayed capability and unsubmitted password from the Admin page.

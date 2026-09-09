@@ -9,15 +9,7 @@ The Vdoc Skill is an Agent runtime workflow package. It does not store data, com
 - You know the skill folder location required by the runtime.
 - Do not put raw MCP Tokens, JWTs, DB passwords, storage secrets, or `Authorization` header values in Skill files, examples, logs, or issues.
 
-If no local Vdoc environment exists yet, run the shared closure path from the workspace root:
-
-```sh
-scripts/vdoc-local-bootstrap.sh
-docker compose --env-file .env up -d --build
-cd Vdoc && go run ./tools/vdoc-demo-seed
-```
-
-The demo seed is optional. See [Deployment Guide](deployment) for the full local gate, where live E2E uses `./scripts/vdoc-e2e.sh live-compose --env-file ../.env --check-only` and `./scripts/vdoc-e2e.sh live-compose --env-file ../.env`, and the release gate uses `scripts/vdoc-release-dry-run.sh --list` and `scripts/vdoc-release-dry-run.sh`.
+If Vdoc is not running yet, follow the [Deployment Guide](deployment#quick-start). Complete [your first published document query](admin-usage#first-query) before installing the Skill, so you know the MCP connection and document permissions work.
 
 ## Installation
 

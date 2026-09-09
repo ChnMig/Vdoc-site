@@ -1,79 +1,54 @@
 # 运行流程
 
-本页把 Vdoc 的人工作业面和 Agent 作业面串起来。读完后，你应该知道内容如何进入 Vdoc，什么时候变成可查询事实，Agent 可以做什么，不能做什么。
+从一处接口变化开始，看文档如何经过审核，再成为团队和 Agent 都能查询的已发布版本。
 
-## 一句话流程
+## 示例：订单金额字段变了 {#example}
 
-Draft 先进入审核，Admin 批准后生成不可变 Version，MCP 只把已发布事实和允许的 Draft 操作暴露给 Agent，Skill 要求 Agent 在回答前先查询 Vdoc。
+假设团队在 `apis/orders.yaml` 中管理订单接口。下面是一个讲解用的示例，同一条 `GET /orders/{id}` 的响应字段发生了变化：
 
-## 从内容到事实
+| 对照项                  | 已发布的 v1    | 待审核的 v2                    |
+| ----------------------- | -------------- | ------------------------------ |
+| `total` 的 OpenAPI 类型 | `number`       | `string`                       |
+| 示例响应中的值          | `42.5`         | `"42.50"`                      |
+| 前端需要检查什么        | 按数值处理金额 | 检查类型定义、计算和格式化代码 |
 
-1. Admin 创建 Team、Project 和 Document。
-2. Document 使用 `relative_path` 作为稳定身份，例如 `apis/billing.yaml`。
-3. Writer 或 Agent 在 Branch 上创建 Draft。
-4. Draft 进入 review。
-5. 后台 Admin AI 在可用时尝试生成 Draft 审核摘要；生成中显示 `pending`，随后进入 `succeeded`、`skipped` 或 `failed`，任何结果都不会阻塞流程。
-6. Project Admin 或 SuperAdmin 检查机器 Diff、内容、endpoint detail、Markdown 变化和 AI 辅助摘要。
-7. 审核通过后，后端创建不可变 Version，并尝试生成 Version 摘要。
-8. 之后 Admin、API、MCP 和 Agent 都读取这个已发布 Version。
+1. **提交修改。** 后端开发者或 Agent 把新的 OpenAPI 内容提交为草稿，此时已发布的 v1 仍保持不变。
+2. **查看差异。** Vdoc 的 OpenAPI 语义 Diff 展示 `total` 的类型变化和兼容性影响。审核人可以继续查看原始文档及接口详情。
+3. **人工发布。** Project Admin 或 SuperAdmin 检查并批准草稿，生成不可变的 v2。MCP 不能跳过这一步直接发布。
+4. **Agent 查询。** 前端让 Agent 通过 MCP 比较已发布的 v1 与 v2，并读取新版接口详情，再据此提出代码修改建议。
 
-## Admin 在流程中的职责
+两个版本都发布后，可以这样要求 Agent（把项目和版本替换为你实际发布的对象）：
 
-- 初始化 Team、Project、成员和权限。
-- 创建 OpenAPI 或 Markdown Document。
-- 审核 Draft，批准、拒绝或要求修改。
-- 查看 Version、Diff、endpoint detail 和 Markdown 内容。
-- 创建 MCP Token，并把 token 安全交给使用 Agent 的人。
+```text
+先查询 Vdoc 中 apis/orders.yaml 的已发布 v1 和 v2，
+比较 GET /orders/{id} 的变化，再读取 v2 的接口详情。
+说明 total 字段的类型变化会影响哪些对接代码，并给出修改建议。
+请注明文档、分支和版本；如果找不到对应版本，不要猜测字段。
+```
 
-Admin 是发布门禁。v0.1 中，MCP 和 Skill 都不能绕过 Admin 直接发布 Version。
+文档变更和代码修改不会自动完成同步：Vdoc 提供版本、Diff 和接口内容，Agent 基于查询结果提出建议，由团队验证代码。
 
-## Admin AI 在流程中的职责
+Markdown 也走同样的草稿、审核、发布流程，变化用文件 Diff 展示。想亲自跑一次，可以先 **[部署 Vdoc](deployment#quick-start)**，再按 **[首次使用](admin-usage)** 发布更短的 Markdown 示例。
 
-[Admin AI](admin-ai) 是后台产品能力。SuperAdmin 配置系统提供商，Project Admin 可以设置项目覆盖。它基于 Draft、Version 或 Diff 上下文生成 AI-generated 摘要，并在对应页面提供限定上下文的对话。
+## 人、MCP 和 Skill 的分工
 
-Admin AI 不修改文档，不覆盖机器 Diff，也不能 approve、request changes、reject 或 publish。最新请求生成中记录为 `pending`；提供商未配置或提示词禁用时记录为 `skipped`，调用失败、超时或完成前上下文变化时记录为 `failed`。旧请求不能覆盖新状态，原始 Diff 和人工审核始终继续可用。
+- **团队在 Admin 中管理和发布。** 创建 Team、Project、Document 和 Branch，检查草稿内容与 Diff，审核后生成版本，再为 Agent 配置 MCP Token。Writer 可以创建和提交草稿，Project Admin 或 SuperAdmin 批准发布。
+- **MCP 提供文档和操作工具。** `@vdoc/mcp` 将 Agent 的请求转发到 Backend `/api/v1/open/mcp`，查询已发布接口、Markdown、版本和 Diff，也可按令牌权限创建、更新和提交草稿。它不在本地保存 Vdoc 文档，也没有直接发布工具。
+- **Skill 指导 Agent 何时查询。** 在接口集成、版本迁移或 Markdown 修改前，先调用 MCP，基于返回内容回答或提交草稿。Skill 本身不保存实时文档。详见 [Skill 工作流](skill-workflows)。
+- **后台 AI 辅助审核。** 可选的 [Admin AI](admin-ai) 使用管理员配置的模型生成摘要、解释 Diff 和进行页面内对话。摘要标为 AI-generated，不能覆盖机器 Diff，也不能批准、拒绝、修改或发布内容。提供商未配置或调用失败时，原始 Diff 和人工审核仍可用。
 
-## MCP 在流程中的职责
+## 查询时，明确文档和版本
 
-`@vdoc/mcp` 是 Agent runtime 使用的 stdio MCP adapter。它不保存 Vdoc 数据，也不在本地实现业务逻辑。它把 `tools/list` 和 `tools/call` 转发到后端 `/api/v1/open/mcp`。
+同一份文档在 `dev`、`test` 和 `prod` 可以有不同的已发布内容。使用 Project、文档的稳定 `relative_path`、Branch 和 Version 定位目标；显示名称可以变化，相对路径用于持续引用。
 
-MCP 能做两类事：
+查询接口时，先用 `get_endpoint_detail` 读取完整定义；比较已发布接口版本时，用 `compare_api_versions`；读取 Markdown 时，用 `get_latest_doc`。工具所需的 ID 和内容应来自实际查询结果。如果目标不存在或尚未发布，Agent 应说明缺少什么，而不是补写字段。
 
-- 读取已发布事实，例如 Project、Document、API Version、endpoint detail、diff、change summary 和 Markdown 内容。
-- 创建、更新、查看和提交 Draft，让后续人类审核继续处理。
+想让 Agent 修改文档时，它应先读取当前版本，再提交新的 Draft，等待人工审核。只有版本页确实出现新的 Version，才算完成发布。
 
-MCP 不能直接发布 Version。Agent 如果声称已经发布了内容，除非 Admin 审核页面已有新 Version，否则应视为错误。
+## 从哪里开始
 
-## Skill 在流程中的职责
+1. [部署 Vdoc](deployment#quick-start)：启动 Backend、Admin、PostgreSQL 和 RustFS。
+2. [首次使用](admin-usage)：发布一份示例文档，完成一次 MCP 查询。
+3. [MCP 接入与工具](mcp-tools)：查阅连接配置、读取范围和草稿操作。
 
-Vdoc Skill 是 Agent 的工作流说明。它不存数据，也不直接访问后端。它告诉 Agent 在这些场景必须先用 MCP 查询 Vdoc：
-
-- 写 endpoint 集成代码。
-- 判断字段、枚举、鉴权、server 或响应结构。
-- 比较两个 API 或 Markdown Version。
-- 根据已发布 Markdown 回答问题。
-- 创建或更新 Draft。
-
-Skill 的价值是减少 Agent 猜测。实时事实仍来自 MCP 返回结果。
-
-## Agent 使用时的好路径
-
-1. 用户要求 Agent 集成一个 endpoint、做迁移分析或修改文档。
-2. Agent 根据 Skill 先调用 Vdoc MCP。
-3. Agent 用 `relative_path`、Project、Document、Branch 或 Version 定位目标。
-4. Agent 调用读取工具，例如 `get_endpoint_detail`、`compare_api_versions` 或 `get_latest_doc`。
-5. Agent 基于返回结果写代码、写说明或创建 Draft。
-6. 如果需要变更 Vdoc 内容，Agent 提交 Draft。
-7. Admin 审核并发布后，新事实才进入 Version。
-
-## 运行面和访问方式
-
-- Backend 提供 REST、MCP endpoint、持久化和对象存储写入。
-- Admin 是人工工作台，浏览器访问它。
-- PostgreSQL 保存元数据和工作流状态。
-- RustFS 或其他 S3 compatible storage 保存 raw 和 normalized 文档对象。
-- Agent 通过 MCP adapter 访问 backend，不直接访问数据库或对象存储。
-
-在 Docker Compose 中，容器互相访问时使用服务名，例如 backend 连接 `postgres:5432` 和 `rustfs:9000`。浏览器和宿主机命令访问时使用 `127.0.0.1` 或你的域名，例如 `http://127.0.0.1:8081` 打开 Admin。
-
-下一步按 [部署指南](deployment) 启动系统，再用 [首次使用](admin-usage) 创建第一条数据链路并配置 [Admin AI](admin-ai)。
+浏览器访问 Admin，Agent 通过 MCP 访问 Backend；两者都不直接访问数据库或对象存储。容器内部使用 Compose 服务名，浏览器与 Agent 使用自己能访问的地址，具体配置见 [部署指南](deployment)。

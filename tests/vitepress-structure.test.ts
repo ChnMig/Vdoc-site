@@ -16,31 +16,31 @@ const ignoredDirectories = new Set([
 const localeHomeRequirements = [
   {
     path: 'docs/index.md',
-    statement: '把 OpenAPI 与 Markdown 变成人工复核事实',
-    messages: [
-      'OpenAPI 与 Markdown 变成人工复核事实',
-      'Draft 由 Admin 审核',
-      '不可变 Version',
-      'Diff 展示每次变更',
-      'MCP Token 控制读取权限',
-      'Vdoc Skill',
-      'Agent 只读取已批准事实，不能直接发布',
+    concepts: [
+      /OpenAPI/,
+      /Markdown/,
+      /人工审核后发布/,
+      /历史版本/,
+      /Diff/,
+      /MCP/,
+      /Vdoc Skill/,
+      /Agent 可以提交草稿，发布仍由管理员审核/,
     ],
-    actions: ['/product-overview', '/deployment', '/mcp-tools'],
+    actions: ['/deployment', '/how-it-works', '/mcp-tools'],
   },
   {
     path: 'docs/en/index.md',
-    statement: 'OpenAPI and Markdown become human-reviewed facts',
-    messages: [
-      'OpenAPI and Markdown become human-reviewed facts',
-      'Drafts are reviewed in Admin',
-      'immutable Version',
-      'Diff shows every change',
-      'MCP Token controls read access',
-      'Vdoc Skill',
-      'agents read approved facts and cannot publish directly',
+    concepts: [
+      /OpenAPI/,
+      /Markdown/,
+      /human review/,
+      /immutable versions/,
+      /Diff/,
+      /MCP/,
+      /Vdoc Skill/,
+      /Agents can submit drafts, while publishing requires human approval/,
     ],
-    actions: ['/en/product-overview', '/en/deployment', '/en/mcp-tools'],
+    actions: ['/en/deployment', '/en/how-it-works', '/en/mcp-tools'],
   },
 ] as const
 
@@ -80,19 +80,6 @@ function frontmatterOf(markdown: string): string {
   return frontmatter?.groups?.['content'] ?? ''
 }
 
-function expectMessagesInOrder(
-  source: string,
-  messages: readonly string[],
-): void {
-  let cursor = 0
-
-  for (const message of messages) {
-    const index = source.indexOf(message, cursor)
-    expect(index).toBeGreaterThanOrEqual(cursor)
-    cursor = index + message.length
-  }
-}
-
 describe('VitePress docs-only structure', () => {
   it('has paired Chinese and English Markdown docs for every required slug', () => {
     for (const slug of docsSlugs) {
@@ -112,19 +99,21 @@ describe('VitePress docs-only structure', () => {
       expect(frontmatter).toContain('layout: home')
       expect(frontmatter).toContain('hero:')
       expect(frontmatter).toContain('name: Vdoc')
-      expect(frontmatter).not.toContain('\n  text:')
+      expect(frontmatter).toContain('\n  text:')
       expect(frontmatter).toContain('tagline:')
-      expect(frontmatter).toContain(requirement.statement)
       expect(frontmatter).toContain('actions:')
       expect(frontmatter.match(/\n {4}- theme:/g) ?? []).toHaveLength(3)
       expect(frontmatter).toContain('features:')
       expect(frontmatter.match(/\n {2}- title:/g) ?? []).toHaveLength(3)
 
-      for (const action of requirement.actions) {
-        expect(frontmatter).toContain(`link: ${action}`)
-      }
+      const actionLinks = [...frontmatter.matchAll(/^ {6}link: (.+)$/gm)].map(
+        (match) => match[1],
+      )
+      expect(actionLinks).toEqual(requirement.actions)
 
-      expectMessagesInOrder(frontmatter, requirement.messages)
+      for (const concept of requirement.concepts) {
+        expect(frontmatter).toMatch(concept)
+      }
     }
   })
 

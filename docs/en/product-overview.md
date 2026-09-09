@@ -1,71 +1,38 @@
 # Product Overview
 
-Vdoc is a documentation fact system shared by people and Agents. Teams store OpenAPI contracts and Markdown knowledge in Vdoc, publish immutable Versions through human review, then let Admin, scripts, MCP, and Agents read only approved facts.
+Vdoc is a documentation hub for teams developing with AI. Keep OpenAPI contracts, AGENTS.md, and runbooks in one project, inspect each change, publish after review, and let your team and agents query the same published content.
 
-## What Problem Vdoc Solves
+## When to Use Vdoc
 
-- API fields, enums, response shapes, and auth notes are scattered across repos, chat, and memory.
-- Agents can guess contracts from training data instead of reading your reviewed team facts.
-- Documentation changes often lack Drafts, review, diffs, and rollback points.
-- Backend API, Admin, MCP, and Skill often lack a clear startup order, so pilot users do not know where to start.
+| Your situation                                                         | What to do in Vdoc                                                                                                   |
+| ---------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| The backend changed an API and the frontend needs to assess the impact | Compare OpenAPI versions, inspect field changes and Breaking Changes, then read the full endpoint definition.        |
+| Your agent needs team conventions, but its context is out of date      | Query published Markdown through MCP and use the Skill to guide the agent to read before answering.                  |
+| A teammate or agent changed a document and someone needs to check it   | Submit a draft, inspect its Diff, and have an administrator approve publication. Historical versions stay immutable. |
 
-Vdoc does not replace engineering review. It makes approved facts queryable, auditable, and usable by Agents.
+See **[how one API change moves through Vdoc](how-it-works#example)**, or **[deploy with Docker Compose](deployment#quick-start)**. Then follow [First Use](admin-usage) to publish a sample document and query it with your agent.
 
-## Who Uses Vdoc
+## Who It Is For
 
-- Product or platform teams manage external APIs and project knowledge.
-- Backend maintainers publish OpenAPI and Markdown document versions.
-- Frontend developers query endpoint detail, request bodies, response bodies, and diffs.
-- Documentation maintainers use Draft and review flows for Markdown changes.
-- Agent users connect MCP and Skill so Agents query Vdoc before writing code, doing migration analysis, or submitting Drafts.
+Product and platform teams developing with AI: backend maintainers publish contracts, frontend developers check integration impact, documentation owners review team knowledge, and agents query published content through MCP. Teams can host Vdoc on their own infrastructure.
 
-## Core Objects
+## How Documents Are Organized
 
-- Team: ownership boundary for a group of Projects.
-- Project: documentation set for one product or service, with members and permissions.
-- Document: OpenAPI or Markdown document. `document_type=1` means OpenAPI, `document_type=2` means Markdown.
-- `relative_path`: stable Document identity, such as `apis/petstore.yaml` or `docs/runbook.md`. Display names can change, but `relative_path` should stay stable.
-- Branch: work track for a Document. New Documents get `dev`, `test`, and protected `prod`; `feature/*` branches can also be created.
-- Draft: reviewable content change. Writers or Agents can create and submit Drafts.
-- Version: immutable published result created after approval.
-- MCP Token: credential for Agent access to Vdoc MCP, created in Admin and stored in Agent environment variables or a secret manager.
+- **Project:** the documents for a product or service, with access managed by membership and role.
+- **Document:** OpenAPI or Markdown identified by a stable `relative_path`, such as `apis/orders.yaml` or `docs/team-guide.md`.
+- **Branch:** separate document tracks for `dev`, `test`, and protected `prod`, with custom branches available.
+- **Draft and Version:** changes enter as drafts. A Project Admin or SuperAdmin approves publication to create an immutable version. Writers and agents can submit drafts.
 
-## Roles
+Your team manages these in the Admin workbench. MCP Tokens grant agents scoped read or draft permissions; Vdoc Skill provides a workflow for querying before collaborating.
 
-- SuperAdmin: system-level management and approval.
-- Project Reader: reads published facts in a Project.
-- Project Writer: uploads Drafts and submits them for review.
-- Project Admin: approves, requests changes, or rejects Drafts.
+## After Your First Trial
 
-## What v0.1 Can Do
+Configure an OpenAI-compatible model with [Admin AI](admin-ai) for automatic change summaries and page chat. Use [public sharing](admin-usage#create-and-manage-public-shares) to let people outside the project read published documents, optionally with a password and revocable access.
 
-- Manage Team, Project, Document, Branch, Draft, Review, Version, Diff, endpoint browsing, and MCP Token creation in Admin.
-- Manage both OpenAPI and Markdown documents.
-- Query published OpenAPI endpoints, fields, response shapes, diffs, and change summaries.
-- Query published Markdown content and version diffs.
-- Let Agents query published facts through MCP, or create, update, and submit Drafts.
-- Use the Vdoc Skill to make Agents query Vdoc before integration, migration, or documentation changes.
-- Use built-in [Admin AI](admin-ai) for automatic Draft and Version helper summaries and context-bound chat on Draft, Version, and Diff pages.
-- Complete the local loop with `scripts/vdoc-local-bootstrap.sh`, root `docker-compose.yml`, optional demo seed, live-compose E2E, and release dry-run.
+## Current Version Boundaries
 
-## What v0.1 Does Not Do
+Publishing requires human review. MCP cannot publish directly. Admin AI cannot approve, reject, modify, or publish content, and it does not replace machine Diff.
 
-- It does not let MCP publish Versions directly. Publishing requires Admin or SuperAdmin approval.
-- Admin AI does not replace machine Diff or human review, and it cannot approve, reject, modify, or publish content.
-- It does not provide a CLI token store. Tokens live in local Agent config or a secret manager.
-- It does not include invitation flow, notification bot, PR bot, full SDK, or code generation platform.
-- It does not include commercial billing or full tenant administration.
+The current candidate supports Docker Compose self-hosting; see [Version Notes](version-notes) for capabilities and limits. Invitation flows, notification bots, PR Bots, full SDKs, a code-generation platform, and commercial billing are outside the current scope.
 
-## Correct Mental Model
-
-1. Admin creates Team and Project.
-2. A Project gets OpenAPI or Markdown Documents.
-3. A Writer or Agent creates a Draft on a Branch.
-4. Admin reviews the Draft and approval creates a Version.
-5. A user creates an MCP Token.
-6. Agent uses `@vdoc/mcp` to query Version, endpoint, diff, or Markdown content.
-7. If the Agent needs to change content, it submits a Draft. It cannot publish directly.
-
-Admin AI is a backend assistant inside this human workflow, not an external MCP or Skill Agent. It can explain Diffs, generate summaries, and answer page-context questions, but publishing authority stays with human administrators.
-
-Next, read [How It Works](how-it-works) and [Admin AI](admin-ai), then start the system with [Deployment Guide](deployment).
+Start with the [Deployment Guide](deployment#quick-start), then complete [your first agent query](admin-usage).

@@ -28,3 +28,7 @@ html:not(.dark) .vp-code span[style*='--shiki-light:#D73A49'] {
 html:not(.dark) .vp-code span[style*='--shiki-light:#6A737D'] {
   --shiki-light: #666f79 !important;
 }
+
+html:not(.dark) .vp-code span[style*='--shiki-light:#E36209'] {
+  --shiki-light: #9f4100 !important;
+}

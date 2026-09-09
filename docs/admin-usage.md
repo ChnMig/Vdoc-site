@@ -1,121 +1,71 @@
 # 首次使用
 
-本页从部署后的第一个登录开始，带你创建第一条可被 Agent 查询的 Vdoc 数据链路：Project、Document、Draft、Version、MCP Token、MCP adapter 和 Skill。
+发布一份团队约定，让 Agent 从 Vdoc 读取它。完成后，你会看到一条真实查询：Agent 读取已发布的 Markdown，并根据文档回答问题。
 
 ## 开始前确认
 
-如果还没有启动本机环境，先从 workspace root 运行：
+- 已按 [部署指南](deployment#quick-start) 启动 Vdoc，并设置初始管理员账号。
+- 工作台可以打开，Backend 健康检查的 `detail.healthy` 为 `true`。
+- 用于接入的 Agent 支持 MCP stdio；运行 Agent 的机器已安装 Node.js 20 或更新版本、npm 和 Git。
 
-```sh
-scripts/vdoc-local-bootstrap.sh
-docker compose --env-file .env up -d --build
-cd Vdoc && go run ./tools/vdoc-demo-seed
+这次用一份 Markdown 完成“创建 → 审核发布 → 查询”。Admin AI、公开分享和 Skill 可以在首次查询成功后配置。
+
+## 1. 登录并创建试用项目
+
+打开 [本机工作台](http://127.0.0.1:8081)，用部署时在 `.env` 中设置的邮箱和密码登录。如果使用远程环境，请打开对应的工作台地址。
+
+在工作台创建或选择一个 Team，然后创建名为 **Vdoc 试用** 的 Project。用初始 SuperAdmin 完成这次试用即可；团队协作时再添加 Reader、Writer 和 Project Admin 成员。
+
+账号尚未设置时，返回 [初始管理员配置](deployment#initial-admin)。已有数据库时修改初始化字段不会重置账号。
+
+## 2. 创建示例文档
+
+进入文档管理，选择刚创建的项目，填写：
+
+| 字段           | 示例值                  |
+| -------------- | ----------------------- |
+| 文档名称       | 团队约定                |
+| 文档类型       | Markdown                |
+| 项目内相对路径 | `docs/team-guide.md`    |
+| 工作分支       | `dev`（创建文档后选择） |
+
+相对路径用于稳定定位文档。文档创建后有 `dev`、`test` 和受保护的 `prod` 分支，这次使用 `dev`。
+
+## 3. 提交第一份草稿
+
+在草稿页选择这个项目、文档和 `dev` 分支。版本名称填 `v1`，在内容输入框粘贴以下示例 Markdown，也可以保存为 `.md` 文件上传：
+
+```md
+# 团队约定
+
+- 演示项目代号为 Northstar。
+- 提交代码前，先运行项目测试。
+- 文档修改先提交草稿，由项目管理员审核发布。
 ```
 
-`vdoc-demo-seed` 是可选步骤。然后确认：
+这是用于试用的示例内容。创建草稿（Draft）后，执行提交审核；仅保存草稿还不能让 Agent 把它当作已发布文档。
 
-- Backend health 成功：`/api/v1/open/health`。
-- Admin 可以在浏览器打开。
-- 如果使用 Admin Docker，`VDOC_ADMIN_API_BASE_URL` 指向浏览器能访问的 backend origin，例如 `http://127.0.0.1:8080`。
-- 如果使用 Admin 本地开发，`VITE_VDOC_API_BASE_URL` 指向 backend origin。
-- 你已经通过 `initial_admin` 准备了初始 SuperAdmin。匿名注册默认关闭；只有可信的一次性或试点环境才可临时设置 `VDOC_AUTH_ALLOW_REGISTRATION=true`，并在引导后立即关闭。
+## 4. 审核并发布
 
-## 1. 登录 Admin
+进入审核页，选择刚提交的 `v1` 草稿，检查内容和 Diff，然后批准发布。由 Project Admin 或 SuperAdmin 完成这一步。
 
-完整 Compose 推荐在 `.env` 中设置：
+进入版本页，确认 `dev` 分支下出现已发布的 `v1`，并且能读到上面的三条约定。这就是不可变版本（Version）；后续修改需要新建草稿。
 
-```sh
-VDOC_INITIAL_ADMIN_EMAIL=admin@example.com
-VDOC_INITIAL_ADMIN_NAME=Vdoc Admin
-VDOC_INITIAL_ADMIN_PASSWORD=replace-with-initial-admin-password
-```
+**发布是人工动作。** MCP 可以提交草稿，不能直接发布 Version。
 
-backend 只会在用户表为空时创建这个 SuperAdmin。启动完成后打开 Admin：
+## 5. 创建读取令牌
 
-```text
-http://127.0.0.1:8081
-```
+打开 MCP Token 页面，创建用户绑定的令牌：
 
-使用初始管理员登录。登录后，Admin 会用 raw JWT 调用 private API。手工调试时也要使用原始 JWT：
+- 选择 **`doc:read`**，用于读取 Markdown；这次查询不需要草稿写入权限。
+- 确认令牌关联用户可以访问 **Vdoc 试用** 项目，并设置未来的过期时间。
+- 复制令牌到 Agent 的私密配置或密钥管理中。
 
-```sh
-set +x
-printf 'header = "Authorization: %s"\n' "$JWT" |
-  curl --config - http://127.0.0.1:8080/api/v1/private/identity/me
-```
+有效令牌可在详情中再次查看和复制；列表、已撤销或已过期的令牌只显示脱敏值。不要将原始令牌放进命令行参数、仓库、截图或日志。
 
-把 `JWT` 放在私密 shell 环境变量中，不要把值写进命令记录、文档、日志或截图。环境变量不是 package CLI argument，不要把 token 放进 `npx`、`npm` 或其他进程的 `args`。运行前关闭 xtrace，且不要加 `Bearer` 前缀。
+## 6. 连接 Agent {#connect-agent}
 
-## 2. 创建 Team 和 Project
-
-1. 创建或选择 Team。
-2. 在 Team 下创建 Project。
-3. 给参与者添加成员关系。
-4. Reader 用于读取，Writer 用于创建和提交 Draft，Admin 用于审核。
-
-Project 是权限和 Agent 查询范围的核心边界。不要把不同产品的文档混在一个 Project 里，除非它们确实共享同一组权限。
-
-## 3. 创建 Document
-
-创建 Document 时选择类型：
-
-- `document_type=1`：OpenAPI。
-- `document_type=2`：Markdown。
-
-给 Document 设置稳定的 `relative_path`：
-
-- `apis/petstore.yaml`
-- `apis/billing.yaml`
-- `docs/runbook.md`
-
-显示名称可以调整，`relative_path` 应作为跨系统引用身份。Document 创建后会有 `dev`、`test` 和受保护的 `prod` branches，也可以创建 `feature/*` branch。
-
-## 4. 创建并提交 Draft
-
-1. 选择 Project、Document 和 Branch。
-2. 创建 Draft。
-3. OpenAPI Draft 放 OpenAPI 3.0 或 3.1 内容。
-4. Markdown Draft 放 Markdown 文本。
-5. 提交 Draft 进入 review。
-
-提交后，Draft 还不是事实来源。只有审核通过生成 Version 后，Agent 才应把它当作已发布事实。
-
-## 5. 审核并发布 Version
-
-Project Admin 或 SuperAdmin 打开待审核 Draft：
-
-1. 检查 raw content、normalized content 或 Markdown 内容。
-2. 对 OpenAPI 文档检查 endpoint 列表、endpoint detail、diff 和 breaking change。
-3. 如果内容有问题，request changes 或 reject。
-4. 如果内容正确，approve。
-5. 确认 Version 列表出现新的不可变 Version。
-
-v0.1 不支持 MCP 直接发布。发布门禁在 Admin。
-
-### 5.1 创建和管理公开分享
-
-Project Admin 或 SuperAdmin 在 Documents 页面选择已有发布版本的 Branch 后，可以创建公开分享。默认有效期为三个月，也可选择一个月、六个月、一年或永久；可选密码必须为 12–72 个 UTF-8 字节，且首尾不能包含 Unicode 空白字符。创建后复制完整能力链接，按需重新显示或不可逆撤销。列表会分别标记有效、已过期和已撤销状态；切换 Project 或 Document 后，Admin 会立即清除当前页面展示的能力链接和未提交密码。
-
-## 6. 配置 Admin AI
-
-先由 SuperAdmin 打开系统 AI 设置，填写 OpenAI-compatible `base_url`、`api_mode`、`model`、`api_key`、`enabled` 和需要的 tuning 字段，再运行 provider test。项目需要独立网关、模型或 prompt 时，由 Project Admin 配置项目覆盖并测试。
-
-保存后只应看到 `api_key_set` 和 `api_key_last4` 掩码状态，不应看到原始密钥。提交一个测试 Draft，确认自动摘要可读取。由人类审核发布后，再确认 Version 摘要和页面 chat 可用。AI 只能辅助总结和解释，不能 approve、request changes、reject、modify 或 publish。完整操作和失败状态见 [Admin AI](admin-ai)。
-
-## 7. 创建 MCP Token
-
-在 Admin 中打开 MCP Token 页面：
-
-1. 创建用户绑定的 MCP Token。
-2. 复制创建响应中的 token；active Token 之后也可以在详情中再次查看和复制。
-3. 把 token 放入 Agent runtime 的环境变量或密钥管理。
-4. 不要把 token 写入命令行参数、README、截图、日志或 issue。
-
-列表、已撤销或已过期 Token 只显示脱敏值，这是正常行为。
-
-## 8. 连接 MCP adapter
-
-本机完整 Compose 示例：
+在 Agent 的 MCP 配置中添加 Vdoc。下面适用于支持 `mcpServers` JSON 的客户端；其他客户端用各自的 MCP 设置入口填写相同的命令、参数和环境变量。
 
 ```json
 {
@@ -135,35 +85,50 @@ Project Admin 或 SuperAdmin 在 Documents 页面选择已有发布版本的 Bra
 }
 ```
 
-部署环境把 `VDOC_BASE_URL` 改成浏览器或 Agent 所在机器能访问的 backend origin。也可以直接设置 `VDOC_MCP_URL` 为完整 `/api/v1/open/mcp` endpoint。
+将占位符替换为第 5 步的令牌，保存到客户端的私密配置中，然后重新加载 MCP 连接。这里使用官方 GitHub 仓库的固定提交，版本须与部署包 `workspace.lock.json` 中的 `Vdoc-mcp` 一致；当前包尚未发布到 npm registry。
 
-## 9. 安装 Skill
+`VDOC_BASE_URL` 必须能从 **Agent 运行的机器** 访问。`127.0.0.1` 只适用于 Agent 和 Backend 在同一台机器上；远程 Agent 请使用它能访问的 Backend 地址。完整选项见 [MCP 接入与工具](mcp-tools)。
 
-把 Vdoc Skill 安装到 `$HOME/.agents/skills/vdoc`（个人范围）或 `.agents/skills/vdoc`（当前仓库范围），并确保 `SKILL.md` 位于 skill root。Skill 不保存事实，事实来自 Vdoc MCP。
+客户端应显示 Vdoc 工具已连接，工具清单中应有 `list_projects`、`list_documents` 和 `get_latest_doc`。
 
-## 完成验证
+## 7. 让 Agent 读取文档 {#first-query}
 
-- Admin Dashboard 能打开。
-- `GET /api/v1/private/identity/me` 成功。
-- 至少有一个 Project、Document、Draft 和已发布 Version。
-- Admin AI provider test 成功，Draft 和 Version 摘要可读取，AI 失败不阻塞机器 Diff 或人工审核。
-- MCP Token 创建后没有出现在命令行参数或日志中。
-- Agent 的 `tools/list` 能返回 Vdoc tool schemas。
-- Agent 查询 endpoint 或 Markdown 时，先调用 Vdoc MCP，再基于返回结果回答。
+把下面这句话发送给 Agent：
 
-如果要把本机闭环跑完整，再执行：
-
-```sh
-cd Vdoc
-./scripts/vdoc-e2e.sh live-compose --env-file ../.env --check-only
-./scripts/vdoc-e2e.sh live-compose --env-file ../.env
+```text
+请先通过 Vdoc MCP，找到「Vdoc 试用」项目 dev 分支下
+路径为 docs/team-guide.md 的最新已发布文档。
+根据文档回答：项目代号是什么，提交代码前要做什么？
+请注明文档路径、分支和版本；找不到时明确告诉我，不要自行补写。
 ```
 
-Live E2E 会重置选中的一次性 `VDOC_TEST_POSTGRES_DB`，默认是 `vdoc_e2e`，不会重置应用数据库 `VDOC_POSTGRES_DB`。最后从 workspace root 运行：
+检查这三个结果：
 
-```sh
-scripts/vdoc-release-dry-run.sh --list
-scripts/vdoc-release-dry-run.sh
-```
+- Agent 实际调用了 Vdoc MCP，并使用 `get_latest_doc` 读取已发布内容。
+- 回答包含示例中的 **Northstar** 和 **提交代码前先运行项目测试**。
+- 引用的是 `docs/team-guide.md`、`dev` 分支和已发布的 `v1`；文档 ID 也可用于核对来源。
 
-Release dry-run 不会发布 package 或部署服务。不要把原始 JWT、MCP Token、DB password、storage secret 或 `Authorization` header 值写进文档、日志、截图或 issue。
+这次查询成功后，你就完成了从人工审核到 Agent 使用文档的第一条流程。只看到 `tools/list` 成功，或 Agent 给出了相似回答，都还不能证明它读到了这份文档。
+
+## 如果没有得到预期结果
+
+| 现象                       | 下一步                                                                                    |
+| -------------------------- | ----------------------------------------------------------------------------------------- |
+| MCP 无法启动或连接         | 检查 Agent 机器上的 Node.js、npx、Git，以及 Backend 地址是否可访问；查看客户端 MCP 错误。 |
+| 有工具，但找不到项目或文档 | 确认令牌仍有效、有 `doc:read`，关联用户可访问项目；核对文档路径和 `dev` 分支。            |
+| 找到文档，但没有已发布版本 | 回到审核页批准草稿，再确认版本页已有 `v1`。                                               |
+| Agent 没有查询就回答       | 确认 MCP 已启用，明确要求先调用 `get_latest_doc`；必要时新开会话重试。                    |
+
+更多排查方法见 [故障排查](troubleshooting)。
+
+## 查询成功后，再按需要配置
+
+- **让 Agent 持续按文档协作：** 安装 [Vdoc Skill](skill-workflows#安装)。它引导 Agent 在接口集成、迁移分析和文档修改前先查 Vdoc；实时内容仍来自 MCP。
+- **体验接口变更：** 创建 OpenAPI 文档（支持 OpenAPI 3.0 / 3.1），提交并审核两个版本，按 [接口变更示例](how-it-works#example) 查询 Diff。令牌需有 `api:read`。
+- **启用后台 AI 助手：** 按 [Admin AI](admin-ai) 配置 OpenAI-compatible 提供商，可使用自动摘要和页面内对话。它不能批准、拒绝、修改或发布文档；配置缺失或调用失败不阻塞人工审核。
+- **向项目外分享文档：** 按下面的说明创建公开链接。
+- **验证发布候选：** 维护者可继续执行 [工程验证与发布检查](deployment#工程验证与发布检查)。
+
+### 创建和管理公开分享
+
+Project Admin 或 SuperAdmin 在 Documents 页面选择已有发布版本的 Branch 后，可以创建公开分享。默认有效期为三个月，也可选择一个月、六个月、一年或永久；可选密码必须为 12–72 个 UTF-8 字节，且首尾不能包含 Unicode 空白字符。创建后复制完整能力链接，按需重新显示或不可逆撤销。列表会分别标记有效、已过期和已撤销状态；切换 Project 或 Document 后，Admin 会立即清除当前页面展示的能力链接和未提交密码。

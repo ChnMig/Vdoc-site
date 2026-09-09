@@ -63,7 +63,7 @@ The documentation is grounded in the workspace product and backend documents:
 
 ## Design Direction
 
-The design system is documented in `DESIGN.md` and implemented in `docs/.vitepress/theme/custom.css`: lean VitePress help-center home pages, white documentation canvas, plain text navigation, blue brand actions, default feature cards, and Vdoc trust-loop nouns in both locales.
+The design system is documented in `DESIGN.md` and implemented in `docs/.vitepress/theme/custom.css`: lean VitePress help-center home pages, white documentation canvas, plain text navigation, blue brand actions, and default feature cards. Both locales lead from the product's value to a concrete workflow example, Docker Compose deployment, and a first published Markdown query. Advanced configuration and Admin AI follow the initial trial path.
 
 The public site links to the project repository at <https://github.com/ChnMig/Vdoc>. It is not the authenticated management surface; that role belongs to `Vdoc-admin/`.
 

@@ -1,139 +1,132 @@
 # Deployment Guide
 
-This page is for users who want to run Vdoc. Start with Docker Compose for backend API, Admin, and local dependencies, then move to direct backend/Admin deployment or external PostgreSQL and S3 compatible storage when needed.
+Run Vdoc on your own machine with Docker Compose, open the workbench, then let your agent query its first document. Follow the four steps below for a first trial. Already running Vdoc? Go to [First Use](admin-usage).
 
-## What You Will Run
+## Before You Start
 
-The root `docker-compose.yml` starts four services:
+- Use macOS, Linux, or WSL on Windows, with Docker running and `docker compose version` available.
+- Install Bash, Git, curl, jq, tar, and `shasum` (also required by the initializer).
+- Allow access to GitHub, container registries, and build dependency sources. The first startup builds Backend/Admin locally; duration depends on your connection and machine.
 
-- `postgres`: PostgreSQL for users, projects, review workflow, and version metadata.
-- `rustfs`: S3 compatible object storage for raw and normalized document objects.
-- `backend`: Vdoc API, MCP endpoint, migrations, and object storage writes.
-- `admin`: human workbench.
+This remains a Docker deployment. The download is a Docker Compose bootstrap, not a Backend binary or a bundle of prebuilt images. It supplies Compose, configuration templates, initialization scripts, and an exact source lock.
 
-When `VDOC_DATABASE_ENABLED=true`, backend connects to PostgreSQL and runs Vdoc migrations at startup. Connection or migration failure stops startup instead of falling back to memory mode. When `VDOC_STORAGE_ENABLED=true`, backend connects to object storage and creates the bucket if it is missing.
+The current download is the [v0.1.0-rc.2 release candidate](https://github.com/ChnMig/Vdoc/releases/tag/v0.1.0-rc.2), intended for evaluation. Read [Version Notes](version-notes) and [Upgrade and Rollback](release-rollback) before production use.
 
-## Acquire the Locked Workspace
+## Quick Start (Recommended) {#quick-start}
 
-The `v0.1.0-rc.1` prerelease provides the checksummed, single-entry bootstrap. Do not assemble a workspace from five moving `main` branches. Download the archive and checksum, verify it, and let the initializer fetch the five exact commits from `workspace.lock.json`:
+### 1. Download and Initialize
+
+Run this in a new working directory. Verify the download first, then let the initializer fetch the five exact repository commits from `workspace.lock.json`:
 
 ```sh
-VDOC_BOOTSTRAP_BASE=https://github.com/ChnMig/Vdoc/releases/download/v0.1.0-rc.1
-curl -fLO "$VDOC_BOOTSTRAP_BASE/vdoc-workspace-bootstrap-v0.2.tar.gz"
-curl -fLO "$VDOC_BOOTSTRAP_BASE/vdoc-workspace-bootstrap-v0.2.tar.gz.sha256"
-shasum -a 256 -c vdoc-workspace-bootstrap-v0.2.tar.gz.sha256
-tar -xzf vdoc-workspace-bootstrap-v0.2.tar.gz
+VDOC_BOOTSTRAP_BASE=https://github.com/ChnMig/Vdoc/releases/download/v0.1.0-rc.2
+curl -fLO "$VDOC_BOOTSTRAP_BASE/vdoc-compose-bootstrap-v0.3.tar.gz"
+curl -fLO "$VDOC_BOOTSTRAP_BASE/vdoc-compose-bootstrap-v0.3.tar.gz.sha256"
+shasum -a 256 -c vdoc-compose-bootstrap-v0.3.tar.gz.sha256
+```
+
+Continue only after the checksum reports `OK`:
+
+```sh
+tar -xzf vdoc-compose-bootstrap-v0.3.tar.gz
 cd vdoc-workspace
 scripts/vdoc-workspace-init.sh
 ```
 
-Release page: <https://github.com/ChnMig/Vdoc/releases/tag/v0.1.0-rc.1>. This is a release candidate, not a production-readiness or completed-Pilot claim.
+Run the remaining commands from this workspace root. For an existing workspace, check its version and retain its configuration. Do not assemble a release from five moving `main` branches.
 
-## Option 1: Full Docker Compose
-
-Run commands from the workspace root, the directory that contains `docker-compose.yml`, `.env.example`, `Vdoc/`, `Vdoc-admin/`, `Vdoc-mcp/`, and `Vdoc-skill/`.
+### 2. Generate Configuration and Set Your Login {#initial-admin}
 
 ```sh
 scripts/vdoc-local-bootstrap.sh
 ```
 
-Bootstrap writes a disposable local `.env` and does not print secrets. If you choose to copy `.env.example` by hand instead, replace at least these placeholders:
+The script writes local runtime secrets to `.env` without printing them. **The current script enables local registration and leaves the initial-admin fields blank.** For the fixed-account login used in this guide, open `.env` in a local editor and change these existing fields to your own email, name, and password:
 
-- `VDOC_POSTGRES_PASSWORD`
-- `VDOC_STORAGE_ACCESS_KEY`
-- `VDOC_STORAGE_SECRET_KEY`
-- `VDOC_JWT_KEY`
-- `VDOC_MCP_TOKEN_CIPHER_KEY`
-- `VDOC_INITIAL_ADMIN_EMAIL`
-- `VDOC_INITIAL_ADMIN_PASSWORD`
+```dotenv
+VDOC_AUTH_ALLOW_REGISTRATION=false
+VDOC_INITIAL_ADMIN_EMAIL=admin@example.com
+VDOC_INITIAL_ADMIN_NAME=Vdoc Admin
+VDOC_INITIAL_ADMIN_PASSWORD=replace-with-your-own-password
+```
 
-Bootstrap also records build version, Git commit, and build time from the current `Vdoc/` and `Vdoc-admin/` checkouts. A modified worktree produces a `-dirty` commit, which is local-development provenance only and cannot identify a release or formal Pilot. When `.env.example` is maintained manually, update these values together with `workspace.lock.json`.
+Replace the example password. Use a unique password of 12–72 bytes with no leading or trailing whitespace. Enclose the full password in single quotes if it contains Compose special characters such as `$` or `#`. Save `.env` before starting, and use this email and password to log in.
 
-When registration remains disabled by default (`VDOC_AUTH_ALLOW_REGISTRATION=false`), the first startup against an empty database must provide all three of `VDOC_INITIAL_ADMIN_EMAIL`, `VDOC_INITIAL_ADMIN_NAME`, and `VDOC_INITIAL_ADMIN_PASSWORD`. Backend creates that SuperAdmin only when the user table is empty, and bcrypt hashes the password before storage. The triplet may be blank only in a trusted disposable environment that explicitly enables registration and will disable it immediately after the first account is created.
+With registration disabled, the first startup against an empty database must provide all three of `VDOC_INITIAL_ADMIN_EMAIL`, `VDOC_INITIAL_ADMIN_NAME`, and `VDOC_INITIAL_ADMIN_PASSWORD` to create the initial SuperAdmin. Backend creates this account only when the user table is empty; changing these fields does not reset an existing account.
 
-`.env.example` intentionally leaves the initial-admin placeholders blank so a deployment without a bootstrap path fails closed; it is not a ready-to-run configuration. Use `scripts/vdoc-local-bootstrap.sh` to generate complete values, or fill the triplet manually before startup.
+`.env.example` keeps blank placeholders so startup without a bootstrap path fails closed; it is not a ready-to-run configuration. Do not commit `.env` or put passwords, JWTs, MCP Tokens, storage secrets, or `Authorization` values in screenshots, logs, or docs. The script also refuses to overwrite an existing `.env`; check your existing configuration instead.
 
-Do not commit `.env`, and do not put raw JWTs, MCP Tokens, DB passwords, storage secrets, or `Authorization` header values in docs, logs, screenshots, or issues.
+### 3. Start Vdoc
 
-Validate the Compose config without printing interpolated values:
+Validate the configuration, then build and start after validation succeeds:
 
 ```sh
 docker compose --env-file .env config --quiet
 ```
 
-Start the full stack:
-
 ```sh
 docker compose --env-file .env up -d --build
 ```
+
+Compose starts the workbench (Admin), Backend, PostgreSQL, and RustFS object storage. The database stores users, projects, and version metadata; object storage holds document content.
+
+### 4. Confirm It Is Running
+
+```sh
+docker compose --env-file .env ps
+curl -fsS http://127.0.0.1:8080/api/v1/open/health | jq -e '.detail.healthy == true'
+```
+
+The health check should print `true`. HTTP 200 alone does not prove dependency health; require `.detail.healthy == true`. After the first build, allow the services to become ready before checking.
+
+Open the [Vdoc workbench](http://127.0.0.1:8081) and sign in with the account from step 2. Once the workbench opens and health passes, continue to **[publish your first document and query it with an agent](admin-usage)**. Admin AI configuration and engineering release checks can follow later.
+
+If the page does not open, check `docker compose --env-file .env ps` and the Backend logs. See [Troubleshooting](troubleshooting) for health failures, port conflicts, or login issues.
+
+## Everyday Operations
+
+Continue to run these commands from the workspace root.
 
 Inspect status and logs:
 
 ```sh
 docker compose --env-file .env ps
-docker compose --env-file .env logs -f backend
-docker compose --env-file .env logs --tail=100 admin postgres rustfs
+docker compose --env-file .env logs --tail=100 backend admin postgres rustfs
 ```
 
-Default local URLs:
+Default local addresses:
 
-- Backend health: `http://127.0.0.1:8080/api/v1/open/health`
-- Admin: `http://127.0.0.1:8081`
-- PostgreSQL host port: `127.0.0.1:5432`
-- RustFS S3 API: `http://127.0.0.1:9000`
-- RustFS console: `http://127.0.0.1:9001`
+| Purpose        | Address                                    |
+| -------------- | ------------------------------------------ |
+| Workbench      | `http://127.0.0.1:8081`                    |
+| Backend health | `http://127.0.0.1:8080/api/v1/open/health` |
+| PostgreSQL     | `127.0.0.1:5432`                           |
+| RustFS S3 API  | `http://127.0.0.1:9000`                    |
+| RustFS Console | `http://127.0.0.1:9001`                    |
 
-Health examples:
-
-```sh
-curl http://127.0.0.1:8080/api/v1/open/health
-curl -I http://127.0.0.1:8081/
-docker compose --env-file .env exec backend /app/vdoc --version
-jq -r '.repositories[] | select(.path == "Vdoc") | .commit' workspace.lock.json
-```
-
-Do not check HTTP 200 alone: the Vdoc envelope may still use HTTP 200 when a dependency is unavailable. Deployment probes must require `.detail.healthy == true`. The official backend image healthcheck performs this semantic check. Version output must not be `dev`/`unknown`; a release candidate's Git commit must equal the lock exactly and must not carry `-dirty`. Supported Dockerfiles, Compose files, and the backend CI service pin both the human-readable tag and OCI digest for every base image.
-
-Optional: seed demo data after backend health succeeds:
-
-```sh
-cd Vdoc && go run ./tools/vdoc-demo-seed
-```
-
-Optional: run live E2E against the running root Compose stack:
-
-```sh
-cd Vdoc
-./scripts/vdoc-e2e.sh live-compose --env-file ../.env --check-only
-./scripts/vdoc-e2e.sh live-compose --env-file ../.env
-```
-
-Live E2E resets the selected disposable `VDOC_TEST_POSTGRES_DB`, `vdoc_e2e` by default. It does not use or reset the application database from `VDOC_POSTGRES_DB`. Never point `VDOC_TEST_POSTGRES_DB` at the application database.
-
-Use the release dry-run as the local gate:
-
-```sh
-scripts/vdoc-release-dry-run.sh --list
-scripts/vdoc-release-dry-run.sh
-```
-
-This dry-run runs local checks only. It does not publish packages, deploy services, push images, or create git refs.
-
-Stop while keeping containers and data:
+Stop services while retaining containers and data:
 
 ```sh
 docker compose --env-file .env stop
 ```
 
-Remove containers and networks while keeping named volumes:
+Remove containers and networks, but retain named volumes:
 
 ```sh
 docker compose --env-file .env down
 ```
 
-PostgreSQL 18 stores data below a major-version-specific directory, so the Compose volume is mounted at `/var/lib/postgresql`. If `postgres-data` was created by PostgreSQL 17 or earlier, migrate it with `pg_upgrade` or dump/restore before starting PostgreSQL 18. Compose does not perform major-version migrations automatically; do not use `down -v` during an upgrade.
+PostgreSQL 18 uses a major-version subdirectory, so Compose mounts its named volume at `/var/lib/postgresql`. If `postgres-data` was created by PostgreSQL 17 or earlier, migrate with `pg_upgrade` or dump/restore first. Compose does not automatically perform major-version database migrations.
 
-Do not run `docker compose down -v` outside disposable environments. It deletes `postgres-data`, `rustfs-data`, and `rustfs-logs`.
+Do not run `docker compose down -v` outside a disposable environment: it deletes `postgres-data`, `rustfs-data`, and `rustfs-logs`.
+
+## Manual Configuration and Runtime Behavior
+
+If you copy `.env.example` instead of using the bootstrap script, replace `VDOC_POSTGRES_PASSWORD`, `VDOC_STORAGE_ACCESS_KEY`, `VDOC_STORAGE_SECRET_KEY`, `VDOC_JWT_KEY`, and `VDOC_MCP_TOKEN_CIPHER_KEY`, then complete the initial-admin setup above.
+
+Bootstrap records build version, Git commit, and build time from the `Vdoc/` and `Vdoc-admin/` checkouts. Modified worktrees produce a `-dirty` commit for local development only. When maintaining provenance manually, update it together with `workspace.lock.json`.
+
+With `VDOC_DATABASE_ENABLED=true`, Backend connects to PostgreSQL and runs migrations on startup. Connection or migration failure stops startup instead of falling back to memory mode. With `VDOC_STORAGE_ENABLED=true`, Backend connects to object storage and tries to create a missing bucket.
 
 ## Localhost and Compose Service Names
 
@@ -287,9 +280,41 @@ VDOC_STORAGE_PATH_STYLE=true
 
 Percent encode PostgreSQL passwords before putting them in `VDOC_DATABASE_DSN` if they contain URI-reserved characters. Path style depends on your storage provider.
 
-## Next Step After Deployment
+## Engineering and Release Checks
 
-1. Open backend health and confirm success.
-2. Open Admin and log in with the initial admin. Anonymous registration is disabled by default; only a trusted disposable or pilot environment should temporarily set `VDOC_AUTH_ALLOW_REGISTRATION=true` to register the first user, then disable it and recreate the backend container immediately after bootstrap.
-3. Follow [First Use](admin-usage) to create Project, Document, Draft, Version, and MCP Token.
-4. Connect Agents with [MCP Tools](mcp-tools) and [Skill Workflows](skill-workflows).
+After the first trial, maintainers can run these checks as needed. They are not prerequisites for the first login or agent query.
+
+Check runtime version and locked provenance:
+
+```sh
+docker compose --env-file .env exec backend /app/vdoc --version
+jq -r '.repositories[] | select(.path == "Vdoc") | .commit' workspace.lock.json
+```
+
+A release candidate must not report `dev`/`unknown`, and its Git commit must match the lock without `-dirty`. Supported Dockerfiles, Compose files, and the Backend CI service pin base images by tag and OCI digest.
+
+Optional demo seeding requires Go on the host and a healthy Backend. Parentheses keep your shell in the workspace root afterward:
+
+```sh
+(cd Vdoc && go run ./tools/vdoc-demo-seed)
+```
+
+Maintainers can run live E2E against a disposable test database:
+
+```sh
+(cd Vdoc && ./scripts/vdoc-e2e.sh live-compose --env-file ../.env --check-only)
+(cd Vdoc && ./scripts/vdoc-e2e.sh live-compose --env-file ../.env)
+```
+
+Live E2E resets `VDOC_TEST_POSTGRES_DB` (`vdoc_e2e` by default), not the application database `VDOC_POSTGRES_DB`. Never point the test database setting at the application database.
+
+Run the local release gate from the workspace root:
+
+```sh
+scripts/vdoc-release-dry-run.sh --list
+scripts/vdoc-release-dry-run.sh
+```
+
+These commands do not publish packages, deploy services, push images, or create Git refs. Passing automation does not prove a completed real Pilot. See [Upgrade and Rollback](release-rollback) for release requirements.
+
+Next for your trial: [First Use](admin-usage), where you publish a Markdown document and let your agent read it.

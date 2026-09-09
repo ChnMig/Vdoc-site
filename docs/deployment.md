@@ -1,125 +1,110 @@
 # 部署指南
 
-本页面向想把 Vdoc 跑起来的用户。先用 Docker Compose 启动 backend API、Admin 和本地依赖，再按需要改成直接部署 backend/Admin，或接入外部 PostgreSQL 和 S3 compatible storage。
+用 Docker Compose 在自己的机器上运行 Vdoc，打开工作台，再让 Agent 查询第一份文档。首次试用按下面四步完成；已有环境可直接去 [首次使用](admin-usage)。
 
-## 你会部署什么
+## 开始前准备
 
-根目录 `docker-compose.yml` 会启动四个服务：
+- macOS、Linux 或 Windows 的 WSL 环境，已启动 Docker，且 `docker compose version` 可用。
+- 已安装 Bash、Git、curl、jq、tar 和 `shasum`（初始化脚本也会调用它）。
+- 能访问 GitHub、容器镜像仓库和构建依赖源。首次启动会在本机构建 Backend/Admin，耗时取决于网络与机器性能。
 
-- `postgres`：PostgreSQL，保存用户、项目、审核流和版本元数据。
-- `rustfs`：S3 compatible object storage，保存 raw 和 normalized 文档对象。
-- `backend`：Vdoc API、MCP endpoint、迁移和对象存储写入。
-- `admin`：人工工作台。
+这仍然是 Docker 部署。下载的是 Docker Compose bootstrap，不是 Backend 二进制，也不包含预构建镜像；它提供 Compose、配置模板、初始化脚本和精确源码锁。
 
-Backend 启动时，如果 `VDOC_DATABASE_ENABLED=true`，会连接 PostgreSQL 并自动运行 Vdoc migrations。连接或迁移失败会让启动失败，不会静默退回内存模式。如果 `VDOC_STORAGE_ENABLED=true`，backend 会连接对象存储，bucket 不存在时会自动创建。
+当前下载入口为 [v0.1.0-rc.2 候选版本](https://github.com/ChnMig/Vdoc/releases/tag/v0.1.0-rc.2)，适合评估试用。正式使用前请阅读 [版本说明](version-notes) 和 [升级与回滚](release-rollback)。
 
-## 获取已锁定的 workspace
+## 快速开始（推荐） {#quick-start}
 
-`v0.1.0-rc.1` prerelease 提供 checksummed 单入口 bootstrap。不要从五个移动中的 `main` 分支手工拼 workspace；下载 archive 和 checksum，校验后让 initializer 按 `workspace.lock.json` 获取五个精确提交：
+### 1. 下载并初始化
+
+在一个新的工作目录里执行。先校验下载文件，再让初始化脚本按 `workspace.lock.json` 获取五个仓库的精确提交：
 
 ```sh
-VDOC_BOOTSTRAP_BASE=https://github.com/ChnMig/Vdoc/releases/download/v0.1.0-rc.1
-curl -fLO "$VDOC_BOOTSTRAP_BASE/vdoc-workspace-bootstrap-v0.2.tar.gz"
-curl -fLO "$VDOC_BOOTSTRAP_BASE/vdoc-workspace-bootstrap-v0.2.tar.gz.sha256"
-shasum -a 256 -c vdoc-workspace-bootstrap-v0.2.tar.gz.sha256
-tar -xzf vdoc-workspace-bootstrap-v0.2.tar.gz
+VDOC_BOOTSTRAP_BASE=https://github.com/ChnMig/Vdoc/releases/download/v0.1.0-rc.2
+curl -fLO "$VDOC_BOOTSTRAP_BASE/vdoc-compose-bootstrap-v0.3.tar.gz"
+curl -fLO "$VDOC_BOOTSTRAP_BASE/vdoc-compose-bootstrap-v0.3.tar.gz.sha256"
+shasum -a 256 -c vdoc-compose-bootstrap-v0.3.tar.gz.sha256
+```
+
+看到校验结果 `OK` 后，再继续：
+
+```sh
+tar -xzf vdoc-compose-bootstrap-v0.3.tar.gz
 cd vdoc-workspace
 scripts/vdoc-workspace-init.sh
 ```
 
-发布页：<https://github.com/ChnMig/Vdoc/releases/tag/v0.1.0-rc.1>。这是 release candidate，不代表生产就绪或真实 Pilot 已完成。
+后续命令都在这个 workspace 根目录执行。已有 workspace 请核对原有版本，不要用五个移动中的 `main` 分支拼装，也不要覆盖原配置。
 
-## 方式 1：完整 Docker Compose
-
-从 workspace root 执行命令，也就是包含 `docker-compose.yml`、`.env.example`、`Vdoc/`、`Vdoc-admin/`、`Vdoc-mcp/` 和 `Vdoc-skill/` 的目录。
+### 2. 生成配置，设置登录账号 {#initial-admin}
 
 ```sh
 scripts/vdoc-local-bootstrap.sh
 ```
 
-Bootstrap 会写入本机一次性 `.env`，并且不会把 secret 打印到终端。如果你改为手工复制 `.env.example`，至少替换这些占位符：
+脚本把本机运行密钥写入 `.env`，不会在终端打印密钥。**当前脚本会开启本机注册，并将初始管理员字段留空。** 首次试用按这里的固定账号方式登录：在本机编辑器打开 `.env`，修改以下已有字段，填写你自己的邮箱、名称和密码：
 
-- `VDOC_POSTGRES_PASSWORD`
-- `VDOC_STORAGE_ACCESS_KEY`
-- `VDOC_STORAGE_SECRET_KEY`
-- `VDOC_JWT_KEY`
-- `VDOC_MCP_TOKEN_CIPHER_KEY`
-- `VDOC_INITIAL_ADMIN_EMAIL`
-- `VDOC_INITIAL_ADMIN_PASSWORD`
+```dotenv
+VDOC_AUTH_ALLOW_REGISTRATION=false
+VDOC_INITIAL_ADMIN_EMAIL=admin@example.com
+VDOC_INITIAL_ADMIN_NAME=Vdoc Admin
+VDOC_INITIAL_ADMIN_PASSWORD=replace-with-your-own-password
+```
 
-Bootstrap 还会从当前 `Vdoc/` 和 `Vdoc-admin/` checkout 写入 build version、Git commit 和 build time。工作树有修改时 commit 会带 `-dirty`，这只适用于本机开发，不能作为发布或正式 Pilot 来源。手工维护 `.env.example` 时，这些 provenance 必须和 `workspace.lock.json` 一起更新。
+示例密码必须替换。使用 12–72 字节的独立密码，首尾不要留空格；如果值包含 `$` 或 `#` 等 Compose 特殊字符，请用单引号包住完整密码。保存 `.env` 后再启动，登录时使用这里填写的邮箱和密码。
 
-当注册保持默认关闭（`VDOC_AUTH_ALLOW_REGISTRATION=false`）时，空数据库首次启动必须同时提供 `VDOC_INITIAL_ADMIN_EMAIL`、`VDOC_INITIAL_ADMIN_NAME` 和 `VDOC_INITIAL_ADMIN_PASSWORD`。Backend 只会在用户表为空时创建这个 SuperAdmin，密码入库前会做 bcrypt hash。只有可信的一次性环境显式开启注册、并计划在首个账号创建后立即关闭注册时，才可以留空这组三元组。
+空数据库首次启动必须同时提供 `VDOC_INITIAL_ADMIN_EMAIL`、`VDOC_INITIAL_ADMIN_NAME` 和 `VDOC_INITIAL_ADMIN_PASSWORD`，以便在注册关闭时创建初始 SuperAdmin。Backend 只在用户表为空时创建该账号；已有数据时修改这些字段不会重置现有账号。
 
-`.env.example` 故意把初始管理员字段留成空占位符，以便缺少引导入口时安全失败；它不是可直接启动的配置。请使用 `scripts/vdoc-local-bootstrap.sh` 生成完整值，或在启动前手工填写三元组。
+`.env.example` 保留空占位符，在缺少引导入口时安全失败；它不是可直接启动的配置。不要提交 `.env`，或把密码、JWT、MCP Token、存储密钥和 `Authorization` 值放进截图、日志或文档。脚本也不会覆盖已有 `.env`，已有环境请直接检查原配置。
 
-不要提交 `.env`，也不要把原始 JWT、MCP Token、DB password、storage secret 或 `Authorization` header 值写入文档、日志、截图或 issue。
+### 3. 启动 Vdoc
 
-先校验 Compose 配置，不打印渲染后的 secret：
+先校验配置，通过后再构建并启动：
 
 ```sh
 docker compose --env-file .env config --quiet
 ```
 
-启动完整系统：
-
 ```sh
 docker compose --env-file .env up -d --build
 ```
+
+Compose 会启动工作台（Admin）、后端（Backend）、PostgreSQL 数据库和 RustFS 对象存储。数据库保存用户、项目和版本元数据，对象存储保存文档内容。
+
+### 4. 确认启动成功
+
+```sh
+docker compose --env-file .env ps
+curl -fsS http://127.0.0.1:8080/api/v1/open/health | jq -e '.detail.healthy == true'
+```
+
+健康检查应输出 `true`。仅 HTTP 200 不足以说明依赖正常；必须确认 `.detail.healthy == true`。首次构建后，等待服务就绪再检查。
+
+在浏览器打开 [Vdoc 工作台](http://127.0.0.1:8081)，用第 2 步设置的账号登录。能打开工作台且健康检查通过后，继续 **[发布第一份文档并让 Agent 查询](admin-usage)**。无需先配置 Admin AI 或执行工程发布检查。
+
+如果页面打不开，先查看 `docker compose --env-file .env ps` 和 Backend 日志。健康检查失败、端口冲突或登录失败时，参阅 [故障排查](troubleshooting)。
+
+## 部署后的日常管理
+
+以下命令仍从 workspace 根目录执行。
 
 查看状态和日志：
 
 ```sh
 docker compose --env-file .env ps
-docker compose --env-file .env logs -f backend
-docker compose --env-file .env logs --tail=100 admin postgres rustfs
+docker compose --env-file .env logs --tail=100 backend admin postgres rustfs
 ```
 
 默认本机访问地址：
 
-- Backend health：`http://127.0.0.1:8080/api/v1/open/health`
-- Admin：`http://127.0.0.1:8081`
-- PostgreSQL host port：`127.0.0.1:5432`
-- RustFS S3 API：`http://127.0.0.1:9000`
-- RustFS console：`http://127.0.0.1:9001`
+| 用途             | 地址                                       |
+| ---------------- | ------------------------------------------ |
+| 工作台           | `http://127.0.0.1:8081`                    |
+| Backend 健康检查 | `http://127.0.0.1:8080/api/v1/open/health` |
+| PostgreSQL       | `127.0.0.1:5432`                           |
+| RustFS S3 API    | `http://127.0.0.1:9000`                    |
+| RustFS Console   | `http://127.0.0.1:9001`                    |
 
-健康检查示例：
-
-```sh
-curl http://127.0.0.1:8080/api/v1/open/health
-curl -I http://127.0.0.1:8081/
-docker compose --env-file .env exec backend /app/vdoc --version
-jq -r '.repositories[] | select(.path == "Vdoc") | .commit' workspace.lock.json
-```
-
-不要只检查 HTTP 200；Vdoc 的业务 envelope 在依赖异常时仍可能返回 HTTP 200。部署探针必须确认 `.detail.healthy == true`。官方 backend image 的 healthcheck 已执行该语义检查。版本输出不能是 `dev`/`unknown`，正式候选的 Git commit 必须和 lock 完全一致且不能带 `-dirty`。受支持 Dockerfile、Compose 和 backend CI service 的基础镜像都同时固定 tag 与 OCI digest。
-
-可选：backend 健康后写入 demo 数据：
-
-```sh
-cd Vdoc && go run ./tools/vdoc-demo-seed
-```
-
-可选：用正在运行的 root Compose 做 live E2E：
-
-```sh
-cd Vdoc
-./scripts/vdoc-e2e.sh live-compose --env-file ../.env --check-only
-./scripts/vdoc-e2e.sh live-compose --env-file ../.env
-```
-
-Live E2E 会重置选中的一次性 `VDOC_TEST_POSTGRES_DB`，默认是 `vdoc_e2e`。它不会使用或重置 `VDOC_POSTGRES_DB` 指向的应用数据库。不要把 `VDOC_TEST_POSTGRES_DB` 指向应用数据库。
-
-本机发布门禁使用 release dry-run：
-
-```sh
-scripts/vdoc-release-dry-run.sh --list
-scripts/vdoc-release-dry-run.sh
-```
-
-这个 dry-run 只运行本机检查，不会发布 package、部署服务、push image 或创建 git ref。
-
-停止但保留容器和数据：
+停止服务并保留容器和数据：
 
 ```sh
 docker compose --env-file .env stop
@@ -131,9 +116,17 @@ docker compose --env-file .env stop
 docker compose --env-file .env down
 ```
 
-PostgreSQL 18 会把数据放在带主版本号的子目录中，因此 Compose 把 named volume 挂载到 `/var/lib/postgresql`。如果 `postgres-data` 是由 PostgreSQL 17 或更早版本创建的，必须先通过 `pg_upgrade` 或 dump/restore 完成迁移，再启动 PostgreSQL 18。Compose 不会自动执行数据库主版本迁移，升级过程中也不要使用 `down -v`。
+PostgreSQL 18 会把数据放在带主版本号的子目录中，因此 Compose 把 named volume 挂载到 `/var/lib/postgresql`。如果 `postgres-data` 来自 PostgreSQL 17 或更早版本，必须先通过 `pg_upgrade` 或 dump/restore 完成迁移。Compose 不会自动执行数据库主版本迁移。
 
 不要在非一次性环境运行 `docker compose down -v`，它会删除 `postgres-data`、`rustfs-data` 和 `rustfs-logs`。
+
+## 手工配置和运行行为
+
+如果不使用初始化脚本，手工复制 `.env.example` 后，还需替换 `VDOC_POSTGRES_PASSWORD`、`VDOC_STORAGE_ACCESS_KEY`、`VDOC_STORAGE_SECRET_KEY`、`VDOC_JWT_KEY` 和 `VDOC_MCP_TOKEN_CIPHER_KEY`，并完成上面的初始管理员设置。
+
+Bootstrap 会从 `Vdoc/` 和 `Vdoc-admin/` checkout 写入 build version、Git commit 和 build time。工作树有修改时 commit 会带 `-dirty`，只适用于本机开发；手工维护来源信息时，需要与 `workspace.lock.json` 一起更新。
+
+`VDOC_DATABASE_ENABLED=true` 时，Backend 启动会连接 PostgreSQL 并自动运行 migrations；连接或迁移失败会停止启动，不会静默退回内存模式。`VDOC_STORAGE_ENABLED=true` 时，Backend 会连接对象存储，bucket 不存在时会尝试创建。
 
 ## 本机地址和 Compose 服务名
 
@@ -287,9 +280,41 @@ VDOC_STORAGE_PATH_STYLE=true
 
 如果 PostgreSQL password 包含 URI 保留字符，放进 `VDOC_DATABASE_DSN` 前要 percent encode。外部对象存储是否使用 path style 取决于供应商要求。
 
-## 部署完成后的下一步
+## 工程验证与发布检查
 
-1. 打开 backend health，确认返回成功。
-2. 打开 Admin，使用初始管理员登录。匿名注册默认关闭；只有可信的一次性或试点环境才可显式设置 `VDOC_AUTH_ALLOW_REGISTRATION=true` 后注册第一个用户，并应在引导完成后立即关闭并重建 backend container。
-3. 按 [首次使用](admin-usage) 创建 Project、Document、Draft、Version 和 MCP Token。
-4. 按 [MCP 工具](mcp-tools) 和 [Skill 工作流](skill-workflows) 连接 Agent。
+首次试用完成后，维护者可按需执行这些检查。它们不属于首次登录和 Agent 查询的必经步骤。
+
+检查运行版本与锁定来源：
+
+```sh
+docker compose --env-file .env exec backend /app/vdoc --version
+jq -r '.repositories[] | select(.path == "Vdoc") | .commit' workspace.lock.json
+```
+
+正式候选版本不能是 `dev`/`unknown`，Git commit 必须与 lock 一致且不带 `-dirty`。受支持 Dockerfile、Compose 和 Backend CI service 的基础镜像均固定 tag 与 OCI digest。
+
+可选 demo 数据需要宿主机安装 Go，并在 Backend 健康后执行；括号让命令结束后仍留在 workspace 根目录：
+
+```sh
+(cd Vdoc && go run ./tools/vdoc-demo-seed)
+```
+
+维护者可在一次性测试数据库中执行 live E2E：
+
+```sh
+(cd Vdoc && ./scripts/vdoc-e2e.sh live-compose --env-file ../.env --check-only)
+(cd Vdoc && ./scripts/vdoc-e2e.sh live-compose --env-file ../.env)
+```
+
+Live E2E 会重置 `VDOC_TEST_POSTGRES_DB`（默认 `vdoc_e2e`），不会重置应用数据库 `VDOC_POSTGRES_DB`。不要把测试数据库指向应用数据库。
+
+从 workspace 根目录运行本机发布门禁：
+
+```sh
+scripts/vdoc-release-dry-run.sh --list
+scripts/vdoc-release-dry-run.sh
+```
+
+这些命令不会发布 package、部署服务、推送镜像或创建 Git ref；通过自动化检查不代表真实 Pilot 已完成。完整发布要求见 [升级与回滚](release-rollback)。
+
+部署试用的下一步是 [首次使用](admin-usage)：发布一份 Markdown，再让 Agent 读到它。
