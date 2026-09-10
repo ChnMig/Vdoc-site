@@ -41,12 +41,12 @@ stdout is reserved for MCP protocol frames. Read stderr for diagnostics.
 
 ## Environment Variables
 
-| Variable              | Required                               | Purpose                                                            |
-| --------------------- | -------------------------------------- | ------------------------------------------------------------------ |
-| `VDOC_BASE_URL`       | Required if `VDOC_MCP_URL` is not set  | Vdoc backend origin; adapter appends `/api/v1/open/mcp`.           |
-| `VDOC_MCP_URL`        | Required if `VDOC_BASE_URL` is not set | Full Vdoc MCP endpoint URL; overrides `VDOC_BASE_URL`.             |
-| `VDOC_MCP_TOKEN`      | Yes                                    | MCP Token created in Admin; store only in Agent config or secrets. |
-| `VDOC_MCP_TIMEOUT_MS` | No                                     | HTTP timeout in milliseconds, default `30000`.                     |
+| Variable              | Required                               | Purpose                                                                                                        |
+| --------------------- | -------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `VDOC_BASE_URL`       | Required if `VDOC_MCP_URL` is not set  | Vdoc backend origin; adapter appends `/api/v1/open/mcp`.                                                       |
+| `VDOC_MCP_URL`        | Required if `VDOC_BASE_URL` is not set | Full Vdoc MCP endpoint URL; overrides `VDOC_BASE_URL`.                                                         |
+| `VDOC_MCP_TOKEN`      | Yes                                    | MCP Token created in Admin; store only in Agent config or secrets.                                             |
+| `VDOC_MCP_TIMEOUT_MS` | No                                     | HTTP timeout in milliseconds, default `180000`, range `1`–`180000`; allow this duration in the agent host too. |
 
 For local full Compose, `VDOC_BASE_URL` is usually `http://127.0.0.1:8080`. For remote deployments, use a backend domain reachable from the Agent machine.
 
@@ -77,7 +77,7 @@ If you already know the full MCP endpoint, use this form:
   "env": {
     "VDOC_MCP_URL": "https://your-vdoc.example.test/api/v1/open/mcp",
     "VDOC_MCP_TOKEN": "REPLACE_WITH_LOCAL_VDOC_MCP_TOKEN",
-    "VDOC_MCP_TIMEOUT_MS": "30000"
+    "VDOC_MCP_TIMEOUT_MS": "180000"
   }
 }
 ```
@@ -127,6 +127,8 @@ v0.1 draft tools cover creating, updating, viewing, and submitting OpenAPI and M
 <!-- VDOC_MCP_TOOL_INVENTORY_END -->
 
 The current source version adds `list_document_branches` for branch IDs, names, defaults and protection status, including unpublished branches, and `list_api_endpoints` for endpoint IDs in a selected version. The endpoint list accepts optional `method` and exact OpenAPI `path` filters. Resolve these IDs before querying details or creating the first draft. Branch discovery requires the target document type's read scope. Older release deployments may not include these tools; check their runtime inventory and upgrade Backend with Skill.
+
+The current backend's `get_endpoint_detail` includes definitions of the endpoint's active security schemes in `normalized_operation.securitySchemes`. Header, location, or type changes to the same scheme appear in version comparisons. OpenAPI 3.1 Schema `$ref` sibling constraints are preserved, and operation parameters override path parameters by `name + in`. After an upgrade, reading historical endpoints or comparisons refreshes older parsed facts from the original documents while retaining version and endpoint IDs. Upgrade older backends to receive these facts.
 
 Use the current backend `tools/list` response as the final tool list. v0.1 does not expose direct publish tools.
 

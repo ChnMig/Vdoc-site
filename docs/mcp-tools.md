@@ -41,12 +41,12 @@ stdout 保留给 MCP protocol，普通诊断看 stderr。
 
 ## 环境变量
 
-| Variable              | 是否必填                        | 说明                                                              |
-| --------------------- | ------------------------------- | ----------------------------------------------------------------- |
-| `VDOC_BASE_URL`       | 当未设置 `VDOC_MCP_URL` 时必填  | Vdoc backend origin，adapter 会追加 `/api/v1/open/mcp`。          |
-| `VDOC_MCP_URL`        | 当未设置 `VDOC_BASE_URL` 时必填 | 完整 Vdoc MCP endpoint URL，设置后覆盖 `VDOC_BASE_URL`。          |
-| `VDOC_MCP_TOKEN`      | 必填                            | Admin 中创建的 MCP Token，只放在 Agent config 或 secret storage。 |
-| `VDOC_MCP_TIMEOUT_MS` | 可选                            | HTTP timeout，单位毫秒，默认 `30000`。                            |
+| Variable              | 是否必填                        | 说明                                                                                           |
+| --------------------- | ------------------------------- | ---------------------------------------------------------------------------------------------- |
+| `VDOC_BASE_URL`       | 当未设置 `VDOC_MCP_URL` 时必填  | Vdoc backend origin，adapter 会追加 `/api/v1/open/mcp`。                                       |
+| `VDOC_MCP_URL`        | 当未设置 `VDOC_BASE_URL` 时必填 | 完整 Vdoc MCP endpoint URL，设置后覆盖 `VDOC_BASE_URL`。                                       |
+| `VDOC_MCP_TOKEN`      | 必填                            | Admin 中创建的 MCP Token，只放在 Agent config 或 secret storage。                              |
+| `VDOC_MCP_TIMEOUT_MS` | 可选                            | HTTP timeout，单位毫秒，默认 `180000`，范围 `1`–`180000`；agent 宿主的调用超时也需允许此时长。 |
 
 完整 Compose 本机部署时，`VDOC_BASE_URL` 通常是 `http://127.0.0.1:8080`。远程部署时，改成 Agent 所在机器能访问的 backend 域名。
 
@@ -77,7 +77,7 @@ stdout 保留给 MCP protocol，普通诊断看 stderr。
   "env": {
     "VDOC_MCP_URL": "https://your-vdoc.example.test/api/v1/open/mcp",
     "VDOC_MCP_TOKEN": "REPLACE_WITH_LOCAL_VDOC_MCP_TOKEN",
-    "VDOC_MCP_TIMEOUT_MS": "30000"
+    "VDOC_MCP_TIMEOUT_MS": "180000"
   }
 }
 ```
@@ -127,6 +127,8 @@ v0.1 draft tools 覆盖 OpenAPI 和 Markdown Draft 的创建、更新、查看�
 <!-- VDOC_MCP_TOOL_INVENTORY_END -->
 
 当前源码新增 `list_document_branches`，可查询分支 ID、名称、默认及保护状态，尚未发布版本的分支也能查询；`list_api_endpoints` 查询指定版本的接口 ID，可用 `method` 和精确 OpenAPI `path` 筛选。先取得这些 ID，再查询详情或创建首份草稿。分支查询要求对应文档类型的 read scope。旧发布包可能尚无这两个工具，请检查实际工具列表，并配套升级 Backend 与 Skill。
+
+当前后端的 `get_endpoint_detail` 在 `normalized_operation.securitySchemes` 中返回接口实际使用的鉴权方案定义；同名方案的 Header、位置或类型变化会出现在版本差异中。OpenAPI 3.1 的 Schema `$ref` 同级约束会保留，Operation 参数按 `name + in` 覆盖 Path 参数。升级后读取历史接口或比较时会从原始文档更新旧解析结果，原版本和接口 ID 保持不变。旧部署应先升级 Backend。
 
 实际工具列表以当前 backend `tools/list` 返回为准。v0.1 不暴露 direct publish tools。
 
