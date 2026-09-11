@@ -198,8 +198,13 @@ for file in \
   "$ROOT_DIR/Vdoc-mcp/examples/opencode.jsonc"; do
   assert_file_contains "$file" 'github:ChnMig/Vdoc-mcp#<VDOC_MCP_COMMIT_FROM_WORKSPACE_LOCK>'
 done
-assert_file_contains "$ROOT_DIR/Vdoc-admin/src/features/vdoc-admin/pages.tsx" "const vdocSkillCommit = '$skill_lock_commit'"
-assert_file_contains "$ROOT_DIR/Vdoc-admin/src/features/vdoc-admin/pages.tsx" "github:ChnMig/Vdoc-mcp#$mcp_lock_commit"
+admin_skill_source="$ROOT_DIR/Vdoc-admin/src/features/vdoc-admin/skill-page.tsx"
+admin_mcp_source="$ROOT_DIR/Vdoc-admin/src/features/vdoc-admin/page-utils.ts"
+# Released Admin refs may predate page splitting; verify their existing barrel.
+[[ -f "$admin_skill_source" ]] || admin_skill_source="$ROOT_DIR/Vdoc-admin/src/features/vdoc-admin/pages.tsx"
+[[ -f "$admin_mcp_source" ]] || admin_mcp_source="$ROOT_DIR/Vdoc-admin/src/features/vdoc-admin/pages.tsx"
+assert_file_contains "$admin_skill_source" "const vdocSkillCommit = '$skill_lock_commit'"
+assert_file_contains "$admin_mcp_source" "github:ChnMig/Vdoc-mcp#$mcp_lock_commit"
 assert_backend_root_docs_are_distributed
 
 [[ -f "$ROOT_DIR/LICENSE" && ! -L "$ROOT_DIR/LICENSE" ]] || fail 'workspace root MIT license is missing'

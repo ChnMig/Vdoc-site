@@ -70,6 +70,7 @@
 | `document_diff_items` | 机器可读 Diff 条目。 |
 | `ai_providers` | 系统级和项目级 OpenAI-compatible Provider 配置。保存加密后的 API Key、`api_key_last4`、`api_mode`、`temperature`、`timeout_ms`、`max_output_tokens` 和启用状态。 |
 | `ai_prompt_overrides` | 系统级和项目级 AI Prompt 覆盖。 |
+| `ai_summary_jobs` | 提交、发布和手动生成摘要的持久化队列；按 available_at 认领，lease_token 防止其他 worker 完成当前租约。 |
 | `ai_summaries` | Draft、Version、Diff 的 AI 总结记录。状态使用 `pending`、`skipped`、`succeeded`、`failed`，失败摘要存 `error_message`；生成 token 防止旧请求乱序回写。 |
 | `ai_chat_sessions` / `ai_chat_messages` | 页面级 AI Chat 会话和消息，关联 draft、version 或 diff 上下文；会话生成 token 在多实例下提供 latest-request-wins 顺序。 |
 | `mcp_tokens` | MCP Token 哈希、密文和状态。 |
@@ -134,8 +135,22 @@
 | `max_output_tokens` | `integer` | 默认 `1000`，范围 `1` 到 `32000` | Provider 最大输出 token 数。 |
 | `api_key_ciphertext`、`cipher_kid`、`api_key_last4` | `bytea` / `text` | 必填 / 可空 | API Key 只加密保存和显示末四位，明文不写入响应或审计。 |
 
-`ai_summaries` 以 `owner_type` 和 `owner_id` 绑定 draft、version 或 diff。提交 Draft 后自动尝试生成 draft summary，审计 trigger 记录为 `draft_submit`。Approve 发布 Version 后自动尝试生成 version summary，审计 trigger 记录为 `version_publish`。自动总结在状态变更保存后执行，AI 失败不会回滚 submit 或 publish。
+`ai_summaries` 以 `owner_type` 和 `owner_id` 绑定 draft、version 或 diff。提交 Draft 后自动尝试生成 draft summary，审计 trigger 记录为 `draft_submit`。Approve 发布 Version 后自动尝试生成 version summary，审计 trigger 记录为 `version_publish`。摘要 pending 状态、后台任务与提交/发布状态在同一事务中保存。Provider 调用由独立后台 worker 执行，接口立即返回，AI 失败不会回滚 submit 或 publish。
 
-`ai_summaries.status` 使用 `pending`、`skipped`、`succeeded`、`failed`。开始调用 Provider 时写入 `pending` 和内部 `generation_token`；Provider 未配置或 Prompt 被禁用时写入 `skipped`；Provider 调用失败时写入 `failed`；成功时写入 `succeeded` 和总结内容。完成写入必须匹配当前 token，且重新校验权限、目标上下文、Provider 和 Prompt；`error_message` 只保存非敏感失败摘要。
+`ai_summaries.status` 使用 `pending`、`skipped`、`succeeded`、`failed`。排队时写入 `pending` 和内部 `generation_token`（任务 ID）；Provider 未配置或 Prompt 被禁用时写入 `skipped`；Provider 调用失败时写入 `failed`；成功时写入 `succeeded` 和总结内容。完成写入必须匹配当前 token，且重新校验权限、目标上下文、Provider 和 Prompt；`error_message` 只保存非敏感失败摘要。
 
 AI summary、Provider test 和 Chat 调用写入 `audit_logs.metadata`。当 Provider 返回 token usage 时，metadata 保存 `prompt_tokens`、`completion_tokens`、`total_tokens`。API Key、JWT、MCP Token 和 Authorization header 不写入审计 metadata。
+
+## 后台任务和有界查询（迁移 005）
+
+`ai_summary_jobs` 保存 `id`、`actor_id`、`project_id`、`document_id`、`owner_type`、`owner_id`、`trigger`、`request_id`、`attempts`、`lease_token`、`available_at` 和 `created_at`。不保存凭据、提示词或文档正文。每个进程使用一个 worker，以 `FOR UPDATE SKIP LOCKED` 认领任务；租约为 180 秒，每次执行最多 150 秒。重启后从数据库继续处理到期任务；完成或终止失败后按租约删除任务。未配置 Provider 时直接记录 `skipped`，不排队。
+
+版本、接口和审计分别有 `(document_id,published_at,id)`、`(document_version_id,path,method,id)`、`(project_id,created_at,id)` 索引。版本与接口支持服务端 limit/offset 和搜索；审计采用 `(created_at,id)` 游标，不再限于最近 200 条历史。写操作的工作快照不加载审计历史和任务队列；文档、版本、接口读取使用当前资源的局部权限快照。跨资源写事务仍沿用现有并发控制和权限规则。
+
+## 概览与遗留任务恢复（迁移 006）
+
+`audit_logs_document_readiness_idx` 对成功的 `published_content_read` 审计记录建立 `(project_id, document_id, actor_token_id, created_at DESC)` 部分索引。首页按当前文档和用户的有效读取令牌查询最近成功时间，不再依赖最近 200 条调用窗口。
+
+`ai_summaries_orphan_recovery_idx` 对 pending 摘要的 `COALESCE(generation_started_at, updated_at)` 建立部分索引。worker 启动时及每分钟检查：超过 5 分钟且没有对应 `ai_summary_jobs` 的记录改为 failed，清空生成 token，允许重新生成；仍有持久化任务的记录保持原租约恢复流程。
+
+文档概览通过 SQL 统计版本、最新版本接口数、已发布的有效分支和草稿审阅状态。版本发布时将 `raw_line_count` 写入已有 `document_versions.schema_metadata`，字节数沿用 `schema_size_bytes`。旧 Markdown 版本首次请求概览时校验并读取原文，仅补齐这两项派生统计；后续概览不读取对象正文。摘要轮询只加载目标、权限上下文和单条摘要，不使用跨项目工作快照。
