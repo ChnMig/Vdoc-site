@@ -26,6 +26,22 @@
   scroll-margin-top: calc(var(--vp-nav-height) + 72px);
 }
 
+/* Share frequent Shiki color pairs across code tokens without changing either theme. */
+.vp-code .vp-code-string {
+  --shiki-light: #032f62;
+  --shiki-dark: #9ecbff;
+}
+
+.vp-code .vp-code-value {
+  --shiki-light: #005cc5;
+  --shiki-dark: #79b8ff;
+}
+
+.vp-code .vp-code-text {
+  --shiki-light: #24292e;
+  --shiki-dark: #e1e4e8;
+}
+
 html:not(.dark) .vp-code span[style*='--shiki-light:#D73A49'] {
   --shiki-light: #c12a3a !important;
 }

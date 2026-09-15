@@ -613,6 +613,10 @@ Document Version 是某个 Document 在某个 Branch 下的一次不可变快照
 
 Document Draft 是待审核的文档草稿，始终写入目标 branch。AI 可以通过 MCP 创建、更新和提交草稿，但不能直接发布为正式版本。
 
+OpenAPI 和 Markdown 草稿更新必须携带编辑快照的 `expected_revision`。版本标识由正文 hash、可编辑元数据和审核状态生成，不受数据库时间精度和缓存刷新影响。旧快照更新失败时保留本地修改，重新读取并合并后再保存；REST 正文响应同时返回同一快照的 `draft` 元数据。
+
+已提交草稿还返回 `review_revision`。批准、要求修改和拒绝必须携带审核人实际查看的正文快照中 `detail.draft.review_revision`，请求字段名为 `expected_review_revision`。它绑定内容、提交轮次和预览使用的分支最新版本；缺失时返回 `INVALID_ARGUMENT`，内容修改、再次提交（包括相同内容）或分支已有新发布时返回 `FAILED_PRECONDITION`。此时保留审阅备注，重新加载正文和差异后再作决定；发布事务还会再次核对草稿和分支基线。已发布草稿保留历史审核基线。后端与 Admin 需同步升级。
+
 跨分支 Promote 也落到草稿：例如把 `dev` 最新已发布文档合并到 `prod` 时，Vdoc 创建 `prod` 分支草稿，记录 `source_branch_id`、`source_version_id` 和目标分支的 `base_version_id`，生成 Diff Preview 后再走普通审核发布。
 
 Document Draft 支持：
@@ -1532,8 +1536,8 @@ Markdown 文档只做纯文件 Diff，不做 Markdown AST 语义 Diff。Diff Pre
 - 新增必填 query 参数
 - 新增必填 header 参数
 - 新增 request body 必填字段
-- 请求字段类型变化
-- 请求字段 enum 删除值
+- 请求字段类型变化，包括 query、header、cookie、path 参数中的数组元素和嵌套属性
+- 请求字段 enum 删除值，以及从无限制变为有限枚举；取消枚举限制属于兼容变更
 - request content-type 删除
 
 响应侧 breaking：
@@ -1542,7 +1546,7 @@ Markdown 文档只做纯文件 Diff，不做 Markdown AST 语义 Diff。Diff Pre
 - 响应字段类型变化
 - 响应结构层级变化
 - 删除 2xx 响应状态码
-- 响应字段 enum 删除值
+- 响应字段 enum 删除值，以及取消枚举限制后可能返回更多值；为原本无限制的响应增加枚举限制属于兼容变更
 
 通常兼容：
 
@@ -2287,7 +2291,7 @@ api:draft
   "project_id": "proj_xxx",
   "document_id": "doc_user_api",
   "draft_id": "draft_003",
-  "branch_id": "branch_dev",
+  "expected_revision": "revision_from_read",
   "version_name": "1.2.0",
   "schema_content": "openapi: 3.1.0\n...",
   "source_git_commit_id": "8f4d2a1c9b0e7f6a5d4c3b2a19087654321abcd0",
@@ -2300,6 +2304,7 @@ api:draft
 ```json
 {
   "id": "draft_003",
+  "revision": "new_revision",
   "status": 1,
   "raw_content_hash": "sha256_hex",
   "normalized_content_hash": "sha256_hex",

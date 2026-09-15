@@ -107,6 +107,10 @@ BRANCH_ID=$(curl_with_jwt -sS "$API_BASE/api/v1/private/projects/$PROJECT_ID/doc
 
 OpenAPI Draft 可以提交 OpenAPI 3.0 或 3.1 内容为 `schema_content`。Markdown Draft 使用相同 private REST draft routes，可提交 Markdown 文本为 `schema_content` 或 `content`。MCP Markdown draft tools 使用 `markdown_content`。`content_kind` 对 OpenAPI 接受 `raw` 或 `normalized`，对 Markdown 接受 `raw` 或 `stable`。
 
+草稿响应包含不透明的 `revision`。REST 草稿 PATCH 和 MCP `update_api_version_draft` / `update_doc_draft` 必须携带编辑时读取的 `expected_revision`。缺失时返回 `INVALID_ARGUMENT`，版本过期时返回 `FAILED_PRECONDITION`，不会更改草稿；应重新读取并合并本地修改后再保存。REST 草稿正文响应中的 `detail.draft`、`content` 和 `hash` 来自同一快照，编辑器使用其中的元数据和版本标识。升级时需同步部署后端与 Admin，并让 MCP 客户端传递这个新增必填字段。
+
+已提交草稿还返回 `review_revision`。批准、要求修改和拒绝必须携带审核人实际查看的正文快照中 `detail.draft.review_revision`，请求字段名为 `expected_review_revision`。它绑定内容、提交轮次和预览使用的分支最新版本；缺失时返回 `INVALID_ARGUMENT`，内容修改、再次提交（包括相同内容）或分支已有新发布时返回 `FAILED_PRECONDITION`。此时保留审阅备注，重新加载正文和差异后再作决定；发布事务还会再次核对草稿和分支基线。已发布草稿保留历史审核基线。后端与 Admin 需同步升级。
+
 运行下面的 OpenAPI 示例前，先把 `SCHEMA_V1` 设成合法 JSON 字符串，例如用 `jq -Rs . < openapi.yaml` 生成。
 
 ```sh
@@ -118,8 +122,12 @@ DRAFT_ID=$(printf '%s' "$DRAFT_RESPONSE" | jq -r '.detail.id')
 curl_with_jwt -sS "$API_BASE/api/v1/private/projects/$PROJECT_ID/documents/$DOCUMENT_ID/drafts/$DRAFT_ID/submit" \
   -X POST
 
+REVIEW_SNAPSHOT=$(curl_with_jwt -sS "$API_BASE/api/v1/private/projects/$PROJECT_ID/documents/$DOCUMENT_ID/drafts/$DRAFT_ID/content/raw")
+printf '%s' "$REVIEW_SNAPSHOT" | jq '{content: .detail.content, diff: .detail.draft.diff_preview}'
+# Inspect the content and diff before approving this snapshot.
+REVIEW_BODY=$(printf '%s' "$REVIEW_SNAPSHOT" | jq -c '{expected_review_revision: .detail.draft.review_revision}')
 VERSION_RESPONSE=$(curl_with_jwt -sS "$API_BASE/api/v1/private/projects/$PROJECT_ID/documents/$DOCUMENT_ID/drafts/$DRAFT_ID/approve" \
-  -X POST)
+  -X POST -H 'Content-Type: application/json' -d "$REVIEW_BODY")
 VERSION_ID=$(printf '%s' "$VERSION_RESPONSE" | jq -r '.detail.id')
 ```
 

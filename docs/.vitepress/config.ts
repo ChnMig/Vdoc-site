@@ -1,4 +1,5 @@
 import { defineConfig, type DefaultTheme } from 'vitepress'
+import { sharedCodeColors } from './code-colors'
 
 const githubUrl = 'https://github.com/ChnMig/Vdoc'
 const base = process.env['VITEPRESS_BASE'] ?? '/'
@@ -115,6 +116,7 @@ export default defineConfig({
   cleanUrls: true,
   appearance: false,
   lastUpdated: true,
+  markdown: { codeTransformers: [sharedCodeColors] },
   head: [
     [
       'link',
