@@ -7,7 +7,7 @@ test.describe('focused desktop interactions', () => {
   test('serves the Compose archive and matching checksum inside the selected base', async ({
     request,
   }) => {
-    const archiveName = 'vdoc-compose-bootstrap-v0.3.tar.gz'
+    const archiveName = 'vdoc-compose-bootstrap-v0.1.0.tar.gz'
     // VitePress preview marks .gz as HTTP gzip. Read the wire bytes like the
     // documented curl -fLO command, without an HTTP client's auto-decompression.
     const archive = execFileSync('curl', [

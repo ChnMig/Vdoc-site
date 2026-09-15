@@ -16,10 +16,10 @@ import { projectRoot, readProjectText } from './contract-helpers'
 
 const manifest = JSON.parse(
   readProjectText('workspace/workspace-distribution.json'),
-) as { artifact_name: string }
+) as { artifact_name: string; root_directory: string }
 const archiveName = `${manifest.artifact_name}.tar.gz`
 
-function fixture() {
+function fixture(candidate = false) {
   const root = mkdtempSync(join(tmpdir(), 'vdoc-site-package-test-'))
   const built = join(root, 'docs/.vitepress/dist')
   const downloads = join(root, 'docs/public/downloads')
@@ -41,10 +41,54 @@ function fixture() {
     copyFileSync(source, join(downloads, file))
     copyFileSync(source, join(built, 'downloads', file))
   }
+  // Fixtures exercise the packaging boundary independently of publication status.
+  const unpacked = join(root, 'bootstrap')
+  mkdirSync(unpacked)
+  execFileSync('tar', ['-xzf', join(downloads, archiveName), '-C', unpacked])
+  const lockPath = join(
+    unpacked,
+    manifest.root_directory,
+    'workspace.lock.json',
+  )
+  const lock = JSON.parse(readFileSync(lockPath, 'utf8'))
+  if (candidate) lock.candidate = true
+  else delete lock.candidate
+  writeFileSync(lockPath, JSON.stringify(lock))
+  execFileSync('tar', [
+    '-czf',
+    join(downloads, archiveName),
+    '-C',
+    unpacked,
+    manifest.root_directory,
+  ])
+  const digest = createHash('sha256')
+    .update(readFileSync(join(downloads, archiveName)))
+    .digest('hex')
+  writeFileSync(
+    join(downloads, `${archiveName}.sha256`),
+    `${digest}  ${archiveName}\n`,
+  )
+  for (const file of [archiveName, `${archiveName}.sha256`])
+    copyFileSync(join(downloads, file), join(built, 'downloads', file))
   return { root, built, downloads }
 }
 
 describe('site release packaging', () => {
+  it('refuses candidate downloads before producing release assets', () => {
+    const { root } = fixture(true)
+    try {
+      const result = spawnSync(
+        'bash',
+        [join(root, 'scripts/package-site.sh')],
+        { encoding: 'utf8' },
+      )
+      expect(result.status).not.toBe(0)
+      expect(result.stderr).toContain('candidates are not deployable')
+      expect(existsSync(join(root, '.artifacts/release'))).toBe(false)
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
   it('packages the built site and identical Compose downloads with matching checksums', () => {
     const { root, built, downloads } = fixture()
     try {

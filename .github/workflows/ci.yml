@@ -53,8 +53,16 @@ jobs:
       - name: Test unit contracts
         run: pnpm test:unit
 
+      - name: Test release lock resolution
+        run: bash scripts/test-release-lock.sh
+
       - name: Generate Compose download from sources
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
         run: pnpm workspace:package
+
+      - name: Generate non-deployable download candidate
+        if: github.event_name != 'push' || !startsWith(github.ref, 'refs/tags/v')
+        run: pnpm workspace:package --candidate
 
       - name: Test content contracts
         run: pnpm test:content
@@ -76,9 +84,11 @@ jobs:
           PLAYWRIGHT_BASE_PATH: /
 
       - name: Package verified site and downloads
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
         run: pnpm site:package
 
       - name: Upload distribution artifacts
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: site-distribution

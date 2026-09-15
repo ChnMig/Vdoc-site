@@ -10,7 +10,7 @@
 
 这仍然是 Docker 部署。下载的是 Docker Compose bootstrap，不是 Backend 二进制，也不包含预构建镜像；它提供 Compose、配置模板、初始化脚本和精确源码锁。
 
-[公开工作区文件](https://github.com/ChnMig/Vdoc-site/tree/main/workspace)和 Compose 下载均由 Vdoc-site 提供。包内源码锁使用 `v0.1.0-rc.1` 标签，`v0.3` 是 bootstrap 格式版本，适合评估试用。正式使用前请阅读 [版本说明](version-notes.md) 和 [升级与回滚](release-rollback.md)。
+[公开工作区文件](https://github.com/ChnMig/Vdoc-site/tree/main/workspace)和 Compose 下载均由 Vdoc-site 提供。部署包名称和五个仓库的源码标签统一使用 `v0.1.0`。正式打包时会核对全部标签，并在包内锁定五个精确提交号。正式使用前请阅读 [版本说明](version-notes.md) 和 [升级与回滚](release-rollback.md)。
 
 <div id="quick-start"></div>
 
@@ -18,21 +18,21 @@
 
 ### 1. 下载并初始化
 
-可直接下载 [Compose 压缩包](https://vibe-doc.com/downloads/vdoc-compose-bootstrap-v0.3.tar.gz)和 [SHA-256 校验文件](https://vibe-doc.com/downloads/vdoc-compose-bootstrap-v0.3.tar.gz.sha256)，也可使用下面的命令。官网快照可能更新，复现部署时请保留压缩包和校验文件。
+可直接下载 [Compose 压缩包](https://vibe-doc.com/downloads/vdoc-compose-bootstrap-v0.1.0.tar.gz)和 [SHA-256 校验文件](https://vibe-doc.com/downloads/vdoc-compose-bootstrap-v0.1.0.tar.gz.sha256)，也可使用下面的命令。官网快照可能更新，复现部署时请保留压缩包和校验文件。
 
 在一个新的工作目录里执行。先校验下载文件，再让初始化脚本按 `workspace.lock.json` 获取五个仓库的精确提交：
 
 ```sh
 VDOC_BOOTSTRAP_BASE=https://vibe-doc.com/downloads
-curl -fLO "$VDOC_BOOTSTRAP_BASE/vdoc-compose-bootstrap-v0.3.tar.gz"
-curl -fLO "$VDOC_BOOTSTRAP_BASE/vdoc-compose-bootstrap-v0.3.tar.gz.sha256"
-shasum -a 256 -c vdoc-compose-bootstrap-v0.3.tar.gz.sha256
+curl -fLO "$VDOC_BOOTSTRAP_BASE/vdoc-compose-bootstrap-v0.1.0.tar.gz"
+curl -fLO "$VDOC_BOOTSTRAP_BASE/vdoc-compose-bootstrap-v0.1.0.tar.gz.sha256"
+shasum -a 256 -c vdoc-compose-bootstrap-v0.1.0.tar.gz.sha256
 ```
 
 看到校验结果 `OK` 后，再继续：
 
 ```sh
-tar -xzf vdoc-compose-bootstrap-v0.3.tar.gz
+tar -xzf vdoc-compose-bootstrap-v0.1.0.tar.gz
 cd vdoc-workspace
 scripts/vdoc-workspace-init.sh
 ```

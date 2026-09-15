@@ -24,6 +24,18 @@ assert_not_contains() {
 }
 
 tmp="$(mktemp -d)"
+trap 'rm -rf -- "$tmp"' EXIT
+# Test concrete release locks; the checked-in Site entry is a source template.
+source_root="$ROOT_DIR"
+ROOT_DIR="$tmp/workspace"
+mkdir -p "$ROOT_DIR"
+while IFS= read -r file; do
+  mkdir -p "$ROOT_DIR/$(dirname -- "$file")"
+  cp -p "$source_root/$file" "$ROOT_DIR/$file"
+done < <(jq -r '.files[]' "$source_root/workspace-distribution.json")
+jq '(.repositories[] | select(.commit == "@release") | .commit) = "1111111111111111111111111111111111111111"' "$ROOT_DIR/workspace.lock.json" >"$tmp/lock.json"
+mv "$tmp/lock.json" "$ROOT_DIR/workspace.lock.json"
+export VDOC_WORKSPACE_ROOT="$ROOT_DIR"
 fake_verify="$tmp/verify.sh"
 cat >"$fake_verify" <<'EOF'
 #!/usr/bin/env bash
@@ -75,8 +87,8 @@ output_one="$tmp/output-one"
 output_two="$tmp/output-two"
 VDOC_WORKSPACE_VERIFY_SCRIPT="$fake_verify" "$PACKAGE_SCRIPT" --output-dir "$output_one" >"$tmp/package-one.txt"
 VDOC_WORKSPACE_VERIFY_SCRIPT="$fake_verify" "$PACKAGE_SCRIPT" --output-dir "$output_two" >"$tmp/package-two.txt"
-artifact_one="$output_one/vdoc-compose-bootstrap-v0.3.tar.gz"
-artifact_two="$output_two/vdoc-compose-bootstrap-v0.3.tar.gz"
+artifact_one="$output_one/vdoc-compose-bootstrap-v0.1.0.tar.gz"
+artifact_two="$output_two/vdoc-compose-bootstrap-v0.1.0.tar.gz"
 checksum_one="$artifact_one.sha256"
 checksum_two="$artifact_two.sha256"
 [[ -f "$artifact_one" && -f "$checksum_one" && -f "$artifact_two" && -f "$checksum_two" ]] || \

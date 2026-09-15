@@ -19,15 +19,17 @@ Product requirements, the repository lock, Compose orchestration, Pilot evidence
 Vdoc is self-hosted with Docker Compose. The supported one-entry acquisition format is a checksummed Compose bootstrap archive. A release owner creates it from a clean, locked candidate:
 
 ```sh
-scripts/vdoc-workspace-package.sh --check
-scripts/vdoc-workspace-package.sh --output-dir dist
+cd Vdoc-site
+pnpm workspace:package
+pnpm build:root
+pnpm site:package
 ```
 
 This produces:
 
 ```text
-vdoc-compose-bootstrap-v0.3.tar.gz
-vdoc-compose-bootstrap-v0.3.tar.gz.sha256
+vdoc-compose-bootstrap-v0.1.0.tar.gz
+vdoc-compose-bootstrap-v0.1.0.tar.gz.sha256
 ```
 
 This is not a binary installer or a container-image bundle. It contains `docker-compose.yml`, `.env.example`, the root deployment/release scripts, the MIT license, and `workspace.lock.json`. The initializer fetches the five public repositories at the exact locked commits; `docker compose up -d --build` then builds the Backend/Admin images locally and starts PostgreSQL, RustFS, Backend, and Admin. The archive contains no `.env`, credentials, local evidence, application binaries, container images, or repository working trees.
@@ -38,17 +40,19 @@ Public copies of these workspace files live in [Vdoc-site/workspace](https://git
 
 ```sh
 VDOC_BOOTSTRAP_BASE=https://vibe-doc.com/downloads
-curl -fLO "$VDOC_BOOTSTRAP_BASE/vdoc-compose-bootstrap-v0.3.tar.gz"
-curl -fLO "$VDOC_BOOTSTRAP_BASE/vdoc-compose-bootstrap-v0.3.tar.gz.sha256"
-shasum -a 256 -c vdoc-compose-bootstrap-v0.3.tar.gz.sha256
-tar -xzf vdoc-compose-bootstrap-v0.3.tar.gz
+curl -fLO "$VDOC_BOOTSTRAP_BASE/vdoc-compose-bootstrap-v0.1.0.tar.gz"
+curl -fLO "$VDOC_BOOTSTRAP_BASE/vdoc-compose-bootstrap-v0.1.0.tar.gz.sha256"
+shasum -a 256 -c vdoc-compose-bootstrap-v0.1.0.tar.gz.sha256
+tar -xzf vdoc-compose-bootstrap-v0.1.0.tar.gz
 cd vdoc-workspace
 scripts/vdoc-workspace-init.sh
 ```
 
-Direct assets: [Compose bootstrap archive](https://vibe-doc.com/downloads/vdoc-compose-bootstrap-v0.3.tar.gz) and [SHA-256 file](https://vibe-doc.com/downloads/vdoc-compose-bootstrap-v0.3.tar.gz.sha256). See the [deployment guide](https://vibe-doc.com/en/deployment) for configuration and first login. The archive uses the `v0.1.0-rc.1` source tags recorded in `workspace.lock.json`; `v0.3` identifies the bootstrap format. No `v0.1.0-rc.2` GitHub Release has been published. Website downloads become available when the corresponding Site build is deployed. They are evaluation snapshots and may be replaced; retain the downloaded archive and checksum when reproducing an environment. The checksum checks the bytes against the accompanying file; it does not authenticate a release or prove production readiness or a completed Pilot.
+Direct assets: [Compose bootstrap archive](https://vibe-doc.com/downloads/vdoc-compose-bootstrap-v0.1.0.tar.gz) and [SHA-256 file](https://vibe-doc.com/downloads/vdoc-compose-bootstrap-v0.1.0.tar.gz.sha256). See the [deployment guide](https://vibe-doc.com/en/deployment) for configuration and first login. The archive and all five source tags use `v0.1.0`. The source lock uses `@release` only for the Site commit: a Git commit cannot contain its own hash. The Site tag build resolves this entry, verifies all five public tags against their pinned commits, and ships a fully resolved lock with five exact commit hashes. Website downloads become available when the corresponding Site build is deployed. They are evaluation snapshots and may be replaced; retain the downloaded archive and checksum when reproducing an environment. The checksum checks the bytes against the accompanying file; it does not authenticate a release or prove production readiness or a completed Pilot.
 
 ## Existing workspace
+
+The commands below apply to a workspace extracted from a published Compose archive. The checked-in release source lock is a template; run `pnpm workspace:package` from `Vdoc-site/` after publishing the matching tags to materialize it. For pre-publication checks, `pnpm workspace:package --candidate` creates an explicitly non-deployable archive; the initializer and release packager reject it.
 
 Verify that every repository origin and HEAD matches the lock, each remote
 currently advertises the locked commit at the locked ref, the root control
@@ -59,7 +63,7 @@ scripts/vdoc-workspace-verify.sh
 scripts/vdoc-workspace-contracts.sh
 ```
 
-The initializer never fetches, resets, checks out, cleans, or overwrites an existing repository. The verifier queries each configured remote with `git ls-remote`; a forged or stale local `refs/remotes/origin/*` cannot prove publication. Before changing the lock, commit and push all five repositories, update the cross-repository MCP/Skill pins and Compose provenance values, then review the generated candidate:
+The initializer never fetches, resets, checks out, cleans, or overwrites an existing repository. The verifier queries each configured remote with `git ls-remote`; a forged or stale local `refs/remotes/origin/*` cannot prove publication. For a concrete extracted lock, commit and push the matching repositories before refreshing it. When preparing a new release in the maintainer workspace, keep the Site source entry as `@release`, update the other four commit pins, Agent install pins, and Compose provenance, then commit the Site export. The tag build resolves its own commit without a circular source lock. Review a concrete lock refresh with:
 
 ```sh
 scripts/vdoc-workspace-lock-refresh.sh

@@ -142,7 +142,8 @@ done
 
 [[ "$(jq -r '.schemaVersion' "$ROOT_DIR/workspace.lock.json")" == 2 ]] || \
   fail 'workspace.lock.json must use schemaVersion 2'
-release_ref='refs/tags/v0.1.0-rc.1'
+release_version="$(jq -r '.version' "$ROOT_DIR/workspace-distribution.json")"
+release_ref="refs/tags/v$release_version"
 jq -e --arg release_ref "$release_ref" 'all(.repositories[]; .ref == $release_ref)' \
   "$ROOT_DIR/workspace.lock.json" >/dev/null || \
   fail "workspace lock must pin every repository to $release_ref"
@@ -211,7 +212,7 @@ assert_backend_root_docs_are_distributed
 jq -e '.files | index("LICENSE") != null' "$ROOT_DIR/workspace-distribution.json" >/dev/null || \
   fail 'Docker Compose bootstrap omits the root MIT license'
 
-bootstrap_asset_url='https://vibe-doc.com/downloads/vdoc-compose-bootstrap-v0.3.tar.gz'
+bootstrap_asset_url='https://vibe-doc.com/downloads/vdoc-compose-bootstrap-v0.1.0.tar.gz'
 assert_file_contains "$ROOT_DIR/README.md" "$bootstrap_asset_url"
 assert_file_contains "$ROOT_DIR/README.md" "$bootstrap_asset_url.sha256"
 assert_file_contains "$ROOT_DIR/README.md" 'https://github.com/ChnMig/Vdoc-site/tree/main/workspace'
@@ -234,6 +235,10 @@ assert_file_contains "$ROOT_DIR/docker-compose.yml" 'BUILD_TIME: ${VDOC_ADMIN_BU
   fail '.env.example backend Git provenance must match workspace.lock.json'
 [[ "$(awk -F= '$1 == "VDOC_ADMIN_GIT_COMMIT" {print $2}' "$ROOT_DIR/.env.example")" == "$admin_lock_commit" ]] || \
   fail '.env.example Admin Git provenance must match workspace.lock.json'
+for component in BACKEND ADMIN; do
+  [[ "$(awk -F= -v key="VDOC_${component}_VERSION" '$1 == key {print $2}' "$ROOT_DIR/.env.example")" == "$release_version" ]] || \
+    fail '.env.example build versions must match the Compose release version'
+done
 if rg -n 'ARG (VERSION=dev|BUILD_TIME=unknown|GIT_COMMIT=unknown)' "$ROOT_DIR/Vdoc/Dockerfile" "$ROOT_DIR/Vdoc-admin/Dockerfile"; then
   fail 'Docker build provenance still permits dev/unknown defaults'
 fi

@@ -97,6 +97,9 @@ if (!checkOnly) {
     chmodSync(target, manifest.executables.includes(file) ? 0o755 : 0o644)
   }
   const lock = readJson(exportRoot, manifest.repository_lock)
+  const site = lock.repositories.find((repo) => repo.path === 'Vdoc-site')
+  assert(site, 'Release source lock must include Site')
+  site.commit = '@release'
   lock.controlPlane.sha256 = digest
   writeFileSync(
     join(exportRoot, manifest.repository_lock),
@@ -139,6 +142,20 @@ if (existsSync(join(sourceRoot, 'workspace-distribution.json'))) {
   }
   const sourceLock = readJson(sourceRoot, manifest.repository_lock)
   sourceLock.controlPlane.sha256 = lock.controlPlane.sha256
+  const sourceSite = sourceLock.repositories.find(
+    (repo) => repo.path === 'Vdoc-site',
+  )
+  if (sourceSite?.commit !== '@release') {
+    assert.equal(
+      sourceSite?.commit,
+      execFileSync('git', ['rev-parse', 'HEAD'], {
+        cwd: siteRoot,
+        encoding: 'utf8',
+      }).trim(),
+      'Extracted workspace Site commit differs from this checkout',
+    )
+    sourceSite.commit = '@release'
+  }
   assert.deepEqual(lock, sourceLock, 'Export changed the repository lock')
 }
 

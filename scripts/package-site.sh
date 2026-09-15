@@ -5,11 +5,17 @@ SITE_ROOT="$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd -P)"
 DIST_ROOT="$SITE_ROOT/docs/.vitepress/dist"
 OUTPUT_DIR="$SITE_ROOT/.artifacts/release"
 artifact_name="$(jq -r '.artifact_name' "$SITE_ROOT/workspace/workspace-distribution.json")"
+root_directory="$(jq -r '.root_directory' "$SITE_ROOT/workspace/workspace-distribution.json")"
 
 [[ -f "$DIST_ROOT/index.html" ]] || {
   printf 'Build the site before packaging: pnpm build:root\n' >&2
   exit 1
 }
+tar -xOf "$SITE_ROOT/docs/public/downloads/$artifact_name.tar.gz" "$root_directory/workspace.lock.json" |
+  jq -e '.candidate != true and all(.repositories[]; .commit | test("^[0-9a-f]{40}$"))' >/dev/null || {
+    printf 'Release packaging requires a published, fully resolved Compose download; candidates are not deployable.\n' >&2
+    exit 1
+  }
 for file in "$artifact_name.tar.gz" "$artifact_name.tar.gz.sha256"; do
   cmp "$SITE_ROOT/docs/public/downloads/$file" "$DIST_ROOT/downloads/$file" || {
     printf 'Built download is missing or stale: %s; regenerate downloads and rebuild the site\n' "$file" >&2

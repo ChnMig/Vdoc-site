@@ -78,6 +78,29 @@ describe('public Compose workspace distribution', () => {
         expect(stat.mode & 0o777, file).toBe(
           manifest.executables.includes(file) ? 0o755 : 0o644,
         )
+        if (file === 'workspace.lock.json') {
+          const resolved = JSON.parse(readFileSync(extracted, 'utf8'))
+          const template = JSON.parse(
+            readFileSync(join(workspaceRoot, file), 'utf8'),
+          )
+          const site = resolved.repositories.find(
+            (repo: { path: string }) => repo.path === 'Vdoc-site',
+          )
+          expect(site.commit).toBe(
+            execFileSync('git', ['rev-parse', 'HEAD'], {
+              cwd: projectRoot,
+              encoding: 'utf8',
+            }).trim(),
+          )
+          for (const repo of resolved.repositories)
+            expect(repo.commit).toMatch(/^[0-9a-f]{40}$/)
+          site.commit = '@release'
+          if (resolved.candidate !== undefined)
+            expect(resolved.candidate).toBe(true)
+          delete resolved.candidate
+          expect(resolved).toEqual(template)
+          continue
+        }
         if (
           !readFileSync(extracted).equals(
             readFileSync(join(workspaceRoot, file)),

@@ -1,8 +1,8 @@
 {
   "schema_version": 2,
   "name": "vdoc-compose-bootstrap",
-  "version": "0.3",
-  "artifact_name": "vdoc-compose-bootstrap-v0.3",
+  "version": "0.1.0",
+  "artifact_name": "vdoc-compose-bootstrap-v0.1.0",
   "root_directory": "vdoc-workspace",
   "repository_lock": "workspace.lock.json",
   "files": [
@@ -45,6 +45,7 @@
     "scripts/vdoc-workspace-lock-refresh.sh",
     "scripts/vdoc-workspace-package.sh",
     "scripts/vdoc-workspace-release-assets-verify.sh",
+    "scripts/vdoc-workspace-resolve-release.sh",
     "scripts/vdoc-workspace-verify.sh",
     "workspace-distribution.json",
     "workspace.lock.json"
@@ -71,6 +72,7 @@
     "scripts/vdoc-workspace-lock-refresh.sh",
     "scripts/vdoc-workspace-package.sh",
     "scripts/vdoc-workspace-release-assets-verify.sh",
+    "scripts/vdoc-workspace-resolve-release.sh",
     "scripts/vdoc-workspace-verify.sh"
   ]
 }

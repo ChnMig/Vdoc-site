@@ -7,10 +7,11 @@ VERIFY_SCRIPT="${VDOC_WORKSPACE_VERIFY_SCRIPT:-$ROOT_DIR/scripts/vdoc-workspace-
 DIGEST_SCRIPT="${VDOC_CONTROL_PLANE_DIGEST_SCRIPT:-$ROOT_DIR/scripts/vdoc-control-plane-digest.sh}"
 OUTPUT_DIR="$ROOT_DIR/dist"
 MODE=package
+CANDIDATE=0
 
 usage() {
   cat <<'USAGE'
-Usage: scripts/vdoc-workspace-package.sh [--check|--list] [--output-dir DIR]
+Usage: scripts/vdoc-workspace-package.sh [--check|--list] [--output-dir DIR] [--candidate]
 
 Validate or package the Docker Compose workspace bootstrap. The generated
 tarball contains Compose/configuration files, release tools, and the source
@@ -22,6 +23,7 @@ Options:
   --check            Validate inventory and locked repository baselines only.
   --list             Print the exact packaged file inventory.
   --output-dir DIR   Write the tarball and SHA-256 file to DIR (default: dist).
+  --candidate        Package a marked, non-deployable candidate without remote checks.
   -h, --help         Show this help.
 USAGE
 }
@@ -33,6 +35,10 @@ fail() {
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
+    --candidate)
+      CANDIDATE=1
+      shift
+      ;;
     --check)
       [[ "$MODE" == package ]] || fail 'choose only one of --check or --list'
       MODE=check
@@ -67,7 +73,7 @@ command -v shasum >/dev/null 2>&1 || fail 'required command not found: shasum'
 jq -e '
   .schema_version == 2 and
   (.name | type == "string" and test("^[a-z0-9-]+$")) and
-  (.version | type == "string" and test("^[0-9]+\\.[0-9]+$")) and
+  (.version | type == "string" and test("^[0-9]+\\.[0-9]+\\.[0-9]+$")) and
   (.artifact_name | type == "string" and test("^[A-Za-z0-9._-]+$")) and
   (.root_directory | type == "string" and test("^[A-Za-z0-9._-]+$")) and
   (.repository_lock | type == "string") and
@@ -113,6 +119,7 @@ required_files=(
   'scripts/vdoc-workspace-lock-refresh.sh'
   'scripts/vdoc-workspace-package.sh'
   'scripts/vdoc-workspace-release-assets-verify.sh'
+  'scripts/vdoc-workspace-resolve-release.sh'
   'scripts/vdoc-workspace-verify.sh'
   'workspace.lock.json'
 )
@@ -133,6 +140,7 @@ required_executables=(
   'scripts/vdoc-workspace-lock-refresh.sh'
   'scripts/vdoc-workspace-package.sh'
   'scripts/vdoc-workspace-release-assets-verify.sh'
+  'scripts/vdoc-workspace-resolve-release.sh'
   'scripts/vdoc-workspace-verify.sh'
 )
 for required_executable in "${required_executables[@]}"; do
@@ -185,7 +193,12 @@ if [[ "$MODE" == list ]]; then
 fi
 
 [[ -x "$VERIFY_SCRIPT" ]] || fail "workspace verifier is not executable: $VERIFY_SCRIPT"
-VDOC_WORKSPACE_ROOT="$ROOT_DIR" VDOC_WORKSPACE_LOCK_FILE="$lock_file" "$VERIFY_SCRIPT"
+if [[ "$CANDIDATE" -eq 1 ]]; then
+  jq -e '.candidate == true' "$lock_file" >/dev/null || fail '--candidate requires a marked candidate lock'
+else
+  jq -e '.candidate != true' "$lock_file" >/dev/null || fail 'candidate lock cannot be packaged as a release'
+  VDOC_WORKSPACE_ROOT="$ROOT_DIR" VDOC_WORKSPACE_LOCK_FILE="$lock_file" "$VERIFY_SCRIPT"
+fi
 
 file_count="$(jq '.files | length' "$MANIFEST_FILE")"
 if [[ "$MODE" == check ]]; then
@@ -244,4 +257,8 @@ printf '%s  %s\n' "$digest" "$(basename -- "$artifact")" >"$checksum"
 
 printf 'Docker Compose bootstrap artifact: %s\n' "$artifact"
 printf 'SHA-256: %s\n' "$checksum"
-printf 'Publish both files together through the Site tag release workflow or the documented release process.\n'
+if [[ "$CANDIDATE" -eq 1 ]]; then
+  printf 'Candidate only: do not publish or deploy these files.\n'
+else
+  printf 'Publish both files together through the Site tag release workflow or the documented release process.\n'
+fi

@@ -39,6 +39,9 @@ require_command git
 require_command jq
 
 [[ -f "$LOCK_FILE" && ! -L "$LOCK_FILE" ]] || fail "workspace lock is missing, not regular, or a symlink: $LOCK_FILE"
+if jq -e '.candidate == true' "$LOCK_FILE" >/dev/null; then
+  fail 'candidate bootstrap is for local checks only; download the published release to deploy'
+fi
 [[ -x "$VERIFY_SCRIPT" ]] || fail "workspace verifier is not executable: $VERIFY_SCRIPT"
 [[ -f "$MANIFEST_FILE" && ! -L "$MANIFEST_FILE" ]] || \
   fail "workspace distribution manifest is missing, not regular, or a symlink: $MANIFEST_FILE"

@@ -10,7 +10,7 @@ Run Vdoc on your own machine with Docker Compose, open the workbench, then let y
 
 This remains a Docker deployment. The download is a Docker Compose bootstrap, not a Backend binary or a bundle of prebuilt images. It supplies Compose, configuration templates, initialization scripts, and an exact source lock.
 
-[Public workspace files](https://github.com/ChnMig/Vdoc-site/tree/main/workspace) and the Compose download are provided by Vdoc-site. The archive uses the `v0.1.0-rc.1` source tags in its lock; `v0.3` is the bootstrap format version. It is intended for evaluation. Read [Version Notes](version-notes.md) and [Upgrade and Rollback](release-rollback.md) before production use.
+[Public workspace files](https://github.com/ChnMig/Vdoc-site/tree/main/workspace) and the Compose download are provided by Vdoc-site. The archive and all five source tags use `v0.1.0`. Published packaging verifies every tag and records five exact commit hashes in the included lock. Read [Version Notes](version-notes.md) and [Upgrade and Rollback](release-rollback.md) before production use.
 
 <div id="quick-start"></div>
 
@@ -18,21 +18,21 @@ This remains a Docker deployment. The download is a Docker Compose bootstrap, no
 
 ### 1. Download and Initialize
 
-Download the [Compose archive](https://vibe-doc.com/downloads/vdoc-compose-bootstrap-v0.3.tar.gz) and [SHA-256 file](https://vibe-doc.com/downloads/vdoc-compose-bootstrap-v0.3.tar.gz.sha256), or use the commands below. Keep both files for reproducing your deployment; website snapshots may be replaced.
+Download the [Compose archive](https://vibe-doc.com/downloads/vdoc-compose-bootstrap-v0.1.0.tar.gz) and [SHA-256 file](https://vibe-doc.com/downloads/vdoc-compose-bootstrap-v0.1.0.tar.gz.sha256), or use the commands below. Keep both files for reproducing your deployment; website snapshots may be replaced.
 
 Run this in a new working directory. Verify the download first, then let the initializer fetch the five exact repository commits from `workspace.lock.json`:
 
 ```sh
 VDOC_BOOTSTRAP_BASE=https://vibe-doc.com/downloads
-curl -fLO "$VDOC_BOOTSTRAP_BASE/vdoc-compose-bootstrap-v0.3.tar.gz"
-curl -fLO "$VDOC_BOOTSTRAP_BASE/vdoc-compose-bootstrap-v0.3.tar.gz.sha256"
-shasum -a 256 -c vdoc-compose-bootstrap-v0.3.tar.gz.sha256
+curl -fLO "$VDOC_BOOTSTRAP_BASE/vdoc-compose-bootstrap-v0.1.0.tar.gz"
+curl -fLO "$VDOC_BOOTSTRAP_BASE/vdoc-compose-bootstrap-v0.1.0.tar.gz.sha256"
+shasum -a 256 -c vdoc-compose-bootstrap-v0.1.0.tar.gz.sha256
 ```
 
 Continue only after the checksum reports `OK`:
 
 ```sh
-tar -xzf vdoc-compose-bootstrap-v0.3.tar.gz
+tar -xzf vdoc-compose-bootstrap-v0.1.0.tar.gz
 cd vdoc-workspace
 scripts/vdoc-workspace-init.sh
 ```
