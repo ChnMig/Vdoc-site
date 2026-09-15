@@ -20,13 +20,13 @@ COPYFILE_DISABLE=1 cp -R "$SITE_ROOT/workspace/." "$stage/vdoc-workspace/"
 unset VDOC_WORKSPACE_LOCK_FILE VDOC_WORKSPACE_DISTRIBUTION_FILE
 unset VDOC_WORKSPACE_VERIFY_SCRIPT VDOC_CONTROL_PLANE_DIGEST_SCRIPT
 export VDOC_WORKSPACE_ROOT="$stage/vdoc-workspace"
-options=()
-if [[ "$CANDIDATE" -eq 1 ]]; then options+=(--candidate); fi
-"$VDOC_WORKSPACE_ROOT/scripts/vdoc-workspace-resolve-release.sh" --site-dir "$SITE_ROOT" "${options[@]}"
+set --
+if [[ "$CANDIDATE" -eq 1 ]]; then set -- --candidate; fi
+"$VDOC_WORKSPACE_ROOT/scripts/vdoc-workspace-resolve-release.sh" --site-dir "$SITE_ROOT" "$@"
 if [[ "$CANDIDATE" -eq 0 ]]; then
   "$VDOC_WORKSPACE_ROOT/scripts/vdoc-workspace-init.sh"
 fi
-"$VDOC_WORKSPACE_ROOT/scripts/vdoc-workspace-package.sh" --output-dir "$stage/output" "${options[@]}"
+"$VDOC_WORKSPACE_ROOT/scripts/vdoc-workspace-package.sh" --output-dir "$stage/output" "$@"
 
 artifact_name="$(jq -r '.artifact_name' "$VDOC_WORKSPACE_ROOT/workspace-distribution.json")"
 mkdir -p "$SITE_ROOT/docs/public/downloads"
