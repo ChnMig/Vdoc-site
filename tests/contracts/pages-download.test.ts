@@ -12,6 +12,11 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { projectRoot, readProjectText } from './contract-helpers'
 
+const releaseVersion = JSON.parse(
+  readProjectText('workspace/workspace-distribution.json'),
+).version as string
+const releaseTag = `v${releaseVersion}`
+
 function fixture() {
   const root = mkdtempSync(join(tmpdir(), 'vdoc-pages-download-'))
   mkdirSync(join(root, 'workspace'))
@@ -22,7 +27,10 @@ function fixture() {
       readProjectText(`workspace/${file}`),
     )
   }
-  writeFileSync(join(root, 'package.json'), '{"version":"0.1.0"}\n')
+  writeFileSync(
+    join(root, 'package.json'),
+    JSON.stringify({ version: releaseVersion }),
+  )
   execFileSync('git', ['init', '--quiet', root])
   execFileSync('git', ['add', 'package.json'], { cwd: root })
   execFileSync(
@@ -84,7 +92,7 @@ function fixture() {
   return { root, archive, lock, pack }
 }
 
-function check(root: string, tag = 'v0.1.0') {
+function check(root: string, tag = releaseTag) {
   return spawnSync(
     process.execPath,
     [join(projectRoot, 'scripts/verify-pages-download.mjs'), root, tag],
@@ -98,7 +106,7 @@ describe('published Pages download validation', () => {
     try {
       const result = check(root)
       expect(result.status, result.stderr).toBe(0)
-      expect(result.stdout).toContain('Pages download verified: v0.1.0')
+      expect(result.stdout).toContain(`Pages download verified: ${releaseTag}`)
     } finally {
       rmSync(root, { recursive: true, force: true })
     }
@@ -143,7 +151,7 @@ describe('published Pages download validation', () => {
       expect(check(root).stderr).toContain(
         'Published Compose checksum does not match',
       )
-      expect(check(root, 'v0.1.0-rc.1').status).not.toBe(0)
+      expect(check(root, `${releaseTag}-rc.1`).status).not.toBe(0)
       expect(check(root, 'main').status).not.toBe(0)
     } finally {
       rmSync(root, { recursive: true, force: true })

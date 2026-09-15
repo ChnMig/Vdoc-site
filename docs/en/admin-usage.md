@@ -67,16 +67,18 @@ Active tokens can be revealed and copied again from their details. Lists, revoke
 
 ## 6. Connect Your Agent
 
-Add Vdoc to your agent's MCP configuration. This example is for clients that accept `mcpServers` JSON; for other clients, enter the same command, arguments, and environment variables through their MCP settings.
+Choose the configuration format for your client. The MCP Token page in Admin also generates both formats.
 
-```json
+::: code-group
+
+```json [Cursor]
 {
   "mcpServers": {
     "vdoc": {
       "command": "npx",
       "args": [
         "--yes",
-        "github:ChnMig/Vdoc-mcp#22e58a252cce7512b4cf2649e3a67916d2825bea"
+        "github:ChnMig/Vdoc-mcp#1c17810db00a49e5cf882b792f60497369000f33"
       ],
       "env": {
         "VDOC_BASE_URL": "http://127.0.0.1:8080",
@@ -86,6 +88,25 @@ Add Vdoc to your agent's MCP configuration. This example is for clients that acc
   }
 }
 ```
+
+```toml [Codex]
+[mcp_servers.vdoc]
+command = "npx"
+args = ["--yes", "github:ChnMig/Vdoc-mcp#1c17810db00a49e5cf882b792f60497369000f33"]
+startup_timeout_sec = 60
+tool_timeout_sec = 180
+
+[mcp_servers.vdoc.env]
+VDOC_BASE_URL = "http://127.0.0.1:8080"
+VDOC_MCP_TOKEN = "REPLACE_WITH_LOCAL_VDOC_MCP_TOKEN"
+```
+
+:::
+
+- **Codex:** merge the TOML section into your personal `~/.codex/config.toml`, save, then restart the Vdoc MCP server or open a new session. Use `/mcp` to inspect the connection. The example allows 60 seconds for the first `npx` download. See the [official MCP configuration guide](https://developers.openai.com/codex/mcp/).
+- **Cursor:** merge the JSON entry into `mcpServers` in your personal `~/.cursor/mcp.json`, then enable or restart Vdoc in Settings → Tools & MCP. Other `mcpServers` clients can reuse the JSON with their own configuration location.
+
+Keep existing server entries and store tokens only in private configuration, never in a project repository.
 
 Replace the placeholder with the token from step 5 in your client's private configuration, save, and reload the MCP connection. This example uses a fixed commit from the official GitHub repository. It must match `Vdoc-mcp` in your deployment's `workspace.lock.json`; the package is not currently published to the npm registry.
 

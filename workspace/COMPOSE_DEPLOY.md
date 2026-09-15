@@ -1,6 +1,18 @@
 # Workspace Docker Compose Deployment
 
-The [website download](https://vibe-doc.com/en/deployment) is a Docker Compose bootstrap, not an application binary
+## Recommended installation: v0.2.0 prebuilt images
+
+Follow the [current deployment guide](https://chnmig.github.io/Vdoc-site/deployment). Extract and verify the Compose bootstrap, run `scripts/vdoc-local-bootstrap.sh --prebuilt`, set the initial administrator in the generated private `.env`, then run:
+
+```sh
+scripts/vdoc-prebuilt-install.sh
+docker compose --env-file .env config --quiet
+docker compose --env-file .env up -d --no-build
+```
+
+The installer selects Linux amd64/arm64 using the Docker daemon, verifies each image archive and its source revision, and loads the two application images. No five-repository checkout is needed. Existing source-build instructions below remain available for development. Keep existing secrets and back up data before an upgrade.
+
+The [website download](https://chnmig.github.io/Vdoc-site/en/deployment) is a Docker Compose bootstrap, not an application binary
 or a container-image bundle. It supplies the Compose/configuration files and a
 lock that fetches reviewed source commits; `docker compose ... up -d --build`
 builds Backend/Admin locally and starts the four-service self-hosted stack.

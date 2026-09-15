@@ -5,10 +5,11 @@ ROOT_DIR="$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 OUTPUT="$ROOT_DIR/.env"
 FORCE=0
 DRY_RUN=0
+PREBUILT=0
 
 usage() {
   cat <<'USAGE'
-Usage: scripts/vdoc-local-bootstrap.sh [--output PATH] [--force] [--dry-run]
+Usage: scripts/vdoc-local-bootstrap.sh [--output PATH] [--force] [--dry-run] [--prebuilt]
 
 Generate a local-only Docker Compose .env with disposable credentials.
 Secrets are written only to the output file and are never printed.
@@ -22,6 +23,10 @@ die() {
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
+    --prebuilt)
+      PREBUILT=1
+      shift
+      ;;
     --output)
       [[ $# -ge 2 ]] || die "--output requires a path"
       OUTPUT="$2"
@@ -56,6 +61,19 @@ random_hex() {
 repository_provenance() {
   local repo_dir="$1"
   local commit version build_time status
+  if [[ "$PREBUILT" -eq 1 ]]; then
+    if jq -e ' .candidate == true' "$ROOT_DIR/workspace.lock.json" >/dev/null; then die "Candidate archives cannot initialize a deployment"; fi
+    local repository="${repo_dir##*/}" prefix
+    prefix=VDOC_BACKEND
+    [[ "$repository" != Vdoc-admin ]] || prefix=VDOC_ADMIN
+    commit="$(jq -er --arg repo "$repository" '.repositories[] | select(.path == $repo) | .commit' "$ROOT_DIR/workspace.lock.json")" || return 1
+    version="v$(jq -er '.version' "$ROOT_DIR/workspace-distribution.json")" || return 1
+    [[ "$commit" =~ ^[0-9a-f]{40}$ ]] || die "Invalid locked source: $repository"
+    build_time="$(awk -F= -v key="${prefix}_BUILD_TIME" '$1 == key {print substr($0, length(key) + 2)}' "$ROOT_DIR/.env.example")"
+    [[ -n "$build_time" && "$build_time" != unknown ]] || die "Missing build time: $repository"
+    printf '%s\t%s\t%s\n' "$version" "$commit" "$build_time"
+    return
+  fi
   [[ -d "$repo_dir" ]] || die "Missing repository for build provenance: $repo_dir"
   commit="$(git -C "$repo_dir" rev-parse HEAD 2>/dev/null)" || die "Cannot read Git commit for build provenance: $repo_dir"
   [[ "$commit" =~ ^[0-9a-f]{40}$ ]] || die "Invalid Git commit for build provenance: $repo_dir"
@@ -101,7 +119,7 @@ VDOC_ADMIN_BUILD_TIME=$admin_build_time
 VDOC_BACKEND_PUBLIC_ORIGIN=http://127.0.0.1:8080
 VDOC_ADMIN_API_BASE_URL=http://127.0.0.1:8080
 VDOC_SERVER_CORS_ALLOWED_ORIGINS=http://127.0.0.1:8081,http://localhost:8081
-VDOC_AUTH_ALLOW_REGISTRATION=true
+VDOC_AUTH_ALLOW_REGISTRATION=$([[ "$PREBUILT" -eq 1 ]] && printf false || printf true)
 VDOC_AUTH_RATE_LIMIT=2
 VDOC_AUTH_RATE_BURST=5
 VDOC_POSTGRES_DB=vdoc

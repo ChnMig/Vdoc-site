@@ -5,3 +5,5 @@ ignoredBuiltDependencies:
 overrides:
   '@vitejs/plugin-vue>vite': ^6.4.3
   'vitepress>vite': ^6.4.3
+patchedDependencies:
+  vitepress@1.6.4: patches/vitepress@1.6.4.patch

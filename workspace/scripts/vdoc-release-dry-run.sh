@@ -60,7 +60,7 @@ build_plan() {
   add_command '[workspace] Test Pilot result gate' "$ROOT_DIR" 'scripts/test-pilot-result-verify.sh'
   add_command '[workspace] Verify cross-repository contracts' "$ROOT_DIR" 'scripts/vdoc-workspace-contracts.sh'
   add_command '[workspace] Test release gate' "$ROOT_DIR" 'scripts/test-release-dry-run.sh'
-  add_command '[workspace] Compose/bootstrap safety tests' "$ROOT_DIR" 'scripts/test-compose-provisioning.sh && scripts/test-local-bootstrap.sh'
+  add_command '[workspace] Compose/bootstrap safety tests' "$ROOT_DIR" 'scripts/test-compose-provisioning.sh && scripts/test-local-bootstrap.sh && scripts/test-prebuilt-install.sh'
   add_command '[workspace] Compose config validation' "$ROOT_DIR" 'docker compose --env-file .env.example config --quiet'
 
   add_command '[backend] Go format check' "$ROOT_DIR/Vdoc" 'files="$(git ls-files -z --cached --others --exclude-standard "*.go" | xargs -0 gofmt -l)"; test -z "$files" || { printf "Go files need gofmt:\n%s\n" "$files" >&2; exit 1; }'

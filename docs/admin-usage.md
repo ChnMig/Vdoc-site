@@ -67,16 +67,18 @@
 
 ## 6. 连接 Agent
 
-在 Agent 的 MCP 配置中添加 Vdoc。下面适用于支持 `mcpServers` JSON 的客户端；其他客户端用各自的 MCP 设置入口填写相同的命令、参数和环境变量。
+选择客户端对应的配置格式。工作台的 MCP Token 页面也能生成这两种配置。
 
-```json
+::: code-group
+
+```json [Cursor]
 {
   "mcpServers": {
     "vdoc": {
       "command": "npx",
       "args": [
         "--yes",
-        "github:ChnMig/Vdoc-mcp#22e58a252cce7512b4cf2649e3a67916d2825bea"
+        "github:ChnMig/Vdoc-mcp#1c17810db00a49e5cf882b792f60497369000f33"
       ],
       "env": {
         "VDOC_BASE_URL": "http://127.0.0.1:8080",
@@ -86,6 +88,25 @@
   }
 }
 ```
+
+```toml [Codex]
+[mcp_servers.vdoc]
+command = "npx"
+args = ["--yes", "github:ChnMig/Vdoc-mcp#1c17810db00a49e5cf882b792f60497369000f33"]
+startup_timeout_sec = 60
+tool_timeout_sec = 180
+
+[mcp_servers.vdoc.env]
+VDOC_BASE_URL = "http://127.0.0.1:8080"
+VDOC_MCP_TOKEN = "REPLACE_WITH_LOCAL_VDOC_MCP_TOKEN"
+```
+
+:::
+
+- **Codex：** 将 TOML 节合并到个人 `~/.codex/config.toml`，保存后重启 Vdoc MCP 服务或新开会话，使用 `/mcp` 查看连接。首次 `npx` 启动可能需要下载，示例预留了 60 秒启动时间。参阅 [官方 MCP 配置说明](https://developers.openai.com/codex/mcp/)。
+- **Cursor：** 将 JSON 合并到个人 `~/.cursor/mcp.json` 的 `mcpServers` 中，在 Settings → Tools & MCP 中启用或重启 Vdoc。其他使用 `mcpServers` 的客户端可复用 JSON，但配置位置以对应客户端为准。
+
+只修改自己的私密配置，保留已有服务器条目；不要把令牌提交到项目仓库。
 
 将占位符替换为第 5 步的令牌，保存到客户端的私密配置中，然后重新加载 MCP 连接。这里使用官方 GitHub 仓库的固定提交，版本须与部署包 `workspace.lock.json` 中的 `Vdoc-mcp` 一致；当前包尚未发布到 npm registry。
 

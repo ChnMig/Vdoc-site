@@ -1,6 +1,17 @@
 # Version Notes
 
-These notes describe the v0.1 boundary. Before planning a pilot, writing Agent instructions, publishing packages, or upgrading, confirm that this scope is not being overstated.
+These notes describe the v0.2 boundary. Before planning a pilot, writing Agent instructions, publishing packages, or upgrading, confirm that this scope is not being overstated.
+
+## v0.2.0
+
+- New MCP tools `get_schema_version` and `get_doc_version` return complete content from an exact published version.
+- Latest-content reads require `branch_id`, and undeclared arguments are rejected. Reload MCP tool discovery after upgrading and update callers of `get_latest_schema` / `get_latest_doc`.
+- OpenAPI draft reads add raw content from the same snapshot as the revision, while preserving existing metadata fields.
+- Backend/Admin releases include Linux amd64 and arm64 Docker images. The installer verifies checksums and source identity without requiring five source checkouts.
+- Admin and first-use docs provide Codex / Cursor configurations. The site improves Chinese search, language switching, main landmarks and feature-link names.
+- The official site uses [GitHub Pages](https://chnmig.github.io/Vdoc-site/), deployed only after a stable Site tag passes verification.
+
+No database migration is added. Human publication, immutable versions and token permissions retain their existing boundaries. Back up PostgreSQL and object storage and upgrade the coordinated five-repository release.
 
 ## Included in v0.1
 
@@ -31,7 +42,7 @@ These notes describe the v0.1 boundary. Before planning a pilot, writing Agent i
 - In full Compose, backend uses `postgres:5432` and `rustfs:9000`; browsers and host commands use `127.0.0.1` or a domain.
 - Live E2E resets the disposable `VDOC_TEST_POSTGRES_DB`, `vdoc_e2e` by default. It does not reset the application database from `VDOC_POSTGRES_DB`.
 
-## Not Included in v0.1
+## Still Not Included
 
 - MCP direct publish tools.
 - AI authority to approve, request changes, reject, modify, or publish.
@@ -56,5 +67,5 @@ These notes describe the v0.1 boundary. Before planning a pilot, writing Agent i
 4. `scripts/vdoc-release-dry-run.sh --list` and `scripts/vdoc-release-dry-run.sh` pass.
 5. MCP `tools/list` returns tool schemas from the deployed backend.
 6. Skill package tests pass, and Agents call Vdoc MCP before answering endpoint or migration questions.
-7. Release notes clearly state that v0.1 does not support MCP direct publishing.
+7. Release notes clearly state that v0.2 does not support MCP direct publishing.
 8. Admin AI provider tests succeed, Draft and Version summaries can be read, and failure cases do not block machine Diff or human review.

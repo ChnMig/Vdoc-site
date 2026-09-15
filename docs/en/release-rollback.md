@@ -41,9 +41,22 @@ Do not print storage access keys or secret keys in backup script logs.
 
 ## 3. Pull or Build the New Version
 
-If you use the workspace root Compose package, run from the workspace root:
+Prebuilt images are recommended for v0.2.0. Verify the new Compose download, then update Compose, scripts, the release lock and `.env.example` in your existing deployment directory. Preserve the real `.env`, Compose project name and data volumes. Do not rerun bootstrap over existing secrets.
+
+Copy only the Backend/Admin version, commit and build-time values from the new `.env.example` into the corresponding `.env` fields. Keep your existing secrets and accounts. Run from the existing deployment directory:
 
 ```sh
+scripts/vdoc-prebuilt-install.sh
+docker compose --env-file .env config --quiet
+docker compose --env-file .env up -d --no-build
+```
+
+This release adds no database migrations. Update the Agent MCP/Skill source pins and reload tools: `get_latest_schema` and `get_latest_doc` now require `branch_id`; use `get_schema_version` / `get_doc_version` for exact historical content.
+
+For a source build, prepare clean source checkouts selected by the new release lock. The initializer only creates missing repositories; it never overwrites existing checkouts. Save local changes and move existing repositories to their locked commits first, then run from the workspace root:
+
+```sh
+scripts/vdoc-workspace-init.sh
 scripts/vdoc-workspace-verify.sh
 docker compose --env-file .env config --quiet
 docker compose --env-file .env up -d --build

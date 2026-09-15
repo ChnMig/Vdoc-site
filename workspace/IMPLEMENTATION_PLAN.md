@@ -219,7 +219,7 @@ GET  /api/v1/private/mcp-tokens/:token_id
 POST /api/v1/private/mcp-tokens/:token_id/revoke
 ```
 
-## 5. MCP v0.1 工具
+## 5. MCP v0.2 工具
 
 MCP 只提供查询和草稿写入能力。正式版本发布必须由 Admin 或 SuperAdmin 通过后台审核动作触发。
 
@@ -232,6 +232,7 @@ list_api_endpoints
 list_api_versions
 list_doc_versions
 get_latest_schema
+get_schema_version
 get_endpoint_detail
 compare_api_versions
 get_change_summary
@@ -240,6 +241,7 @@ update_api_version_draft
 submit_api_version_draft
 get_api_version_draft
 get_latest_doc
+get_doc_version
 compare_doc_versions
 create_doc_draft
 update_doc_draft

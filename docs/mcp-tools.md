@@ -18,9 +18,9 @@ Agent 运行的机器还需安装 Node.js 20 或更新版本、npm 和 Git。尚
 当前 `@vdoc/mcp` 尚未发布到 npm registry。请直接从官方 GitHub 仓库运行或安装：
 
 ```sh
-npx --yes github:ChnMig/Vdoc-mcp#22e58a252cce7512b4cf2649e3a67916d2825bea
+npx --yes github:ChnMig/Vdoc-mcp#1c17810db00a49e5cf882b792f60497369000f33
 # 或全局安装 GitHub 版本
-npm install -g git+https://github.com/ChnMig/Vdoc-mcp.git#22e58a252cce7512b4cf2649e3a67916d2825bea
+npm install -g git+https://github.com/ChnMig/Vdoc-mcp.git#1c17810db00a49e5cf882b792f60497369000f33
 ```
 
 一次性使用时，推荐在 Agent MCP config 中通过固定 commit 的 `npx` 调用，不要把 token 放在 `args`。上面的 40 位 commit 必须和已审核发布包 `workspace.lock.json` 的 `Vdoc-mcp` 项一致；不要删掉 fragment 或改成可移动 branch。
@@ -59,7 +59,7 @@ stdout 保留给 MCP protocol，普通诊断看 stderr。
       "command": "npx",
       "args": [
         "--yes",
-        "github:ChnMig/Vdoc-mcp#22e58a252cce7512b4cf2649e3a67916d2825bea"
+        "github:ChnMig/Vdoc-mcp#1c17810db00a49e5cf882b792f60497369000f33"
       ],
       "env": {
         "VDOC_BASE_URL": "https://your-vdoc.example.test",
@@ -86,7 +86,7 @@ stdout 保留给 MCP protocol，普通诊断看 stderr。
 
 后端是 tool definitions 的事实来源。Adapter 每次运行时调用 Vdoc `tools/list`，所以 schemas 会跟已部署后端保持一致。
 
-v0.1 read tools 覆盖：
+v0.2 read tools 覆盖：
 
 - projects
 - documents
@@ -99,7 +99,7 @@ v0.1 read tools 覆盖：
 
 `list_documents` 会按 token scope 过滤结果：只有 `api:read` 时仅返回 OpenAPI，只有 `doc:read` 时仅返回 Markdown，同时具备两者时返回两类文档。API read tools 也会校验目标是 OpenAPI，Markdown read tools 会校验目标是 Markdown，不能用一种 read scope 绕过另一种。
 
-v0.1 draft tools 覆盖 OpenAPI 和 Markdown Draft 的创建、更新、查看和提交。规范工具清单如下（必须与后端 `tools/list` 一致）：
+v0.2 draft tools 覆盖 OpenAPI 和 Markdown Draft 的创建、更新、查看和提交。规范工具清单如下（必须与后端 `tools/list` 一致）：
 
 <!-- VDOC_MCP_TOOL_INVENTORY_START -->
 
@@ -123,6 +123,8 @@ v0.1 draft tools 覆盖 OpenAPI 和 Markdown Draft 的创建、更新、查看�
 - `update_doc_draft`
 - `submit_doc_draft`
 - `get_doc_draft`
+- `get_schema_version`
+- `get_doc_version`
 
 <!-- VDOC_MCP_TOOL_INVENTORY_END -->
 
@@ -130,7 +132,7 @@ v0.1 draft tools 覆盖 OpenAPI 和 Markdown Draft 的创建、更新、查看�
 
 当前后端的 `get_endpoint_detail` 在 `normalized_operation.securitySchemes` 中返回接口实际使用的鉴权方案定义；同名方案的 Header、位置或类型变化会出现在版本差异中。OpenAPI 3.1 的 Schema `$ref` 同级约束会保留，Operation 参数按 `name + in` 覆盖 Path 参数。升级后读取历史接口或比较时会从原始文档更新旧解析结果，原版本和接口 ID 保持不变。旧部署应先升级 Backend。
 
-实际工具列表以当前 backend `tools/list` 返回为准。v0.1 不暴露 direct publish tools。
+实际工具列表以当前 backend `tools/list` 返回为准。v0.2 不暴露 direct publish tools。
 
 ## Agent 行为规则
 
@@ -148,3 +150,12 @@ v0.1 draft tools 覆盖 OpenAPI 和 Markdown Draft 的创建、更新、查看�
 - 至少一个 read-only tool call 成功。
 - token 没有出现在 process args、日志、文档或截图中。
 - Agent 在依赖接口或文档事实的回答中说明事实来自 Vdoc 查询结果。
+
+## v0.2：明确分支和历史版本
+
+- `get_latest_doc`、`get_latest_schema` 必须传入 `branch_id`，不会跨分支自动选择。先用 `list_document_branches` 解析分支名称。
+- 读取指定历史版本全文：Markdown 使用 `get_doc_version`，OpenAPI 使用 `get_schema_version`，参数均为 `project_id`、`document_id`、`version_id`。返回 `version` 与 `content`，请核对并引用实际版本。
+- `get_api_version_draft` 保留原有元数据并增加 `content.content` 原始正文，`revision` 与正文来自同一快照，可用于后续 `expected_revision` 更新。
+- 未声明的参数会返回 `INVALID_ARGUMENT`。旧客户端调用最新内容工具时需补上分支，不能传 `version_id` 期待读取历史内容。
+
+首次接入可使用 [Codex／Cursor 配置步骤](admin-usage.md#connect-agent)。

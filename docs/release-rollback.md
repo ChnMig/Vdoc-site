@@ -41,9 +41,22 @@ RustFS 或 S3 compatible storage 保存 raw 和 normalized 文档对象。升级
 
 ## 3. 拉取或构建新版本
 
-如果使用 workspace root 的 Compose 包，从 workspace root 执行：
+v0.2.0 推荐使用预构建镜像。先校验新版本 Compose 下载包，再更新现有部署目录中的 Compose、脚本、发行锁和 `.env.example`，保留真实 `.env`、原 Compose 项目名及数据卷。不要重新运行 bootstrap 覆盖已有密钥。
+
+将 `.env.example` 中的 Backend/Admin 版本、commit、build time 同步到 `.env` 对应字段，其他密钥和账号保持原值。然后从现有部署目录执行：
 
 ```sh
+scripts/vdoc-prebuilt-install.sh
+docker compose --env-file .env config --quiet
+docker compose --env-file .env up -d --no-build
+```
+
+本版不新增数据库迁移。Agent 接入需同步更新 MCP/Skill 安装来源并重新加载工具；`get_latest_schema` 和 `get_latest_doc` 必须提供 `branch_id`，历史全文改用 `get_schema_version` / `get_doc_version`。
+
+开发者使用源码构建时，先准备新发行锁对应的干净源码。初始化器只创建缺失的仓库，不会覆盖已有 checkout；已有仓库需要先保存修改并切换到发行锁指定的提交。然后从 workspace root 执行：
+
+```sh
+scripts/vdoc-workspace-init.sh
 scripts/vdoc-workspace-verify.sh
 docker compose --env-file .env config --quiet
 docker compose --env-file .env up -d --build

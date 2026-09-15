@@ -193,7 +193,7 @@ curl_with_mcp_token -sS "$API_BASE/api/v1/open/mcp" \
   -d "{\"jsonrpc\":\"2.0\",\"id\":\"endpoint-detail\",\"method\":\"tools/call\",\"params\":{\"name\":\"get_endpoint_detail\",\"arguments\":{\"project_id\":\"$PROJECT_ID\",\"document_id\":\"$DOCUMENT_ID\",\"version_id\":\"$VERSION_ID\",\"endpoint_id\":\"$ENDPOINT_ID\"}}}"
 ```
 
-v0.1 does not expose direct publish tools through MCP. Agents can create, update, view, and submit Drafts, but publishing still requires Admin or SuperAdmin approval.
+v0.2 does not expose direct publish tools through MCP. Agents can create, update, view, and submit Drafts, but publishing still requires Admin or SuperAdmin approval.
 
 ## Admin AI Routes
 
@@ -277,4 +277,4 @@ Public requests use `Authorization: VdocShare {secret}`. Password-protected link
 - Checking only HTTP status is misleading; inspect envelope `code` and `status`.
 - Do not add `Bearer` to `Authorization`.
 - Do not put MCP Tokens in CLI args. Put them in Agent MCP config `env`.
-- If an Agent says it published a Version, confirm it only submitted a Draft. v0.1 does not support MCP direct publish.
+- If an Agent says it published a Version, confirm it only submitted a Draft. v0.2 does not support MCP direct publish.

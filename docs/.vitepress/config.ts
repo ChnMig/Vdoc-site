@@ -146,7 +146,6 @@ export default defineConfig({
           { text: '部署试用', link: '/deployment' },
           { text: '首次使用', link: '/admin-usage' },
           { text: '接入 Agent', link: '/mcp-tools' },
-          { text: 'English', link: '/en/' },
         ],
         sidebar: zhSidebar,
         docFooter: {
@@ -178,7 +177,6 @@ export default defineConfig({
           { text: 'Deploy', link: '/en/deployment' },
           { text: 'First Use', link: '/en/admin-usage' },
           { text: 'Agent Setup', link: '/en/mcp-tools' },
-          { text: '中文', link: '/' },
         ],
         sidebar: enSidebar,
       },
@@ -189,6 +187,18 @@ export default defineConfig({
     search: {
       provider: 'local',
       options: {
+        miniSearch: {
+          options: {
+            tokenize: (text: string) =>
+              Array.from(
+                new Intl.Segmenter('zh-CN', { granularity: 'word' }).segment(
+                  text,
+                ),
+              )
+                .filter((part) => part.isWordLike)
+                .map((part) => part.segment),
+          },
+        },
         locales: {
           root: {
             translations: {

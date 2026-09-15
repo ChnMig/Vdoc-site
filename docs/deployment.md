@@ -1,3 +1,7 @@
+---
+outline: [3, 3]
+---
+
 # 部署指南
 
 用 Docker Compose 在自己的机器上运行 Vdoc，打开工作台，再让 Agent 查询第一份文档。首次试用按下面四步完成；已有环境可直接去 [首次使用](admin-usage.md)。
@@ -5,12 +9,12 @@
 ## 开始前准备
 
 - macOS、Linux 或 Windows 的 WSL 环境，已启动 Docker，且 `docker compose version` 可用。
-- 已安装 Bash、Git、curl、jq、tar 和 `shasum`（初始化脚本也会调用它）。
-- 能访问 GitHub、容器镜像仓库和构建依赖源。首次启动会在本机构建 Backend/Admin，耗时取决于网络与机器性能。
+- 已安装 Bash、curl、jq、tar 和 `shasum`。
+- 能访问 GitHub 和容器镜像仓库。推荐安装使用 Linux amd64／arm64 预构建镜像，无需拉取源码或安装 Go、Node.js 构建应用。
 
-这仍然是 Docker 部署。下载的是 Docker Compose bootstrap，不是 Backend 二进制，也不包含预构建镜像；它提供 Compose、配置模板、初始化脚本和精确源码锁。
+下载的 Docker Compose bootstrap 提供 Compose、配置模板、安装脚本和精确源码锁。Backend/Admin 的预构建镜像作为各自 GitHub Release 的独立附件提供，安装脚本会按 Docker 平台下载并校验。
 
-[公开工作区文件](https://github.com/ChnMig/Vdoc-site/tree/main/workspace)和 Compose 下载均由 Vdoc-site 提供。部署包名称和五个仓库的源码标签统一使用 `v0.1.0`。正式打包时会核对全部标签，并在包内锁定五个精确提交号。正式使用前请阅读 [版本说明](version-notes.md) 和 [升级与回滚](release-rollback.md)。
+[公开工作区文件](https://github.com/ChnMig/Vdoc-site/tree/main/workspace)和 Compose 下载均由 Vdoc-site 提供。部署包名称和五个仓库的源码标签统一使用 `v0.2.0`。正式打包时会核对全部标签，并在包内锁定五个精确提交号。正式使用前请阅读 [版本说明](version-notes.md) 和 [升级与回滚](release-rollback.md)。
 
 <div id="quick-start"></div>
 
@@ -18,23 +22,22 @@
 
 ### 1. 下载并初始化
 
-可直接下载 [Compose 压缩包](https://chnmig.github.io/Vdoc-site/downloads/vdoc-compose-bootstrap-v0.1.0.tar.gz)和 [SHA-256 校验文件](https://chnmig.github.io/Vdoc-site/downloads/vdoc-compose-bootstrap-v0.1.0.tar.gz.sha256)，也可使用下面的命令。官网快照可能更新，复现部署时请保留压缩包和校验文件。
+可直接下载 [Compose 压缩包](https://chnmig.github.io/Vdoc-site/downloads/vdoc-compose-bootstrap-v0.2.0.tar.gz)和 [SHA-256 校验文件](https://chnmig.github.io/Vdoc-site/downloads/vdoc-compose-bootstrap-v0.2.0.tar.gz.sha256)，也可使用下面的命令。官网快照可能更新，复现部署时请保留压缩包和校验文件。
 
-在一个新的工作目录里执行。先校验下载文件，再让初始化脚本按 `workspace.lock.json` 获取五个仓库的精确提交：
+在一个新的工作目录里执行。先校验下载文件，再解压；预构建方式不需要初始化五个源码仓库：
 
 ```sh
 VDOC_BOOTSTRAP_BASE=https://chnmig.github.io/Vdoc-site/downloads
-curl -fLO "$VDOC_BOOTSTRAP_BASE/vdoc-compose-bootstrap-v0.1.0.tar.gz"
-curl -fLO "$VDOC_BOOTSTRAP_BASE/vdoc-compose-bootstrap-v0.1.0.tar.gz.sha256"
-shasum -a 256 -c vdoc-compose-bootstrap-v0.1.0.tar.gz.sha256
+curl -fLO "$VDOC_BOOTSTRAP_BASE/vdoc-compose-bootstrap-v0.2.0.tar.gz"
+curl -fLO "$VDOC_BOOTSTRAP_BASE/vdoc-compose-bootstrap-v0.2.0.tar.gz.sha256"
+shasum -a 256 -c vdoc-compose-bootstrap-v0.2.0.tar.gz.sha256
 ```
 
 看到校验结果 `OK` 后，再继续：
 
 ```sh
-tar -xzf vdoc-compose-bootstrap-v0.1.0.tar.gz
+tar -xzf vdoc-compose-bootstrap-v0.2.0.tar.gz
 cd vdoc-workspace
-scripts/vdoc-workspace-init.sh
 ```
 
 后续命令都在这个 workspace 根目录执行。已有 workspace 请核对原有版本，不要用五个移动中的 `main` 分支拼装，也不要覆盖原配置。
@@ -44,10 +47,10 @@ scripts/vdoc-workspace-init.sh
 ### 2. 生成配置，设置登录账号
 
 ```sh
-scripts/vdoc-local-bootstrap.sh
+scripts/vdoc-local-bootstrap.sh --prebuilt
 ```
 
-脚本把本机运行密钥写入 `.env`，不会在终端打印密钥。**当前脚本会开启本机注册，并将初始管理员字段留空。** 首次试用按这里的固定账号方式登录：在本机编辑器打开 `.env`，修改以下已有字段，填写你自己的邮箱、名称和密码：
+脚本把本机运行密钥写入 `.env`，不会在终端打印密钥。**`--prebuilt` 模式关闭注册，并将初始管理员字段留空。** 首次试用按这里的固定账号方式登录：在本机编辑器打开 `.env`，修改以下已有字段，填写你自己的邮箱、名称和密码：
 
 ```dotenv
 VDOC_AUTH_ALLOW_REGISTRATION=false
@@ -64,14 +67,15 @@ VDOC_INITIAL_ADMIN_PASSWORD=replace-with-your-own-password
 
 ### 3. 启动 Vdoc
 
-先校验配置，通过后再构建并启动：
+先校验配置，再下载、校验和加载两个应用镜像并启动：
 
 ```sh
 docker compose --env-file .env config --quiet
 ```
 
 ```sh
-docker compose --env-file .env up -d --build
+scripts/vdoc-prebuilt-install.sh
+docker compose --env-file .env up -d --no-build
 ```
 
 Compose 会启动工作台（Admin）、后端（Backend）、PostgreSQL 数据库和 RustFS 对象存储。数据库保存用户、项目和版本元数据，对象存储保存文档内容。
@@ -83,7 +87,7 @@ docker compose --env-file .env ps
 curl -fsS http://127.0.0.1:8080/api/v1/open/health | jq -e '.detail.healthy == true'
 ```
 
-健康检查应输出 `true`。仅 HTTP 200 不足以说明依赖正常；必须确认 `.detail.healthy == true`。首次构建后，等待服务就绪再检查。
+健康检查应输出 `true`。仅 HTTP 200 不足以说明依赖正常；必须确认 `.detail.healthy == true`。首次启动后，等待服务就绪再检查。
 
 在浏览器打开 [Vdoc 工作台](http://127.0.0.1:8081)，用第 2 步设置的账号登录。能打开工作台且健康检查通过后，继续 **[发布第一份文档并让 Agent 查询](admin-usage.md)**。无需先配置 Admin AI 或执行工程发布检查。
 
@@ -130,7 +134,7 @@ PostgreSQL 18 会把数据放在带主版本号的子目录中，因此 Compose 
 
 如果不使用初始化脚本，手工复制 `.env.example` 后，还需替换 `VDOC_POSTGRES_PASSWORD`、`VDOC_STORAGE_ACCESS_KEY`、`VDOC_STORAGE_SECRET_KEY`、`VDOC_JWT_KEY` 和 `VDOC_MCP_TOKEN_CIPHER_KEY`，并完成上面的初始管理员设置。
 
-Bootstrap 会从 `Vdoc/` 和 `Vdoc-admin/` checkout 写入 build version、Git commit 和 build time。工作树有修改时 commit 会带 `-dirty`，只适用于本机开发；手工维护来源信息时，需要与 `workspace.lock.json` 一起更新。
+预构建模式从发行锁和公开配置模板读取版本与源码来源。源码构建模式从 `Vdoc/` 和 `Vdoc-admin/` checkout 写入 build version、Git commit 和 build time。工作树有修改时 commit 会带 `-dirty`，只适用于本机开发；手工维护来源信息时，需要与 `workspace.lock.json` 一起更新。
 
 `VDOC_DATABASE_ENABLED=true` 时，Backend 启动会连接 PostgreSQL 并自动运行 migrations；连接或迁移失败会停止启动，不会静默退回内存模式。`VDOC_STORAGE_ENABLED=true` 时，Backend 会连接对象存储，bucket 不存在时会尝试创建。
 
@@ -324,3 +328,14 @@ scripts/vdoc-release-dry-run.sh
 这些命令不会发布 package、部署服务、推送镜像或创建 Git ref；通过自动化检查不代表真实 Pilot 已完成。完整发布要求见 [升级与回滚](release-rollback.md)。
 
 部署试用的下一步是 [首次使用](admin-usage.md)：发布一份 Markdown，再让 Agent 读到它。
+
+## 从源码构建（开发者可选）
+
+需要修改源码时，再安装 Git 和构建依赖并初始化锁定的仓库。已有 `.env` 保留原密钥和账号，检查其中的 build provenance 与锁定源码一致后执行：
+
+```sh
+scripts/vdoc-workspace-init.sh
+docker compose --env-file .env up -d --build
+```
+
+预构建安装只会加载应用镜像，不会启动或重置数据库；下载校验失败、镜像源码与 `workspace.lock.json` 不一致时会停止。升级已有数据前请先阅读 [升级与回滚](release-rollback.md)。

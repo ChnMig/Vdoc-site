@@ -193,7 +193,7 @@ curl_with_mcp_token -sS "$API_BASE/api/v1/open/mcp" \
   -d "{\"jsonrpc\":\"2.0\",\"id\":\"endpoint-detail\",\"method\":\"tools/call\",\"params\":{\"name\":\"get_endpoint_detail\",\"arguments\":{\"project_id\":\"$PROJECT_ID\",\"document_id\":\"$DOCUMENT_ID\",\"version_id\":\"$VERSION_ID\",\"endpoint_id\":\"$ENDPOINT_ID\"}}}"
 ```
 
-v0.1 不通过 MCP 暴露 direct publish tools。Agent 可以创建、更新、查看和提交 Draft，但发布仍由 Admin 或 SuperAdmin 审核。
+v0.2 不通过 MCP 暴露 direct publish tools。Agent 可以创建、更新、查看和提交 Draft，但发布仍由 Admin 或 SuperAdmin 审核。
 
 ## Admin AI 路由
 
@@ -277,4 +277,4 @@ GET       /api/v1/open/document-shares/{share_id}/versions/{version_id}/download
 - 只看 HTTP status 会误判，必须看 envelope 的 `code` 和 `status`。
 - `Authorization` header 不要加 `Bearer`。
 - MCP Token 不要放进 CLI args，应该放 Agent MCP config 的 `env`。
-- 如果 Agent 声称已经发布版本，先确认它只是提交 Draft，v0.1 不支持 MCP direct publish。
+- 如果 Agent 声称已经发布版本，先确认它只是提交 Draft，v0.2 不支持 MCP direct publish。

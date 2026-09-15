@@ -16,8 +16,9 @@ Usage: scripts/vdoc-workspace-package.sh [--check|--list] [--output-dir DIR] [--
 Validate or package the Docker Compose workspace bootstrap. The generated
 tarball contains Compose/configuration files, release tools, and the source
 lock. It contains no application binaries, container images, repository source
-trees, or secrets; vdoc-workspace-init.sh fetches the five public repositories
-at pinned commits, and Docker builds Backend/Admin locally.
+trees, or secrets. vdoc-prebuilt-install.sh verifies and loads separately
+published application images. Developers can use vdoc-workspace-init.sh to
+fetch pinned source commits and build Backend/Admin locally.
 
 Options:
   --check            Validate inventory and locked repository baselines only.
@@ -111,6 +112,8 @@ required_files=(
   'scripts/vdoc-control-plane-digest.sh'
   'scripts/vdoc-gate-attest.sh'
   'scripts/vdoc-json-schema-validate.mjs'
+  'scripts/vdoc-local-bootstrap.sh'
+  'scripts/vdoc-prebuilt-install.sh'
   'scripts/vdoc-pilot-result-check.mjs'
   'scripts/vdoc-pilot-result-verify.sh'
   'scripts/vdoc-pilot-sign.sh'
@@ -132,6 +135,8 @@ required_executables=(
   'scripts/vdoc-control-plane-digest.sh'
   'scripts/vdoc-gate-attest.sh'
   'scripts/vdoc-json-schema-validate.mjs'
+  'scripts/vdoc-local-bootstrap.sh'
+  'scripts/vdoc-prebuilt-install.sh'
   'scripts/vdoc-pilot-result-check.mjs'
   'scripts/vdoc-pilot-result-verify.sh'
   'scripts/vdoc-pilot-sign.sh'

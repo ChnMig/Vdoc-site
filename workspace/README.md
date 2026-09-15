@@ -1,8 +1,21 @@
 <p>
+
   <img src="assets/vdoc-logo.png" width="96" height="96" alt="Vdoc logo" />
 </p>
 
 # Vdoc Workspace
+
+## Recommended installation: v0.2.0 prebuilt images
+
+Follow the [current deployment guide](https://chnmig.github.io/Vdoc-site/deployment). Extract and verify the Compose bootstrap, run `scripts/vdoc-local-bootstrap.sh --prebuilt`, set the initial administrator in the generated private `.env`, then run:
+
+```sh
+scripts/vdoc-prebuilt-install.sh
+docker compose --env-file .env config --quiet
+docker compose --env-file .env up -d --no-build
+```
+
+The installer selects Linux amd64/arm64 using the Docker daemon, verifies each image archive and its source revision, and loads the two application images. No five-repository checkout is needed. Existing source-build instructions below remain available for development. Keep existing secrets and back up data before an upgrade.
 
 This directory is the release control plane for the five Vdoc repositories:
 
@@ -28,27 +41,26 @@ pnpm site:package
 This produces:
 
 ```text
-vdoc-compose-bootstrap-v0.1.0.tar.gz
-vdoc-compose-bootstrap-v0.1.0.tar.gz.sha256
+vdoc-compose-bootstrap-v0.2.0.tar.gz
+vdoc-compose-bootstrap-v0.2.0.tar.gz.sha256
 ```
 
-This is not a binary installer or a container-image bundle. It contains `docker-compose.yml`, `.env.example`, the root deployment/release scripts, the MIT license, and `workspace.lock.json`. The initializer fetches the five public repositories at the exact locked commits; `docker compose up -d --build` then builds the Backend/Admin images locally and starts PostgreSQL, RustFS, Backend, and Admin. The archive contains no `.env`, credentials, local evidence, application binaries, container images, or repository working trees.
+This is not a binary installer or a container-image bundle. It contains `docker-compose.yml`, `.env.example`, the root deployment/release scripts, the MIT license, and `workspace.lock.json`. The recommended installer downloads the separate Backend/Admin image archives, verifies their checksums and locked revisions, and loads them into Docker. Compose then starts PostgreSQL, RustFS, Backend, and Admin. Developers can instead initialize the five exact source checkouts and build locally. The archive contains no `.env`, credentials, local evidence, application binaries, container images, or repository working trees.
 
 Packaging normalizes file order, mode, owner, group, timestamp, and gzip metadata, so identical inputs produce identical archive bytes. `workspace.lock.json` schema v2 binds each public repository to a credential-free GitHub HTTPS URL, an advertised ref, and its exact commit. It also binds the non-Git root control plane to a canonical SHA-256 over every distributed file except the lock itself. `scripts/vdoc-workspace-init.sh` fetches the locked ref and refuses it if the fetched commit differs. Users do not need GitHub SSH keys for bootstrap initialization.
 
-Public copies of these workspace files live in [Vdoc-site/workspace](https://github.com/ChnMig/Vdoc-site/tree/main/workspace). The website serves the archive and checksum from its `downloads/` directory. Download, verify, and initialize the whole workspace with:
+Public copies of these workspace files live in [Vdoc-site/workspace](https://github.com/ChnMig/Vdoc-site/tree/main/workspace). The website serves the archive and checksum from its `downloads/` directory. Download, verify, and extract the bootstrap with:
 
 ```sh
-VDOC_BOOTSTRAP_BASE=https://vibe-doc.com/downloads
-curl -fLO "$VDOC_BOOTSTRAP_BASE/vdoc-compose-bootstrap-v0.1.0.tar.gz"
-curl -fLO "$VDOC_BOOTSTRAP_BASE/vdoc-compose-bootstrap-v0.1.0.tar.gz.sha256"
-shasum -a 256 -c vdoc-compose-bootstrap-v0.1.0.tar.gz.sha256
-tar -xzf vdoc-compose-bootstrap-v0.1.0.tar.gz
+VDOC_BOOTSTRAP_BASE=https://chnmig.github.io/Vdoc-site/downloads
+curl -fLO "$VDOC_BOOTSTRAP_BASE/vdoc-compose-bootstrap-v0.2.0.tar.gz"
+curl -fLO "$VDOC_BOOTSTRAP_BASE/vdoc-compose-bootstrap-v0.2.0.tar.gz.sha256"
+shasum -a 256 -c vdoc-compose-bootstrap-v0.2.0.tar.gz.sha256
+tar -xzf vdoc-compose-bootstrap-v0.2.0.tar.gz
 cd vdoc-workspace
-scripts/vdoc-workspace-init.sh
 ```
 
-Direct assets: [Compose bootstrap archive](https://vibe-doc.com/downloads/vdoc-compose-bootstrap-v0.1.0.tar.gz) and [SHA-256 file](https://vibe-doc.com/downloads/vdoc-compose-bootstrap-v0.1.0.tar.gz.sha256). See the [deployment guide](https://vibe-doc.com/en/deployment) for configuration and first login. The archive and all five source tags use `v0.1.0`. The source lock uses `@release` only for the Site commit: a Git commit cannot contain its own hash. The Site tag build resolves this entry, verifies all five public tags against their pinned commits, and ships a fully resolved lock with five exact commit hashes. Website downloads become available when the corresponding Site build is deployed. They are evaluation snapshots and may be replaced; retain the downloaded archive and checksum when reproducing an environment. The checksum checks the bytes against the accompanying file; it does not authenticate a release or prove production readiness or a completed Pilot.
+Direct assets: [Compose bootstrap archive](https://chnmig.github.io/Vdoc-site/downloads/vdoc-compose-bootstrap-v0.2.0.tar.gz) and [SHA-256 file](https://chnmig.github.io/Vdoc-site/downloads/vdoc-compose-bootstrap-v0.2.0.tar.gz.sha256). See the [deployment guide](https://chnmig.github.io/Vdoc-site/en/deployment) for configuration and first login. The archive and all five source tags use `v0.2.0`. The source lock uses `@release` only for the Site commit: a Git commit cannot contain its own hash. The Site tag build resolves this entry, verifies all five public tags against their pinned commits, and ships a fully resolved lock with five exact commit hashes. Website downloads become available when the corresponding Site build is deployed. They are evaluation snapshots and may be replaced; retain the downloaded archive and checksum when reproducing an environment. The checksum checks the bytes against the accompanying file; it does not authenticate a release or prove production readiness or a completed Pilot.
 
 ## Existing workspace
 

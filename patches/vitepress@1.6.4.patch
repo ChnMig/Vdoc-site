@@ -1,0 +1,24 @@
+diff --git a/dist/client/theme-default/components/VPContent.vue b/dist/client/theme-default/components/VPContent.vue
+index 3b2dbdf6e0fff8ec2cd36ca80c713b9bfe738733..de80fc7c948196583874da85d3c3043b183925b8 100644
+--- a/dist/client/theme-default/components/VPContent.vue
++++ b/dist/client/theme-default/components/VPContent.vue
+@@ -14,6 +14,7 @@ const { hasSidebar } = useSidebar()
+   <div
+     class="VPContent"
+     id="VPContent"
++    :role="frontmatter.layout === 'home' ? 'main' : undefined"
+     :class="{
+       'has-sidebar': hasSidebar,
+       'is-home': frontmatter.layout === 'home'
+diff --git a/dist/client/theme-default/components/VPFeature.vue b/dist/client/theme-default/components/VPFeature.vue
+index e6e058802e5cd3eab7e8cac9a0ee6f9a4a8a97e3..77623550214321067e3668ad9c2a20617ef73d7b 100644
+--- a/dist/client/theme-default/components/VPFeature.vue
++++ b/dist/client/theme-default/components/VPFeature.vue
+@@ -21,6 +21,7 @@ defineProps<{
+     :rel="rel"
+     :target="target"
+     :no-icon="true"
++    :aria-label="title"
+     :tag="link ? 'a' : 'div'"
+   >
+     <article class="box">

@@ -7,7 +7,7 @@ test.describe('focused desktop interactions', () => {
   test('serves the Compose archive and matching checksum inside the selected base', async ({
     request,
   }) => {
-    const archiveName = 'vdoc-compose-bootstrap-v0.1.0.tar.gz'
+    const archiveName = 'vdoc-compose-bootstrap-v0.2.0.tar.gz'
     // VitePress preview marks .gz as HTTP gzip. Read the wire bytes like the
     // documented curl -fLO command, without an HTTP client's auto-decompression.
     const archive = execFileSync('curl', [
@@ -99,6 +99,7 @@ test.describe('focused desktop interactions', () => {
     page,
   }) => {
     await page.goto(routeUrl('/'), { waitUntil: 'networkidle' })
+    await page.getByRole('button', { name: '切换语言', exact: true }).click()
     await page.getByRole('link', { name: 'English', exact: true }).click()
     await expect(page).toHaveURL(routeUrl('/en/'))
     await expect(page.locator('html')).toHaveAttribute('lang', 'en')
@@ -114,5 +115,42 @@ test.describe('focused desktop interactions', () => {
     await expect(skipLink).toBeFocused()
     await page.keyboard.press('Enter')
     await expect(page.locator('#VPContent')).toBeFocused()
+  })
+  test('Chinese task search finds the token creation step', async ({
+    page,
+  }) => {
+    await page.goto(routeUrl('/'), { waitUntil: 'networkidle' })
+    await page.locator('#local-search button').click()
+    await page.locator('#localsearch-input').fill('令牌')
+    await expect(
+      page
+        .locator('.VPLocalSearchBox .result')
+        .filter({ hasText: '创建读取令牌' })
+        .first(),
+    ).toBeVisible()
+  })
+
+  test('language switch preserves the current article', async ({ page }) => {
+    await page.goto(routeUrl('/admin-usage'), { waitUntil: 'networkidle' })
+    await page.getByRole('button', { name: '切换语言', exact: true }).click()
+    await page.getByRole('link', { name: 'English', exact: true }).click()
+    await expect(page).toHaveURL(routeUrl('/en/admin-usage'))
+    await expect(page.locator('html')).toHaveAttribute('lang', 'en')
+  })
+
+  test('home provides one main landmark and named feature links', async ({
+    page,
+    request,
+  }) => {
+    const response = await request.get(routeUrl('/'))
+    expect(await response.text()).toContain('role="main"')
+    await page.goto(routeUrl('/'), { waitUntil: 'networkidle' })
+    await expect(page.getByRole('main')).toHaveCount(1)
+    await expect(page.locator('a.VPFeature')).toHaveCount(3)
+    for (const link of await page.locator('a.VPFeature').all()) {
+      await expect(link).toHaveAccessibleName(/.+/)
+    }
+    await page.goto(routeUrl('/admin-usage'), { waitUntil: 'networkidle' })
+    await expect(page.getByRole('main')).toHaveCount(1)
   })
 })

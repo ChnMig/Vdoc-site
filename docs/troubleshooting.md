@@ -102,7 +102,7 @@ Vdoc REST 使用 envelope。不要只看 HTTP status，要看 body：
 - `document_type=1` 表示 OpenAPI，`document_type=2` 表示 Markdown。
 - OpenAPI 内容应是 OpenAPI 3.0 或 3.1。
 - `relative_path` 是 Document 身份，不要用显示名称跨系统查询。
-- 发布必须走 approve。v0.1 不支持 MCP direct publish。
+- 发布必须走 approve。v0.2 不支持 MCP direct publish。
 
 ## Admin AI 摘要或页面对话失败
 

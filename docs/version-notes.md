@@ -1,6 +1,17 @@
 # 版本说明
 
-本页说明 v0.1 的能力边界。规划试点、写 Agent 指令、发布包或升级前，先确认这里的边界没有被误读。
+本页说明 v0.2 的能力边界。规划试点、写 Agent 指令、发布包或升级前，先确认这里的边界没有被误读。
+
+## v0.2.0
+
+- MCP 新增 `get_schema_version` 和 `get_doc_version`，读取指定已发布版本全文。
+- 最新内容查询必须明确分支；未知参数会报错。升级后请重新加载 MCP 工具清单，并为 `get_latest_schema` / `get_latest_doc` 补上 `branch_id`。
+- OpenAPI 草稿读取增加原始正文，与 revision 来自同一快照；原有元数据字段保留。
+- Backend/Admin 提供 Linux amd64 和 arm64 预构建 Docker 镜像，安装器校验下载与源码来源；无需先获取五个源码仓库。
+- 工作台和首次使用指南提供 Codex / Cursor 配置；官网改善中文搜索、语言切换、正文地标与卡片链接名称。
+- 官网统一为 [GitHub Pages](https://chnmig.github.io/Vdoc-site/)，仅正式 Site 标签通过检查后自动上线。
+
+本版不新增数据库迁移。人工审核发布、不可变版本和令牌权限保持原有边界。升级前备份数据库与对象存储，并同步升级五仓发行包。
 
 ## v0.1 已包含
 
@@ -31,7 +42,7 @@
 - 完整 Compose 内 backend 使用 `postgres:5432` 和 `rustfs:9000`，浏览器和宿主机使用 `127.0.0.1` 或域名。
 - Live E2E 会重置一次性 `VDOC_TEST_POSTGRES_DB`，默认 `vdoc_e2e`，不会重置应用数据库 `VDOC_POSTGRES_DB`。
 
-## v0.1 不包含
+## 当前仍不包含
 
 - MCP direct publish tools。
 - AI 直接 approve、request changes、reject、修改或 publish 的能力。
@@ -56,5 +67,5 @@
 4. `scripts/vdoc-release-dry-run.sh --list` 和 `scripts/vdoc-release-dry-run.sh` 通过。
 5. MCP `tools/list` 返回来自已部署 backend 的 tool schemas。
 6. Skill package 测试通过，并且 Agent 在回答 endpoint 或 migration 问题前会调用 Vdoc MCP。
-7. 发布说明中明确写出 v0.1 不支持 MCP 直接发布。
+7. 发布说明中明确写出 v0.2 不支持 MCP 直接发布。
 8. Admin AI provider test 成功，Draft 和 Version 摘要可读取，失败场景不阻塞机器 Diff 和人工审核。

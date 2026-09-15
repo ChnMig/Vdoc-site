@@ -1,16 +1,18 @@
+---
+outline: [3, 3]
+---
+
 # Deployment Guide
 
 Run Vdoc on your own machine with Docker Compose, open the workbench, then let your agent query its first document. Follow the four steps below for a first trial. Already running Vdoc? Go to [First Use](admin-usage.md).
 
 ## Before You Start
 
-- Use macOS, Linux, or WSL on Windows, with Docker running and `docker compose version` available.
-- Install Bash, Git, curl, jq, tar, and `shasum` (also required by the initializer).
-- Allow access to GitHub, container registries, and build dependency sources. The first startup builds Backend/Admin locally; duration depends on your connection and machine.
+- Docker is running on macOS, Linux, or Windows with WSL and Linux containers.
+- Bash, curl, jq, tar, and `shasum` are installed.
+- GitHub and container registries are reachable. The recommended path downloads Linux amd64/arm64 images and requires no application source checkout or local Go/Node.js build.
 
-This remains a Docker deployment. The download is a Docker Compose bootstrap, not a Backend binary or a bundle of prebuilt images. It supplies Compose, configuration templates, initialization scripts, and an exact source lock.
-
-[Public workspace files](https://github.com/ChnMig/Vdoc-site/tree/main/workspace) and the Compose download are provided by Vdoc-site. The archive and all five source tags use `v0.1.0`. Published packaging verifies every tag and records five exact commit hashes in the included lock. Read [Version Notes](version-notes.md) and [Upgrade and Rollback](release-rollback.md) before production use.
+The Compose bootstrap contains configuration, installer scripts, and the source lock. Backend/Admin images are separate GitHub Release assets; the installer verifies checksums, architecture and source identity. The five source repositories and download package share the `v0.2.0` release. Read [Version Notes](version-notes.md) and [Upgrade and Rollback](release-rollback.md) before upgrading.
 
 <div id="quick-start"></div>
 
@@ -18,23 +20,22 @@ This remains a Docker deployment. The download is a Docker Compose bootstrap, no
 
 ### 1. Download and Initialize
 
-Download the [Compose archive](https://chnmig.github.io/Vdoc-site/downloads/vdoc-compose-bootstrap-v0.1.0.tar.gz) and [SHA-256 file](https://chnmig.github.io/Vdoc-site/downloads/vdoc-compose-bootstrap-v0.1.0.tar.gz.sha256), or use the commands below. Keep both files for reproducing your deployment; website snapshots may be replaced.
+Download the [Compose archive](https://chnmig.github.io/Vdoc-site/downloads/vdoc-compose-bootstrap-v0.2.0.tar.gz) and [SHA-256 file](https://chnmig.github.io/Vdoc-site/downloads/vdoc-compose-bootstrap-v0.2.0.tar.gz.sha256), or use the commands below. Keep both files for reproducing your deployment; website snapshots may be replaced.
 
-Run this in a new working directory. Verify the download first, then let the initializer fetch the five exact repository commits from `workspace.lock.json`:
+Run this in a new working directory. Verify and extract the bootstrap; the prebuilt path does not require source checkouts.
 
 ```sh
 VDOC_BOOTSTRAP_BASE=https://chnmig.github.io/Vdoc-site/downloads
-curl -fLO "$VDOC_BOOTSTRAP_BASE/vdoc-compose-bootstrap-v0.1.0.tar.gz"
-curl -fLO "$VDOC_BOOTSTRAP_BASE/vdoc-compose-bootstrap-v0.1.0.tar.gz.sha256"
-shasum -a 256 -c vdoc-compose-bootstrap-v0.1.0.tar.gz.sha256
+curl -fLO "$VDOC_BOOTSTRAP_BASE/vdoc-compose-bootstrap-v0.2.0.tar.gz"
+curl -fLO "$VDOC_BOOTSTRAP_BASE/vdoc-compose-bootstrap-v0.2.0.tar.gz.sha256"
+shasum -a 256 -c vdoc-compose-bootstrap-v0.2.0.tar.gz.sha256
 ```
 
 Continue only after the checksum reports `OK`:
 
 ```sh
-tar -xzf vdoc-compose-bootstrap-v0.1.0.tar.gz
+tar -xzf vdoc-compose-bootstrap-v0.2.0.tar.gz
 cd vdoc-workspace
-scripts/vdoc-workspace-init.sh
 ```
 
 Run the remaining commands from this workspace root. For an existing workspace, check its version and retain its configuration. Do not assemble a release from five moving `main` branches.
@@ -44,10 +45,10 @@ Run the remaining commands from this workspace root. For an existing workspace, 
 ### 2. Generate Configuration and Set Your Login
 
 ```sh
-scripts/vdoc-local-bootstrap.sh
+scripts/vdoc-local-bootstrap.sh --prebuilt
 ```
 
-The script writes local runtime secrets to `.env` without printing them. **The current script enables local registration and leaves the initial-admin fields blank.** For the fixed-account login used in this guide, open `.env` in a local editor and change these existing fields to your own email, name, and password:
+The script writes local runtime secrets to `.env` without printing them. **The prebuilt mode disables registration and leaves the initial-admin fields blank.** For the fixed-account login used in this guide, open `.env` in a local editor and change these existing fields to your own email, name, and password:
 
 ```dotenv
 VDOC_AUTH_ALLOW_REGISTRATION=false
@@ -64,14 +65,15 @@ With registration disabled, the first startup against an empty database must pro
 
 ### 3. Start Vdoc
 
-Validate the configuration, then build and start after validation succeeds:
+Validate the configuration, then download, verify and load the application images before starting:
 
 ```sh
 docker compose --env-file .env config --quiet
 ```
 
 ```sh
-docker compose --env-file .env up -d --build
+scripts/vdoc-prebuilt-install.sh
+docker compose --env-file .env up -d --no-build
 ```
 
 Compose starts the workbench (Admin), Backend, PostgreSQL, and RustFS object storage. The database stores users, projects, and version metadata; object storage holds document content.
@@ -83,7 +85,7 @@ docker compose --env-file .env ps
 curl -fsS http://127.0.0.1:8080/api/v1/open/health | jq -e '.detail.healthy == true'
 ```
 
-The health check should print `true`. HTTP 200 alone does not prove dependency health; require `.detail.healthy == true`. After the first build, allow the services to become ready before checking.
+The health check should print `true`. HTTP 200 alone does not prove dependency health; require `.detail.healthy == true`. Allow the services to become ready before checking.
 
 Open the [Vdoc workbench](http://127.0.0.1:8081) and sign in with the account from step 2. Once the workbench opens and health passes, continue to **[publish your first document and query it with an agent](admin-usage.md)**. Admin AI configuration and engineering release checks can follow later.
 
@@ -130,7 +132,7 @@ Do not run `docker compose down -v` outside a disposable environment: it deletes
 
 If you copy `.env.example` instead of using the bootstrap script, replace `VDOC_POSTGRES_PASSWORD`, `VDOC_STORAGE_ACCESS_KEY`, `VDOC_STORAGE_SECRET_KEY`, `VDOC_JWT_KEY`, and `VDOC_MCP_TOKEN_CIPHER_KEY`, then complete the initial-admin setup above.
 
-Bootstrap records build version, Git commit, and build time from the `Vdoc/` and `Vdoc-admin/` checkouts. Modified worktrees produce a `-dirty` commit for local development only. When maintaining provenance manually, update it together with `workspace.lock.json`.
+Prebuilt bootstrap records version and source provenance from the release lock and public configuration template. Source-build bootstrap reads them from the `Vdoc/` and `Vdoc-admin/` checkouts. Modified worktrees produce a `-dirty` commit for local development only. When maintaining provenance manually, update it together with `workspace.lock.json`.
 
 With `VDOC_DATABASE_ENABLED=true`, Backend connects to PostgreSQL and runs migrations on startup. Connection or migration failure stops startup instead of falling back to memory mode. With `VDOC_STORAGE_ENABLED=true`, Backend connects to object storage and tries to create a missing bucket.
 
@@ -324,3 +326,14 @@ scripts/vdoc-release-dry-run.sh
 These commands do not publish packages, deploy services, push images, or create Git refs. Passing automation does not prove a completed real Pilot. See [Upgrade and Rollback](release-rollback.md) for release requirements.
 
 Next for your trial: [First Use](admin-usage.md), where you publish a Markdown document and let your agent read it.
+
+## Build from Source (Optional for Developers)
+
+To modify Vdoc, install Git and build dependencies, then initialize the locked source checkouts. Preserve the secrets and account in an existing `.env`; confirm its build provenance matches the locked source before running:
+
+```sh
+scripts/vdoc-workspace-init.sh
+docker compose --env-file .env up -d --build
+```
+
+Image installation loads application images only. It stops on a checksum, architecture, or source-lock mismatch and does not start or reset the database. Read [Upgrade and Rollback](release-rollback.md) before upgrading existing data.

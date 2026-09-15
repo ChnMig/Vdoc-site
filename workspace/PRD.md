@@ -1878,7 +1878,7 @@ AI 通过 MCP 可以：
 - 创建、更新和提交 OpenAPI 草稿
 - 创建、更新和提交 Markdown 文档草稿
 - 查询草稿状态和审核意见
-- v0.2 起可选支持项目绑定机器人/CI Token；正式版本发布仍必须由后台人工审核触发
+- 后续版本规划项目绑定机器人/CI Token（v0.2.0 尚未包含）；正式版本发布仍必须由后台人工审核触发
 
 ---
 
@@ -1886,7 +1886,7 @@ AI 通过 MCP 可以：
 
 v0.1 MVP 必做查询工具和草稿写入工具。MCP 不提供绕过后台人工审核的直接发布工具；正式版本发布必须在 Vdoc 后台由 Project Admin 或 SuperAdmin 触发。
 
-后端 `tools/list` 是运行时事实源，workspace 的机器可读契约是 `contracts/mcp-tools-v0.1.json`。所有工具都通过 JSON-RPC `tools/call` 调用，以下“输入”均指 `params.arguments`；字段名统一使用 `snake_case`，版本、endpoint 和 diff 一律使用稳定 ID，不能用显示名称、版本名或 `method + path` 代替。
+后端 `tools/list` 是运行时事实源，workspace 的机器可读契约是 `contracts/mcp-tools-v0.2.json`。所有工具都通过 JSON-RPC `tools/call` 调用，以下“输入”均指 `params.arguments`；字段名统一使用 `snake_case`，版本、endpoint 和 diff 一律使用稳定 ID，不能用显示名称、版本名或 `method + path` 代替。
 
 <!-- VDOC_MCP_TOOL_INVENTORY_START -->
 ```text
@@ -1897,6 +1897,7 @@ list_api_endpoints
 list_api_versions
 list_doc_versions
 get_latest_schema
+get_schema_version
 get_endpoint_detail
 compare_api_versions
 get_change_summary
@@ -1905,6 +1906,7 @@ update_api_version_draft
 submit_api_version_draft
 get_api_version_draft
 get_latest_doc
+get_doc_version
 compare_doc_versions
 create_doc_draft
 update_doc_draft
@@ -1913,7 +1915,7 @@ get_doc_draft
 ```
 <!-- VDOC_MCP_TOOL_INVENTORY_END -->
 
-响应约束：列表和 Draft/Version 摘要只返回 metadata 与 hash，不内嵌正文或对象存储 key；`get_latest_schema`、`get_latest_doc` 和 `get_doc_draft` 仅通过单一 `content` 对象返回正文。`list_documents` 必须按 token scope 过滤文档类型，且 API/Markdown read tools 必须再次校验目标文档类型。
+响应约束：列表和 Draft/Version 摘要只返回 metadata 与 hash，不内嵌正文或对象存储 key；最新与指定版本内容工具、`get_api_version_draft`、`get_doc_draft` 仅通过单一 `content` 对象返回正文。最新内容工具必须传入 `branch_id`；历史全文使用 `get_schema_version` / `get_doc_version`，必填 `project_id`、`document_id`、`version_id`，分别要求 `api:read` / `doc:read`。未知参数返回错误，不会被静默忽略。`list_documents` 必须按 token scope 过滤文档类型，且 API/Markdown read tools 必须再次校验目标文档类型。
 
 #### 9.2.1 `list_projects`
 
@@ -2035,7 +2037,7 @@ api:read
 
 #### 9.2.5 `get_latest_schema`
 
-获取指定 OpenAPI 类型文档最新版本的完整 OpenAPI 契约。该工具是 v0.1 已实现的事实读取路径。
+获取指定 OpenAPI 类型文档、指定分支最新已发布版本的完整 OpenAPI 契约。v0.2.0 起必须提供 `branch_id`，不能跨分支猜测最新版本。
 
 权限：
 
@@ -2812,7 +2814,7 @@ MVP Skill 应满足：
   "mcpServers": {
     "vdoc": {
       "command": "npx",
-      "args": ["--yes", "github:ChnMig/Vdoc-mcp#22e58a252cce7512b4cf2649e3a67916d2825bea"],
+      "args": ["--yes", "github:ChnMig/Vdoc-mcp#1c17810db00a49e5cf882b792f60497369000f33"],
       "env": {
         "VDOC_BASE_URL": "https://your-vdoc.example.com",
         "VDOC_MCP_TOKEN": "REPLACE_WITH_LOCAL_VDOC_MCP_TOKEN"

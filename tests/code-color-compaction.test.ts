@@ -20,6 +20,18 @@ function expandSharedColors(html: string): string {
   })
 }
 
+function normalizeCodeGroupIds(html: string): string {
+  const ids = new Map<string, string>()
+  return html.replace(
+    /\b(name|id|for)="((?:group|tab)-[\w-]+)"/g,
+    (_, attribute: string, value: string) => {
+      // Preserve uniqueness and input/label references across random renders.
+      if (!ids.has(value)) ids.set(value, `${value.split('-')[0]}-${ids.size}`)
+      return `${attribute}="${ids.get(value)}"`
+    },
+  )
+}
+
 test('shared code colors preserve both themes and all bilingual document markup', async () => {
   const documents = ['', 'en'].flatMap((directory) =>
     readdirSync(join(docsRoot, directory))
@@ -43,7 +55,9 @@ test('shared code colors preserve both themes and all bilingual document markup'
       const before = baseline[index]
       if (before === undefined) throw new Error(`Missing baseline for ${path}`)
       const after = compact.render(source)
-      expect(expandSharedColors(after), path).toBe(before)
+      expect(normalizeCodeGroupIds(expandSharedColors(after)), path).toBe(
+        normalizeCodeGroupIds(before),
+      )
       savedBytes += Buffer.byteLength(before) - Buffer.byteLength(after)
     }
   } finally {

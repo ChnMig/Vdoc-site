@@ -50,6 +50,12 @@ assert_immutable_container_sources() {
     "$ROOT_DIR/Vdoc/.github/workflows/ci.yml"; do
     while IFS= read -r line; do
       source="$(printf '%s\n' "$line" | sed -E 's/^[[:space:]]*(FROM|image:)[[:space:]]+([^[:space:]]+).*/\2/')"
+      # Application image tags are local outputs loaded from checksummed releases;
+      # all externally pulled dependency and build images still require OCI digests.
+      if [[ "$file" == "$ROOT_DIR/docker-compose.yml" &&
+        ( "$source" == "vdoc-backend:v$release_version" || "$source" == "vdoc-admin:v$release_version" ) ]]; then
+        continue
+      fi
       [[ "$source" =~ @sha256:[0-9a-f]{64}$ ]] || \
         fail "$file uses a mutable container source: $source"
     done < <(grep -E '^[[:space:]]*(FROM|image:)[[:space:]]+' "$file" || true)
@@ -82,7 +88,7 @@ implementation_plan_routes() {
 }
 
 mcp_manifest_tools() {
-  jq -r '.tools[].name' "$ROOT_DIR/contracts/mcp-tools-v0.1.json" | sort -u
+  jq -r '.tools[].name' "$ROOT_DIR/contracts/mcp-tools-v0.2.json" | sort -u
 }
 
 mcp_backend_tools() {
@@ -113,7 +119,7 @@ assert_mcp_inventory_matches() {
   local label="$1"
   shift
   if ! diff -u <(mcp_manifest_tools) <("$@"); then
-    fail "$label MCP tool inventory must match contracts/mcp-tools-v0.1.json"
+    fail "$label MCP tool inventory must match contracts/mcp-tools-v0.2.json"
   fi
 }
 
@@ -196,6 +202,7 @@ assert_file_contains "$ROOT_DIR/Vdoc-mcp/README.md" 'select(.path == "Vdoc-mcp")
 for file in \
   "$ROOT_DIR/Vdoc-mcp/examples/claude_desktop_config.json" \
   "$ROOT_DIR/Vdoc-mcp/examples/cursor_mcp.json" \
+  "$ROOT_DIR/Vdoc-mcp/examples/codex-config.toml" \
   "$ROOT_DIR/Vdoc-mcp/examples/opencode.jsonc"; do
   assert_file_contains "$file" 'github:ChnMig/Vdoc-mcp#<VDOC_MCP_COMMIT_FROM_WORKSPACE_LOCK>'
 done
@@ -212,7 +219,7 @@ assert_backend_root_docs_are_distributed
 jq -e '.files | index("LICENSE") != null' "$ROOT_DIR/workspace-distribution.json" >/dev/null || \
   fail 'Docker Compose bootstrap omits the root MIT license'
 
-bootstrap_asset_url='https://vibe-doc.com/downloads/vdoc-compose-bootstrap-v0.1.0.tar.gz'
+bootstrap_asset_url="https://chnmig.github.io/Vdoc-site/downloads/$(jq -r .artifact_name "$ROOT_DIR/workspace-distribution.json").tar.gz"
 assert_file_contains "$ROOT_DIR/README.md" "$bootstrap_asset_url"
 assert_file_contains "$ROOT_DIR/README.md" "$bootstrap_asset_url.sha256"
 assert_file_contains "$ROOT_DIR/README.md" 'https://github.com/ChnMig/Vdoc-site/tree/main/workspace'
@@ -236,7 +243,7 @@ assert_file_contains "$ROOT_DIR/docker-compose.yml" 'BUILD_TIME: ${VDOC_ADMIN_BU
 [[ "$(awk -F= '$1 == "VDOC_ADMIN_GIT_COMMIT" {print $2}' "$ROOT_DIR/.env.example")" == "$admin_lock_commit" ]] || \
   fail '.env.example Admin Git provenance must match workspace.lock.json'
 for component in BACKEND ADMIN; do
-  [[ "$(awk -F= -v key="VDOC_${component}_VERSION" '$1 == key {print $2}' "$ROOT_DIR/.env.example")" == "$release_version" ]] || \
+  [[ "$(awk -F= -v key="VDOC_${component}_VERSION" '$1 == key {print $2}' "$ROOT_DIR/.env.example")" == "v$release_version" ]] || \
     fail '.env.example build versions must match the Compose release version'
 done
 if rg -n 'ARG (VERSION=dev|BUILD_TIME=unknown|GIT_COMMIT=unknown)' "$ROOT_DIR/Vdoc/Dockerfile" "$ROOT_DIR/Vdoc-admin/Dockerfile"; then
@@ -247,13 +254,13 @@ if ! diff -u <(openapi_routes) <(implementation_plan_routes); then
   fail 'IMPLEMENTATION_PLAN.md HTTP route inventory must match the OpenAPI contract'
 fi
 
-[[ "$(jq -r '.version' "$ROOT_DIR/contracts/mcp-tools-v0.1.json")" == '0.1' ]] || \
-  fail 'MCP tool manifest version must be 0.1'
-mcp_tool_count="$(jq -r '.tools | length' "$ROOT_DIR/contracts/mcp-tools-v0.1.json")"
+[[ "$(jq -r '.version' "$ROOT_DIR/contracts/mcp-tools-v0.2.json")" == '0.2.0' ]] || \
+  fail 'MCP tool manifest version must be 0.2.0'
+mcp_tool_count="$(jq -r '.tools | length' "$ROOT_DIR/contracts/mcp-tools-v0.2.json")"
 [[ "$mcp_tool_count" -gt 0 ]] || fail 'MCP tool manifest must not be empty'
-[[ "$(jq -r '[.tools[].name] | unique | length' "$ROOT_DIR/contracts/mcp-tools-v0.1.json")" == "$mcp_tool_count" ]] || \
-  fail 'MCP v0.1 manifest contains duplicate tool names'
-[[ "$(jq -r '.tools[] | select(.name == "get_doc_draft") | .scopes_any | join(",")' "$ROOT_DIR/contracts/mcp-tools-v0.1.json")" == 'doc:read' ]] || \
+[[ "$(jq -r '[.tools[].name] | unique | length' "$ROOT_DIR/contracts/mcp-tools-v0.2.json")" == "$mcp_tool_count" ]] || \
+  fail 'MCP manifest contains duplicate tool names'
+[[ "$(jq -r '.tools[] | select(.name == "get_doc_draft") | .scopes_any | join(",")' "$ROOT_DIR/contracts/mcp-tools-v0.2.json")" == 'doc:read' ]] || \
   fail 'get_doc_draft must require doc:read in the MCP manifest'
 
 assert_mcp_inventory_matches 'backend runtime' mcp_backend_tools
@@ -264,13 +271,13 @@ assert_mcp_inventory_matches 'English site docs' mcp_marked_markdown_inventory "
 assert_mcp_inventory_matches 'Vdoc Skill' mcp_marked_plain_inventory "$ROOT_DIR/Vdoc-skill/SKILL.md"
 assert_mcp_inventory_matches 'Vdoc Skill validation' mcp_skill_test_tools
 
-if ! diff -u <(jq -S . "$ROOT_DIR/contracts/mcp-tools-v0.1.json") <(jq -S . "$ROOT_DIR/Vdoc-skill/references/mcp-tools.json"); then
+if ! diff -u <(jq -S . "$ROOT_DIR/contracts/mcp-tools-v0.2.json") <(jq -S . "$ROOT_DIR/Vdoc-skill/references/mcp-tools.json"); then
   fail 'Skill argument contract must match the workspace MCP manifest'
 fi
 
 (
   cd "$ROOT_DIR/Vdoc"
-  VDOC_MCP_CONTRACT_FILE="$ROOT_DIR/contracts/mcp-tools-v0.1.json" \
+  VDOC_MCP_CONTRACT_FILE="$ROOT_DIR/contracts/mcp-tools-v0.2.json" \
     go test ./api/app/v1/open/mcp -run '^TestMCPToolArgumentManifest$' -count=1
 ) || fail 'MCP argument manifest must match runtime tool schemas'
 

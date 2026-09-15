@@ -1,6 +1,17 @@
 # 变更记录
 
-本页记录当前 VitePress 文档覆盖的 v0.1 用户可见状态。它不是营销列表，而是评估、部署和试点前需要知道的变化。
+本页记录当前 VitePress 文档覆盖的 v0.2 用户可见状态。它不是营销列表，而是评估、部署和试点前需要知道的变化。
+
+## v0.2.0
+
+- MCP 新增 `get_schema_version` 和 `get_doc_version`，读取指定已发布版本全文。
+- 最新内容查询必须明确分支；未知参数会报错。升级后请重新加载 MCP 工具清单，并为 `get_latest_schema` / `get_latest_doc` 补上 `branch_id`。
+- OpenAPI 草稿读取增加原始正文，与 revision 来自同一快照；原有元数据字段保留。
+- Backend/Admin 提供 Linux amd64 和 arm64 预构建 Docker 镜像，安装器校验下载与源码来源；无需先获取五个源码仓库。
+- 工作台和首次使用指南提供 Codex / Cursor 配置；官网改善中文搜索、语言切换、正文地标与卡片链接名称。
+- 官网统一为 [GitHub Pages](https://chnmig.github.io/Vdoc-site/)，仅正式 Site 标签通过检查后自动上线。
+
+本版不新增数据库迁移。人工审核发布、不可变版本和令牌权限保持原有边界。升级前备份数据库与对象存储，并同步升级五仓发行包。
 
 ## 当前文档变化
 

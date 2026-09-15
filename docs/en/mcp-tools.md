@@ -18,9 +18,9 @@ The agent machine also needs Node.js 20 or later, npm, and Git. If Vdoc is not r
 `@vdoc/mcp` is not published to the npm registry yet. Run or install it directly from the official GitHub repository:
 
 ```sh
-npx --yes github:ChnMig/Vdoc-mcp#22e58a252cce7512b4cf2649e3a67916d2825bea
+npx --yes github:ChnMig/Vdoc-mcp#1c17810db00a49e5cf882b792f60497369000f33
 # Or install the GitHub version globally
-npm install -g git+https://github.com/ChnMig/Vdoc-mcp.git#22e58a252cce7512b4cf2649e3a67916d2825bea
+npm install -g git+https://github.com/ChnMig/Vdoc-mcp.git#1c17810db00a49e5cf882b792f60497369000f33
 ```
 
 For one-off usage, prefer the commit-pinned `npx` source in the Agent MCP config. The 40-character commit above must equal the `Vdoc-mcp` entry in the reviewed release package's `workspace.lock.json`; do not remove the fragment or replace it with a moving branch. Do not put tokens in `args`.
@@ -59,7 +59,7 @@ For local full Compose, `VDOC_BASE_URL` is usually `http://127.0.0.1:8080`. For 
       "command": "npx",
       "args": [
         "--yes",
-        "github:ChnMig/Vdoc-mcp#22e58a252cce7512b4cf2649e3a67916d2825bea"
+        "github:ChnMig/Vdoc-mcp#1c17810db00a49e5cf882b792f60497369000f33"
       ],
       "env": {
         "VDOC_BASE_URL": "https://your-vdoc.example.test",
@@ -86,7 +86,7 @@ If you already know the full MCP endpoint, use this form:
 
 The backend is the source of truth for tool definitions. The adapter calls Vdoc `tools/list` at runtime, so schemas stay aligned with the deployed backend.
 
-v0.1 read tools cover:
+v0.2 read tools cover:
 
 - projects
 - documents
@@ -99,7 +99,7 @@ v0.1 read tools cover:
 
 `list_documents` filters results by token scope: `api:read` alone sees only OpenAPI documents, `doc:read` alone sees only Markdown documents, and a token with both sees both types. API read tools also require an OpenAPI target and Markdown read tools require a Markdown target, so one read scope cannot bypass the other.
 
-v0.1 draft tools cover creating, updating, viewing, and submitting OpenAPI and Markdown Drafts. The normative inventory is (and must match backend `tools/list`):
+v0.2 draft tools cover creating, updating, viewing, and submitting OpenAPI and Markdown Drafts. The normative inventory is (and must match backend `tools/list`):
 
 <!-- VDOC_MCP_TOOL_INVENTORY_START -->
 
@@ -123,6 +123,8 @@ v0.1 draft tools cover creating, updating, viewing, and submitting OpenAPI and M
 - `update_doc_draft`
 - `submit_doc_draft`
 - `get_doc_draft`
+- `get_schema_version`
+- `get_doc_version`
 
 <!-- VDOC_MCP_TOOL_INVENTORY_END -->
 
@@ -130,7 +132,7 @@ The current source version adds `list_document_branches` for branch IDs, names, 
 
 The current backend's `get_endpoint_detail` includes definitions of the endpoint's active security schemes in `normalized_operation.securitySchemes`. Header, location, or type changes to the same scheme appear in version comparisons. OpenAPI 3.1 Schema `$ref` sibling constraints are preserved, and operation parameters override path parameters by `name + in`. After an upgrade, reading historical endpoints or comparisons refreshes older parsed facts from the original documents while retaining version and endpoint IDs. Upgrade older backends to receive these facts.
 
-Use the current backend `tools/list` response as the final tool list. v0.1 does not expose direct publish tools.
+Use the current backend `tools/list` response as the final tool list. v0.2 does not expose direct publish tools.
 
 ## Agent Behavior Rules
 
@@ -148,3 +150,12 @@ Use the current backend `tools/list` response as the final tool list. v0.1 does 
 - At least one read-only tool call succeeds.
 - Token is not present in process args, logs, docs, or screenshots.
 - Agent answers mention Vdoc query results when the task depends on API or document facts.
+
+## v0.2: Explicit Branches and Historical Versions
+
+- `get_latest_doc` and `get_latest_schema` require `branch_id`; they never select across branches. Resolve branch names with `list_document_branches` first.
+- For complete historical content, use `get_doc_version` for Markdown or `get_schema_version` for OpenAPI, with `project_id`, `document_id`, and `version_id`. Verify and cite the returned `version` and `content`.
+- `get_api_version_draft` preserves its metadata and adds the raw body in `content.content`. Its `revision` and content come from one snapshot; use that revision as `expected_revision` when editing.
+- Undeclared arguments return `INVALID_ARGUMENT`. Existing callers must supply a branch to latest-content tools and use the dedicated version tools for historical reads.
+
+Start with the [Codex/Cursor configuration steps](admin-usage.md#connect-agent).

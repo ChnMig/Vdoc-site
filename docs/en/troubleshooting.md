@@ -102,7 +102,7 @@ If `code` is not `200` or `status` is not `OK`, handle it as a business error.
 - `document_type=1` means OpenAPI, and `document_type=2` means Markdown.
 - OpenAPI content should be OpenAPI 3.0 or 3.1.
 - `relative_path` is Document identity. Do not query across systems by display name.
-- Publishing requires approve. v0.1 does not support MCP direct publish.
+- Publishing requires approve. v0.2 does not support MCP direct publish.
 
 ## Admin AI Summary or Page Chat Fails
 
