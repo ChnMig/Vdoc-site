@@ -37,13 +37,15 @@ test('shared code colors preserve both themes and all bilingual document markup'
     readdirSync(join(docsRoot, directory))
       .filter((file) => file.endsWith('.md'))
       .map((file) => ({
-        path: `${directory}/${file}`,
+        path: join(docsRoot, directory, file),
         source: readFileSync(join(docsRoot, directory, file), 'utf8'),
       })),
   )
   disposeMdItInstance()
   const original = await createMarkdownRenderer(docsRoot)
-  const baseline = documents.map(({ source }) => original.render(source))
+  const baseline = documents.map(({ source, path }) =>
+    original.render(source, { path }),
+  )
   // VitePress caches one renderer globally, so each configuration needs its own lifetime.
   disposeMdItInstance()
   const compact = await createMarkdownRenderer(docsRoot, {
@@ -54,7 +56,7 @@ test('shared code colors preserve both themes and all bilingual document markup'
     for (const [index, { source, path }] of documents.entries()) {
       const before = baseline[index]
       if (before === undefined) throw new Error(`Missing baseline for ${path}`)
-      const after = compact.render(source)
+      const after = compact.render(source, { path })
       expect(normalizeCodeGroupIds(expandSharedColors(after)), path).toBe(
         normalizeCodeGroupIds(before),
       )

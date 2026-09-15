@@ -6,6 +6,8 @@ outline: [3, 3]
 
 用 Docker Compose 在自己的机器上运行 Vdoc，打开工作台，再让 Agent 查询第一份文档。首次试用按下面四步完成；已有环境可直接去 [首次使用](admin-usage.md)。
 
+需要查看或复制配置文件，可直接跳到 [完整 Docker Compose 示例](#compose-example)，包含工作台、后端、数据库和对象存储四个服务。
+
 ## 开始前准备
 
 - macOS、Linux 或 Windows 的 WSL 环境，已启动 Docker，且 `docker compose version` 可用。
@@ -92,6 +94,32 @@ curl -fsS http://127.0.0.1:8080/api/v1/open/health | jq -e '.detail.healthy == t
 在浏览器打开 [Vdoc 工作台](http://127.0.0.1:8081)，用第 2 步设置的账号登录。能打开工作台且健康检查通过后，继续 **[发布第一份文档并让 Agent 查询](admin-usage.md)**。无需先配置 Admin AI 或执行工程发布检查。
 
 如果页面打不开，先查看 `docker compose --env-file .env ps` 和 Backend 日志。健康检查失败、端口冲突或登录失败时，参阅 [故障排查](troubleshooting.md)。
+
+<div id="compose-example"></div>
+
+## 完整 Docker Compose 示例
+
+下面是 `v0.2.0` 部署包中的完整 `docker-compose.yml`，包含四个服务、健康检查、启动依赖、端口映射和持久化数据卷。代码块直接引用部署包源文件，可用右上角的复制按钮复制全部内容。
+
+先按 [下载并初始化](#quick-start) 解压部署包。将此文件放在 `vdoc-workspace/` 根目录，与 `.env`、`workspace.lock.json` 和 `scripts/` 同级；其中 PostgreSQL 挂载的 `scripts/postgres-init-e2e-db.sh` 已包含在包内。
+
+<<< @/../workspace/docker-compose.yml{yaml} [docker-compose.yml]
+
+**配套 `.env` 和启动方式**
+
+在同一目录运行 `scripts/vdoc-local-bootstrap.sh --prebuilt` 生成 `.env`，再按 [设置登录账号](#initial-admin) 填写初始管理员邮箱、名称和密码。脚本会生成数据库密码、对象存储凭据、JWT 密钥和 MCP 加密密钥，并写入镜像来源信息；已有 `.env` 请保留原配置。
+
+`vdoc-backend:v0.2.0` 和 `vdoc-admin:v0.2.0` 是安装脚本加载到本机 Docker 的镜像标签。首次启动前，执行下面的命令下载、校验并加载镜像，然后启动四个服务：
+
+```sh
+docker compose --env-file .env config --quiet
+scripts/vdoc-prebuilt-install.sh
+docker compose --env-file .env up -d --no-build
+```
+
+文件中的 `build:` 配置供源码构建使用。预构建部署使用 `--no-build`，无需 `Vdoc/` 和 `Vdoc-admin/` 源码目录；仅复制这个 YAML 文件不会安装应用镜像或生成配套配置。
+
+启动后打开 [Vdoc 工作台](http://127.0.0.1:8081)。默认端口只绑定本机，访问地址和数据卷说明见下方；修改端口或域名时，同时更新 `.env` 中的 `VDOC_ADMIN_API_BASE_URL` 和 `VDOC_SERVER_CORS_ALLOWED_ORIGINS`。
 
 ## 部署后的日常管理
 

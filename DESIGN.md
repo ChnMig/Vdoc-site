@@ -25,6 +25,7 @@ All color customization uses VitePress theme variables in `docs/.vitepress/theme
 - Light Shiki red override: `#c12a3a` replaces only generated light token `#D73A49` on `#f6f6f7`, measured at `5.31:1`; the generated dark token remains unchanged.
 - Light Shiki comment override: `#666f79` replaces only generated light token `#6A737D` on `#f6f6f7`, measured at `4.73:1`; the generated dark token remains unchanged.
 - Light Shiki orange override: `#9f4100` replaces only generated light token `#E36209` for readable environment configuration values; the generated dark token remains unchanged.
+- Light Shiki green override: `#1f7533` replaces only generated light token `#22863A` for YAML keys in the complete Compose example, measured at `5.33:1` on `#f6f6f7`; the generated dark token remains unchanged.
 - Background: VitePress white defaults.
 - Text, borders, remaining code syntax, code surfaces, feature cards, navigation, and sidebars: VitePress default theme values.
 
@@ -63,7 +64,7 @@ The home copy leads with the reader's outcome: teams and AI share reviewed OpenA
 - Root locale is `zh-CN`; `/en/` uses `en` through VitePress locales.
 - Use semantic VitePress home data rather than custom HTML so landmarks, links, focus, responsive navigation, and local search stay framework-owned.
 - Maintain WCAG AA contrast with blue `#3451b2` on white and VitePress default text colors.
-- Measured overrides are scoped to `--vp-code-lang-color` in light/dark themes and the generated light Shiki `#D73A49`, `#6A737D`, and `#E36209` tokens. They do not alter code layout, font sizing, wrapping, or dark-theme syntax.
+- Measured overrides are scoped to `--vp-code-lang-color` in light/dark themes and the generated light Shiki `#D73A49`, `#6A737D`, `#E36209`, and `#22863A` tokens. They do not alter code layout, font sizing, wrapping, or dark-theme syntax.
 - Browser verification uses dev-only `@playwright/test` and `@axe-core/playwright`. They add no production runtime or UI dependency.
 - No critical or serious accessibility debt is accepted; browser axe checks must report zero serious or critical WCAG A/AA violations.
 - Keep examples free of real JWT, MCP Token, DB password, storage secret, or `Authorization` header values.

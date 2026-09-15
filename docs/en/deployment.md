@@ -6,6 +6,8 @@ outline: [3, 3]
 
 Run Vdoc on your own machine with Docker Compose, open the workbench, then let your agent query its first document. Follow the four steps below for a first trial. Already running Vdoc? Go to [First Use](admin-usage.md).
 
+To inspect or copy the configuration, jump to the [complete Docker Compose example](#compose-example), which includes the workbench, backend, database, and object storage.
+
 ## Before You Start
 
 - Docker is running on macOS, Linux, or Windows with WSL and Linux containers.
@@ -90,6 +92,32 @@ The health check should print `true`. HTTP 200 alone does not prove dependency h
 Open the [Vdoc workbench](http://127.0.0.1:8081) and sign in with the account from step 2. Once the workbench opens and health passes, continue to **[publish your first document and query it with an agent](admin-usage.md)**. Admin AI configuration and engineering release checks can follow later.
 
 If the page does not open, check `docker compose --env-file .env ps` and the Backend logs. See [Troubleshooting](troubleshooting.md) for health failures, port conflicts, or login issues.
+
+<div id="compose-example"></div>
+
+## Complete Docker Compose Example
+
+This is the complete `docker-compose.yml` from the `v0.2.0` deployment package. It includes all four services, health checks, startup dependencies, port mappings, and persistent volumes. The code block reads directly from the package source; use its copy button to copy the entire file.
+
+First extract the package under [Download and Initialize](#quick-start). Place this file in the `vdoc-workspace/` root alongside `.env`, `workspace.lock.json`, and `scripts/`. The package includes `scripts/postgres-init-e2e-db.sh`, which the PostgreSQL service mounts.
+
+<<< @/../workspace/docker-compose.yml{yaml} [docker-compose.yml]
+
+**Configure `.env` and Start**
+
+Run `scripts/vdoc-local-bootstrap.sh --prebuilt` in the same directory to generate `.env`, then [set your login](#initial-admin) with an initial administrator email, name, and password. The script generates the database password, object storage credentials, JWT key, and MCP encryption key, and records image provenance. Keep the original configuration if `.env` already exists.
+
+`vdoc-backend:v0.2.0` and `vdoc-admin:v0.2.0` are local Docker image tags loaded by the installer. Before the first startup, download, verify, and load those images, then start the four services:
+
+```sh
+docker compose --env-file .env config --quiet
+scripts/vdoc-prebuilt-install.sh
+docker compose --env-file .env up -d --no-build
+```
+
+The `build:` sections support source builds. Prebuilt deployments use `--no-build` and do not need the `Vdoc/` or `Vdoc-admin/` source directories. Copying this YAML file alone does not install the application images or generate the accompanying configuration.
+
+Open the [Vdoc workbench](http://127.0.0.1:8081) after startup. Ports bind to the local machine by default; addresses and data volumes are explained below. If you change a port or domain, also update `VDOC_ADMIN_API_BASE_URL` and `VDOC_SERVER_CORS_ALLOWED_ORIGINS` in `.env`.
 
 ## Everyday Operations
 

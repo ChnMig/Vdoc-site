@@ -9,9 +9,12 @@
     "imageFiles": 0,
     "crossOriginRuntimeResources": 0
   },
+  "contentAdditions": {
+    "bilingualCompleteComposeExampleBytes": 131072
+  },
   "limits": {
     "totalFiles": 112,
-    "totalBytes": 2996634,
+    "totalBytes": 3127706,
     "downloadFiles": 2,
     "downloadBytes": 262144,
     "sharedJavaScriptGzipBytes": 92563,

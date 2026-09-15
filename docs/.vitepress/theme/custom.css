@@ -53,3 +53,7 @@ html:not(.dark) .vp-code span[style*='--shiki-light:#6A737D'] {
 html:not(.dark) .vp-code span[style*='--shiki-light:#E36209'] {
   --shiki-light: #9f4100 !important;
 }
+
+html:not(.dark) .vp-code span[style*='--shiki-light:#22863A'] {
+  --shiki-light: #1f7533 !important;
+}
