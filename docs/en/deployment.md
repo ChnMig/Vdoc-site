@@ -18,12 +18,12 @@ This remains a Docker deployment. The download is a Docker Compose bootstrap, no
 
 ### 1. Download and Initialize
 
-Download the [Compose archive](https://vibe-doc.com/downloads/vdoc-compose-bootstrap-v0.1.0.tar.gz) and [SHA-256 file](https://vibe-doc.com/downloads/vdoc-compose-bootstrap-v0.1.0.tar.gz.sha256), or use the commands below. Keep both files for reproducing your deployment; website snapshots may be replaced.
+Download the [Compose archive](https://chnmig.github.io/Vdoc-site/downloads/vdoc-compose-bootstrap-v0.1.0.tar.gz) and [SHA-256 file](https://chnmig.github.io/Vdoc-site/downloads/vdoc-compose-bootstrap-v0.1.0.tar.gz.sha256), or use the commands below. Keep both files for reproducing your deployment; website snapshots may be replaced.
 
 Run this in a new working directory. Verify the download first, then let the initializer fetch the five exact repository commits from `workspace.lock.json`:
 
 ```sh
-VDOC_BOOTSTRAP_BASE=https://vibe-doc.com/downloads
+VDOC_BOOTSTRAP_BASE=https://chnmig.github.io/Vdoc-site/downloads
 curl -fLO "$VDOC_BOOTSTRAP_BASE/vdoc-compose-bootstrap-v0.1.0.tar.gz"
 curl -fLO "$VDOC_BOOTSTRAP_BASE/vdoc-compose-bootstrap-v0.1.0.tar.gz.sha256"
 shasum -a 256 -c vdoc-compose-bootstrap-v0.1.0.tar.gz.sha256

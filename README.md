@@ -68,7 +68,7 @@ The workspace root is not a Git repository. Public copies of its product documen
 
 ## Public Workspace Resources
 
-The website serves the [Compose archive](https://vibe-doc.com/downloads/vdoc-compose-bootstrap-v0.1.0.tar.gz) and [SHA-256 file](https://vibe-doc.com/downloads/vdoc-compose-bootstrap-v0.1.0.tar.gz.sha256) under `/downloads/` (or `/Vdoc-site/downloads/` for the subpath build). CI generates both files from [workspace/](workspace/README.md) before content tests and includes them in the static site deployment. Generated downloads and website build outputs are ignored by Git. The archive contains the exact allowlist in [workspace-distribution.json](workspace/workspace-distribution.json), including only the `.env.example` template, with no real `.env` or repository checkouts.
+The website serves the [Compose archive](https://chnmig.github.io/Vdoc-site/downloads/vdoc-compose-bootstrap-v0.1.0.tar.gz) and [SHA-256 file](https://chnmig.github.io/Vdoc-site/downloads/vdoc-compose-bootstrap-v0.1.0.tar.gz.sha256) under `/downloads/` (or `/Vdoc-site/downloads/` for the subpath build). CI generates both files from [workspace/](workspace/README.md) before content tests and includes them in the static site deployment. Generated downloads and website build outputs are ignored by Git. The archive contains the exact allowlist in [workspace-distribution.json](workspace/workspace-distribution.json), including only the `.env.example` template, with no real `.env` or repository checkouts.
 
 Maintain planning documents at the original workspace root, then run from Vdoc-site:
 
@@ -96,11 +96,23 @@ Commit the updated `workspace/` sources after syncing. CI regenerates the downlo
 
 Pushing a Site tag named `vMAJOR.MINOR.PATCH` matching the package and Compose manifest version runs the same checks, then automatically creates a [GitHub Release](https://github.com/ChnMig/Vdoc-site/releases) with those verified artifacts and generated release notes. The publish job downloads the exact CI artifacts, verifies their checksums, and uses the existing tag; it does not rebuild or overwrite an existing release. Ordinary branch pushes and pull requests validate marked candidates and do not upload deployable distribution artifacts. Tag distribution artifacts are retained for 14 days.
 
-The workflow publishes release downloads; deployment to the self-hosted website remains separate. The mutable website snapshot and each tagged release are distinct. The Compose archive resolves the Site `@release` marker and retains the other four reviewed commits in `workspace.lock.json`. Push their matching version tags first, then the Site tag; mismatched or missing tags stop publication. See [RELEASE_DEPLOY.md](workspace/RELEASE_DEPLOY.md) for application release checks.
+After a stable tag release succeeds, CI calls [the Pages workflow](.github/workflows/pages.yml) to deploy the public website to https://chnmig.github.io/Vdoc-site/. Branch pushes, pull requests, and prerelease tags do not deploy the website. The Compose archive resolves the Site `@release` marker and retains the other four reviewed commits in `workspace.lock.json`. Push their matching version tags first, then the Site tag; mismatched or missing tags stop publication. See [RELEASE_DEPLOY.md](workspace/RELEASE_DEPLOY.md) for application release checks.
+
+### GitHub Pages
+
+In repository **Settings → Pages**, choose **GitHub Actions** as the build source and leave the custom domain empty. The public site uses `/Vdoc-site/`; GitHub provides the domain and HTTPS. Backend and Admin are deployed separately.
+
+Stable `vMAJOR.MINOR.PATCH` tag pushes run the release checks and publish the GitHub Release before starting Pages. The Pages job checks out that tag, downloads its published Compose archive and checksum, rejects candidate or mismatched source locks, and runs the content, browser, and performance checks against `pnpm build:pages`. It uploads and deploys that exact verified output. The publishing job alone receives Pages write and OIDC permissions; no personal token is stored in the repository.
+
+Before building, the deployment tools replace the former `https://vibe-doc.com/` website origin in Markdown with the GitHub Pages origin. This also adapts older releases such as `v0.1.0`, so download links and command examples keep working after the old host is retired. The rewrite occurs only in the temporary deployment checkout, before formatting, content, browser, and performance checks; the published Compose archive and Git tags are unchanged.
+
+The workflows are connected directly because a Release created with the workflow's `GITHUB_TOKEN` does not trigger a separate `release` event workflow. Keep the `needs: [verify, release]` dependency when editing CI.
+
+For first-time setup with an already published version, or to rebuild and verify an older stable version, run **Actions → Publish release to GitHub Pages → Run workflow** on `main` and enter its tag, for example `v0.1.0`. This accepts existing stable Releases only and does not create or move a tag. A previously published tag keeps its original source and documentation. Manual builds receive the same Pages checks as automatic deployments. To retry a deployment while its verified artifact is retained, rerun the failed deployment job; retained Pages artifacts expire after 14 days.
 
 The build budget reserves two files and 256 KiB for downloads. Page assets and shared JavaScript/CSS retain their existing limits; browsers fetch the archive only when a reader downloads it.
 
-Serve `.tar.gz` downloads as `application/gzip` without `Content-Encoding: gzip` on the production static host, so browsers retain the archive bytes. VitePress's local preview marks `.gz` files as HTTP gzip; use the documented `curl -fLO` commands to check its original bytes. After deploying, verify the public archive against its checksum before announcing availability.
+When using another static host, serve `.tar.gz` downloads as `application/gzip` without `Content-Encoding: gzip`, so browsers retain the archive bytes. VitePress's local preview marks `.gz` files as HTTP gzip; use the documented `curl -fLO` commands to check its original bytes. After deploying, verify the public archive against its checksum before announcing availability.
 
 Use explicit `.md` paths for authored links between Markdown documents so they work on GitHub and VitePress. Use full repository URLs when linking to another repository; a parent-directory link cannot cross GitHub repository boundaries.
 

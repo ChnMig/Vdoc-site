@@ -18,12 +18,12 @@
 
 ### 1. 下载并初始化
 
-可直接下载 [Compose 压缩包](https://vibe-doc.com/downloads/vdoc-compose-bootstrap-v0.1.0.tar.gz)和 [SHA-256 校验文件](https://vibe-doc.com/downloads/vdoc-compose-bootstrap-v0.1.0.tar.gz.sha256)，也可使用下面的命令。官网快照可能更新，复现部署时请保留压缩包和校验文件。
+可直接下载 [Compose 压缩包](https://chnmig.github.io/Vdoc-site/downloads/vdoc-compose-bootstrap-v0.1.0.tar.gz)和 [SHA-256 校验文件](https://chnmig.github.io/Vdoc-site/downloads/vdoc-compose-bootstrap-v0.1.0.tar.gz.sha256)，也可使用下面的命令。官网快照可能更新，复现部署时请保留压缩包和校验文件。
 
 在一个新的工作目录里执行。先校验下载文件，再让初始化脚本按 `workspace.lock.json` 获取五个仓库的精确提交：
 
 ```sh
-VDOC_BOOTSTRAP_BASE=https://vibe-doc.com/downloads
+VDOC_BOOTSTRAP_BASE=https://chnmig.github.io/Vdoc-site/downloads
 curl -fLO "$VDOC_BOOTSTRAP_BASE/vdoc-compose-bootstrap-v0.1.0.tar.gz"
 curl -fLO "$VDOC_BOOTSTRAP_BASE/vdoc-compose-bootstrap-v0.1.0.tar.gz.sha256"
 shasum -a 256 -c vdoc-compose-bootstrap-v0.1.0.tar.gz.sha256

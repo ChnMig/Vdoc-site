@@ -71,6 +71,7 @@ pnpm format:check
 pnpm typecheck
 pnpm lint
 pnpm test:unit
+pnpm workspace:package --candidate
 pnpm test:content
 pnpm build:pages
 pnpm check:budget
@@ -78,7 +79,7 @@ PLAYWRIGHT_BASE_PATH=/Vdoc-site/ pnpm test:browser
 PLAYWRIGHT_BASE_PATH=/Vdoc-site/ pnpm test:performance
 ```
 
-The artifact path is `docs/.vitepress/dist/` inside the repository, or `Vdoc-site/docs/.vitepress/dist/` from the workspace root. Do not rebuild after the browser and performance gates pass; retain its checksum and deploy that exact output through the operator-owned static-hosting process. The current repository workflow verifies only the self-hosted `/` base: it does not upload an artifact, configure GitHub Pages, or deploy. The workspace release dry-run verifies `/Vdoc-site/` compatibility.
+The artifact directory is `docs/.vitepress/dist/` inside the repository. After a stable `vMAJOR.MINOR.PATCH` tag passes CI and its GitHub Release is published, the workflow builds and checks the `/Vdoc-site/` version and deploys that exact output to [GitHub Pages](https://chnmig.github.io/Vdoc-site/). Branches and pull requests do not deploy; candidate Compose archives cannot enter Pages. For an existing release, manually run `Publish release to GitHub Pages` in Actions with its stable tag. This does not create or move a tag.
 
 Test MCP and Skill packages before upgrading them:
 
@@ -162,7 +163,7 @@ Full Compose rollback approach:
 
 For direct deployments, restore the previous backend binary or container, Admin `dist/`, MCP package, and Skill package. Do not delete database or object storage unless you are restoring from backup.
 
-For a Site rollback, select the previous retained static artifact that passed verification. Verify its source SHA, artifact checksum, base path, and QA evidence, then repoint the operator-owned static-hosting release to that exact artifact. Do not rebuild during rollback, because rebuilt output is not the artifact that passed verification. After rollback, recheck both locale entry points, the Admin AI pages, the release rollback pages, and all base-safe static assets. If the artifact expired, use another retained verified artifact, or rerun the full gate at the target source SHA and treat the output as a new candidate.
+Site is hosted on GitHub Pages. If deployment fails while its verified artifact remains within the 14-day retention period, rerun the failed deployment job to reuse that artifact. To restore an older version, manually run `Publish release to GitHub Pages` from `main` with a previously published stable tag. This rebuilds the tagged source and repeats the content, browser, and performance checks; record the new workflow run ID as a newly verified artifact. Existing tags and application deployments stay intact. After deployment, verify both locales, navigation, search, static assets, and the Compose download checksum.
 
 ## Release Notes Template
 

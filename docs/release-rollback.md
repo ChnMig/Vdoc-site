@@ -71,6 +71,7 @@ pnpm format:check
 pnpm typecheck
 pnpm lint
 pnpm test:unit
+pnpm workspace:package --candidate
 pnpm test:content
 pnpm build:pages
 pnpm check:budget
@@ -78,7 +79,7 @@ PLAYWRIGHT_BASE_PATH=/Vdoc-site/ pnpm test:browser
 PLAYWRIGHT_BASE_PATH=/Vdoc-site/ pnpm test:performance
 ```
 
-artifact 路径是仓库内的 `docs/.vitepress/dist/`，也就是 workspace root 下的 `Vdoc-site/docs/.vitepress/dist/`。browser 和 performance 通过后不要重新 build；保留校验和并通过运维方自己的静态托管流程部署这份原样输出。当前仓库 workflow 只验证自托管 `/` base，不上传 artifact、不配置 GitHub Pages，也不执行部署；`/Vdoc-site/` 兼容构建由 workspace release dry-run 验收。
+产物目录是仓库内的 `docs/.vitepress/dist/`。正式 `vMAJOR.MINOR.PATCH` tag 的 CI 和 Release 发布成功后，会自动构建并检查 `/Vdoc-site/` 版本，再把同一份输出部署到 [GitHub Pages](https://chnmig.github.io/Vdoc-site/)。普通分支和 PR 不会上线，测试候选 Compose 包也不会进入 Pages。首次部署已发布版本时，可在 Actions 中手动运行 `Publish release to GitHub Pages`，填写已有正式 tag；这不会创建或移动标签。
 
 MCP 和 Skill 包升级前也要跑测试：
 
@@ -162,7 +163,7 @@ docker compose --env-file .env exec backend /app/vdoc --version
 
 直接部署时，恢复上一版 backend binary 或 container、Admin `dist/`、MCP package 和 Skill package。除非你正在恢复备份，不要删除数据库和对象存储。
 
-Site 回滚必须选择仍保留的上一份已验收静态 artifact，核对 source SHA、artifact 校验和、base path 和 QA 证据后，通过运维方自己的静态托管流程重新指向该 artifact。不要在回滚时重新 build，因为重新构建的输出不是原已验收 artifact。回滚后重新检查中英文入口、Admin AI 页面、release rollback 页面和所有 base-safe 静态资源；artifact 已过期时，使用另一份仍保留的已验收 artifact，或从目标 source SHA 重新跑完整门禁并把输出视为新的 candidate。
+Site 使用 GitHub Pages 托管。部署步骤失败且已验收 artifact 仍在 14 天保留期内时，可重跑失败的部署 job，继续使用该产物。需要恢复旧版本时，在 `main` 上手动运行 `Publish release to GitHub Pages`，填写之前已发布的正式 tag。手动流程会从该 tag 重新构建，并重新执行内容、浏览器和性能检查；这是一份新验收产物，应记录新的 workflow run ID。旧 tag 和应用部署不会被改动。部署后检查中英文入口、导航、搜索、静态资源和 Compose 下载校验和。
 
 ## 发布说明模板
 
