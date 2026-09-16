@@ -1,8 +1,8 @@
 {
   "schema_version": 2,
   "name": "vdoc-compose-bootstrap",
-  "version": "0.2.0",
-  "artifact_name": "vdoc-compose-bootstrap-v0.2.0",
+  "version": "0.2.1",
+  "artifact_name": "vdoc-compose-bootstrap-v0.2.1",
   "root_directory": "vdoc-workspace",
   "repository_lock": "workspace.lock.json",
   "files": [

@@ -1,6 +1,6 @@
 # Workspace Docker Compose Deployment
 
-## Recommended installation: v0.2.0 prebuilt images
+## Recommended installation: v0.2.1 prebuilt images
 
 Follow the [current deployment guide](https://chnmig.github.io/Vdoc-site/deployment). Extract and verify the Compose bootstrap, run `scripts/vdoc-local-bootstrap.sh --prebuilt`, set the initial administrator in the generated private `.env`, then run:
 

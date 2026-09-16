@@ -14,7 +14,7 @@ To inspect or copy the configuration, jump to the [complete Docker Compose examp
 - Bash, curl, jq, tar, and `shasum` are installed.
 - GitHub and container registries are reachable. The recommended path downloads Linux amd64/arm64 images and requires no application source checkout or local Go/Node.js build.
 
-The Compose bootstrap contains configuration, installer scripts, and the source lock. Backend/Admin images are separate GitHub Release assets; the installer verifies checksums, architecture and source identity. The five source repositories and download package share the `v0.2.0` release. Read [Version Notes](version-notes.md) and [Upgrade and Rollback](release-rollback.md) before upgrading.
+The Compose bootstrap contains configuration, installer scripts, and the source lock. Backend/Admin images are separate GitHub Release assets; the installer verifies checksums, architecture and source identity. The five source repositories and download package share the `v0.2.1` release. Read [Version Notes](version-notes.md) and [Upgrade and Rollback](release-rollback.md) before upgrading.
 
 <div id="quick-start"></div>
 
@@ -22,21 +22,21 @@ The Compose bootstrap contains configuration, installer scripts, and the source 
 
 ### 1. Download and Initialize
 
-Download the [Compose archive](https://chnmig.github.io/Vdoc-site/downloads/vdoc-compose-bootstrap-v0.2.0.tar.gz) and [SHA-256 file](https://chnmig.github.io/Vdoc-site/downloads/vdoc-compose-bootstrap-v0.2.0.tar.gz.sha256), or use the commands below. Keep both files for reproducing your deployment; website snapshots may be replaced.
+Download the [Compose archive](https://chnmig.github.io/Vdoc-site/downloads/vdoc-compose-bootstrap-v0.2.1.tar.gz) and [SHA-256 file](https://chnmig.github.io/Vdoc-site/downloads/vdoc-compose-bootstrap-v0.2.1.tar.gz.sha256), or use the commands below. Keep both files for reproducing your deployment; website snapshots may be replaced.
 
 Run this in a new working directory. Verify and extract the bootstrap; the prebuilt path does not require source checkouts.
 
 ```sh
 VDOC_BOOTSTRAP_BASE=https://chnmig.github.io/Vdoc-site/downloads
-curl -fLO "$VDOC_BOOTSTRAP_BASE/vdoc-compose-bootstrap-v0.2.0.tar.gz"
-curl -fLO "$VDOC_BOOTSTRAP_BASE/vdoc-compose-bootstrap-v0.2.0.tar.gz.sha256"
-shasum -a 256 -c vdoc-compose-bootstrap-v0.2.0.tar.gz.sha256
+curl -fLO "$VDOC_BOOTSTRAP_BASE/vdoc-compose-bootstrap-v0.2.1.tar.gz"
+curl -fLO "$VDOC_BOOTSTRAP_BASE/vdoc-compose-bootstrap-v0.2.1.tar.gz.sha256"
+shasum -a 256 -c vdoc-compose-bootstrap-v0.2.1.tar.gz.sha256
 ```
 
 Continue only after the checksum reports `OK`:
 
 ```sh
-tar -xzf vdoc-compose-bootstrap-v0.2.0.tar.gz
+tar -xzf vdoc-compose-bootstrap-v0.2.1.tar.gz
 cd vdoc-workspace
 ```
 
@@ -97,7 +97,7 @@ If the page does not open, check `docker compose --env-file .env ps` and the Bac
 
 ## Complete Docker Compose Example
 
-This is the complete `docker-compose.yml` from the `v0.2.0` deployment package. It includes all four services, health checks, startup dependencies, port mappings, and persistent volumes. The code block reads directly from the package source; use its copy button to copy the entire file.
+This is the complete `docker-compose.yml` from the `v0.2.1` deployment package. It includes all four services, health checks, startup dependencies, port mappings, and persistent volumes. The code block reads directly from the package source; use its copy button to copy the entire file.
 
 First extract the package under [Download and Initialize](#quick-start). Place this file in the `vdoc-workspace/` root alongside `.env`, `workspace.lock.json`, and `scripts/`. The package includes `scripts/postgres-init-e2e-db.sh`, which the PostgreSQL service mounts.
 
@@ -107,7 +107,7 @@ First extract the package under [Download and Initialize](#quick-start). Place t
 
 Run `scripts/vdoc-local-bootstrap.sh --prebuilt` in the same directory to generate `.env`, then [set your login](#initial-admin) with an initial administrator email, name, and password. The script generates the database password, object storage credentials, JWT key, and MCP encryption key, and records image provenance. Keep the original configuration if `.env` already exists.
 
-`vdoc-backend:v0.2.0` and `vdoc-admin:v0.2.0` are local Docker image tags loaded by the installer. Before the first startup, download, verify, and load those images, then start the four services:
+`vdoc-backend:v0.2.1` and `vdoc-admin:v0.2.1` are local Docker image tags loaded by the installer. Before the first startup, download, verify, and load those images, then start the four services:
 
 ```sh
 docker compose --env-file .env config --quiet

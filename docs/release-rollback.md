@@ -41,7 +41,7 @@ RustFS 或 S3 compatible storage 保存 raw 和 normalized 文档对象。升级
 
 ## 3. 拉取或构建新版本
 
-v0.2.0 推荐使用预构建镜像。先校验新版本 Compose 下载包，再更新现有部署目录中的 Compose、脚本、发行锁和 `.env.example`，保留真实 `.env`、原 Compose 项目名及数据卷。不要重新运行 bootstrap 覆盖已有密钥。
+v0.2.1 推荐使用预构建镜像。先校验新版本 Compose 下载包，再更新现有部署目录中的 Compose、脚本、发行锁和 `.env.example`，保留真实 `.env`、原 Compose 项目名及数据卷。不要重新运行 bootstrap 覆盖已有密钥。
 
 将 `.env.example` 中的 Backend/Admin 版本、commit、build time 同步到 `.env` 对应字段，其他密钥和账号保持原值。然后从现有部署目录执行：
 

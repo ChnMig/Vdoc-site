@@ -2,6 +2,12 @@
 
 本页说明 v0.2 的能力边界。规划试点、写 Agent 指令、发布包或升级前，先确认这里的边界没有被误读。
 
+## v0.2.1
+
+本次补丁包含[完整 Compose 示例](deployment.md#compose-example)和 Admin 小屏幕 MCP 配置框修复，五个仓库及部署下载统一为 v0.2.1。
+
+后端接口、22 项 MCP 工具契约与 v0.2.0 兼容，无新增数据库迁移。已有部署可按[升级与回滚](release-rollback.md)更新发行文件并加载新镜像，保留现有 `.env`、Compose 项目名和数据卷。
+
 ## v0.2.0
 
 - MCP 新增 `get_schema_version` 和 `get_doc_version`，读取指定已发布版本全文。

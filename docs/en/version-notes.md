@@ -2,6 +2,12 @@
 
 These notes describe the v0.2 boundary. Before planning a pilot, writing Agent instructions, publishing packages, or upgrading, confirm that this scope is not being overstated.
 
+## v0.2.1
+
+This patch includes the [complete Compose example](deployment.md#compose-example) and the fix for clipped MCP configuration panels on narrow Admin screens. All five repositories and deployment downloads use v0.2.1.
+
+Backend APIs and the 22-tool MCP contract remain compatible with v0.2.0, with no new database migration. Follow [Upgrade and Rollback](release-rollback.md) to update release files and load new images while preserving the existing `.env`, Compose project name, and data volumes.
+
 ## v0.2.0
 
 - New MCP tools `get_schema_version` and `get_doc_version` return complete content from an exact published version.

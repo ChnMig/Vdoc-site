@@ -16,7 +16,7 @@ outline: [3, 3]
 
 下载的 Docker Compose bootstrap 提供 Compose、配置模板、安装脚本和精确源码锁。Backend/Admin 的预构建镜像作为各自 GitHub Release 的独立附件提供，安装脚本会按 Docker 平台下载并校验。
 
-[公开工作区文件](https://github.com/ChnMig/Vdoc-site/tree/main/workspace)和 Compose 下载均由 Vdoc-site 提供。部署包名称和五个仓库的源码标签统一使用 `v0.2.0`。正式打包时会核对全部标签，并在包内锁定五个精确提交号。正式使用前请阅读 [版本说明](version-notes.md) 和 [升级与回滚](release-rollback.md)。
+[公开工作区文件](https://github.com/ChnMig/Vdoc-site/tree/main/workspace)和 Compose 下载均由 Vdoc-site 提供。部署包名称和五个仓库的源码标签统一使用 `v0.2.1`。正式打包时会核对全部标签，并在包内锁定五个精确提交号。正式使用前请阅读 [版本说明](version-notes.md) 和 [升级与回滚](release-rollback.md)。
 
 <div id="quick-start"></div>
 
@@ -24,21 +24,21 @@ outline: [3, 3]
 
 ### 1. 下载并初始化
 
-可直接下载 [Compose 压缩包](https://chnmig.github.io/Vdoc-site/downloads/vdoc-compose-bootstrap-v0.2.0.tar.gz)和 [SHA-256 校验文件](https://chnmig.github.io/Vdoc-site/downloads/vdoc-compose-bootstrap-v0.2.0.tar.gz.sha256)，也可使用下面的命令。官网快照可能更新，复现部署时请保留压缩包和校验文件。
+可直接下载 [Compose 压缩包](https://chnmig.github.io/Vdoc-site/downloads/vdoc-compose-bootstrap-v0.2.1.tar.gz)和 [SHA-256 校验文件](https://chnmig.github.io/Vdoc-site/downloads/vdoc-compose-bootstrap-v0.2.1.tar.gz.sha256)，也可使用下面的命令。官网快照可能更新，复现部署时请保留压缩包和校验文件。
 
 在一个新的工作目录里执行。先校验下载文件，再解压；预构建方式不需要初始化五个源码仓库：
 
 ```sh
 VDOC_BOOTSTRAP_BASE=https://chnmig.github.io/Vdoc-site/downloads
-curl -fLO "$VDOC_BOOTSTRAP_BASE/vdoc-compose-bootstrap-v0.2.0.tar.gz"
-curl -fLO "$VDOC_BOOTSTRAP_BASE/vdoc-compose-bootstrap-v0.2.0.tar.gz.sha256"
-shasum -a 256 -c vdoc-compose-bootstrap-v0.2.0.tar.gz.sha256
+curl -fLO "$VDOC_BOOTSTRAP_BASE/vdoc-compose-bootstrap-v0.2.1.tar.gz"
+curl -fLO "$VDOC_BOOTSTRAP_BASE/vdoc-compose-bootstrap-v0.2.1.tar.gz.sha256"
+shasum -a 256 -c vdoc-compose-bootstrap-v0.2.1.tar.gz.sha256
 ```
 
 看到校验结果 `OK` 后，再继续：
 
 ```sh
-tar -xzf vdoc-compose-bootstrap-v0.2.0.tar.gz
+tar -xzf vdoc-compose-bootstrap-v0.2.1.tar.gz
 cd vdoc-workspace
 ```
 
@@ -99,7 +99,7 @@ curl -fsS http://127.0.0.1:8080/api/v1/open/health | jq -e '.detail.healthy == t
 
 ## 完整 Docker Compose 示例
 
-下面是 `v0.2.0` 部署包中的完整 `docker-compose.yml`，包含四个服务、健康检查、启动依赖、端口映射和持久化数据卷。代码块直接引用部署包源文件，可用右上角的复制按钮复制全部内容。
+下面是 `v0.2.1` 部署包中的完整 `docker-compose.yml`，包含四个服务、健康检查、启动依赖、端口映射和持久化数据卷。代码块直接引用部署包源文件，可用右上角的复制按钮复制全部内容。
 
 先按 [下载并初始化](#quick-start) 解压部署包。将此文件放在 `vdoc-workspace/` 根目录，与 `.env`、`workspace.lock.json` 和 `scripts/` 同级；其中 PostgreSQL 挂载的 `scripts/postgres-init-e2e-db.sh` 已包含在包内。
 
@@ -109,7 +109,7 @@ curl -fsS http://127.0.0.1:8080/api/v1/open/health | jq -e '.detail.healthy == t
 
 在同一目录运行 `scripts/vdoc-local-bootstrap.sh --prebuilt` 生成 `.env`，再按 [设置登录账号](#initial-admin) 填写初始管理员邮箱、名称和密码。脚本会生成数据库密码、对象存储凭据、JWT 密钥和 MCP 加密密钥，并写入镜像来源信息；已有 `.env` 请保留原配置。
 
-`vdoc-backend:v0.2.0` 和 `vdoc-admin:v0.2.0` 是安装脚本加载到本机 Docker 的镜像标签。首次启动前，执行下面的命令下载、校验并加载镜像，然后启动四个服务：
+`vdoc-backend:v0.2.1` 和 `vdoc-admin:v0.2.1` 是安装脚本加载到本机 Docker 的镜像标签。首次启动前，执行下面的命令下载、校验并加载镜像，然后启动四个服务：
 
 ```sh
 docker compose --env-file .env config --quiet

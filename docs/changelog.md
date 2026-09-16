@@ -2,6 +2,14 @@
 
 本页记录当前 VitePress 文档覆盖的 v0.2 用户可见状态。它不是营销列表，而是评估、部署和试点前需要知道的变化。
 
+## v0.2.1
+
+- [部署指南](deployment.md#compose-example)新增完整 Docker Compose 示例，可一次复制四个服务的配置，并说明 `.env`、安装目录和镜像加载步骤。示例直接引用部署包源文件。
+- 修复 Admin 小屏幕下 MCP 配置框被截断的问题，长配置可在框内横向滚动。
+- 五个仓库、预构建镜像、Compose 下载包及 MCP/Skill 安装引用统一到 v0.2.1。
+
+本次补丁不新增数据库迁移，后端接口和 22 项 MCP 工具契约与 v0.2.0 兼容。升级步骤见[升级与回滚](release-rollback.md)。
+
 ## v0.2.0
 
 - MCP 新增 `get_schema_version` 和 `get_doc_version`，读取指定已发布版本全文。

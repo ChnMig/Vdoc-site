@@ -2,6 +2,14 @@
 
 This page records the current user-visible v0.2 state covered by the VitePress docs. It is not a marketing list; it is what users should know before evaluation, deployment, or pilot use.
 
+## v0.2.1
+
+- The [deployment guide](deployment.md#compose-example) adds a complete Docker Compose example with one-click copying for all four services, plus `.env`, deployment directory, and image-loading instructions. The example reads directly from the deployment package source.
+- Fixed clipped MCP configuration panels on narrow Admin screens; long configurations scroll within their panel.
+- Aligned all five repositories, prebuilt images, the Compose download, and MCP/Skill install references to v0.2.1.
+
+This patch adds no database migration. Backend APIs and the 22-tool MCP contract remain compatible with v0.2.0. See [Upgrade and Rollback](release-rollback.md) for the upgrade procedure.
+
 ## v0.2.0
 
 - New MCP tools `get_schema_version` and `get_doc_version` return complete content from an exact published version.

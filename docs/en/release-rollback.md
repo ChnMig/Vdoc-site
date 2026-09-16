@@ -41,7 +41,7 @@ Do not print storage access keys or secret keys in backup script logs.
 
 ## 3. Pull or Build the New Version
 
-Prebuilt images are recommended for v0.2.0. Verify the new Compose download, then update Compose, scripts, the release lock and `.env.example` in your existing deployment directory. Preserve the real `.env`, Compose project name and data volumes. Do not rerun bootstrap over existing secrets.
+Prebuilt images are recommended for v0.2.1. Verify the new Compose download, then update Compose, scripts, the release lock and `.env.example` in your existing deployment directory. Preserve the real `.env`, Compose project name and data volumes. Do not rerun bootstrap over existing secrets.
 
 Copy only the Backend/Admin version, commit and build-time values from the new `.env.example` into the corresponding `.env` fields. Keep your existing secrets and accounts. Run from the existing deployment directory:
 

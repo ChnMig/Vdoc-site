@@ -68,7 +68,7 @@ The workspace root is not a Git repository. Public copies of its product documen
 
 ## Public Workspace Resources
 
-The website serves the [Compose archive](https://chnmig.github.io/Vdoc-site/downloads/vdoc-compose-bootstrap-v0.2.0.tar.gz) and [SHA-256 file](https://chnmig.github.io/Vdoc-site/downloads/vdoc-compose-bootstrap-v0.2.0.tar.gz.sha256) under `/downloads/` (or `/Vdoc-site/downloads/` for the subpath build). CI generates both files from [workspace/](workspace/README.md) before content tests and includes them in the static site deployment. Generated downloads and website build outputs are ignored by Git. The archive contains the exact allowlist in [workspace-distribution.json](workspace/workspace-distribution.json), including only the `.env.example` template, with no real `.env` or repository checkouts.
+The website serves the [Compose archive](https://chnmig.github.io/Vdoc-site/downloads/vdoc-compose-bootstrap-v0.2.1.tar.gz) and [SHA-256 file](https://chnmig.github.io/Vdoc-site/downloads/vdoc-compose-bootstrap-v0.2.1.tar.gz.sha256) under `/downloads/` (or `/Vdoc-site/downloads/` for the subpath build). CI generates both files from [workspace/](workspace/README.md) before content tests and includes them in the static site deployment. Generated downloads and website build outputs are ignored by Git. The archive contains the exact allowlist in [workspace-distribution.json](workspace/workspace-distribution.json), including only the `.env.example` template, with no real `.env` or repository checkouts.
 
 Maintain planning documents at the original workspace root, then run from Vdoc-site:
 
@@ -85,14 +85,14 @@ pnpm check:budget
 
 Commit the updated `workspace/` sources after syncing. CI regenerates the downloads from that checkout; do not commit `.tar.gz`, `.sha256`, or the built site. For local content tests, download previews, and site builds before tag publication, run `workspace:package --candidate` first and rerun it after changing workspace sources. The content tests compare the generated files with the export, validate the resolved Site commit, and reject tracked build outputs. The source lock uses `@release` for Site to avoid embedding its own commit hash; published downloads always contain five exact commit hashes.
 
-`workspace:package` requires Bash, Git, jq, tar (GNU or BSD), gzip, and shasum. It initializes a temporary workspace from the public locked refs, verifies all five checkouts, and invokes the strict package script before generating the two ignored files in `docs/public/downloads/`. Published packaging requires all five `v0.2.0` tags, verifies their exact commits, and preserves the developer's checkouts. `--candidate` performs no remote lookup, marks the archive as non-deployable, and is rejected by the initializer and `site:package`. Subsequent VitePress builds copy those generated files into the site output.
+`workspace:package` requires Bash, Git, jq, tar (GNU or BSD), gzip, and shasum. It initializes a temporary workspace from the public locked refs, verifies all five checkouts, and invokes the strict package script before generating the two ignored files in `docs/public/downloads/`. Published packaging requires all five `v0.2.1` tags, verifies their exact commits, and preserves the developer's checkouts. `--candidate` performs no remote lookup, marks the archive as non-deployable, and is rejected by the initializer and `site:package`. Subsequent VitePress builds copy those generated files into the site output.
 
 ## Automated Releases
 
 [Site CI](.github/workflows/ci.yml) generates and tests the Compose download, builds the root site, and runs browser and performance checks. After those checks pass, `site:package` bundles the verified site and its downloads. Every successful tag run uploads a `site-distribution` Actions artifact containing four files:
 
 - `vdoc-site-static.tar.gz` and its `.sha256`: extract this archive into the static hosting directory.
-- `vdoc-compose-bootstrap-v0.2.0.tar.gz` and its `.sha256`: the same Compose download included in the site.
+- `vdoc-compose-bootstrap-v0.2.1.tar.gz` and its `.sha256`: the same Compose download included in the site.
 
 Pushing a Site tag named `vMAJOR.MINOR.PATCH` matching the package and Compose manifest version runs the same checks, then automatically creates a [GitHub Release](https://github.com/ChnMig/Vdoc-site/releases) with those verified artifacts and generated release notes. The publish job downloads the exact CI artifacts, verifies their checksums, and uses the existing tag; it does not rebuild or overwrite an existing release. Ordinary branch pushes and pull requests validate marked candidates and do not upload deployable distribution artifacts. Tag distribution artifacts are retained for 14 days.
 
