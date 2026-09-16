@@ -12,7 +12,7 @@
 
 ## 1. 登录并创建试用项目
 
-打开 [本机工作台](http://127.0.0.1:8081)，用部署时在 `.env` 中设置的邮箱和密码登录。如果使用远程环境，请打开对应的工作台地址。
+打开 [本机工作台](http://127.0.0.1:8081)，用部署时在 `docker-compose.yml` 中设置的邮箱和密码登录。如果使用远程环境，请打开对应的工作台地址。
 
 在工作台创建或选择一个 Team，然后创建名为 **Vdoc 试用** 的 Project。用初始 SuperAdmin 完成这次试用即可；团队协作时再添加 Reader、Writer 和 Project Admin 成员。
 
@@ -78,7 +78,7 @@
       "command": "npx",
       "args": [
         "--yes",
-        "github:ChnMig/Vdoc-mcp#560966bcbb6e19556f891fc3d23a199bc6a9ada5"
+        "github:ChnMig/Vdoc-mcp#e148633a6e56ec233dcbb9be6e0108eabec93b61"
       ],
       "env": {
         "VDOC_BASE_URL": "http://127.0.0.1:8080",
@@ -92,7 +92,7 @@
 ```toml [Codex]
 [mcp_servers.vdoc]
 command = "npx"
-args = ["--yes", "github:ChnMig/Vdoc-mcp#560966bcbb6e19556f891fc3d23a199bc6a9ada5"]
+args = ["--yes", "github:ChnMig/Vdoc-mcp#e148633a6e56ec233dcbb9be6e0108eabec93b61"]
 startup_timeout_sec = 60
 tool_timeout_sec = 180
 
@@ -152,7 +152,7 @@ VDOC_MCP_TOKEN = "REPLACE_WITH_LOCAL_VDOC_MCP_TOKEN"
 - **体验接口变更：** 创建 OpenAPI 文档（支持 OpenAPI 3.0 / 3.1），提交并审核两个版本，按 [接口变更示例](how-it-works.md#example) 查询 Diff。令牌需有 `api:read`。
 - **启用后台 AI 助手：** 按 [Admin AI](admin-ai.md) 配置 OpenAI-compatible 提供商，可使用自动摘要和页面内对话。它不能批准、拒绝、修改或发布文档；配置缺失或调用失败不阻塞人工审核。
 - **向项目外分享文档：** 按下面的说明创建公开链接。
-- **验证发布候选：** 维护者可继续执行 [工程验证与发布检查](deployment.md#工程验证与发布检查)。
+- **验证发布候选：** 维护者可继续执行 [工程验证与发布检查](deployment.md#engineering-and-release-checks)。
 
 ### 创建和管理公开分享
 

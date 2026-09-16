@@ -1,213 +1,79 @@
 # 升级与回滚
 
-本页用于已经运行 Vdoc 的用户。目标是在升级前备份数据，升级后验证 backend、Admin、MCP 和 Skill，如果失败能回到上一版。
+单文件部署由你更新 Compose 中的镜像版本，后端在启动时自动执行新版本附带的数据库迁移。升级沿用原账号、密钥和数据卷。
 
-## 升级前准备
+## 1. 备份当前配置和数据
 
-- 记录当前 `workspace.lock.json` 的 remote ref/commit、backend/Admin 内嵌版本和实际镜像 digest；可移动 tag 不能单独作为回滚身份。
-- 保留当前 `.env`，但不要把真实 secret 写入 issue、聊天记录或 release notes。
-- 确认 PostgreSQL 和对象存储都能访问。
-- 记录当前 Admin URL、backend health URL、Agent MCP 配置，以及 Site URL、source SHA、workflow run ID、静态 artifact 标识/校验和、部署 base path 和 QA report 引用。
-- 在维护窗口中执行升级，避免用户正在提交 Draft 时中断。
-- 本机升级前先看 release dry-run 计划并运行本机门禁：
+保留当前私密 `docker-compose.yml`、镜像版本及 Release 的 `container-image.json`（包含镜像 digest 和源码提交号）。在维护窗口停止写入：
 
 ```sh
-scripts/vdoc-release-dry-run.sh --list
-scripts/vdoc-release-dry-run.sh
-```
-
-Release dry-run 只运行本机检查，不会发布 package、部署服务、push image 或创建 git ref。
-
-## 1. 备份 PostgreSQL
-
-完整 Compose 示例：
-
-```sh
+docker compose stop backend admin
 mkdir -p backups
-docker compose --env-file .env exec -T postgres \
+docker compose exec -T postgres \
   sh -lc 'pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB"' \
-  > backups/vdoc-$(date +%Y%m%d%H%M%S).sql
+  > backups/vdoc-before-upgrade.sql
 ```
 
-如果你使用外部 PostgreSQL，用供应商建议的快照或 `pg_dump` 方式备份。不要在未验证备份可恢复前升级生产或长期试点环境。
+同时备份 RustFS 的 `rustfs-data` 数据卷或存储桶。外部数据库与对象存储可使用服务商的快照或备份工具。确认备份可恢复，再继续升级。
 
-## 2. 备份对象存储
+## 2. 更新两处镜像版本
 
-RustFS 或 S3 compatible storage 保存 raw 和 normalized 文档对象。升级前至少要保留 bucket 快照或复制一份 bucket 内容。
+从目标版本的 [Site Release](https://github.com/ChnMig/Vdoc-site/releases) 查看新的 `docker-compose.yml`。把其中 `x-backend-image` 和 `x-admin-image` 两行更新到现有私密 YAML 中，并按版本说明合并新增配置。不要直接用下载文件覆盖已填写的配置。
 
-完整 Compose 的 named volume 是 `rustfs-data`，可以用基础设施层快照备份。外部对象存储请使用供应商的 bucket versioning、snapshot、replication 或对象复制工具。
-
-不要把 storage access key 和 secret key 写进备份脚本日志。
-
-## 3. 拉取或构建新版本
-
-v0.2.1 推荐使用预构建镜像。先校验新版本 Compose 下载包，再更新现有部署目录中的 Compose、脚本、发行锁和 `.env.example`，保留真实 `.env`、原 Compose 项目名及数据卷。不要重新运行 bootstrap 覆盖已有密钥。
-
-将 `.env.example` 中的 Backend/Admin 版本、commit、build time 同步到 `.env` 对应字段，其他密钥和账号保持原值。然后从现有部署目录执行：
+保留 PostgreSQL 密码、存储凭据、JWT/MCP 密钥、管理员设置、端口、项目名和数据卷。`v0.3.0` 改进了单文件部署与镜像分发，没有新增数据库迁移。
 
 ```sh
-scripts/vdoc-prebuilt-install.sh
-docker compose --env-file .env config --quiet
-docker compose --env-file .env up -d --no-build
+docker compose pull
+docker compose up -d
+docker compose ps
 ```
 
-本版不新增数据库迁移。Agent 接入需同步更新 MCP/Skill 安装来源并重新加载工具；`get_latest_schema` 和 `get_latest_doc` 必须提供 `branch_id`，历史全文改用 `get_schema_version` / `get_doc_version`。
+新容器会挂载原有数据卷。Backend 自动检查 `schema_migrations`，按顺序执行尚未应用的迁移，并校验已应用迁移的内容。迁移失败会中止启动；不会清空数据库或跳过错误继续提供服务。已完成的迁移不会因重启反复执行。
 
-开发者使用源码构建时，先准备新发行锁对应的干净源码。初始化器只创建缺失的仓库，不会覆盖已有 checkout；已有仓库需要先保存修改并切换到发行锁指定的提交。然后从 workspace root 执行：
+Vdoc 的迁移只负责应用数据结构，不包含 PostgreSQL 主版本升级。不要顺手修改 PostgreSQL 或 RustFS 版本，除非目标版本提供相应的升级说明。
+
+## 从 v0.2.1 及更早的下载包迁移 {#legacy-compose}
+
+第一次切换到单文件方式时：
+
+1. 备份现有数据和 `.env`，记下实际 Compose 项目名及卷名。旧默认项目名也是 `vdoc`；若你曾自定义，应在新 YAML 中保留实际名称。
+2. 保存旧 Compose，下载新的 YAML 到原部署目录，将旧 `.env` 中的账号、密码、JWT/MCP 密钥、密钥 KID/keyring、数据库名称、存储桶和访问地址逐项填入新 YAML。
+3. 旧 `VDOC_POSTGRES_PASSWORD` 对应新 `VDOC_DATABASE_PASSWORD`；新文件通过 YAML 锚点共享数据库配置。若曾单独覆盖 `VDOC_DATABASE_DSN` 或使用外部服务，保留实际连接配置；后端仍支持显式 DSN，并优先使用它。
+4. 核对 `name` 及 `postgres-data`、`rustfs-data`、`rustfs-logs` 仍指向原数据卷，然后运行上面的 `pull` / `up -d`。
+
+旧部署若未单独设置 MCP 加密密钥，实际使用的是当时的 JWT 密钥；迁移时把这个原值填入 `VDOC_MCP_TOKEN_CIPHER_KEY`。更换 YAML 不应同时轮换密钥。完成切换后，部署和更新只依赖新的 Compose 文件，不再需要 `.env`、安装脚本或 `workspace.lock.json`。
+
+## 3. 检查升级结果
 
 ```sh
-scripts/vdoc-workspace-init.sh
-scripts/vdoc-workspace-verify.sh
-docker compose --env-file .env config --quiet
-docker compose --env-file .env up -d --build
+docker compose logs --tail=100 backend
+curl -fsS http://127.0.0.1:8080/api/v1/open/health
+docker compose exec backend /app/vdoc --version
 ```
 
-如果是全新一次性本机环境，先运行 `scripts/vdoc-local-bootstrap.sh` 生成 `.env`。已有环境不要为了升级而覆盖 `.env`。当前 root Compose 的依赖和 Dockerfile base image 都绑定 OCI digest，不能在升级时把它们临时改回移动 tag。Compose 从本地 `./Vdoc` 和 `./Vdoc-admin` build app services，且要求 `.env` 提供与 lock 对应的版本、commit 和 build time。如果你直接部署组件，分别重新构建和发布：
+如果改过端口，请使用对应地址。确认后端健康、版本正确，随后检查：
 
-```sh
-cd Vdoc
-make build
-```
+- 原管理员可以登录，已有项目、文档、草稿、版本和 Diff 可以打开。
+- 现有 MCP Token 可以调用 `tools/list` 和一个只读工具；Agent 可以读取原文档。
+- 新草稿仍能提交、审核和发布。
+- 使用 AI 或公开分享时，原 Provider 配置及分享链接仍可使用。
 
-```sh
-cd Vdoc-admin
-pnpm install --frozen-lockfile
-pnpm build
-```
+正常的配置检查容器会退出为 `Exited (0)`。如果检查失败，修正 YAML 后再启动；不要反复删库重试。业务排查可继续阅读[管理端使用](admin-usage.md)、[AI 配置](admin-ai.md)和[MCP 工具](mcp-tools.md)。
 
-如果 Site 部署在 `/Vdoc-site/` 子路径，candidate 必须使用 Pages-compatible base 构建，并在上传前验证同一份输出：
+## 回滚
 
-```sh
-cd Vdoc-site
-pnpm install --frozen-lockfile
-pnpm format:check
-pnpm typecheck
-pnpm lint
-pnpm test:unit
-pnpm workspace:package --candidate
-pnpm test:content
-pnpm build:pages
-pnpm check:budget
-PLAYWRIGHT_BASE_PATH=/Vdoc-site/ pnpm test:browser
-PLAYWRIGHT_BASE_PATH=/Vdoc-site/ pnpm test:performance
-```
+先停止 Backend 和 Admin，保留当前数据和日志。对照目标版本的升级说明确定旧版是否兼容迁移后的数据库：
 
-产物目录是仓库内的 `docs/.vitepress/dist/`。正式 `vMAJOR.MINOR.PATCH` tag 的 CI 和 Release 发布成功后，会自动构建并检查 `/Vdoc-site/` 版本，再把同一份输出部署到 [GitHub Pages](https://chnmig.github.io/Vdoc-site/)。普通分支和 PR 不会上线，测试候选 Compose 包也不会进入 Pages。首次部署已发布版本时，可在 Actions 中手动运行 `Publish release to GitHub Pages`，填写已有正式 tag；这不会创建或移动标签。
+1. 恢复上一版镜像配置，保留仍用于解密数据的密钥和 KID/keyring。
+2. 如果新迁移与旧版不兼容，恢复升级前的 PostgreSQL 备份；必要时同时恢复对象存储备份。
+3. 运行 `docker compose up -d`，重新验证健康、原账号登录、文档和 MCP 查询。
 
-MCP 和 Skill 包升级前也要跑测试：
+自动迁移不等于自动降级。不要只回退容器版本就假定数据库也已回滚，也不要执行 `docker compose down -v` 删除数据卷。
 
-```sh
-cd Vdoc-mcp
-npm ci
-npm test
-```
+## 官网与开发者发布
 
-```sh
-cd Vdoc-skill
-npm ci
-npm test
-```
+宣传官网与用户部署相互独立。正式标签通过 CI 并发布 Release 后，GitHub Actions 自动把对应官网版本部署到 [GitHub Pages](https://chnmig.github.io/Vdoc-site/)；分支和预发布标签不会自动上线。
 
-## 4. 等待自动迁移和服务健康
+官网需要回滚时，可从 `main` 手动运行 `Publish release to GitHub Pages`，选择已有正式标签。工作流重新校验并部署该版本；不会移动标签，也不会更新用户部署的应用容器。旧版本可能仍提供当时的 Compose 压缩包。
 
-backend 启动时会在 `VDOC_DATABASE_ENABLED=true` 时自动运行 migrations。不要在迁移过程中重启或删除数据库。查看 backend 日志：
-
-```sh
-docker compose --env-file .env logs -f backend
-```
-
-确认容器状态：
-
-```sh
-docker compose --env-file .env ps
-```
-
-确认健康：
-
-```sh
-curl http://127.0.0.1:8080/api/v1/open/health
-curl -I http://127.0.0.1:8081/
-docker compose --env-file .env exec backend /app/vdoc --version
-```
-
-如果你改过 `.env` host ports，请把命令中的端口替换成实际端口。部署到域名时使用你的 backend 和 Admin 域名。版本不能是 `dev`/`unknown` 或 `-dirty`，Git commit 必须等于 lock。
-
-## 5. 升级后功能验证
-
-1. Admin 能登录。
-2. `GET /api/v1/private/identity/me` 成功，private API 使用 raw JWT `Authorization` header，无 `Bearer` 前缀。
-3. 已有 Project、Document、Draft、Version 和 Diff 能打开。
-4. 新建一个测试 Draft，并确认审核流程仍可用。
-5. MCP `tools/list` 成功，至少一个 read-only tool call 成功。
-6. Agent 使用 Skill 时会先查 Vdoc MCP，再回答 endpoint 或 Markdown 问题。
-7. 按 [Admin AI](admin-ai.md) 运行系统或项目 provider test，提交测试 Draft，并确认 Draft/Version 摘要和页面 chat 可用。
-8. 禁用测试 prompt 或使用不可用 provider 时，确认 AI 结果为 `skipped` 或 `failed`，但机器 Diff、人工审核和发布流程不受影响。
-9. 检查 AI 审计不含原始 API key、JWT、MCP Token、`Authorization` header 或提示词中嵌入的秘密；prompt override、summary 和 chat 记录按产品定义保留。
-10. 如果本机 root Compose 可用，live E2E 通过：
-
-    ```sh
-    cd Vdoc
-    ./scripts/vdoc-e2e.sh live-compose --env-file ../.env --check-only
-    ./scripts/vdoc-e2e.sh live-compose --env-file ../.env
-    ```
-
-    Live E2E 会重置选中的一次性 `VDOC_TEST_POSTGRES_DB`，默认是 `vdoc_e2e`，不会重置 `VDOC_POSTGRES_DB` 指向的应用数据库。
-
-11. 如果选择 `/Vdoc-site/` base，检查公开路由 `/Vdoc-site/`、`/Vdoc-site/en/`、`/Vdoc-site/admin-ai`、`/Vdoc-site/en/admin-ai`、`/Vdoc-site/release-rollback` 和 `/Vdoc-site/en/release-rollback`；导航、脚本、样式、字体和 favicon 必须保持在该 base 下，不能指向站点根路径的错误资源。
-
-## 回滚策略
-
-如果升级后 backend health 失败或核心流程不可用，先停止继续写入，再回滚。
-
-完整 Compose 的快速回滚思路：
-
-1. 回到上一版 workspace 内容或上一版镜像 tag。
-2. 保持 `.env` 不变，除非失败原因就是配置错误。若本次升级包含 cipher KID 轮换，必须保留旧 KID/key 的历史 keyring，直到新版本完成三类密文的一次事务重写并在清空历史 keyring 后再次启动成功；不要仅回滚二进制却丢掉仍被旧记录需要的 key。
-3. 运行：
-
-   ```sh
-   docker compose --env-file .env up -d --build
-   ```
-
-4. 如果迁移已经写入不兼容 schema，按升级前 PostgreSQL 备份恢复。
-5. 如果对象写入出错，按升级前 bucket 备份恢复对象存储。
-6. 重新执行 backend health、Admin 登录和 MCP read-only call 验证。
-7. 重新执行 Admin AI provider test。若问题只在 AI provider 或 prompt，回滚该配置，不要修改或删除已发布 Version。
-
-直接部署时，恢复上一版 backend binary 或 container、Admin `dist/`、MCP package 和 Skill package。除非你正在恢复备份，不要删除数据库和对象存储。
-
-Site 使用 GitHub Pages 托管。部署步骤失败且已验收 artifact 仍在 14 天保留期内时，可重跑失败的部署 job，继续使用该产物。需要恢复旧版本时，在 `main` 上手动运行 `Publish release to GitHub Pages`，填写之前已发布的正式 tag。手动流程会从该 tag 重新构建，并重新执行内容、浏览器和性能检查；这是一份新验收产物，应记录新的 workflow run ID。旧 tag 和应用部署不会被改动。部署后检查中英文入口、导航、搜索、静态资源和 Compose 下载校验和。
-
-## 发布说明模板
-
-```text
-Version:
-Backend source or image:
-Backend embedded Git commit and image digest:
-Admin source or image:
-Admin image digest:
-Site source SHA:
-Site workflow run ID:
-Site artifact ID and checksum:
-Site deployment URL and base path:
-Site QA report references:
-MCP package version:
-Skill package version:
-Backup location:
-Upgrade command:
-Health check result:
-Admin smoke result:
-Site smoke result:
-MCP smoke result:
-Known limitations:
-Rollback artifact:
-```
-
-Known limitations 至少写明：AI 不能替代机器 Diff 或人工审核、no direct MCP publish、no invitation flow、no notification bot、no PR Bot、no complete SDK/codegen platform、no commercial billing or tenant administration。
-
-## 避免的操作
-
-- 不要在非一次性环境执行 `docker compose down -v`。
-- 不要在升级日志中输出 `.env`、JWT、MCP Token、database password、storage secret 或 `Authorization` header。
-- 不要只验证 Admin 页面能打开就宣布整套 Vdoc 升级成功。
-- 不要把 MCP 或 Skill 版本升级和 backend 不兼容时的问题归因给 Agent，先验证 `tools/list` 来自当前 backend。
+源码构建、E2E 测试、密钥轮换和五仓库发布校验见[维护者运行说明](https://github.com/ChnMig/Vdoc-site/blob/main/workspace/RELEASE_DEPLOY.md)。这些检查在独立测试环境执行，普通部署无需安装源码或创建测试数据库。

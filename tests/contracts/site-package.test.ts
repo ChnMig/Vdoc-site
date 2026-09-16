@@ -23,7 +23,11 @@ function fixture(candidate = false) {
   const root = mkdtempSync(join(tmpdir(), 'vdoc-site-package-test-'))
   const built = join(root, 'docs/.vitepress/dist')
   const downloads = join(root, 'docs/public/downloads')
-  for (const directory of ['scripts', 'workspace', 'docs/public/downloads']) {
+  for (const directory of [
+    'scripts',
+    'workspace/deploy',
+    'docs/public/downloads',
+  ]) {
     mkdirSync(join(root, directory), { recursive: true })
   }
   mkdirSync(join(built, 'downloads'), { recursive: true })
@@ -35,8 +39,17 @@ function fixture(candidate = false) {
     join(root, 'workspace/workspace-distribution.json'),
     JSON.stringify(manifest),
   )
+  copyFileSync(
+    join(projectRoot, 'workspace/deploy/docker-compose.yml'),
+    join(root, 'workspace/deploy/docker-compose.yml'),
+  )
   writeFileSync(join(built, 'index.html'), '<!doctype html><title>Vdoc</title>')
-  for (const file of [archiveName, `${archiveName}.sha256`]) {
+  for (const file of [
+    archiveName,
+    `${archiveName}.sha256`,
+    'docker-compose.yml',
+    'docker-compose.yml.sha256',
+  ]) {
     const source = join(projectRoot, 'docs/public/downloads', file)
     copyFileSync(source, join(downloads, file))
     copyFileSync(source, join(built, 'downloads', file))
@@ -68,7 +81,12 @@ function fixture(candidate = false) {
     join(downloads, `${archiveName}.sha256`),
     `${digest}  ${archiveName}\n`,
   )
-  for (const file of [archiveName, `${archiveName}.sha256`])
+  for (const file of [
+    archiveName,
+    `${archiveName}.sha256`,
+    'docker-compose.yml',
+    'docker-compose.yml.sha256',
+  ])
     copyFileSync(join(downloads, file), join(built, 'downloads', file))
   return { root, built, downloads }
 }
@@ -94,7 +112,11 @@ describe('site release packaging', () => {
     try {
       execFileSync('bash', [join(root, 'scripts/package-site.sh')])
       const output = join(root, '.artifacts/release')
-      const archives = [archiveName, 'vdoc-site-static.tar.gz']
+      const archives = [
+        archiveName,
+        'vdoc-site-static.tar.gz',
+        'docker-compose.yml',
+      ]
       expect(readdirSync(output).sort()).toEqual(
         archives.flatMap((file) => [file, `${file}.sha256`]).sort(),
       )
@@ -119,6 +141,8 @@ describe('site release packaging', () => {
       ])
       for (const file of [
         'index.html',
+        'downloads/docker-compose.yml',
+        'downloads/docker-compose.yml.sha256',
         `downloads/${archiveName}`,
         `downloads/${archiveName}.sha256`,
       ]) {

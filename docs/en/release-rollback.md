@@ -1,213 +1,79 @@
 # Upgrade and Rollback
 
-This page is for users already running Vdoc. The goal is to back up data before upgrades, verify backend, Admin, MCP, and Skill after upgrades, and return to the previous version if something fails.
+For a single-file deployment, you update image versions in Compose and the backend runs migrations included in the new release at startup. Upgrades retain existing accounts, keys, and data volumes.
 
-## Before Upgrading
+## 1. Back Up Configuration and Data
 
-- Record the current `workspace.lock.json` remote refs/commits, embedded backend/Admin versions, and actual image digests. A moving tag alone is not a rollback identity.
-- Keep the current `.env`, but never paste real secrets into issues, chat, or release notes.
-- Confirm PostgreSQL and object storage are reachable.
-- Record the current Admin URL, backend health URL, Agent MCP config, Site URL, source SHA, workflow run ID, static-artifact identifier/checksum, deployment base path, and QA report references.
-- Use a maintenance window so users are not submitting Drafts during restart.
-- Before a local upgrade, inspect and run the local release gate:
+Keep your current private `docker-compose.yml`, image versions, and each Release's `container-image.json` (image digest and source commit). Stop application writes during a maintenance window:
 
 ```sh
-scripts/vdoc-release-dry-run.sh --list
-scripts/vdoc-release-dry-run.sh
-```
-
-The release dry-run runs local checks only. It does not publish packages, deploy services, push images, or create git refs.
-
-## 1. Back Up PostgreSQL
-
-Full Compose example:
-
-```sh
+docker compose stop backend admin
 mkdir -p backups
-docker compose --env-file .env exec -T postgres \
+docker compose exec -T postgres \
   sh -lc 'pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB"' \
-  > backups/vdoc-$(date +%Y%m%d%H%M%S).sql
+  > backups/vdoc-before-upgrade.sql
 ```
 
-If you use external PostgreSQL, use the provider snapshot flow or `pg_dump`. Do not upgrade production or long-running pilots before you know the backup can be restored.
+Also back up the RustFS `rustfs-data` volume or storage bucket. External databases and object storage can use provider snapshots or backup tools. Confirm backups can be restored before continuing.
 
-## 2. Back Up Object Storage
+## 2. Update the Two Image Versions
 
-RustFS or S3 compatible storage keeps raw and normalized document objects. Before upgrading, keep a bucket snapshot or copy the bucket contents.
+Read `docker-compose.yml` in the target [Site Release](https://github.com/ChnMig/Vdoc-site/releases). Copy its `x-backend-image` and `x-admin-image` lines into your existing private YAML, and merge any new settings described by the release. Do not overwrite your configured file with an unedited download.
 
-Full Compose uses the `rustfs-data` named volume, which can be backed up with infrastructure-level snapshots. For external storage, use provider bucket versioning, snapshots, replication, or object copy tools.
-
-Do not print storage access keys or secret keys in backup script logs.
-
-## 3. Pull or Build the New Version
-
-Prebuilt images are recommended for v0.2.1. Verify the new Compose download, then update Compose, scripts, the release lock and `.env.example` in your existing deployment directory. Preserve the real `.env`, Compose project name and data volumes. Do not rerun bootstrap over existing secrets.
-
-Copy only the Backend/Admin version, commit and build-time values from the new `.env.example` into the corresponding `.env` fields. Keep your existing secrets and accounts. Run from the existing deployment directory:
+Preserve PostgreSQL and storage credentials, JWT/MCP keys, administrator settings, ports, project name, and volumes. `v0.3.0` improves single-file deployment and image distribution without adding database migrations.
 
 ```sh
-scripts/vdoc-prebuilt-install.sh
-docker compose --env-file .env config --quiet
-docker compose --env-file .env up -d --no-build
+docker compose pull
+docker compose up -d
+docker compose ps
 ```
 
-This release adds no database migrations. Update the Agent MCP/Skill source pins and reload tools: `get_latest_schema` and `get_latest_doc` now require `branch_id`; use `get_schema_version` / `get_doc_version` for exact historical content.
+New containers mount the existing volumes. Backend checks `schema_migrations`, applies pending migrations in order, and validates previously applied migration contents. Migration failure aborts startup; it does not clear data or ignore errors. Completed migrations are not reapplied on each restart.
 
-For a source build, prepare clean source checkouts selected by the new release lock. The initializer only creates missing repositories; it never overwrites existing checkouts. Save local changes and move existing repositories to their locked commits first, then run from the workspace root:
+Vdoc migrations cover application data structures, not PostgreSQL major upgrades. Keep PostgreSQL and RustFS versions unchanged unless the target release includes specific upgrade instructions.
+
+## Migrate from v0.2.1 or Older Archives {#legacy-compose}
+
+The first switch to a single-file deployment requires these steps:
+
+1. Back up existing data and `.env`, and record the actual Compose project and volume names. The old default project name is also `vdoc`; preserve any custom name in the new YAML.
+2. Keep the old Compose file, download the new YAML into the existing deployment directory, and transfer accounts, passwords, JWT/MCP keys, encryption KID/keyring, database name, bucket, and URLs from the old `.env`.
+3. Old `VDOC_POSTGRES_PASSWORD` maps to new `VDOC_DATABASE_PASSWORD`; YAML anchors share database settings. If you previously overrode `VDOC_DATABASE_DSN` or used external services, preserve the actual connection settings. The backend still supports an explicit DSN and gives it precedence.
+4. Confirm `name`, `postgres-data`, `rustfs-data`, and `rustfs-logs` still select the original volumes, then run the `pull` / `up -d` commands above.
+
+If the old deployment did not set a separate MCP encryption key, it used the JWT key at the time. Put that original value in `VDOC_MCP_TOKEN_CIPHER_KEY`. Do not rotate keys while switching deployment formats. Once migrated, deployment and updates use only the new Compose file; `.env`, installer scripts, and `workspace.lock.json` are no longer required.
+
+## 3. Verify the Upgrade
 
 ```sh
-scripts/vdoc-workspace-init.sh
-scripts/vdoc-workspace-verify.sh
-docker compose --env-file .env config --quiet
-docker compose --env-file .env up -d --build
+docker compose logs --tail=100 backend
+curl -fsS http://127.0.0.1:8080/api/v1/open/health
+docker compose exec backend /app/vdoc --version
 ```
 
-For a fresh disposable local environment, run `scripts/vdoc-local-bootstrap.sh` first to create `.env`. Do not overwrite an existing upgrade environment just to run the upgrade. Root Compose dependencies and Dockerfile base images are pinned by OCI digest; do not replace them with moving tags during an upgrade. Compose builds app services from local `./Vdoc` and `./Vdoc-admin` and requires `.env` version, commit, and build-time values that correspond to the lock. If you deploy components directly, rebuild and publish each one:
+Use your configured ports if different. Confirm backend health and version, then check:
 
-```sh
-cd Vdoc
-make build
-```
+- Existing administrator login and Project, Document, Draft, Version, and Diff pages.
+- An existing MCP token can call `tools/list` and a read-only tool; an agent can read existing documents.
+- A new draft can still be submitted, reviewed, and published.
+- Existing Provider settings and share links still work if you use AI or public sharing.
 
-```sh
-cd Vdoc-admin
-pnpm install --frozen-lockfile
-pnpm build
-```
+A completed configuration check normally shows `Exited (0)`. If it fails, correct the YAML before restarting; do not delete the database to retry. See [First Use](admin-usage.md), [Admin AI](admin-ai.md), and [MCP Tools](mcp-tools.md) for product checks.
 
-If Site is deployed below `/Vdoc-site/`, the candidate must use the Pages-compatible base build and verify the same output before upload:
+## Rollback
 
-```sh
-cd Vdoc-site
-pnpm install --frozen-lockfile
-pnpm format:check
-pnpm typecheck
-pnpm lint
-pnpm test:unit
-pnpm workspace:package --candidate
-pnpm test:content
-pnpm build:pages
-pnpm check:budget
-PLAYWRIGHT_BASE_PATH=/Vdoc-site/ pnpm test:browser
-PLAYWRIGHT_BASE_PATH=/Vdoc-site/ pnpm test:performance
-```
+Stop Backend and Admin first, preserving current data and logs. Read the target release's instructions to determine whether the previous version supports the migrated database:
 
-The artifact directory is `docs/.vitepress/dist/` inside the repository. After a stable `vMAJOR.MINOR.PATCH` tag passes CI and its GitHub Release is published, the workflow builds and checks the `/Vdoc-site/` version and deploys that exact output to [GitHub Pages](https://chnmig.github.io/Vdoc-site/). Branches and pull requests do not deploy; candidate Compose archives cannot enter Pages. For an existing release, manually run `Publish release to GitHub Pages` in Actions with its stable tag. This does not create or move a tag.
+1. Restore the previous image configuration and keep any keys and KID/keyring entries still needed to decrypt data.
+2. Restore the pre-upgrade PostgreSQL backup if the migration is incompatible with the old backend. Restore the object storage backup when necessary.
+3. Run `docker compose up -d` and verify health, existing account login, documents, and MCP queries again.
 
-Test MCP and Skill packages before upgrading them:
+Automatic migration does not provide automatic downgrade. Rolling back a container does not reverse database changes. Do not delete data volumes with `docker compose down -v`.
 
-```sh
-cd Vdoc-mcp
-npm ci
-npm test
-```
+## Website and Developer Releases
 
-```sh
-cd Vdoc-skill
-npm ci
-npm test
-```
+The marketing website deploys independently of user installations. A stable tag that passes CI and publishes its Release automatically deploys the matching site to [GitHub Pages](https://chnmig.github.io/Vdoc-site/). Branches and prerelease tags do not deploy automatically.
 
-## 4. Wait for Migrations and Health
+To roll back the website, manually run `Publish release to GitHub Pages` from `main` with an existing stable tag. The workflow verifies and deploys that version without moving tags or updating user application containers. Older versions may still offer the Compose archive used at the time.
 
-When `VDOC_DATABASE_ENABLED=true`, backend runs migrations at startup. Do not restart repeatedly or delete the database while migrations run. Watch backend logs:
-
-```sh
-docker compose --env-file .env logs -f backend
-```
-
-Check container status:
-
-```sh
-docker compose --env-file .env ps
-```
-
-Check health:
-
-```sh
-curl http://127.0.0.1:8080/api/v1/open/health
-curl -I http://127.0.0.1:8081/
-docker compose --env-file .env exec backend /app/vdoc --version
-```
-
-If you changed `.env` host ports, replace the ports in these commands. In deployed environments, use your backend and Admin domains. Version output must not contain `dev`, `unknown`, or `-dirty`, and the Git commit must equal the lock.
-
-## 5. Post-Upgrade Verification
-
-1. Admin can log in.
-2. `GET /api/v1/private/identity/me` succeeds with raw JWT `Authorization`, no `Bearer` prefix.
-3. Existing Project, Document, Draft, Version, and Diff pages open.
-4. A test Draft can still move through review.
-5. MCP `tools/list` succeeds, and at least one read-only tool call succeeds.
-6. An Agent using the Skill queries Vdoc MCP before answering endpoint or Markdown questions.
-7. Follow [Admin AI](admin-ai.md) to run a system or project provider test, submit a test Draft, and confirm Draft/Version summaries and page chat work.
-8. With a disabled test prompt or unavailable provider, confirm the AI result is `skipped` or `failed` while machine Diff, human review, and publishing still work.
-9. Check that AI audit data contains no raw API keys, JWTs, MCP Tokens, `Authorization` headers, or secrets embedded in prompts; prompt override, summary, and chat records remain available as defined by the product.
-10. If local root Compose is available, live E2E passes:
-
-    ```sh
-    cd Vdoc
-    ./scripts/vdoc-e2e.sh live-compose --env-file ../.env --check-only
-    ./scripts/vdoc-e2e.sh live-compose --env-file ../.env
-    ```
-
-    Live E2E resets the selected disposable `VDOC_TEST_POSTGRES_DB`, `vdoc_e2e` by default. It does not reset the application database from `VDOC_POSTGRES_DB`.
-
-11. If `/Vdoc-site/` is the selected base, check `/Vdoc-site/`, `/Vdoc-site/en/`, `/Vdoc-site/admin-ai`, `/Vdoc-site/en/admin-ai`, `/Vdoc-site/release-rollback`, and `/Vdoc-site/en/release-rollback`. Navigation, scripts, styles, fonts, and the favicon must stay under that base instead of resolving to broken root-level assets.
-
-## Rollback Strategy
-
-If backend health fails or a core workflow is unusable after upgrade, stop additional writes first, then roll back.
-
-Full Compose rollback approach:
-
-1. Return to the previous workspace content or previous image tag.
-2. Keep `.env` unchanged unless the failure is a configuration mistake. If the upgrade included a cipher-KID rotation, retain the old KID/key in the historical keyring until one transaction has rewritten all three ciphertext classes and a second startup without that historical key succeeds. Never roll back only the binary while discarding a key that persisted records still need.
-3. Run:
-
-   ```sh
-   docker compose --env-file .env up -d --build
-   ```
-
-4. If migration wrote an incompatible schema, restore the PostgreSQL backup from before the upgrade.
-5. If object writes were corrupted, restore object storage from the bucket backup.
-6. Re-run backend health, Admin login, and MCP read-only call checks.
-7. Re-run the Admin AI provider test. If only the AI provider or prompt is broken, roll back that configuration without modifying or deleting published Versions.
-
-For direct deployments, restore the previous backend binary or container, Admin `dist/`, MCP package, and Skill package. Do not delete database or object storage unless you are restoring from backup.
-
-Site is hosted on GitHub Pages. If deployment fails while its verified artifact remains within the 14-day retention period, rerun the failed deployment job to reuse that artifact. To restore an older version, manually run `Publish release to GitHub Pages` from `main` with a previously published stable tag. This rebuilds the tagged source and repeats the content, browser, and performance checks; record the new workflow run ID as a newly verified artifact. Existing tags and application deployments stay intact. After deployment, verify both locales, navigation, search, static assets, and the Compose download checksum.
-
-## Release Notes Template
-
-```text
-Version:
-Backend source or image:
-Backend embedded Git commit and image digest:
-Admin source or image:
-Admin image digest:
-Site source SHA:
-Site workflow run ID:
-Site artifact ID and checksum:
-Site deployment URL and base path:
-Site QA report references:
-MCP package version:
-Skill package version:
-Backup location:
-Upgrade command:
-Health check result:
-Admin smoke result:
-Site smoke result:
-MCP smoke result:
-Known limitations:
-Rollback artifact:
-```
-
-Known limitations should mention at least: AI cannot replace machine Diff or human review, no direct MCP publish, no invitation flow, no notification bot, no PR bot, no complete SDK/codegen platform, and no commercial billing or tenant administration.
-
-## Avoid These Actions
-
-- Do not run `docker compose down -v` outside disposable environments.
-- Do not print `.env`, JWTs, MCP Tokens, database passwords, storage secrets, or `Authorization` headers in upgrade logs.
-- Do not declare the whole Vdoc system upgraded just because the Admin page opens.
-- If MCP or Skill versions do not match backend behavior, do not blame the Agent first. Verify that `tools/list` comes from the current backend.
+Source builds, E2E tests, key rotation, and five-repository release checks are documented in the [maintainer operations guide](https://github.com/ChnMig/Vdoc-site/blob/main/workspace/RELEASE_DEPLOY.md). Run those checks in disposable test environments; ordinary deployments do not require source checkouts or a test database.

@@ -83,6 +83,31 @@ assert.deepEqual(
   template,
   'Published Compose lock differs from the tagged source template',
 )
+// Older tagged sites predate the standalone YAML; keep Pages rollback working.
+if (existsSync(join(site, 'workspace/deploy/docker-compose.yml'))) {
+  const name = 'docker-compose.yml'
+  const compose = readFileSync(join(site, 'docs/public/downloads', name))
+  const checksum = createHash('sha256').update(compose).digest('hex')
+  assert.equal(
+    readFileSync(join(site, 'docs/public/downloads', `${name}.sha256`), 'utf8'),
+    `${checksum}  ${name}\n`,
+    'Published standalone Compose checksum does not match',
+  )
+  assert.deepEqual(
+    compose,
+    readFileSync(join(site, 'workspace/deploy', name)),
+    'Published standalone Compose differs from the tagged source',
+  )
+  for (const repository of ['vdoc', 'vdoc-admin']) {
+    assert(
+      compose
+        .toString()
+        .split(/\s+/)
+        .includes(`ghcr.io/chnmig/${repository}:${releaseTag}`),
+      'Standalone Compose image version differs from the Site tag',
+    )
+  }
+}
 process.stdout.write(
   `Pages download verified: ${releaseTag}, Site ${checkoutCommit}, SHA-256 ${digest}\n`,
 )

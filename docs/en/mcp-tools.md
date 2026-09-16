@@ -18,9 +18,9 @@ The agent machine also needs Node.js 20 or later, npm, and Git. If Vdoc is not r
 `@vdoc/mcp` is not published to the npm registry yet. Run or install it directly from the official GitHub repository:
 
 ```sh
-npx --yes github:ChnMig/Vdoc-mcp#560966bcbb6e19556f891fc3d23a199bc6a9ada5
+npx --yes github:ChnMig/Vdoc-mcp#e148633a6e56ec233dcbb9be6e0108eabec93b61
 # Or install the GitHub version globally
-npm install -g git+https://github.com/ChnMig/Vdoc-mcp.git#560966bcbb6e19556f891fc3d23a199bc6a9ada5
+npm install -g git+https://github.com/ChnMig/Vdoc-mcp.git#e148633a6e56ec233dcbb9be6e0108eabec93b61
 ```
 
 For one-off usage, prefer the commit-pinned `npx` source in the Agent MCP config. The 40-character commit above must equal the `Vdoc-mcp` entry in the reviewed release package's `workspace.lock.json`; do not remove the fragment or replace it with a moving branch. Do not put tokens in `args`.
@@ -59,7 +59,7 @@ For local full Compose, `VDOC_BASE_URL` is usually `http://127.0.0.1:8080`. For 
       "command": "npx",
       "args": [
         "--yes",
-        "github:ChnMig/Vdoc-mcp#560966bcbb6e19556f891fc3d23a199bc6a9ada5"
+        "github:ChnMig/Vdoc-mcp#e148633a6e56ec233dcbb9be6e0108eabec93b61"
       ],
       "env": {
         "VDOC_BASE_URL": "https://your-vdoc.example.test",

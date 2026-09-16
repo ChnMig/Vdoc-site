@@ -9,12 +9,14 @@ const pages = [
       'utf8',
     ),
     required: [
-      '空数据库首次启动必须同时提供',
+      'CHANGE_ME',
       'VDOC_INITIAL_ADMIN_NAME',
-      '安全失败',
-      '不是可直接启动的配置',
+      'docker compose pull',
+      'docker compose up -d',
+      'workspace/deploy/docker-compose.yml',
+      'config-check',
     ],
-    forbidden: '可留空。如果填写',
+    forbidden: 'scripts/vdoc-local-bootstrap.sh',
   },
   {
     path: 'docs/en/deployment.md',
@@ -23,12 +25,14 @@ const pages = [
       'utf8',
     ),
     required: [
-      'first startup against an empty database must provide all three',
+      'CHANGE_ME',
       'VDOC_INITIAL_ADMIN_NAME',
-      'fails closed',
-      'not a ready-to-run configuration',
+      'docker compose pull',
+      'docker compose up -d',
+      'workspace/deploy/docker-compose.yml',
+      'config-check',
     ],
-    forbidden: 'may stay blank. If set',
+    forbidden: 'scripts/vdoc-local-bootstrap.sh',
   },
 ] as const
 

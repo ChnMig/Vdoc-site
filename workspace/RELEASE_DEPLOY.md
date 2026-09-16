@@ -2,11 +2,19 @@
 
 This document closes the v0.2 engineering delivery loop and defines the separate Pilot sign-off gate. It is intentionally conservative: publish only artifacts that have passed CI, local dry-run checks, the live smoke path, and the applicable human evidence review.
 
+## Single-file deployment distribution
+
+`deploy/docker-compose.yml` is the canonical user deployment. Site publishes its identical bytes and SHA-256 as Release assets and website downloads; the rendered example includes this same source. Keep the source workspace archive as an optional developer/offline distribution.
+
+Backend and Admin tag workflows publish their verified amd64/arm64 image archives to GHCR and create a multi-platform version tag. `container-image.json` records image digests and source revision. Existing image tags cannot be overwritten with different contents. On first publication, ensure both GHCR packages are public and verify anonymous pulls before releasing Site. CI requires `packages: write`; users do not need a registry login.
+
+Before publishing, run `python3 scripts/test-single-compose.py` with the candidate image options. It uses a directory containing only YAML and disposable project/volume names, verifies placeholder rejection, automatic setup, stored content and tokens across container recreation, and optionally upgrades a legacy backend image. It never uses the real workspace `.env` or application volumes.
+
 ## 1. Required Checks
 
-For the 0.2.1 release, the Compose archive is `vdoc-compose-bootstrap-v0.2.1.tar.gz`. Update and commit MCP/Skill first, update their install pins in Admin and Site, then commit Admin. Pin Backend/Admin/MCP/Skill commits in the workspace source lock and update `.env.example` build provenance. Keep only the Site commit as `@release`, sync the workspace export, and commit Site last.
+For the 0.3.0 release, the Compose archive is `vdoc-compose-bootstrap-v0.3.0.tar.gz`. Update and commit MCP/Skill first, update their install pins in Admin and Site, then commit Admin. Pin Backend/Admin/MCP/Skill commits in the workspace source lock and update `.env.example` build provenance. Keep only the Site commit as `@release`, sync the workspace export, and commit Site last.
 
-Push the Backend, MCP, Skill, and Admin `v0.2.1` tags before the Site tag. The Site tag build resolves its own tag to its checkout commit, checks all other tags against the committed lock, and includes five exact commit hashes in the archive. A missing or mismatched tag fails the release; there is no fallback to a branch or an older release. Do not move published tags.
+Push the Backend, MCP, Skill, and Admin `v0.3.0` tags before the Site tag. The Site tag build resolves its own tag to its checkout commit, checks all other tags against the committed lock, and includes five exact commit hashes in the archive. A missing or mismatched tag fails the release; there is no fallback to a branch or an older release. Do not move published tags.
 
 Backend/Admin tag workflows also build and smoke-test native Linux amd64 and arm64 Docker images. Their compressed Docker archives and per-image SHA-256 files are retained as release assets; the release waits for both image jobs. The bootstrap image loader verifies those files, their platform, and their source-revision labels against the lock.
 
@@ -306,9 +314,9 @@ The default gate requires four distinct target-user roles and binds them to real
 
 An empty template, `--allow-incomplete` success, a missing/unexercised target-user role, staff-only execution, missing role feedback, missing or hash-mismatched evidence, same-person/unsigned sign-off, a post-signature edit, or automated tests alone means **Pilot not yet validated**. The signing helper is provenance, not cryptographic identity authentication; signer identity and immutable evidence storage remain human controls. Do not convert `failed`, `blocked`, or negative verbatim feedback into a passing release narrative.
 
-The single-entry artifact is a Docker Compose bootstrap, not an application binary or a container-image bundle. `scripts/vdoc-workspace-package.sh` creates deterministic `vdoc-compose-bootstrap-v0.2.1.tar.gz` bytes with normalized order, modes, ownership, timestamps, and gzip metadata. It contains Compose/configuration files, the root MIT license, release tools, and the exact source lock; users build Backend/Admin images locally with Docker.
+Ordinary deployments download `docker-compose.yml` alone, generated from `deploy/docker-compose.yml`. It contains configuration and versioned GHCR image references. The optional developer artifact is a Docker Compose bootstrap. `scripts/vdoc-workspace-package.sh` creates deterministic `vdoc-compose-bootstrap-v0.3.0.tar.gz` bytes with normalized order, modes, ownership, timestamps, and gzip metadata. It contains Compose/configuration files, the root MIT license, release tools, and the exact source lock; users build Backend/Admin images locally with Docker.
 
-Vdoc-site provides the public workspace sources and website evaluation downloads; see [README.md](README.md#docker-compose-bootstrap-artifact). Those mutable website snapshots are not an immutable GitHub Release. The `v0.2.1` tag workflow produces the versioned Compose download after verifying all five source tags.
+Vdoc-site provides the public workspace sources and website evaluation downloads; see [README.md](README.md#docker-compose-bootstrap-artifact). Those mutable website snapshots are not an immutable GitHub Release. The `v0.3.0` tag workflow produces the versioned Compose download after verifying all five source tags.
 
 The Site tag workflow publishes both the tarball and `.sha256` file to GitHub Releases automatically. Record the exact tagged URL and checksum, together with any required release sign-off. Substitute an actually published Site tag below, then verify the public bytes instead of trusting the README link:
 
@@ -316,7 +324,7 @@ The Site tag workflow publishes both the tarball and `.sha256` file to GitHub Re
 scripts/vdoc-workspace-release-assets-verify.sh \
   --release-base-url 'https://github.com/ChnMig/Vdoc-site/releases/download/<published-release-tag>' \
   --expected-sha256 <archive-sha256> \
-  --local-artifact dist/vdoc-compose-bootstrap-v0.2.1.tar.gz
+  --local-artifact dist/vdoc-compose-bootstrap-v0.3.0.tar.gz
 ```
 
 The in-lock root digest detects partial control-plane drift but is not an external signature because the lock and verifier ship together. Local package creation does not prove public availability; the release is not closed until the post-publication verifier succeeds.

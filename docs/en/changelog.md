@@ -2,6 +2,15 @@
 
 This page records the current user-visible v0.2 state covered by the VitePress docs. It is not a marketing list; it is what users should know before evaluation, deployment, or pilot use.
 
+## v0.3.0
+
+- Deploy and update with a single [docker-compose.yml](deployment.md): all settings and secrets are in YAML, with no `.env` or installation scripts.
+- Pull verified Linux amd64/arm64 Backend and Admin images directly from GHCR.
+- Validate required configuration before database initialization; backend startup handles schema migrations, administrator and storage bucket setup.
+- Document preservation of existing keys and volumes, including migration from older Compose archives.
+
+This release adds no database migrations and keeps the v0.2.0 MCP API contract. See [Upgrade and Rollback](release-rollback.md).
+
 ## v0.2.1
 
 - The [deployment guide](deployment.md#compose-example) adds a complete Docker Compose example with one-click copying for all four services, plus `.env`, deployment directory, and image-loading instructions. The example reads directly from the deployment package source.

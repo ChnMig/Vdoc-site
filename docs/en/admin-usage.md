@@ -12,7 +12,7 @@ This trial uses Markdown to cover create, review, publish, and query. Admin AI, 
 
 ## 1. Log In and Create a Trial Project
 
-Open the [local workbench](http://127.0.0.1:8081) and log in with the email and password you set in `.env` during deployment. For a remote deployment, open its workbench URL.
+Open the [local workbench](http://127.0.0.1:8081) and log in with the email and password you set in `docker-compose.yml` during deployment. For a remote deployment, open its workbench URL.
 
 Create or select a Team, then create a Project named **Vdoc Trial**. Use the initial SuperAdmin for this trial; add Reader, Writer, and Project Admin members when you start collaborating.
 
@@ -78,7 +78,7 @@ Choose the configuration format for your client. The MCP Token page in Admin als
       "command": "npx",
       "args": [
         "--yes",
-        "github:ChnMig/Vdoc-mcp#560966bcbb6e19556f891fc3d23a199bc6a9ada5"
+        "github:ChnMig/Vdoc-mcp#e148633a6e56ec233dcbb9be6e0108eabec93b61"
       ],
       "env": {
         "VDOC_BASE_URL": "http://127.0.0.1:8080",
@@ -92,7 +92,7 @@ Choose the configuration format for your client. The MCP Token page in Admin als
 ```toml [Codex]
 [mcp_servers.vdoc]
 command = "npx"
-args = ["--yes", "github:ChnMig/Vdoc-mcp#560966bcbb6e19556f891fc3d23a199bc6a9ada5"]
+args = ["--yes", "github:ChnMig/Vdoc-mcp#e148633a6e56ec233dcbb9be6e0108eabec93b61"]
 startup_timeout_sec = 60
 tool_timeout_sec = 180
 

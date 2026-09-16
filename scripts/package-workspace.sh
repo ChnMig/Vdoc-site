@@ -35,3 +35,7 @@ find "$SITE_ROOT/docs/public/downloads" -maxdepth 1 -type f \( -name 'vdoc-compo
 cp "$stage/output/$artifact_name.tar.gz" "$SITE_ROOT/docs/public/downloads/"
 cp "$stage/output/$artifact_name.tar.gz.sha256" "$SITE_ROOT/docs/public/downloads/"
 printf 'Website download prepared: docs/public/downloads/%s.tar.gz\n' "$artifact_name"
+
+cp "$SITE_ROOT/workspace/deploy/docker-compose.yml" "$SITE_ROOT/docs/public/downloads/docker-compose.yml"
+(cd "$SITE_ROOT/docs/public/downloads" && shasum -a 256 docker-compose.yml >docker-compose.yml.sha256)
+printf 'Standalone deployment prepared: docs/public/downloads/docker-compose.yml\n'

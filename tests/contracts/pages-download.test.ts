@@ -19,7 +19,7 @@ const releaseTag = `v${releaseVersion}`
 
 function fixture() {
   const root = mkdtempSync(join(tmpdir(), 'vdoc-pages-download-'))
-  mkdirSync(join(root, 'workspace'))
+  mkdirSync(join(root, 'workspace/deploy'), { recursive: true })
   mkdirSync(join(root, 'docs/public/downloads'), { recursive: true })
   for (const file of ['workspace.lock.json', 'workspace-distribution.json']) {
     writeFileSync(
@@ -27,6 +27,15 @@ function fixture() {
       readProjectText(`workspace/${file}`),
     )
   }
+  copyFileSync(
+    join(projectRoot, 'workspace/deploy/docker-compose.yml'),
+    join(root, 'workspace/deploy/docker-compose.yml'),
+  )
+  for (const file of ['docker-compose.yml', 'docker-compose.yml.sha256'])
+    copyFileSync(
+      join(projectRoot, 'docs/public/downloads', file),
+      join(root, 'docs/public/downloads', file),
+    )
   writeFileSync(
     join(root, 'package.json'),
     JSON.stringify({ version: releaseVersion }),
@@ -138,6 +147,26 @@ describe('published Pages download validation', () => {
       expect(result.status).not.toBe(0)
       expect(result.stderr).toContain(
         'Published Compose lock points to a different Site commit',
+      )
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+
+  it('rejects a changed standalone YAML even with a regenerated checksum', () => {
+    const { root } = fixture()
+    try {
+      const file = join(root, 'docs/public/downloads/docker-compose.yml')
+      writeFileSync(file, 'services: {}\n')
+      expect(check(root).stderr).toContain(
+        'standalone Compose checksum does not match',
+      )
+      const digest = createHash('sha256')
+        .update(readFileSync(file))
+        .digest('hex')
+      writeFileSync(`${file}.sha256`, `${digest}  docker-compose.yml\n`)
+      expect(check(root).stderr).toContain(
+        'standalone Compose differs from the tagged source',
       )
     } finally {
       rmSync(root, { recursive: true, force: true })

@@ -2,6 +2,15 @@
 
 本页记录当前 VitePress 文档覆盖的 v0.2 用户可见状态。它不是营销列表，而是评估、部署和试点前需要知道的变化。
 
+## v0.3.0
+
+- 通过单个 [docker-compose.yml](deployment.md) 部署和更新，配置与密钥直接写在 YAML 中，无需 `.env` 或安装脚本。
+- 从 GHCR 直接拉取通过验证的 Backend/Admin 镜像，支持 Linux amd64 和 arm64。
+- 数据库初始化前检查必填配置；后端启动时自动处理数据库迁移、首个管理员和存储桶。
+- 补充旧 Compose 压缩包迁移说明，升级时沿用原密钥和数据卷。
+
+本版不新增数据库迁移，MCP API 契约保持 v0.2.0。升级步骤见[升级与回滚](release-rollback.md)。
+
 ## v0.2.1
 
 - [部署指南](deployment.md#compose-example)新增完整 Docker Compose 示例，可一次复制四个服务的配置，并说明 `.env`、安装目录和镜像加载步骤。示例直接引用部署包源文件。

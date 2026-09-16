@@ -2,6 +2,15 @@
 
 本页说明 v0.2 的能力边界。规划试点、写 Agent 指令、发布包或升级前，先确认这里的边界没有被误读。
 
+## v0.3.0
+
+- 通过单个 [docker-compose.yml](deployment.md) 部署和更新，配置与密钥直接写在 YAML 中，无需 `.env` 或安装脚本。
+- 从 GHCR 直接拉取通过验证的 Backend/Admin 镜像，支持 Linux amd64 和 arm64。
+- 数据库初始化前检查必填配置；后端启动时自动处理数据库迁移、首个管理员和存储桶。
+- 补充旧 Compose 压缩包迁移说明，升级时沿用原密钥和数据卷。
+
+本版不新增数据库迁移，MCP API 契约保持 v0.2.0。升级步骤见[升级与回滚](release-rollback.md)。
+
 ## v0.2.1
 
 本次补丁包含[完整 Compose 示例](deployment.md#compose-example)和 Admin 小屏幕 MCP 配置框修复，五个仓库及部署下载统一为 v0.2.1。

@@ -56,6 +56,18 @@ jobs:
       - name: Test release lock resolution
         run: bash scripts/test-release-lock.sh
 
+      - name: Verify public multi-platform images before releasing the website
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+          DOCKER_CONFIG: ${{ runner.temp }}/vdoc-public-image-check
+        run: |
+          mkdir -p "$DOCKER_CONFIG"
+          for image in vdoc vdoc-admin; do
+            docker buildx imagetools inspect "ghcr.io/chnmig/$image:$RELEASE_TAG" --raw |
+              jq -e '[.manifests[] | select(.platform.os == "linux") | .platform.architecture] | sort == ["amd64", "arm64"]'
+          done
+
       - name: Generate Compose download from sources
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
         run: pnpm workspace:package
@@ -93,6 +105,7 @@ jobs:
         with:
           name: site-distribution
           path: |
+            .artifacts/release/docker-compose.yml
             .artifacts/release/*.tar.gz
             .artifacts/release/*.sha256
           include-hidden-files: true
@@ -149,7 +162,7 @@ jobs:
           if [[ "$RELEASE_TAG" == *-* ]]; then
             options+=(--prerelease)
           fi
-          gh release create "$RELEASE_TAG" release/*.tar.gz release/*.sha256 \
+          gh release create "$RELEASE_TAG" release/docker-compose.yml release/*.tar.gz release/*.sha256 \
             --verify-tag --generate-notes --title "$RELEASE_TAG" "${options[@]}"
 
   pages:

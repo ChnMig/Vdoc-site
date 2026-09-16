@@ -1,19 +1,19 @@
 # Workspace Docker Compose Deployment
 
-## Recommended installation: v0.2.1 prebuilt images
+## Recommended installation: one Compose file
 
-Follow the [current deployment guide](https://chnmig.github.io/Vdoc-site/deployment). Extract and verify the Compose bootstrap, run `scripts/vdoc-local-bootstrap.sh --prebuilt`, set the initial administrator in the generated private `.env`, then run:
+Download [docker-compose.yml](https://chnmig.github.io/Vdoc-site/downloads/docker-compose.yml), put it in a dedicated directory, and fill every `CHANGE_ME` value in the YAML. All accounts, passwords, JWT/MCP keys, and connection settings stay in this private file. Then run:
 
 ```sh
-scripts/vdoc-prebuilt-install.sh
-docker compose --env-file .env config --quiet
-docker compose --env-file .env up -d --no-build
+docker compose pull
+docker compose up -d
 ```
 
-The installer selects Linux amd64/arm64 using the Docker daemon, verifies each image archive and its source revision, and loads the two application images. No five-repository checkout is needed. Existing source-build instructions below remain available for development. Keep existing secrets and back up data before an upgrade.
+Open `http://127.0.0.1:8081` and sign in with your configured initial administrator. Backend automatically creates its schema, applies pending migrations, and creates the storage bucket and initial administrator. Ordinary deployments need no `.env`, source lock, installer, or test database script. For upgrades, keep the existing configuration and volumes, update the two application image versions, and repeat `pull` / `up -d` after backing up data. See the [deployment guide](https://chnmig.github.io/Vdoc-site/en/deployment) and [upgrade guide](https://chnmig.github.io/Vdoc-site/en/release-rollback).
 
-The [website download](https://chnmig.github.io/Vdoc-site/en/deployment) is a Docker Compose bootstrap, not an application binary
-or a container-image bundle. It supplies the Compose/configuration files and a
+The standalone source is `deploy/docker-compose.yml`. The root `docker-compose.yml` and instructions below support source development and release verification.
+
+The optional [source workspace archive](https://chnmig.github.io/Vdoc-site/downloads/vdoc-compose-bootstrap-v0.3.0.tar.gz) is a Docker Compose bootstrap, for source builds and offline installation. It supplies the Compose/configuration files and a
 lock that fetches reviewed source commits; `docker compose ... up -d --build`
 builds Backend/Admin locally and starts the four-service self-hosted stack.
 

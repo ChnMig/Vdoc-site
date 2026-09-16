@@ -2,6 +2,15 @@
 
 These notes describe the v0.2 boundary. Before planning a pilot, writing Agent instructions, publishing packages, or upgrading, confirm that this scope is not being overstated.
 
+## v0.3.0
+
+- Deploy and update with a single [docker-compose.yml](deployment.md): all settings and secrets are in YAML, with no `.env` or installation scripts.
+- Pull verified Linux amd64/arm64 Backend and Admin images directly from GHCR.
+- Validate required configuration before database initialization; backend startup handles schema migrations, administrator and storage bucket setup.
+- Document preservation of existing keys and volumes, including migration from older Compose archives.
+
+This release adds no database migrations and keeps the v0.2.0 MCP API contract. See [Upgrade and Rollback](release-rollback.md).
+
 ## v0.2.1
 
 This patch includes the [complete Compose example](deployment.md#compose-example) and the fix for clipped MCP configuration panels on narrow Admin screens. All five repositories and deployment downloads use v0.2.1.

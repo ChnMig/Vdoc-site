@@ -1,0 +1,123 @@
+# Save this file as docker-compose.yml. Replace every CHANGE_ME value below.
+# Keep this private file, its credentials, and the project name when upgrading.
+# Use Docker Compose v2: docker compose pull && docker compose up -d
+name: vdoc
+
+x-backend-image: &backend-image ghcr.io/chnmig/vdoc:v0.3.0
+x-admin-image: &admin-image ghcr.io/chnmig/vdoc-admin:v0.3.0
+
+# All deployment settings are here; no .env or initialization script is needed.
+# A literal dollar sign in any value must be written as $$ for Docker Compose.
+x-backend-environment: &backend-environment
+  model: release
+  VDOC_SERVER_PORT: "8080"
+  VDOC_SERVER_PID_FILE: ""
+  VDOC_SERVER_CORS_ALLOWED_ORIGINS: "http://127.0.0.1:8081,http://localhost:8081"
+  VDOC_DATABASE_ENABLED: "true"
+  VDOC_DATABASE_HOST: postgres
+  VDOC_DATABASE_PORT: "5432"
+  VDOC_DATABASE_NAME: &database-name vdoc
+  VDOC_DATABASE_USER: &database-user vdoc
+  VDOC_DATABASE_PASSWORD: &database-password "CHANGE_ME_DATABASE_PASSWORD"
+  VDOC_DATABASE_SSL_MODE: disable
+  VDOC_STORAGE_ENABLED: "true"
+  VDOC_STORAGE_ENDPOINT: rustfs:9000
+  VDOC_STORAGE_BUCKET: vdoc
+  VDOC_STORAGE_ACCESS_KEY: &storage-user "CHANGE_ME_STORAGE_ACCESS_KEY"
+  VDOC_STORAGE_SECRET_KEY: &storage-password "CHANGE_ME_STORAGE_SECRET_KEY"
+  VDOC_STORAGE_USE_SSL: "false"
+  VDOC_STORAGE_PATH_STYLE: "true"
+  # Use independent random keys of at least 32 characters. Preserve on upgrade.
+  VDOC_JWT_KEY: "CHANGE_ME_JWT_KEY"
+  VDOC_MCP_TOKEN_CIPHER_KEY: "CHANGE_ME_MCP_ENCRYPTION_KEY"
+  VDOC_MCP_TOKEN_CIPHER_KID: local-aes-gcm-v1
+  VDOC_MCP_TOKEN_CIPHER_KEYRING: "{}"
+  VDOC_AUTH_ALLOW_REGISTRATION: "false"
+  VDOC_INITIAL_ADMIN_EMAIL: "admin@example.com"
+  VDOC_INITIAL_ADMIN_NAME: "Vdoc Admin"
+  VDOC_INITIAL_ADMIN_PASSWORD: "CHANGE_ME_INITIAL_ADMIN_PASSWORD"
+
+services:
+  # Runs the backend's read-only validator before PostgreSQL initializes data.
+  config-check:
+    image: *backend-image
+    command: ["--check-config"]
+    environment: *backend-environment
+    restart: "no"
+    healthcheck:
+      disable: true
+
+  postgres:
+    image: postgres:18@sha256:06cad38a5d9f5d24b4d83d86def30795d5e4b757fedbf5281172b576dedcd941
+    restart: unless-stopped
+    depends_on:
+      config-check:
+        condition: service_completed_successfully
+    environment:
+      POSTGRES_DB: *database-name
+      POSTGRES_USER: *database-user
+      POSTGRES_PASSWORD: *database-password
+      TZ: Asia/Shanghai
+    volumes:
+      - postgres-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  rustfs:
+    image: rustfs/rustfs:1.0.0-beta.10@sha256:60f4f2f41ce95216f8cac676e69f9d90c0bfec458a3bc7fd7fb9b7c2452ac57a
+    restart: unless-stopped
+    depends_on:
+      config-check:
+        condition: service_completed_successfully
+    environment:
+      RUSTFS_VOLUMES: /data
+      RUSTFS_ADDRESS: 0.0.0.0:9000
+      RUSTFS_CONSOLE_ADDRESS: 0.0.0.0:9001
+      RUSTFS_CONSOLE_ENABLE: "true"
+      RUSTFS_ACCESS_KEY: *storage-user
+      RUSTFS_SECRET_KEY: *storage-password
+    volumes:
+      - rustfs-data:/data
+      - rustfs-logs:/app/logs
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://127.0.0.1:9000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 40s
+
+  backend:
+    image: *backend-image
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rustfs:
+        condition: service_healthy
+    environment: *backend-environment
+    ports:
+      - "127.0.0.1:8080:8080"
+
+  admin:
+    image: *admin-image
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    environment:
+      VDOC_ADMIN_API_BASE_URL: "http://127.0.0.1:8080"
+    ports:
+      - "127.0.0.1:8081:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+
+volumes:
+  postgres-data:
+  rustfs-data:
+  rustfs-logs:

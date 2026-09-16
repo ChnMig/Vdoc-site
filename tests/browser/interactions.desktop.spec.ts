@@ -1,19 +1,18 @@
 import { expect, test } from '@playwright/test'
 import { createHash } from 'node:crypto'
-import { execFileSync } from 'node:child_process'
-import { previewBasePath, previewOrigin, routeUrl } from './support/preview'
+import { previewBasePath, routeUrl } from './support/preview'
 
 test.describe('focused desktop interactions', () => {
-  test('serves the Compose archive and matching checksum inside the selected base', async ({
+  test('serves the standalone Compose YAML and matching checksum inside the selected base', async ({
     request,
   }) => {
-    const archiveName = 'vdoc-compose-bootstrap-v0.2.1.tar.gz'
-    // VitePress preview marks .gz as HTTP gzip. Read the wire bytes like the
-    // documented curl -fLO command, without an HTTP client's auto-decompression.
-    const archive = execFileSync('curl', [
-      '-fsS',
-      `${previewOrigin}${previewBasePath}downloads/${archiveName}`,
-    ])
+    const archiveName = 'docker-compose.yml'
+    const response = await request.get(
+      `${previewBasePath}downloads/${archiveName}`,
+    )
+    expect(response.ok()).toBe(true)
+    const archive = await response.body()
+    expect(archive.toString()).toContain('ghcr.io/chnmig/vdoc:')
     const checksum = await request.get(
       `${previewBasePath}downloads/${archiveName}.sha256`,
     )
@@ -28,7 +27,7 @@ test.describe('focused desktop interactions', () => {
       deployment: '/deployment',
       firstUse: '/admin-usage',
       nextAction: '发布第一份文档并让 Agent 查询',
-      initialAdminHeading: '2. 生成配置，设置登录账号',
+      initialAdminHeading: '2. 填写配置和登录账号',
       firstQueryHeading: '7. 让 Agent 读取文档',
     },
     {
@@ -36,7 +35,7 @@ test.describe('focused desktop interactions', () => {
       deployment: '/en/deployment',
       firstUse: '/en/admin-usage',
       nextAction: 'publish your first document and query it with an agent',
-      initialAdminHeading: '2. Generate Configuration and Set Your Login',
+      initialAdminHeading: '2. Fill In Settings and Your Login',
       firstQueryHeading: '7. Ask Your Agent to Read the Document',
     },
   ]) {

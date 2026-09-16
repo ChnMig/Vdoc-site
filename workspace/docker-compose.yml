@@ -58,7 +58,7 @@ services:
       start_period: 40s
 
   backend:
-    image: vdoc-backend:v0.2.1
+    image: vdoc-backend:v0.3.0
     build:
       context: ./Vdoc
       args:
@@ -101,7 +101,7 @@ services:
       - "${VDOC_PUBLISH_ADDRESS:-127.0.0.1}:${VDOC_BACKEND_HOST_PORT:-8080}:${VDOC_BACKEND_CONTAINER_PORT:-8080}"
 
   admin:
-    image: vdoc-admin:v0.2.1
+    image: vdoc-admin:v0.3.0
     build:
       context: ./Vdoc-admin
       args:
