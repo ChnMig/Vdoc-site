@@ -20,7 +20,7 @@ docker compose exec -T postgres \
 
 从目标版本的 [Site Release](https://github.com/ChnMig/Vdoc-site/releases) 查看新的 `docker-compose.yml`。把其中 `x-backend-image` 和 `x-admin-image` 两行更新到现有私密 YAML 中，并按版本说明合并新增配置。不要直接用下载文件覆盖已填写的配置。
 
-保留 PostgreSQL 密码、存储凭据、JWT/MCP 密钥、管理员设置、端口、项目名和数据卷。`v0.3.0` 改进了单文件部署与镜像分发，没有新增数据库迁移。
+保留 PostgreSQL 密码、存储凭据、JWT/MCP 密钥、管理员设置、端口、项目名和数据卷。`v0.3.1` 包含迁移 `007_parser_facts_and_history_pages.sql`，新增解析版本字段、历史查询索引和 Diff 的 `must_handle` 字段。升级前完成上面的备份；本版不会自动执行数据库降级。
 
 ```sh
 docker compose pull

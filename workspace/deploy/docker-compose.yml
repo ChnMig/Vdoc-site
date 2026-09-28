@@ -3,8 +3,8 @@
 # Use Docker Compose v2: docker compose pull && docker compose up -d
 name: vdoc
 
-x-backend-image: &backend-image ghcr.io/chnmig/vdoc:v0.3.0
-x-admin-image: &admin-image ghcr.io/chnmig/vdoc-admin:v0.3.0
+x-backend-image: &backend-image ghcr.io/chnmig/vdoc:v0.3.1
+x-admin-image: &admin-image ghcr.io/chnmig/vdoc-admin:v0.3.1
 
 # All deployment settings are here; no .env or initialization script is needed.
 # A literal dollar sign in any value must be written as $$ for Docker Compose.

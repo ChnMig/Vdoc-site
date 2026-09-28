@@ -278,3 +278,25 @@ GET       /api/v1/open/document-shares/{share_id}/versions/{version_id}/download
 - `Authorization` header 不要加 `Bearer`。
 - MCP Token 不要放进 CLI args，应该放 Agent MCP config 的 `env`。
 - 如果 Agent 声称已经发布版本，先确认它只是提交 Draft，v0.2 不支持 MCP direct publish。
+
+## 历史分页与兼容性判断
+
+版本、接口、草稿与 Diff 列表支持 `page_size=1..200`、`offset=0..1000000` 和 `search`（最多 256 字节），返回 `total` 与 `has_more`。不传 `page_size` 时保留旧列表契约。草稿搜索匹配版本名称；Diff 搜索匹配任一侧版本名称。
+
+分页草稿列表仅返回元数据，不含正文、`diff_preview`、`revision` 或 `review_revision`；编辑与审核前必须读取 `/drafts/{id}/content/raw` 的同一快照。分页 Diff 列表仅含 ID、版本对、状态和时间；详情 `/diffs/{id}` 提供当前摘要与完整明细。工作台翻页不会丢失已选草稿或历史 Diff。
+
+OpenAPI 支持本地 Path Item 引用与精确数字。3.1 联合类型按集合比较；收窄请求类型、放宽响应类型、取消响应字段必有保证、扩展响应枚举会标记为破坏性变化。新增可选请求体不会使旧调用必须填写其内部字段。数值、长度与数组边界及可判定的组合分支也参与比较。无法精确分类的 Schema 约束变化显示“Schema 兼容性需要人工检查”，并设置 `must_handle=true`；它不表示已证明兼容。
+
+解析设置节点、深度和展开大小预算并响应取消。升级 backend 时会应用迁移 `007_parser_facts_and_history_pages`；历史派生索引和差异在读取详情时升级，保留已发布原文与既有接口 ID。MCP 工具名称、参数和 scope 不变。
+
+原文、规范化/稳定正文和生成的 Diff 快照分别受存储读取上限约束（`server.max_body_size`，默认 10 MiB）。超限会在写入该对象前返回 `INVALID_ARGUMENT`，清理本次暂存对象并保留原有草稿和发布状态；原文未超限不代表规范化后也未超限。OpenAPI `paths` 中的 `x-*` 扩展保留为数据，不计为接口路径；真实路径仍须以 `/` 开头。
+
+本地 JSON Pointer 支持数组索引、百分号编码及 `~0` / `~1` 转义。参数 `content`、没有 `properties` 定义的 `required`、已有媒体类型新增 Schema 约束都会参与比较；业务属性或字面对象中的 `description`、`title`、`x-*` 不会被当作注释删除。
+
+数字必须适合 PostgreSQL JSONB：规范化后整数部分最多 131,072 位，小数部分最多 16,383 位；超范围会在创建或更新草稿时返回 `INVALID_ARGUMENT`；字符串和对象键中的 NUL 字符也会提前拒绝。Private REST Diff 明细的 `old_value_json` / `new_value_json`、接口详情的 `json_preview` 提供保留精度的 JSON 展示文本，原结构化字段仍保留。Admin 使用这些文本展示大整数、小数及数字与字符串的区别。
+
+Schema 字面值中的空数组与 `null` 分别比较，包括嵌套 `const` 和枚举交集。有效服务器地址/变量、响应头及请求媒体编码变化会生成 `must_handle=true` 的人工检查项；说明文字和 Schema 注释不会触发这些检查。响应头名称不区分大小写，忽略 Header 映射中的 `Content-Type`；缺省服务器与 `/` 等价。
+
+`nullable` 仅在 OpenAPI 3.0 中影响标准验证，3.1 使用联合类型表达可空值；原始详情中的关键字仍保留。`default` 响应及表单编码字段内的本地引用均会展开。当前派生事实版本为 8，历史详情读取时会重新计算。令牌鉴权仅更新使用时间，撤销仍校验生命周期版本并保留较新的使用记录，避免并发调用干扰撤销。
+
+数值上下界按实际有效的包含/排除边界比较，并区分 OpenAPI 3.0 的布尔式排除标志；嵌套 Schema 中的冗余数值边界也视为等价。组合 Schema 同时增删分支时生成必须处理的人工检查项，避免仅凭分支替换就认定破坏性变化。OpenAPI `x-*` 扩展中的 `$ref` 保留为普通数据，响应集合中的扩展也不会被当成状态码；真正以 `x-` 开头的业务属性与响应头仍会解析引用并参与比较。

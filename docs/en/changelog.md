@@ -2,6 +2,15 @@
 
 This page records the current user-visible v0.2 state covered by the VitePress docs. It is not a marketing list; it is what users should know before evaluation, deployment, or pilot use.
 
+## v0.3.1
+
+- Preserve exact OpenAPI numbers and semantic differences across schema processing, MCP responses, and the workbench, including large integers and high-precision decimals.
+- Improve history pagination, endpoint fact reads, token authentication, and password hashing lock scope; fix historical selections, draft conflicts, and review snapshot handling.
+- Fix UTF-8 password sign-in, whitespace validation when creating users, keyboard skip navigation, and fallback fonts when external fonts are unavailable.
+- Propagate MCP cancellation to the backend HTTP connection, with regression coverage for numeric transport, cancellation, concurrent permissions, and browser workflows.
+
+This release includes migration `007_parser_facts_and_history_pages.sql`, adding parser metadata, history query indexes, and the Diff `must_handle` field. Back up the database and object storage before following [Upgrade and Rollback](release-rollback.md). The 22-tool MCP contract remains compatible.
+
 ## v0.3.0
 
 - Deploy and update with a single [docker-compose.yml](deployment.md): all settings and secrets are in YAML, with no `.env` or installation scripts.

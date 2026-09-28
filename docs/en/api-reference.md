@@ -278,3 +278,25 @@ Public requests use `Authorization: VdocShare {secret}`. Password-protected link
 - Do not add `Bearer` to `Authorization`.
 - Do not put MCP Tokens in CLI args. Put them in Agent MCP config `env`.
 - If an Agent says it published a Version, confirm it only submitted a Draft. v0.2 does not support MCP direct publish.
+
+## History pagination and compatibility
+
+Version, endpoint, draft and Diff lists accept `page_size=1..200`, `offset=0..1000000` and `search` (up to 256 bytes), returning `total` and `has_more`. Omitting `page_size` preserves the legacy list contract. Draft search matches version names; Diff search matches either version name.
+
+Paged draft lists contain metadata only, without content, `diff_preview`, `revision` or `review_revision`. Read `/drafts/{id}/content/raw` for the snapshot used to edit or review. Paged Diff lists contain identity, version pair, status and timestamps; `/diffs/{id}` returns the current summary and full items. Admin keeps the selected draft or historical Diff when changing pages.
+
+OpenAPI supports local Path Item references and exact decimal numbers. 3.1 type unions are compared as sets: narrowing requests, widening responses, removing a required response guarantee and expanding response enums are breaking changes. Adding an optional request body does not require existing callers to supply its nested required fields. Bounds and supported alternative sets are also compared. Constraints that cannot be classified precisely emit “Schema compatibility requires manual review” with `must_handle=true`; this is not proof of compatibility.
+
+Parsing has cumulative node, depth and expansion budgets and observes cancellation. Backend upgrades apply migration `007_parser_facts_and_history_pages`; historical derived indexes and Diffs refresh when details are read, preserving published source content and existing endpoint IDs. MCP tool names, arguments and scopes are unchanged.
+
+Local JSON Pointers support array indices, percent decoding and `~0` / `~1` escapes. Parameter `content`, `required` names without matching `properties`, and new schemas on existing media types participate in comparisons. Property names and literal-object keys such as `description`, `title` and `x-*` remain significant.
+
+Numbers must fit PostgreSQL JSONB: canonical values may have at most 131,072 integer digits and 16,383 fractional digits. Values outside this range return `INVALID_ARGUMENT` on draft creation or update, as do NUL characters in strings or object keys. Private REST Diff items expose `old_value_json` / `new_value_json`, and endpoint details expose `json_preview`, for precise JSON text rendering while retaining the original structured fields. Admin uses these strings to preserve large integers, decimals and the distinction between numbers and strings.
+
+Schema literal comparisons distinguish empty arrays from `null`, including nested `const` values and enum intersections. Effective server URLs/variables, response header contracts and request media encodings produce manual review items with `must_handle=true` when changed. Descriptions and schema annotations do not trigger these checks. Header names are case-insensitive, `Content-Type` entries in Header maps are ignored, and an absent server list is equivalent to `/`.
+
+`nullable` affects standard validation only in OpenAPI 3.0; 3.1 expresses nullability through type unions, while original endpoint details retain the keyword. Local references inside `default` responses and form encoding entries are resolved. Derived facts now use parser version 8 and historical details refresh on read. Token usage updates the last-use timestamp without changing the lifecycle concurrency version. Revocation preserves newer usage records while rejecting stale lifecycle writes.
+
+Numeric bounds compare their effective inclusive/exclusive limits and honor OpenAPI 3.0 boolean exclusion flags; redundant numeric bounds remain equivalent inside nested schemas. Simultaneous branch additions and removals require manual review instead of classifying a replacement alone as breaking. `$ref` keys inside OpenAPI `x-*` extensions remain literal data, and response-map extensions are not status codes. Real property and header names beginning with `x-` still resolve references and participate in comparison.
+
+Raw content, normalized/stable content and generated Diff snapshots must each fit the storage read limit (`server.max_body_size`, default 10 MiB). An oversized object returns `INVALID_ARGUMENT` before it is written; temporary objects are cleaned up and existing draft/version state is preserved. A source below the request limit can still exceed the storage limit after normalization. OpenAPI `paths` extensions beginning with `x-` remain literal data and are not indexed as paths; real paths still require a leading `/`.

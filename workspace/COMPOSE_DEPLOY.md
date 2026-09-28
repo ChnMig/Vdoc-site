@@ -13,7 +13,7 @@ Open `http://127.0.0.1:8081` and sign in with your configured initial administra
 
 The standalone source is `deploy/docker-compose.yml`. The root `docker-compose.yml` and instructions below support source development and release verification.
 
-The optional [source workspace archive](https://chnmig.github.io/Vdoc-site/downloads/vdoc-compose-bootstrap-v0.3.0.tar.gz) is a Docker Compose bootstrap, for source builds and offline installation. It supplies the Compose/configuration files and a
+The optional [source workspace archive](https://chnmig.github.io/Vdoc-site/downloads/vdoc-compose-bootstrap-v0.3.1.tar.gz) is a Docker Compose bootstrap, for source builds and offline installation. It supplies the Compose/configuration files and a
 lock that fetches reviewed source commits; `docker compose ... up -d --build`
 builds Backend/Admin locally and starts the four-service self-hosted stack.
 

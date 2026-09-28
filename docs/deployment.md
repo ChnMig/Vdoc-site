@@ -17,7 +17,7 @@ curl -fLO https://chnmig.github.io/Vdoc-site/downloads/docker-compose.yml
 chmod 600 docker-compose.yml
 ```
 
-官网提供当前正式版。需要固定版本时，从 [v0.3.0 Release](https://github.com/ChnMig/Vdoc-site/releases/tag/v0.3.0) 下载同名 YAML；附带的 `docker-compose.yml.sha256` 可用于校验下载内容。
+官网提供当前正式版。需要固定版本时，从 [v0.3.1 Release](https://github.com/ChnMig/Vdoc-site/releases/tag/v0.3.1) 下载同名 YAML；附带的 `docker-compose.yml.sha256` 可用于校验下载内容。
 
 <div id="initial-admin"></div>
 

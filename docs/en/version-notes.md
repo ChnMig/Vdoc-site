@@ -2,6 +2,14 @@
 
 These notes describe the v0.2 boundary. Before planning a pilot, writing Agent instructions, publishing packages, or upgrading, confirm that this scope is not being overstated.
 
+## v0.3.1
+
+This patch fixes exact contract numbers, semantic differences, history pagination, password input, and authenticated-page accessibility. It also improves MCP cancellation and backend concurrency. Published facts retain their original JSON numbers in MCP responses.
+
+Upgrade applies `007_parser_facts_and_history_pages.sql`, adding parser metadata, history query indexes, and the Diff `must_handle` field. Back up PostgreSQL and object storage first; rolling back an image does not reverse database migrations. See [Upgrade and Rollback](release-rollback.md).
+
+Backend, Admin, Site, MCP, Skill, and Compose downloads use `v0.3.1`. The existing 22 MCP tools remain compatible; human review, permissions, and bcrypt cost 12 remain unchanged.
+
 ## v0.3.0
 
 - Deploy and update with a single [docker-compose.yml](deployment.md): all settings and secrets are in YAML, with no `.env` or installation scripts.

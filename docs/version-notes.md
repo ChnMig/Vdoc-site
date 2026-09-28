@@ -2,6 +2,14 @@
 
 本页说明 v0.2 的能力边界。规划试点、写 Agent 指令、发布包或升级前，先确认这里的边界没有被误读。
 
+## v0.3.1
+
+本次补丁修复契约数字精度、语义差异、历史分页、密码输入与认证页可访问性，并改进 MCP 取消和后端并发处理。已发布事实经 MCP 返回时保留原始 JSON 数字。
+
+升级会自动执行迁移 `007_parser_facts_and_history_pages.sql`，新增解析版本信息、历史查询索引和 Diff 的 `must_handle` 字段。升级前备份 PostgreSQL 与对象存储；回退镜像不会撤销数据库迁移。操作步骤见[升级与回滚](release-rollback.md)。
+
+Backend、Admin、Site、MCP、Skill 与 Compose 下载统一为 `v0.3.1`。现有 22 项 MCP 工具保持兼容；人工审核发布、权限和 bcrypt cost 12 保持不变。
+
 ## v0.3.0
 
 - 通过单个 [docker-compose.yml](deployment.md) 部署和更新，配置与密钥直接写在 YAML 中，无需 `.env` 或安装脚本。
