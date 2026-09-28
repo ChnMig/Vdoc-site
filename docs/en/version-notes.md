@@ -2,6 +2,14 @@
 
 These notes describe the v0.2 boundary. Before planning a pilot, writing Agent instructions, publishing packages, or upgrading, confirm that this scope is not being overstated.
 
+## v0.3.2
+
+This patch integrates request log context, parameter rebinding cleanup, transport-abort handling, and the Base64URL random-string helper from the Go scaffold. Both backend READMEs identify [ChnMig/go-template](https://github.com/ChnMig/go-template), under `http-services/`, as the source. The reviewed upstream commit is `f8ab237`.
+
+Logs continue to omit request bodies, credentials, and document contents. Ordinary API errors retain the unified business envelope; aborted connections or streams record a cancellation and terminate transport. Existing REST/MCP APIs, the 22 MCP tools, and issued token formats remain compatible.
+
+Backend, Admin, Site, MCP, Skill, and Compose downloads use `v0.3.2`. No database migration is added beyond v0.3.1. Upgrades from older versions still apply pending migrations, including 007. See [Upgrade and Rollback](release-rollback.md).
+
 ## v0.3.1
 
 This patch fixes exact contract numbers, semantic differences, history pagination, password input, and authenticated-page accessibility. It also improves MCP cancellation and backend concurrency. Published facts retain their original JSON numbers in MCP responses.

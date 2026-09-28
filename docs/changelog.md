@@ -2,6 +2,15 @@
 
 本页记录当前 VitePress 文档覆盖的 v0.2 用户可见状态。它不是营销列表，而是评估、部署和试点前需要知道的变化。
 
+## v0.3.2
+
+- 同步 [go-template/http-services](https://github.com/ChnMig/go-template/tree/main/http-services) 至 `f8ab237`，在后端中英文 README 中标注脚手架来源和同步记录。
+- 统一请求日志上下文，补齐标准 context 的追踪 ID 回退；参数重绑失败时清除旧值，继续对密码、令牌和文档正文保持日志脱敏。
+- 连接断开和请求中止按取消处理，避免追加错误响应或空成功响应；新增 Base64URL 随机字符串工具与回归测试。
+- 五个仓库、镜像、Compose 下载和 Agent 安装引用统一为 v0.3.2。
+
+相对 v0.3.1 不新增数据库迁移，现有 REST/MCP 接口和令牌格式保持兼容。升级流程见[升级与回滚](release-rollback.md)。
+
 ## v0.3.1
 
 - 修复 OpenAPI 数字精度、语义差异和 Schema 边界处理，MCP 与工作台保留大整数、高精度小数及版本差异的真实值。

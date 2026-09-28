@@ -20,7 +20,7 @@ Also back up the RustFS `rustfs-data` volume or storage bucket. External databas
 
 Read `docker-compose.yml` in the target [Site Release](https://github.com/ChnMig/Vdoc-site/releases). Copy its `x-backend-image` and `x-admin-image` lines into your existing private YAML, and merge any new settings described by the release. Do not overwrite your configured file with an unedited download.
 
-Preserve PostgreSQL and storage credentials, JWT/MCP keys, administrator settings, ports, project name, and volumes. `v0.3.1` includes migration `007_parser_facts_and_history_pages.sql`, adding parser metadata, history query indexes, and the Diff `must_handle` field. Complete the backup above before upgrading; this release does not automatically downgrade the database.
+Preserve PostgreSQL and storage credentials, JWT/MCP keys, administrator settings, ports, project name, and volumes. `v0.3.2` adds no migration beyond v0.3.1. Upgrades from v0.3.0 or earlier apply the pending `007_parser_facts_and_history_pages.sql`, adding parser metadata, history query indexes, and the Diff `must_handle` field. Complete the backup above before upgrading; this release does not automatically downgrade the database.
 
 ```sh
 docker compose pull

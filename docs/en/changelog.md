@@ -2,6 +2,15 @@
 
 This page records the current user-visible v0.2 state covered by the VitePress docs. It is not a marketing list; it is what users should know before evaluation, deployment, or pilot use.
 
+## v0.3.2
+
+- Sync [go-template/http-services](https://github.com/ChnMig/go-template/tree/main/http-services) through `f8ab237`, and identify the scaffold source and synchronization record in both backend READMEs.
+- Centralize request log metadata and standard-context trace fallback; clear stale values after failed parameter rebinding while preserving credential and document-content redaction.
+- Treat disconnected and aborted requests as cancellations without appending an error envelope or empty success response; add a Base64URL random-string helper and regression coverage.
+- Align all five repositories, images, Compose downloads, and Agent install references to v0.3.2.
+
+No database migration is added beyond v0.3.1. Existing REST/MCP APIs and token formats remain compatible. See [Upgrade and Rollback](release-rollback.md).
+
 ## v0.3.1
 
 - Preserve exact OpenAPI numbers and semantic differences across schema processing, MCP responses, and the workbench, including large integers and high-precision decimals.

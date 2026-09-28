@@ -17,7 +17,7 @@ curl -fLO https://chnmig.github.io/Vdoc-site/downloads/docker-compose.yml
 chmod 600 docker-compose.yml
 ```
 
-The website serves the current stable release. For a specific version, download the same YAML from the [v0.3.1 Release](https://github.com/ChnMig/Vdoc-site/releases/tag/v0.3.1). Its `docker-compose.yml.sha256` attachment can verify the downloaded bytes.
+The website serves the current stable release. For a specific version, download the same YAML from the [v0.3.2 Release](https://github.com/ChnMig/Vdoc-site/releases/tag/v0.3.2). Its `docker-compose.yml.sha256` attachment can verify the downloaded bytes.
 
 <div id="initial-admin"></div>
 

@@ -78,7 +78,7 @@
       "command": "npx",
       "args": [
         "--yes",
-        "github:ChnMig/Vdoc-mcp#7867a94e934e881716fc29bcd5d73fd3fc4ec59b"
+        "github:ChnMig/Vdoc-mcp#0199696fc175be40023d498948c1a4732df453f4"
       ],
       "env": {
         "VDOC_BASE_URL": "http://127.0.0.1:8080",
@@ -92,7 +92,7 @@
 ```toml [Codex]
 [mcp_servers.vdoc]
 command = "npx"
-args = ["--yes", "github:ChnMig/Vdoc-mcp#7867a94e934e881716fc29bcd5d73fd3fc4ec59b"]
+args = ["--yes", "github:ChnMig/Vdoc-mcp#0199696fc175be40023d498948c1a4732df453f4"]
 startup_timeout_sec = 60
 tool_timeout_sec = 180
 
