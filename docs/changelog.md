@@ -2,6 +2,13 @@
 
 本页记录当前 VitePress 文档覆盖的 v0.2 用户可见状态。它不是营销列表，而是评估、部署和试点前需要知道的变化。
 
+## v0.3.3
+
+- 单文件部署改用 Backend/Admin `latest`、PostgreSQL `18` 和 RustFS `1.0.0`；执行 pull/up 更新容器。
+- 增加两个域名分别反代前端 8081、后端 8080 的 Caddy 示例和首次使用流程。
+- 后端显式支持通配 CORS，默认部署允许所有浏览器来源，仍校验登录、MCP 和分享凭证。
+- 稳定发布后维护 `latest` 别名，防止预发布和旧版本补发覆盖新版。
+
 ## v0.3.2
 
 - 同步 [go-template/http-services](https://github.com/ChnMig/go-template/tree/main/http-services) 至 `f8ab237`，在后端中英文 README 中标注脚手架来源和同步记录。

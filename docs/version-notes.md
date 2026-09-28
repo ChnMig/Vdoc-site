@@ -2,6 +2,14 @@
 
 本页说明 v0.2 的能力边界。规划试点、写 Agent 指令、发布包或升级前，先确认这里的边界没有被误读。
 
+## v0.3.3
+
+单文件 Compose 跟随后端与 Admin 最新稳定镜像，PostgreSQL 跟随 18.x 补丁，RustFS 固定为 1.0.0。镜像引用不再需要逐版手工修改；执行 `docker compose pull` 和 `docker compose up -d --wait` 才会更新运行容器。
+
+[双域名 Caddy 部署](deployment.md#caddy-domain)保留前端 8081、后端 8080 两个端口。前端使用后端 HTTPS 域名，后端 CORS 设为 `*`；认证和授权照常生效。文档包含真实部署验证脚本，覆盖登录、发布、MCP 读取和匿名分享。
+
+v0.3.3 相比 v0.3.2 没有新增应用数据库迁移。升级前备份数据并保留凭据；RustFS 从旧 beta 版本切换为 1.0.0 时同样需要备份对象存储。详见[升级与回滚](release-rollback.md)。
+
 ## v0.3.2
 
 本次补丁合入 Go 脚手架的请求日志上下文、参数重绑清理、连接中断处理和 Base64URL 随机字符串工具，并在后端 README 中明确来源为 [ChnMig/go-template](https://github.com/ChnMig/go-template) 的 `http-services/`。已审阅的上游提交为 `f8ab237`。

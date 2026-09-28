@@ -12,9 +12,11 @@ Before publishing, run `python3 scripts/test-single-compose.py` with the candida
 
 ## 1. Required Checks
 
-For the 0.3.2 release, the Compose archive is `vdoc-compose-bootstrap-v0.3.2.tar.gz`. Update and commit MCP/Skill first, update their install pins in Admin and Site, then commit Admin. Pin Backend/Admin/MCP/Skill commits in the workspace source lock and update `.env.example` build provenance. Keep only the Site commit as `@release`, sync the workspace export, and commit Site last.
+For the 0.3.3 release, the Compose archive is `vdoc-compose-bootstrap-v0.3.3.tar.gz`. Update and commit MCP/Skill first, update their install pins in Admin and Site, then commit Admin. Pin Backend/Admin/MCP/Skill commits in the workspace source lock and update `.env.example` build provenance. Keep only the Site commit as `@release`, sync the workspace export, and commit Site last.
 
-Push the Backend, MCP, Skill, and Admin `v0.3.2` tags before the Site tag. The Site tag build resolves its own tag to its checkout commit, checks all other tags against the committed lock, and includes five exact commit hashes in the archive. A missing or mismatched tag fails the release; there is no fallback to a branch or an older release. Do not move published tags.
+Backend/Admin release jobs promote `latest` only after creating a stable GitHub Release. Repository-wide serialization and numeric stable-version ordering prevent prereleases and older reruns from replacing a newer alias.
+
+Push the Backend, MCP, Skill, and Admin `v0.3.3` tags before the Site tag. The Site tag build resolves its own tag to its checkout commit, checks all other tags against the committed lock, and includes five exact commit hashes in the archive. A missing or mismatched tag fails the release; there is no fallback to a branch or an older release. Do not move published tags.
 
 Backend/Admin tag workflows also build and smoke-test native Linux amd64 and arm64 Docker images. Their compressed Docker archives and per-image SHA-256 files are retained as release assets; the release waits for both image jobs. The bootstrap image loader verifies those files, their platform, and their source-revision labels against the lock.
 
@@ -76,7 +78,7 @@ Backend production or pilot deployments must set:
 - `VDOC_MCP_TOKEN_CIPHER_KEY`
 - `VDOC_MCP_TOKEN_CIPHER_KID`
 - `VDOC_MCP_TOKEN_CIPHER_KEYRING` as a JSON object only while historical keys are needed
-- `VDOC_SERVER_CORS_ALLOWED_ORIGINS` with the exact Admin/public-share HTTP(S) origins that may call the API
+- `VDOC_SERVER_CORS_ALLOWED_ORIGINS` set to `*` for any browser origin, or a comma-separated list for a restricted deployment
 - `VDOC_BACKEND_VERSION`, `VDOC_BACKEND_GIT_COMMIT`, and `VDOC_BACKEND_BUILD_TIME` matching the locked backend source
 - `VDOC_ADMIN_VERSION`, `VDOC_ADMIN_GIT_COMMIT`, and `VDOC_ADMIN_BUILD_TIME` matching the locked Admin source when building the Compose images
 
@@ -86,7 +88,7 @@ Admin deployments must set:
 
 Rules:
 
-- Production CORS values must be comma-separated origins only, for example `https://admin.example.com`; do not use `*`, paths, query strings, fragments, or a trailing slash. Include every deployed Admin/public-share origin and verify an unauthorized preflight receives `403` before release.
+- Standalone deployments use `VDOC_SERVER_CORS_ALLOWED_ORIGINS="*"`. Wildcard responses do not enable credentialed cookies; account, MCP and share authentication remain required. Restricted deployments may instead use comma-separated exact HTTPS origins, without paths, query strings, fragments or a trailing slash. Test the selected mode: wildcard preflights return `204` and `Access-Control-Allow-Origin: *`; restricted-mode unknown origins return `403`.
 - Never commit `.env` files, JWT keys, MCP tokens, storage secrets, database passwords, or Authorization headers.
 - Never paste raw JWTs, MCP tokens, DB passwords, storage secrets, or `Authorization` header values into release notes, logs, screenshots, or issues.
 - Never change a key while keeping the same KID. A KID identifies exactly one key for its lifetime.
@@ -184,7 +186,7 @@ pnpm test:browser
 
 Admin unit tests run in Vitest's jsdom environment; the browser gate additionally requires a locally installed Playwright-compatible browser.
 
-Deploy the generated `dist/` directory or extract the tagged static archive to the chosen hosting platform with SPA fallback. Configure `window.__VDOC_ADMIN_CONFIG__.apiBaseUrl` in the included `runtime-config.js` for a prebuilt archive, or `VITE_VDOC_API_BASE_URL` when building locally, so authenticated and anonymous API calls target the deployed backend. Public share browser links use the Admin origin by default; set `VITE_VDOC_PUBLIC_SHARE_BASE_URL` when building for a separate public-share frontend origin. That frontend origin must also appear in `VDOC_SERVER_CORS_ALLOWED_ORIGINS`.
+Deploy the generated `dist/` directory or extract the tagged static archive to the chosen hosting platform with SPA fallback. Configure `window.__VDOC_ADMIN_CONFIG__.apiBaseUrl` in the included `runtime-config.js` for a prebuilt archive, or `VITE_VDOC_API_BASE_URL` when building locally, so authenticated and anonymous API calls target the deployed backend. Public share browser links use the Admin origin by default; set `VITE_VDOC_PUBLIC_SHARE_BASE_URL` when building for a separate public-share frontend origin. If using restricted CORS instead of `*`, include that frontend origin in `VDOC_SERVER_CORS_ALLOWED_ORIGINS`.
 
 Post-deploy smoke:
 
@@ -314,9 +316,9 @@ The default gate requires four distinct target-user roles and binds them to real
 
 An empty template, `--allow-incomplete` success, a missing/unexercised target-user role, staff-only execution, missing role feedback, missing or hash-mismatched evidence, same-person/unsigned sign-off, a post-signature edit, or automated tests alone means **Pilot not yet validated**. The signing helper is provenance, not cryptographic identity authentication; signer identity and immutable evidence storage remain human controls. Do not convert `failed`, `blocked`, or negative verbatim feedback into a passing release narrative.
 
-Ordinary deployments download `docker-compose.yml` alone, generated from `deploy/docker-compose.yml`. It contains configuration and versioned GHCR image references. The optional developer artifact is a Docker Compose bootstrap. `scripts/vdoc-workspace-package.sh` creates `vdoc-compose-bootstrap-v0.3.2.tar.gz` with normalized order, modes, ownership, timestamps, and gzip metadata. Byte-for-byte reproducibility requires the same tar implementation: BSD tar and GNU tar can encode equivalent headers differently. Verify the official CI archive against its published SHA-256; when comparing a local build from another platform, also compare file contents and parsed metadata. The archive contains Compose/configuration files, the root MIT license, release tools, and the exact source lock; users build Backend/Admin images locally with Docker.
+Ordinary deployments download `docker-compose.yml` alone, generated from `deploy/docker-compose.yml`. It contains configuration and stable `latest` GHCR application references, PostgreSQL `18`, and RustFS `1.0.0`. A versioned YAML download preserves the configuration source; its rolling image references are resolved at pull time. Record deployed image digests for rollback, or replace the two application aliases with the desired immutable release tag. The optional developer artifact is a Docker Compose bootstrap. `scripts/vdoc-workspace-package.sh` creates `vdoc-compose-bootstrap-v0.3.3.tar.gz` with normalized order, modes, ownership, timestamps, and gzip metadata. Byte-for-byte reproducibility requires the same tar implementation: BSD tar and GNU tar can encode equivalent headers differently. Verify the official CI archive against its published SHA-256; when comparing a local build from another platform, also compare file contents and parsed metadata. The archive contains Compose/configuration files, the root MIT license, release tools, and the exact source lock; users build Backend/Admin images locally with Docker.
 
-Vdoc-site provides the public workspace sources and website evaluation downloads; see [README.md](README.md#docker-compose-bootstrap-artifact). Those mutable website snapshots are not an immutable GitHub Release. The `v0.3.2` tag workflow produces the versioned Compose download after verifying all five source tags.
+Vdoc-site provides the public workspace sources and website evaluation downloads; see [README.md](README.md#docker-compose-bootstrap-artifact). Those mutable website snapshots are not an immutable GitHub Release. The `v0.3.3` tag workflow produces the versioned Compose download after verifying all five source tags.
 
 The Site tag workflow publishes both the tarball and `.sha256` file to GitHub Releases automatically. Record the exact tagged URL and checksum, together with any required release sign-off. Substitute an actually published Site tag below, then verify the public bytes instead of trusting the README link:
 
@@ -324,7 +326,7 @@ The Site tag workflow publishes both the tarball and `.sha256` file to GitHub Re
 scripts/vdoc-workspace-release-assets-verify.sh \
   --release-base-url 'https://github.com/ChnMig/Vdoc-site/releases/download/<published-release-tag>' \
   --expected-sha256 <archive-sha256> \
-  --local-artifact dist/vdoc-compose-bootstrap-v0.3.2.tar.gz
+  --local-artifact dist/vdoc-compose-bootstrap-v0.3.3.tar.gz
 ```
 
 The in-lock root digest detects partial control-plane drift but is not an external signature because the lock and verifier ship together. Local package creation does not prove public availability; the release is not closed until the post-publication verifier succeeds.

@@ -1,10 +1,10 @@
 # 升级与回滚
 
-单文件部署由你更新 Compose 中的镜像版本，后端在启动时自动执行新版本附带的数据库迁移。升级沿用原账号、密钥和数据卷。
+单文件部署默认用 `latest` 跟随稳定应用版本，由你执行 `docker compose pull` 和 `docker compose up -d --wait` 更新容器，后端在启动时自动执行新版本附带的数据库迁移。升级沿用原账号、密钥和数据卷。
 
 ## 1. 备份当前配置和数据
 
-保留当前私密 `docker-compose.yml`、镜像版本及 Release 的 `container-image.json`（包含镜像 digest 和源码提交号）。在维护窗口停止写入：
+保留当前私密 `docker-compose.yml`、实际运行的镜像 digest（滚动标签本身不是回滚依据）及 Release 的 `container-image.json`（包含镜像 digest 和源码提交号）。在维护窗口停止写入：
 
 ```sh
 docker compose stop backend admin
@@ -16,21 +16,21 @@ docker compose exec -T postgres \
 
 同时备份 RustFS 的 `rustfs-data` 数据卷或存储桶。外部数据库与对象存储可使用服务商的快照或备份工具。确认备份可恢复，再继续升级。
 
-## 2. 更新两处镜像版本
+## 2. 拉取更新并重建容器
 
-从目标版本的 [Site Release](https://github.com/ChnMig/Vdoc-site/releases) 查看新的 `docker-compose.yml`。把其中 `x-backend-image` 和 `x-admin-image` 两行更新到现有私密 YAML 中，并按版本说明合并新增配置。不要直接用下载文件覆盖已填写的配置。
+默认保持 `x-backend-image` 和 `x-admin-image` 的 `latest`，无需逐次修改 tag。查看 [Site Release](https://github.com/ChnMig/Vdoc-site/releases)，按版本说明合并新增配置；不要覆盖已填写的私密 YAML。若要固定或回退应用版本，将两处应用镜像都改为目标版本 tag 或已保存的 digest。
 
-保留 PostgreSQL 密码、存储凭据、JWT/MCP 密钥、管理员设置、端口、项目名和数据卷。`v0.3.2` 相对 v0.3.1 不新增迁移；从 v0.3.0 或更早版本升级时，会执行尚未应用的 `007_parser_facts_and_history_pages.sql`，新增解析版本字段、历史查询索引和 Diff 的 `must_handle` 字段。升级前完成上面的备份；本版不会自动执行数据库降级。
+保留 PostgreSQL 密码、存储凭据、JWT/MCP 密钥、管理员设置、端口、项目名和数据卷。`v0.3.3` 相对 v0.3.2 不新增应用数据库迁移；从 v0.3.0 或更早版本升级时，会执行尚未应用的 `007_parser_facts_and_history_pages.sql`，新增解析版本字段、历史查询索引和 Diff 的 `must_handle` 字段。升级前完成上面的备份；本版不会自动执行数据库降级。
 
 ```sh
 docker compose pull
-docker compose up -d
+docker compose up -d --wait
 docker compose ps
 ```
 
 新容器会挂载原有数据卷。Backend 自动检查 `schema_migrations`，按顺序执行尚未应用的迁移，并校验已应用迁移的内容。迁移失败会中止启动；不会清空数据库或跳过错误继续提供服务。已完成的迁移不会因重启反复执行。
 
-Vdoc 的迁移只负责应用数据结构，不包含 PostgreSQL 主版本升级。不要顺手修改 PostgreSQL 或 RustFS 版本，除非目标版本提供相应的升级说明。
+Vdoc 的迁移只负责应用数据结构，不包含 PostgreSQL 主版本升级。默认 `postgres:18` 跟随 18.x 补丁，`rustfs/rustfs:1.0.0` 固定版本。跨 PostgreSQL 主版本或更换 RustFS 版本前，需按相应升级说明迁移并验证。
 
 ## 从 v0.2.1 及更早的下载包迁移 {#legacy-compose}
 
@@ -61,6 +61,8 @@ docker compose exec backend /app/vdoc --version
 正常的配置检查容器会退出为 `Exited (0)`。如果检查失败，修正 YAML 后再启动；不要反复删库重试。业务排查可继续阅读[管理端使用](admin-usage.md)、[AI 配置](admin-ai.md)和[MCP 工具](mcp-tools.md)。
 
 ## 回滚
+
+回退到 v0.3.2 或更早的后端时，把 `VDOC_SERVER_CORS_ALLOWED_ORIGINS` 的 `*` 改回实际前端 HTTPS origin；这些旧版尚不支持通配配置。
 
 先停止 Backend 和 Admin，保留当前数据和日志。对照目标版本的升级说明确定旧版是否兼容迁移后的数据库：
 

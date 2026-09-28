@@ -17,6 +17,7 @@ parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--backend-image')
 parser.add_argument('--admin-image')
 parser.add_argument('--legacy-backend-image')
+parser.add_argument('--legacy-storage-image')
 args = parser.parse_args()
 template = (ROOT / 'deploy/docker-compose.yml').read_text()
 backend_source = re.search(r'^x-backend-image: &backend-image (\S+)$', template, re.M).group(1)
@@ -109,6 +110,11 @@ def scenario(legacy=False):
             if legacy:
                 new_image = args.backend_image or backend_source
                 source = source.replace(new_image, args.legacy_backend_image)
+                # Older backends predate explicit wildcard CORS support.
+                source = source.replace('VDOC_SERVER_CORS_ALLOWED_ORIGINS: "*"',
+                                        f'VDOC_SERVER_CORS_ALLOWED_ORIGINS: "http://127.0.0.1:{admin_port}"')
+                if args.legacy_storage_image:
+                    source = source.replace('rustfs/rustfs:1.0.0', args.legacy_storage_image)
                 source = source.replace('command: ["--check-config"]', 'command: ["--version"]')
                 dsn = 'postgres://vdoc:' + quote(db_password, safe='') + '@postgres:5432/vdoc?sslmode=disable'
                 source = source.replace('  VDOC_DATABASE_HOST:', '  VDOC_DATABASE_DSN: "' + dsn + '"\n  VDOC_DATABASE_HOST:')

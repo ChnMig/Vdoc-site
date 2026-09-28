@@ -1,0 +1,9 @@
+# Caddy runs on the same host as the published Compose ports.
+# Replace both domains. Admin's API origin is the backend domain.
+docs.example.com {
+	reverse_proxy 127.0.0.1:8081
+}
+
+api.example.com {
+	reverse_proxy 127.0.0.1:8080
+}

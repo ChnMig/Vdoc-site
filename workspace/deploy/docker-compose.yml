@@ -1,10 +1,12 @@
 # Save this file as docker-compose.yml. Replace every CHANGE_ME value below.
 # Keep this private file, its credentials, and the project name when upgrading.
-# Use Docker Compose v2: docker compose pull && docker compose up -d
+# Follow stable app releases and PostgreSQL 18.x updates with:
+# docker compose pull && docker compose up -d --wait
+# Running containers do not update until you run these commands.
 name: vdoc
 
-x-backend-image: &backend-image ghcr.io/chnmig/vdoc:v0.3.2
-x-admin-image: &admin-image ghcr.io/chnmig/vdoc-admin:v0.3.2
+x-backend-image: &backend-image ghcr.io/chnmig/vdoc:latest
+x-admin-image: &admin-image ghcr.io/chnmig/vdoc-admin:latest
 
 # All deployment settings are here; no .env or initialization script is needed.
 # A literal dollar sign in any value must be written as $$ for Docker Compose.
@@ -12,7 +14,8 @@ x-backend-environment: &backend-environment
   model: release
   VDOC_SERVER_PORT: "8080"
   VDOC_SERVER_PID_FILE: ""
-  VDOC_SERVER_CORS_ALLOWED_ORIGINS: "http://127.0.0.1:8081,http://localhost:8081"
+  # Allow browser clients from any origin; API authentication remains required.
+  VDOC_SERVER_CORS_ALLOWED_ORIGINS: "*"
   VDOC_DATABASE_ENABLED: "true"
   VDOC_DATABASE_HOST: postgres
   VDOC_DATABASE_PORT: "5432"
@@ -48,7 +51,8 @@ services:
       disable: true
 
   postgres:
-    image: postgres:18@sha256:06cad38a5d9f5d24b4d83d86def30795d5e4b757fedbf5281172b576dedcd941
+    # Follow 18.x updates; a PostgreSQL major upgrade requires data migration.
+    image: postgres:18
     restart: unless-stopped
     depends_on:
       config-check:
@@ -67,7 +71,7 @@ services:
       retries: 10
 
   rustfs:
-    image: rustfs/rustfs:1.0.0-beta.10@sha256:60f4f2f41ce95216f8cac676e69f9d90c0bfec458a3bc7fd7fb9b7c2452ac57a
+    image: rustfs/rustfs:1.0.0
     restart: unless-stopped
     depends_on:
       config-check:
@@ -108,6 +112,7 @@ services:
       backend:
         condition: service_healthy
     environment:
+      # With Caddy, use the backend origin, e.g. https://api.example.com (no /api).
       VDOC_ADMIN_API_BASE_URL: "http://127.0.0.1:8080"
     ports:
       - "127.0.0.1:8081:8080"

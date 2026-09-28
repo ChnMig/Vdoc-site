@@ -1,8 +1,8 @@
 {
   "schema_version": 2,
   "name": "vdoc-compose-bootstrap",
-  "version": "0.3.2",
-  "artifact_name": "vdoc-compose-bootstrap-v0.3.2",
+  "version": "0.3.3",
+  "artifact_name": "vdoc-compose-bootstrap-v0.3.3",
   "root_directory": "vdoc-workspace",
   "repository_lock": "workspace.lock.json",
   "files": [
@@ -23,9 +23,11 @@
     "assets/vdoc-logo.png",
     "contracts/mcp-tools-v0.2.json",
     "contracts/pilot-result.schema.json",
+    "deploy/Caddyfile",
     "deploy/docker-compose.yml",
     "docker-compose.yml",
     "scripts/postgres-init-e2e-db.sh",
+    "scripts/test-caddy-deployment.mjs",
     "scripts/test-compose-provisioning.sh",
     "scripts/test-local-bootstrap.sh",
     "scripts/test-pilot-result-verify.sh",
@@ -56,6 +58,7 @@
   ],
   "executables": [
     "scripts/postgres-init-e2e-db.sh",
+    "scripts/test-caddy-deployment.mjs",
     "scripts/test-compose-provisioning.sh",
     "scripts/test-local-bootstrap.sh",
     "scripts/test-pilot-result-verify.sh",

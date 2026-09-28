@@ -100,11 +100,13 @@ if (existsSync(join(site, 'workspace/deploy/docker-compose.yml'))) {
   )
   for (const repository of ['vdoc', 'vdoc-admin']) {
     assert(
-      compose
-        .toString()
-        .split(/\s+/)
-        .includes(`ghcr.io/chnmig/${repository}:${releaseTag}`),
-      'Standalone Compose image version differs from the Site tag',
+      ['latest', releaseTag].some((tag) =>
+        compose
+          .toString()
+          .split(/\s+/)
+          .includes(`ghcr.io/chnmig/${repository}:${tag}`),
+      ),
+      'Standalone Compose must follow latest or the matching Site release',
     )
   }
 }

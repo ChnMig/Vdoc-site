@@ -1,10 +1,10 @@
 # Upgrade and Rollback
 
-For a single-file deployment, you update image versions in Compose and the backend runs migrations included in the new release at startup. Upgrades retain existing accounts, keys, and data volumes.
+For a single-file deployment, Backend/Admin follow stable `latest` images. You run `docker compose pull` and `docker compose up -d --wait` to update containers, and the backend runs migrations included in the new release at startup. Upgrades retain existing accounts, keys, and data volumes.
 
 ## 1. Back Up Configuration and Data
 
-Keep your current private `docker-compose.yml`, image versions, and each Release's `container-image.json` (image digest and source commit). Stop application writes during a maintenance window:
+Keep your current private `docker-compose.yml`, actual running image digests (rolling tags alone cannot identify the previous image), and each Release's `container-image.json` (image digest and source commit). Stop application writes during a maintenance window:
 
 ```sh
 docker compose stop backend admin
@@ -16,21 +16,21 @@ docker compose exec -T postgres \
 
 Also back up the RustFS `rustfs-data` volume or storage bucket. External databases and object storage can use provider snapshots or backup tools. Confirm backups can be restored before continuing.
 
-## 2. Update the Two Image Versions
+## 2. Pull updates and recreate containers
 
-Read `docker-compose.yml` in the target [Site Release](https://github.com/ChnMig/Vdoc-site/releases). Copy its `x-backend-image` and `x-admin-image` lines into your existing private YAML, and merge any new settings described by the release. Do not overwrite your configured file with an unedited download.
+Keep Backend/Admin on `latest` to follow stable application releases. Read [Site Releases](https://github.com/ChnMig/Vdoc-site/releases) and merge any new settings without overwriting the private YAML. To pin or roll back, change both application aliases to the intended release tags or previously recorded digests. Rolling tags alone do not identify the prior running image.
 
-Preserve PostgreSQL and storage credentials, JWT/MCP keys, administrator settings, ports, project name, and volumes. `v0.3.2` adds no migration beyond v0.3.1. Upgrades from v0.3.0 or earlier apply the pending `007_parser_facts_and_history_pages.sql`, adding parser metadata, history query indexes, and the Diff `must_handle` field. Complete the backup above before upgrading; this release does not automatically downgrade the database.
+Preserve PostgreSQL and storage credentials, JWT/MCP keys, administrator settings, ports, project name, and volumes. `v0.3.3` adds no application database migration beyond v0.3.2. Upgrades from v0.3.0 or earlier apply the pending `007_parser_facts_and_history_pages.sql`, adding parser metadata, history query indexes, and the Diff `must_handle` field. Complete the backup above before upgrading; this release does not automatically downgrade the database.
 
 ```sh
 docker compose pull
-docker compose up -d
+docker compose up -d --wait
 docker compose ps
 ```
 
 New containers mount the existing volumes. Backend checks `schema_migrations`, applies pending migrations in order, and validates previously applied migration contents. Migration failure aborts startup; it does not clear data or ignore errors. Completed migrations are not reapplied on each restart.
 
-Vdoc migrations cover application data structures, not PostgreSQL major upgrades. Keep PostgreSQL and RustFS versions unchanged unless the target release includes specific upgrade instructions.
+Vdoc migrations cover application data structures, not PostgreSQL major upgrades. The default `postgres:18` receives 18.x patches, while `rustfs/rustfs:1.0.0` stays fixed. Follow the relevant migration instructions before changing the PostgreSQL major or RustFS version.
 
 ## Migrate from v0.2.1 or Older Archives {#legacy-compose}
 
@@ -61,6 +61,8 @@ Use your configured ports if different. Confirm backend health and version, then
 A completed configuration check normally shows `Exited (0)`. If it fails, correct the YAML before restarting; do not delete the database to retry. See [First Use](admin-usage.md), [Admin AI](admin-ai.md), and [MCP Tools](mcp-tools.md) for product checks.
 
 ## Rollback
+
+When rolling Backend back to v0.3.2 or earlier, replace `VDOC_SERVER_CORS_ALLOWED_ORIGINS="*"` with the exact frontend HTTPS origin; those versions do not support wildcard configuration.
 
 Stop Backend and Admin first, preserving current data and logs. Read the target release's instructions to determine whether the previous version supports the migrated database:
 

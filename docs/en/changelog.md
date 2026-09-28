@@ -2,6 +2,13 @@
 
 This page records the current user-visible v0.2 state covered by the VitePress docs. It is not a marketing list; it is what users should know before evaluation, deployment, or pilot use.
 
+## v0.3.3
+
+- Standalone deployments use Backend/Admin `latest`, PostgreSQL `18` and RustFS `1.0.0`; pull/up updates containers.
+- Document separate frontend/backend Caddy domains on ports 8081/8080 and the first-use workflow.
+- Support explicit wildcard CORS without disabling account, MCP or share authentication.
+- Promote `latest` after stable publication; prereleases and older releases cannot overwrite newer aliases.
+
 ## v0.3.2
 
 - Sync [go-template/http-services](https://github.com/ChnMig/go-template/tree/main/http-services) through `f8ab237`, and identify the scaffold source and synchronization record in both backend READMEs.

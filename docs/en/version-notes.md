@@ -2,6 +2,14 @@
 
 These notes describe the v0.2 boundary. Before planning a pilot, writing Agent instructions, publishing packages, or upgrading, confirm that this scope is not being overstated.
 
+## v0.3.3
+
+Standalone Compose follows the newest stable Backend/Admin images, PostgreSQL 18.x patches, and RustFS 1.0.0. Application image references no longer require editing each release; run `docker compose pull` and `docker compose up -d --wait` to update running containers.
+
+[Two-domain Caddy deployment](deployment.md#caddy-domain) keeps frontend port 8081 and backend port 8080 separate. Admin connects to the backend HTTPS domain, and backend CORS is `*`; authentication and authorization remain required. The deployment smoke script covers real sign-in, publication, MCP reads and anonymous shares.
+
+No application database migration is added beyond v0.3.2. Back up data and retain credentials; moving RustFS from an older beta to 1.0.0 also requires an object-storage backup. See [Upgrade and Rollback](release-rollback.md).
+
 ## v0.3.2
 
 This patch integrates request log context, parameter rebinding cleanup, transport-abort handling, and the Base64URL random-string helper from the Go scaffold. Both backend READMEs identify [ChnMig/go-template](https://github.com/ChnMig/go-template), under `http-services/`, as the source. The reviewed upstream commit is `f8ab237`.

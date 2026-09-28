@@ -9,11 +9,11 @@ docker compose pull
 docker compose up -d
 ```
 
-Open `http://127.0.0.1:8081` and sign in with your configured initial administrator. Backend automatically creates its schema, applies pending migrations, and creates the storage bucket and initial administrator. Ordinary deployments need no `.env`, source lock, installer, or test database script. For upgrades, keep the existing configuration and volumes, update the two application image versions, and repeat `pull` / `up -d` after backing up data. See the [deployment guide](https://chnmig.github.io/Vdoc-site/en/deployment) and [upgrade guide](https://chnmig.github.io/Vdoc-site/en/release-rollback).
+Open `http://127.0.0.1:8081` and sign in with your configured initial administrator. Backend automatically creates its schema, applies pending migrations, and creates the storage bucket and initial administrator. Ordinary deployments need no `.env`, source lock, installer, or test database script. Backend/Admin follow the newest stable `latest` images, PostgreSQL follows `18` patch updates, and RustFS uses `1.0.0`. Back up data, keep the existing configuration and volumes, then repeat `pull` / `up -d --wait` to update. Running containers are not updated automatically. For a public domain, use the two-domain [Caddy configuration](https://chnmig.github.io/Vdoc-site/en/deployment#caddy-domain). See the [deployment guide](https://chnmig.github.io/Vdoc-site/en/deployment) and [upgrade guide](https://chnmig.github.io/Vdoc-site/en/release-rollback).
 
 The standalone source is `deploy/docker-compose.yml`. The root `docker-compose.yml` and instructions below support source development and release verification.
 
-The optional [source workspace archive](https://chnmig.github.io/Vdoc-site/downloads/vdoc-compose-bootstrap-v0.3.2.tar.gz) is a Docker Compose bootstrap, for source builds and offline installation. It supplies the Compose/configuration files and a
+The optional [source workspace archive](https://chnmig.github.io/Vdoc-site/downloads/vdoc-compose-bootstrap-v0.3.3.tar.gz) is a Docker Compose bootstrap, for source builds and offline installation. It supplies the Compose/configuration files and a
 lock that fetches reviewed source commits; `docker compose ... up -d --build`
 builds Backend/Admin locally and starts the four-service self-hosted stack.
 
@@ -41,7 +41,7 @@ docker compose --env-file .env exec backend /app/vdoc --version
 jq -r '.repositories[] | select(.path == "Vdoc") | .commit' workspace.lock.json
 ```
 
-`dev`, `unknown`, and a `-dirty` Git commit are not release provenance. All base images in the supported Dockerfiles, Compose files, and backend CI service are pinned with OCI digests.
+`dev`, `unknown`, and a `-dirty` Git commit are not release provenance. Source-build Dockerfiles, the root development Compose, and backend CI retain OCI digest pins. The ordinary standalone deployment follows Backend/Admin `latest`, PostgreSQL `18`, and RustFS `1.0.0`.
 
 PostgreSQL 18 stores data below a major-version-specific directory, so the named volume is mounted at `/var/lib/postgresql`, not `/var/lib/postgresql/data`. If an existing `postgres-data` volume was created by PostgreSQL 17 or earlier, do not start it with PostgreSQL 18 and do not delete it with `down -v`. Back it up and complete a documented `pg_upgrade` or dump/restore migration first; Compose does not migrate database major versions automatically.
 
@@ -79,3 +79,5 @@ scripts/vdoc-release-dry-run.sh
 ```
 
 The dry-run covers all five repositories and both supported Site base paths. It does not publish, deploy, push images, create git refs, or start the Compose stack. Live PostgreSQL/RustFS E2E remains opt-in via `--include-live` and requires already-running disposable services.
+
+To verify the documented two-domain Caddy deployment with real browser login, publishing, MCP and anonymous sharing, install the Admin development dependencies and Chromium, then run `node scripts/test-caddy-deployment.mjs`. It creates isolated containers and volumes, uses local HTTPS certificates only for the test, and removes its resources afterward. Image overrides `--backend-image` and `--admin-image` allow testing candidates before publication.

@@ -66,6 +66,11 @@ jobs:
           for image in vdoc vdoc-admin; do
             docker buildx imagetools inspect "ghcr.io/chnmig/$image:$RELEASE_TAG" --raw |
               jq -e '[.manifests[] | select(.platform.os == "linux") | .platform.architecture] | sort == ["amd64", "arm64"]'
+            if [[ "$RELEASE_TAG" != *-* ]]; then
+              released="$(docker buildx imagetools inspect "ghcr.io/chnmig/$image:$RELEASE_TAG" --format '{{.Manifest.Digest}}')"
+              latest="$(docker buildx imagetools inspect "ghcr.io/chnmig/$image:latest" --format '{{.Manifest.Digest}}')"
+              [[ "$released" == "$latest" ]] || { echo "latest does not match the coordinated $image release" >&2; exit 1; }
+            fi
           done
 
       - name: Generate Compose download from sources
