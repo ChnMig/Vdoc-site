@@ -24,14 +24,14 @@ if [[ "${GITHUB_REF:-}" == refs/tags/* && "${GITHUB_REF:-}" != "$ref" ]]; then
 fi
 jq -e --arg ref "$ref" '
   .schemaVersion == 2 and
-  ([.repositories[].path] | sort) == ["Vdoc", "Vdoc-admin", "Vdoc-mcp", "Vdoc-site", "Vdoc-skill"] and
+  ([.repositories[].path] | sort) == ["Vdoc", "Vdoc-admin", "Vdoc-mcp", "Vdoc-site"] and
   all(.repositories[];
     .remote == ("https://github.com/ChnMig/" + .path + ".git") and
     .ref == $ref and
     ((.commit | type == "string" and test("^[0-9a-f]{40}$")) or
      (.path == "Vdoc-site" and .commit == "@release"))
   )
-' "$lock" >/dev/null || fail 'release lock must pin all five public repositories to the release tag; only Site may use @release'
+' "$lock" >/dev/null || fail 'release lock must pin all four public repositories to the release tag; only Site may use @release'
 
 site_commit="$(git -C "$SITE_DIR" rev-parse HEAD)"
 [[ "$site_commit" =~ ^[0-9a-f]{40}$ ]] || fail 'cannot resolve Site checkout'
@@ -68,5 +68,5 @@ mv "$resolved" "$lock"
 if [[ "$CANDIDATE" -eq 1 ]]; then
   printf 'Candidate lock prepared for local checks only; deployment and release packaging are disabled.\n'
 else
-  printf 'Release lock verified: five %s tags and exact commits.\n' "$ref"
+  printf 'Release lock verified: four %s tags and exact commits.\n' "$ref"
 fi

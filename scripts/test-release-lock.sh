@@ -12,7 +12,7 @@ cp "$SITE_ROOT/workspace/workspace.lock.json" "$tmp/template.json"
 version="$(jq -r .version "$tmp/workspace/workspace-distribution.json")"
 tag="v$version"
 
-for repo in Vdoc Vdoc-admin Vdoc-mcp Vdoc-site Vdoc-skill; do
+for repo in Vdoc Vdoc-admin Vdoc-mcp Vdoc-site; do
   git init --quiet --initial-branch=main "$tmp/$repo"
   git -C "$tmp/$repo" config user.email release-test@example.test
   git -C "$tmp/$repo" config user.name 'Release Test'

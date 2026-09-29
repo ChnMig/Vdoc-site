@@ -93,9 +93,6 @@ build_plan() {
   add_command '[mcp] Test' "$ROOT_DIR/Vdoc-mcp" 'npm test'
   add_command '[mcp] Package dry-run' "$ROOT_DIR/Vdoc-mcp" 'npm_config_cache=/tmp/vdoc-npm-cache npm pack --dry-run'
 
-  add_command '[skill] Test' "$ROOT_DIR/Vdoc-skill" 'npm test'
-  add_command '[skill] Package dry-run' "$ROOT_DIR/Vdoc-skill" 'npm_config_cache=/tmp/vdoc-npm-cache npm pack --dry-run'
-
   if [[ "$INCLUDE_LIVE" -eq 1 ]]; then
     add_command '[backend] Live E2E (opt-in)' "$ROOT_DIR/Vdoc" './scripts/vdoc-e2e.sh live-compose'
   fi

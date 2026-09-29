@@ -88,7 +88,7 @@ fi
 
 commits="$(jq -c '.repositories | map({key: .path, value: .commit}) | from_entries' "$LOCK_FILE")"
 current_commits="$(jq -cS '.repository_commits' "$RESULT_FILE")"
-empty_commits='{"Vdoc":"","Vdoc-admin":"","Vdoc-mcp":"","Vdoc-site":"","Vdoc-skill":""}'
+empty_commits='{"Vdoc":"","Vdoc-admin":"","Vdoc-mcp":"","Vdoc-site":""}'
 if [[ "$current_commits" != "$(printf '%s' "$commits" | jq -cS .)" && "$current_commits" != "$(printf '%s' "$empty_commits" | jq -cS .)" ]]; then
   fail 'Pilot repository commits are neither empty nor equal to workspace.lock.json'
 fi

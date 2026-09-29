@@ -81,7 +81,7 @@ services/                      # 长驻 cron、worker、consumer 生命周期层
 utils/                         # token hash、schema hash、文件存储等基础工具
 ```
 
-Agent-facing distributions live outside the backend repository: `Vdoc-mcp/` contains the installable MCP stdio adapter, and `Vdoc-skill/` contains the installable Vdoc Skill package.
+Agent-facing distributions live outside the backend repository: `Vdoc-mcp/` contains the installable MCP stdio adapter and the companion Skill at `skills/vdoc/`, released together in one package.
 
 Web-facing implementation lives outside the backend repository: `Vdoc-admin/` is the product workbench and developer portal for v0.1, while `Vdoc-site/` remains the public marketing and documentation portal.
 

@@ -138,7 +138,7 @@ Live E2E resets the selected disposable `VDOC_TEST_POSTGRES_DB`, `vdoc_e2e` by d
 ## Agent Does Not Use Vdoc Facts
 
 - Confirm `@vdoc/mcp` `tools/list` succeeds.
-- Confirm `Vdoc-skill/` is installed as the target runtime's `vdoc` skill folder and `SKILL.md` is at the skill root.
+- Confirm `Vdoc-mcp/skills/vdoc/` is installed as the target runtime's `vdoc` skill folder and `SKILL.md` is at the skill root.
 - Give explicit tasks such as: "First query Vdoc `get_endpoint_detail`, then explain request fields."
 - If the Agent still guesses fields, enums, response shapes, or Markdown text, reload the Skill and require it to query Vdoc MCP first.
 

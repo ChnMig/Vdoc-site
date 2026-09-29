@@ -20,30 +20,66 @@
     "pilot_outcome"
   ],
   "properties": {
-    "schema_version": { "const": 2 },
-    "pilot_id": { "type": "string", "minLength": 1, "maxLength": 100 },
-    "product_version": { "const": "0.1" },
+    "schema_version": {
+      "const": 2
+    },
+    "pilot_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100
+    },
+    "product_version": {
+      "const": "0.1"
+    },
     "environment": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["name", "base_url", "started_at", "ended_at"],
+      "required": [
+        "name",
+        "base_url",
+        "started_at",
+        "ended_at"
+      ],
       "properties": {
-        "name": { "type": "string", "minLength": 1, "maxLength": 100 },
-        "base_url": { "type": "string", "pattern": "^https?://" },
-        "started_at": { "$ref": "#/$defs/timestampOrNull" },
-        "ended_at": { "$ref": "#/$defs/timestampOrNull" }
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "base_url": {
+          "type": "string",
+          "pattern": "^https?://"
+        },
+        "started_at": {
+          "$ref": "#/$defs/timestampOrNull"
+        },
+        "ended_at": {
+          "$ref": "#/$defs/timestampOrNull"
+        }
       }
     },
     "repository_commits": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["Vdoc", "Vdoc-admin", "Vdoc-site", "Vdoc-mcp", "Vdoc-skill"],
+      "required": [
+        "Vdoc",
+        "Vdoc-admin",
+        "Vdoc-site",
+        "Vdoc-mcp"
+      ],
       "properties": {
-        "Vdoc": { "$ref": "#/$defs/commitOrEmpty" },
-        "Vdoc-admin": { "$ref": "#/$defs/commitOrEmpty" },
-        "Vdoc-site": { "$ref": "#/$defs/commitOrEmpty" },
-        "Vdoc-mcp": { "$ref": "#/$defs/commitOrEmpty" },
-        "Vdoc-skill": { "$ref": "#/$defs/commitOrEmpty" }
+        "Vdoc": {
+          "$ref": "#/$defs/commitOrEmpty"
+        },
+        "Vdoc-admin": {
+          "$ref": "#/$defs/commitOrEmpty"
+        },
+        "Vdoc-site": {
+          "$ref": "#/$defs/commitOrEmpty"
+        },
+        "Vdoc-mcp": {
+          "$ref": "#/$defs/commitOrEmpty"
+        }
       }
     },
     "participants": {
@@ -64,11 +100,25 @@
             "pattern": "^[A-Za-z0-9._-]{1,64}$"
           },
           "role": {
-            "enum": ["project_admin", "writer", "reader", "external_reader"]
+            "enum": [
+              "project_admin",
+              "writer",
+              "reader",
+              "external_reader"
+            ]
           },
-          "participant_kind": { "enum": ["target_user", "staff"] },
-          "consent_recorded": { "type": "boolean" },
-          "consent_evidence": { "$ref": "#/$defs/evidenceOrNull" }
+          "participant_kind": {
+            "enum": [
+              "target_user",
+              "staff"
+            ]
+          },
+          "consent_recorded": {
+            "type": "boolean"
+          },
+          "consent_evidence": {
+            "$ref": "#/$defs/evidenceOrNull"
+          }
         }
       }
     },
@@ -93,20 +143,38 @@
             "type": "string",
             "pattern": "^prd-3\\.3-(0[1-9]|1[0-4])$"
           },
-          "title": { "type": "string", "minLength": 1 },
-          "status": { "enum": ["not_run", "passed", "failed", "blocked"] },
+          "title": {
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "enum": [
+              "not_run",
+              "passed",
+              "failed",
+              "blocked"
+            ]
+          },
           "participant_ids": {
             "type": "array",
             "uniqueItems": true,
-            "items": { "type": "string" }
+            "items": {
+              "type": "string"
+            }
           },
-          "executed_at": { "$ref": "#/$defs/timestampOrNull" },
+          "executed_at": {
+            "$ref": "#/$defs/timestampOrNull"
+          },
           "evidence_refs": {
             "type": "array",
             "uniqueItems": true,
-            "items": { "$ref": "#/$defs/evidence" }
+            "items": {
+              "$ref": "#/$defs/evidence"
+            }
           },
-          "observed_result": { "type": "string" }
+          "observed_result": {
+            "type": "string"
+          }
         }
       }
     },
@@ -123,30 +191,52 @@
           "evidence_ref"
         ],
         "properties": {
-          "participant_id": { "type": "string" },
-          "captured_at": { "$ref": "#/$defs/timestampOrNull" },
-          "context": { "type": "string" },
-          "verbatim": { "type": "string" },
-          "evidence_ref": { "$ref": "#/$defs/evidenceOrNull" }
+          "participant_id": {
+            "type": "string"
+          },
+          "captured_at": {
+            "$ref": "#/$defs/timestampOrNull"
+          },
+          "context": {
+            "type": "string"
+          },
+          "verbatim": {
+            "type": "string"
+          },
+          "evidence_ref": {
+            "$ref": "#/$defs/evidenceOrNull"
+          }
         }
       }
     },
     "automated_gates": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["release_dry_run", "live_persistence_e2e"],
+      "required": [
+        "release_dry_run",
+        "live_persistence_e2e"
+      ],
       "properties": {
-        "release_dry_run": { "$ref": "#/$defs/gate" },
-        "live_persistence_e2e": { "$ref": "#/$defs/gate" }
+        "release_dry_run": {
+          "$ref": "#/$defs/gate"
+        },
+        "live_persistence_e2e": {
+          "$ref": "#/$defs/gate"
+        }
       }
     },
     "metrics": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["openapi_draft_seconds"],
+      "required": [
+        "openapi_draft_seconds"
+      ],
       "properties": {
         "openapi_draft_seconds": {
-          "type": ["number", "null"],
+          "type": [
+            "number",
+            "null"
+          ],
           "exclusiveMinimum": 0
         }
       }
@@ -156,26 +246,65 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["issue_id", "severity", "status", "summary"],
+        "required": [
+          "issue_id",
+          "severity",
+          "status",
+          "summary"
+        ],
         "properties": {
-          "issue_id": { "type": "string", "minLength": 1 },
-          "severity": { "enum": ["low", "medium", "high", "critical"] },
-          "status": { "enum": ["open", "mitigated", "closed"] },
-          "summary": { "type": "string", "minLength": 1 },
-          "reference": { "$ref": "#/$defs/evidence" }
+          "issue_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "severity": {
+            "enum": [
+              "low",
+              "medium",
+              "high",
+              "critical"
+            ]
+          },
+          "status": {
+            "enum": [
+              "open",
+              "mitigated",
+              "closed"
+            ]
+          },
+          "summary": {
+            "type": "string",
+            "minLength": 1
+          },
+          "reference": {
+            "$ref": "#/$defs/evidence"
+          }
         }
       }
     },
     "sign_off": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["pilot_operator", "product_owner"],
+      "required": [
+        "pilot_operator",
+        "product_owner"
+      ],
       "properties": {
-        "pilot_operator": { "$ref": "#/$defs/signature" },
-        "product_owner": { "$ref": "#/$defs/signature" }
+        "pilot_operator": {
+          "$ref": "#/$defs/signature"
+        },
+        "product_owner": {
+          "$ref": "#/$defs/signature"
+        }
       }
     },
-    "pilot_outcome": { "enum": ["pending", "validated", "not_validated"] }
+    "pilot_outcome": {
+      "enum": [
+        "pending",
+        "validated",
+        "not_validated"
+      ]
+    }
   },
   "$defs": {
     "timestamp": {
@@ -184,7 +313,14 @@
       "format": "date-time"
     },
     "timestampOrNull": {
-      "oneOf": [{ "$ref": "#/$defs/timestamp" }, { "type": "null" }]
+      "oneOf": [
+        {
+          "$ref": "#/$defs/timestamp"
+        },
+        {
+          "type": "null"
+        }
+      ]
     },
     "commitOrEmpty": {
       "type": "string",
@@ -193,7 +329,10 @@
     "evidence": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["path", "sha256"],
+      "required": [
+        "path",
+        "sha256"
+      ],
       "properties": {
         "path": {
           "type": "string",
@@ -208,15 +347,34 @@
       }
     },
     "evidenceOrNull": {
-      "oneOf": [{ "$ref": "#/$defs/evidence" }, { "type": "null" }]
+      "oneOf": [
+        {
+          "$ref": "#/$defs/evidence"
+        },
+        {
+          "type": "null"
+        }
+      ]
     },
     "gate": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["status", "attestation"],
+      "required": [
+        "status",
+        "attestation"
+      ],
       "properties": {
-        "status": { "enum": ["not_run", "passed", "failed", "blocked"] },
-        "attestation": { "$ref": "#/$defs/evidenceOrNull" }
+        "status": {
+          "enum": [
+            "not_run",
+            "passed",
+            "failed",
+            "blocked"
+          ]
+        },
+        "attestation": {
+          "$ref": "#/$defs/evidenceOrNull"
+        }
       }
     },
     "signature": {
@@ -230,16 +388,33 @@
         "approval_record"
       ],
       "properties": {
-        "name": { "type": "string" },
-        "decision": { "enum": ["pending", "approve", "reject"] },
-        "signed_at": { "$ref": "#/$defs/timestampOrNull" },
-        "payload_sha256": {
-          "oneOf": [
-            { "type": "string", "pattern": "^[0-9a-f]{64}$" },
-            { "type": "null" }
+        "name": {
+          "type": "string"
+        },
+        "decision": {
+          "enum": [
+            "pending",
+            "approve",
+            "reject"
           ]
         },
-        "approval_record": { "$ref": "#/$defs/evidenceOrNull" }
+        "signed_at": {
+          "$ref": "#/$defs/timestampOrNull"
+        },
+        "payload_sha256": {
+          "oneOf": [
+            {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "approval_record": {
+          "$ref": "#/$defs/evidenceOrNull"
+        }
       }
     }
   }

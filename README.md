@@ -64,7 +64,7 @@ The workspace root is not a Git repository. Public copies of its product documen
 - [Compose deployment](workspace/COMPOSE_DEPLOY.md), [docker-compose.yml](workspace/docker-compose.yml), and [.env.example](workspace/.env.example)
 - [Backend README](https://github.com/ChnMig/Vdoc/blob/main/README.md) and [API reference](https://github.com/ChnMig/Vdoc/blob/main/docs/api/API.md)
 - [MCP README](https://github.com/ChnMig/Vdoc-mcp/blob/main/README.md)
-- [Skill README](https://github.com/ChnMig/Vdoc-skill/blob/main/README.md) and [SKILL.md](https://github.com/ChnMig/Vdoc-skill/blob/main/SKILL.md)
+- [Skill README](https://github.com/ChnMig/Vdoc-mcp/blob/main/skills/vdoc/README.md) and [SKILL.md](https://github.com/ChnMig/Vdoc-mcp/blob/main/skills/vdoc/SKILL.md)
 
 ## Public Workspace Resources
 
@@ -83,9 +83,9 @@ pnpm check:budget
 
 `workspace:sync` copies only the manifest's files, preserves executable modes, updates the exported lock's control-plane digest, and normalizes Site's own commit to `@release`. Other repository refs and commits remain pinned. `workspace:check` checks the exported inventory and digest; when the original workspace is present, it also detects source drift. Standalone Site clones can validate the committed export without the parent workspace.
 
-Commit the updated `workspace/` sources after syncing. CI regenerates the downloads from that checkout; do not commit `.tar.gz`, `.sha256`, or the built site. For local content tests, download previews, and site builds before tag publication, run `workspace:package --candidate` first and rerun it after changing workspace sources. The content tests compare the generated files with the export, validate the resolved Site commit, and reject tracked build outputs. The source lock uses `@release` for Site to avoid embedding its own commit hash; published downloads always contain five exact commit hashes.
+Commit the updated `workspace/` sources after syncing. CI regenerates the downloads from that checkout; do not commit `.tar.gz`, `.sha256`, or the built site. For local content tests, download previews, and site builds before tag publication, run `workspace:package --candidate` first and rerun it after changing workspace sources. The content tests compare the generated files with the export, validate the resolved Site commit, and reject tracked build outputs. The source lock uses `@release` for Site to avoid embedding its own commit hash; published downloads always contain four exact commit hashes.
 
-`workspace:package` requires Bash, Git, jq, tar (GNU or BSD), gzip, and shasum. It initializes a temporary workspace from the public locked refs, verifies all five checkouts, and invokes the strict package script before generating the two ignored files in `docs/public/downloads/`. Published packaging requires all five `v0.2.1` tags, verifies their exact commits, and preserves the developer's checkouts. `--candidate` performs no remote lookup, marks the archive as non-deployable, and is rejected by the initializer and `site:package`. Subsequent VitePress builds copy those generated files into the site output.
+`workspace:package` requires Bash, Git, jq, tar (GNU or BSD), gzip, and shasum. It initializes a temporary workspace from the public locked refs, verifies all four checkouts, and invokes the strict package script before generating the two ignored files in `docs/public/downloads/`. Published packaging requires all four `v0.3.7` tags, verifies their exact commits, and preserves the developer's checkouts. `--candidate` performs no remote lookup, marks the archive as non-deployable, and is rejected by the initializer and `site:package`. Subsequent VitePress builds copy those generated files into the site output.
 
 ## Automated Releases
 

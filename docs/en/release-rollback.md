@@ -20,7 +20,7 @@ Also back up the RustFS `rustfs-data` volume or storage bucket. External databas
 
 Keep Backend/Admin on `latest` to follow stable application releases. Read [Site Releases](https://github.com/ChnMig/Vdoc-site/releases) and merge any new settings without overwriting the private YAML. To pin or roll back, change both application aliases to the intended release tags or previously recorded digests. Rolling tags alone do not identify the prior running image.
 
-Preserve PostgreSQL and storage credentials, JWT/MCP keys, administrator settings, ports, project name, and volumes. `v0.3.6` adds no application database migration beyond v0.3.5. Upgrades from v0.3.0 or earlier apply the pending `007_parser_facts_and_history_pages.sql`, adding parser metadata, history query indexes, and the Diff `must_handle` field. Complete the backup above before upgrading; this release does not automatically downgrade the database.
+Preserve PostgreSQL and storage credentials, JWT/MCP keys, administrator settings, ports, project name, and volumes. `v0.3.7` adds no application database migration beyond v0.3.6. Upgrades from v0.3.0 or earlier apply the pending `007_parser_facts_and_history_pages.sql`, adding parser metadata, history query indexes, and the Diff `must_handle` field. Complete the backup above before upgrading; this release does not automatically downgrade the database.
 
 ```sh
 docker compose pull
@@ -78,4 +78,4 @@ The marketing website deploys independently of user installations. A stable tag 
 
 To roll back the website, manually run `Publish release to GitHub Pages` from `main` with an existing stable tag. The workflow verifies and deploys that version without moving tags or updating user application containers. Older versions may still offer the Compose archive used at the time.
 
-Source builds, E2E tests, key rotation, and five-repository release checks are documented in the [maintainer operations guide](https://github.com/ChnMig/Vdoc-site/blob/main/workspace/RELEASE_DEPLOY.md). Run those checks in disposable test environments; ordinary deployments do not require source checkouts or a test database.
+Source builds, E2E tests, key rotation, and four-repository release checks are documented in the [maintainer operations guide](https://github.com/ChnMig/Vdoc-site/blob/main/workspace/RELEASE_DEPLOY.md). Run those checks in disposable test environments; ordinary deployments do not require source checkouts or a test database.

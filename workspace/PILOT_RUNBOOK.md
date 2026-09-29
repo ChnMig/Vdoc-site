@@ -5,15 +5,15 @@ This runbook prepares and records a v0.1 Pilot. The automation path bootstraps `
 ## 1. Prerequisites
 
 - Go matching `Vdoc/go.mod`
-- Node.js 22.13 or newer for `Vdoc-admin/` and `Vdoc-site/`; Node.js 20 or newer for `Vdoc-mcp/` and `Vdoc-skill/`
+- Node.js 22.13 or newer for `Vdoc-admin/` and `Vdoc-site/`; Node.js 20 or newer for `Vdoc-mcp/` (including its bundled Skill)
 - `pnpm` 11.6.0 for `Vdoc-admin/` and `Vdoc-site/`
-- `npm` for `Vdoc-mcp/` and `Vdoc-skill/`
+- `npm` for `Vdoc-mcp/` (including its bundled Skill)
 - Docker with Compose v2
 - `git`, `jq`, and `shasum` for lock, evidence, and provenance checks
 
-Run every root command from the workspace root, the directory that contains `docker-compose.yml`, `Vdoc/`, `Vdoc-admin/`, `Vdoc-site/`, `Vdoc-mcp/`, and `Vdoc-skill/`.
+Run every root command from the workspace root, the directory that contains `docker-compose.yml`, `Vdoc/`, `Vdoc-admin/`, `Vdoc-site/`, and `Vdoc-mcp/`.
 
-The five repository baselines are pinned in `workspace.lock.json` schema v2 by remote, advertised ref, and commit. The lock also binds the non-Git root control plane to the distributed-file digest. On a fresh machine, extract the checksummed bootstrap and run `scripts/vdoc-workspace-init.sh`; it clones only missing repositories after confirming the fetched ref resolves to the locked commit. For an existing workspace, run `scripts/vdoc-workspace-verify.sh`. The verifier queries the configured remotes directly, so a forged local `origin/*` ref is not publication evidence. Initialization never fetches, resets, checks out, or cleans an existing repository, so local changes remain untouched and drift fails visibly.
+The four repository baselines are pinned in `workspace.lock.json` schema v2 by remote, advertised ref, and commit. The lock also binds the non-Git root control plane to the distributed-file digest. On a fresh machine, extract the checksummed bootstrap and run `scripts/vdoc-workspace-init.sh`; it clones only missing repositories after confirming the fetched ref resolves to the locked commit. For an existing workspace, run `scripts/vdoc-workspace-verify.sh`. The verifier queries the configured remotes directly, so a forged local `origin/*` ref is not publication evidence. Initialization never fetches, resets, checks out, or cleans an existing repository, so local changes remain untouched and drift fails visibly.
 
 Do not use production secrets in local `.env` files. Do not paste or commit raw JWTs, MCP tokens, DB passwords, storage secrets, or `Authorization` header values. The bootstrap script writes disposable local secrets into `.env` and does not print them.
 
@@ -106,7 +106,7 @@ For public shares, confirm the browser removes the `#vdoc_share_...` fragment be
 
 ## 7. Verify MCP Adapter And Skill
 
-After creating an MCP token in Admin, configure the target agent with `npx --yes github:ChnMig/Vdoc-mcp#c132b19e40f5b094a87ff7210e3634094ed18041`, `VDOC_BASE_URL=http://127.0.0.1:8080`, and `VDOC_MCP_TOKEN` in a secret-aware environment field. The Git commit must equal the `Vdoc-mcp` entry in `workspace.lock.json`; `@vdoc/mcp` is not published to the npm registry yet. Do not put tokens in CLI arguments.
+After creating an MCP token in Admin, configure the target agent with `npx --yes github:ChnMig/Vdoc-mcp#4e7043e5ce3af40ebe5a3345952707c1e99c7e68`, `VDOC_BASE_URL=http://127.0.0.1:8080`, and `VDOC_MCP_TOKEN` in a secret-aware environment field. The Git commit must equal the `Vdoc-mcp` entry in `workspace.lock.json`; `@vdoc/mcp` is not published to the npm registry yet. Do not put tokens in CLI arguments.
 
 Package checks remain local and do not publish anything:
 
@@ -116,12 +116,7 @@ npm ci
 npm test
 ```
 
-```sh
-cd Vdoc-skill
-npm test
-```
-
-Install or link the locked `Vdoc-skill/` checkout as `$HOME/.agents/skills/vdoc` for personal use or `.agents/skills/vdoc` for the current repository, with `SKILL.md` at that directory root. Verify `git -C Vdoc-skill rev-parse HEAD` equals the `Vdoc-skill` commit in `workspace.lock.json`; do not install from an unpinned shallow clone or moving branch. Pair it with the MCP adapter. v0.1 agents can submit Drafts, but direct MCP publish is not available. Admin or SuperAdmin review publishes Versions.
+Install or link `skills/vdoc/` from the locked `Vdoc-mcp/` checkout as `$HOME/.agents/skills/vdoc` for personal use or `.agents/skills/vdoc` for the current repository, with `SKILL.md` at that directory root. Verify `git -C Vdoc-mcp rev-parse HEAD` equals the `Vdoc-mcp` commit in `workspace.lock.json`; do not install from an unpinned shallow clone or moving branch. Pair it with the MCP adapter. v0.1 agents can submit Drafts, but direct MCP publish is not available. Admin or SuperAdmin review publishes Versions.
 
 ## 8. Local Release Gate
 
@@ -156,13 +151,13 @@ scripts/vdoc-gate-attest.sh pilot-results/<pilot-id>.json live_persistence_e2e
 ```
 
 Each command writes a gate log and a JSON attestation under
-`evidence/gates/`, hashes both, binds the exact command, five commits, and
+`evidence/gates/`, hashes both, binds the exact command, four commits, and
 `workspace.lock.json` SHA-256, and records failure without converting it to a
 pass. The live gate uses the disposable database configured in `.env`. If a
 gate finishes at or after an already-recorded Pilot start, the attestation is
 rejected and the retained log must be inspected.
 
-Now record a real UTC Pilot window using `YYYY-MM-DDTHH:MM:SSZ`, the exact five
+Now record a real UTC Pilot window using `YYYY-MM-DDTHH:MM:SSZ`, the exact four
 commits, pseudonymous participant IDs, participant kind (`target_user` or
 `staff`), recorded consent, each of the 14 PRD 3.3 criteria, the measured
 OpenAPI draft duration, known issues, and verbatim feedback. Closure requires

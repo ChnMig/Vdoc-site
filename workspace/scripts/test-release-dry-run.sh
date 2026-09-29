@@ -101,7 +101,8 @@ test_list_covers_release_surfaces_without_live() {
   assert_contains "$out" '[site] Pages performance tests'
   assert_contains "$out" '[mcp] Package dry-run'
   assert_contains "$out" 'npm_config_cache=/tmp/vdoc-npm-cache npm pack --dry-run'
-  assert_contains "$out" '[skill] Package dry-run'
+  assert_not_contains "$out" 'Vdoc-skill'
+  assert_not_contains "$out" '[skill]'
   assert_no_forbidden_commands "$out"
 }
 
@@ -126,7 +127,7 @@ test_list_preserves_fail_fast_order() {
   assert_line_before "$out" '[site] Content tests' '[site] Root build and budget'
   assert_line_before "$out" '[site] Root performance tests' '[site] Pages build and budget'
   assert_line_before "$out" '[site] Pages performance tests' '[mcp] Test'
-  assert_line_before "$out" '[mcp] Package dry-run' '[skill] Test'
+  assert_line_before "$out" '[mcp] Test' '[mcp] Package dry-run'
 }
 
 test_include_live_adds_only_opt_in_live_command() {
@@ -140,7 +141,7 @@ test_include_live_adds_only_opt_in_live_command() {
   assert_contains "$live" 'Live E2E: enabled (requires existing disposable PostgreSQL/RustFS resources)'
   assert_contains "$live" '[backend] Live E2E (opt-in)'
   assert_contains "$live" './scripts/vdoc-e2e.sh live-compose'
-  assert_line_before "$live" '[skill] Package dry-run' '[backend] Live E2E (opt-in)'
+  assert_line_before "$live" '[mcp] Package dry-run' '[backend] Live E2E (opt-in)'
   [[ "$(grep -c 'live-compose' "$live")" -eq 1 ]] || fail 'expected one live-compose command in opt-in plan'
   [[ "$(( $(wc -l <"$live") - $(wc -l <"$default") ))" -eq 3 ]] || fail 'opt-in plan should add exactly one three-line command entry'
   assert_no_forbidden_commands "$live"

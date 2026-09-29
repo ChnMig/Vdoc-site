@@ -80,7 +80,7 @@ jq -e '
 
 printf 'test: distribution check validates the repository gate\n'
 VDOC_WORKSPACE_VERIFY_SCRIPT="$fake_verify" "$PACKAGE_SCRIPT" --check >"$tmp/check.txt"
-assert_contains "$tmp/check.txt" '5 locked repositories'
+assert_contains "$tmp/check.txt" '4 locked repositories'
 
 printf 'test: package emits two byte-identical verifiable artifacts\n'
 output_one="$tmp/output-one"

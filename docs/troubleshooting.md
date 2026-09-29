@@ -138,7 +138,7 @@ Live E2E 会重置选中的一次性 `VDOC_TEST_POSTGRES_DB`，默认是 `vdoc_e
 ## Agent 没有使用 Vdoc 事实
 
 - 确认 `@vdoc/mcp` 的 `tools/list` 成功。
-- 确认 `Vdoc-skill/` 已安装为目标 runtime 的 `vdoc` skill folder，且 `SKILL.md` 在 skill root。
+- 确认 `Vdoc-mcp/skills/vdoc/` 已安装为目标 runtime 的 `vdoc` skill folder，且 `SKILL.md` 在 skill root。
 - 给 Agent 明确任务，例如“先查询 Vdoc 的 `get_endpoint_detail`，再说明请求字段”。
 - 如果 Agent 仍然猜字段、枚举、响应结构或 Markdown 原文，重新加载 Skill 并要求它先查 Vdoc MCP。
 

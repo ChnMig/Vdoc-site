@@ -158,8 +158,8 @@ lock_file="$ROOT_DIR/$repository_lock"
 [[ -f "$lock_file" ]] || fail "repository lock not found: $repository_lock"
 jq -e '
   .schemaVersion == 2 and
-  (.repositories | type == "array" and length == 5) and
-  ([.repositories[].path] | sort) == (["Vdoc", "Vdoc-admin", "Vdoc-mcp", "Vdoc-site", "Vdoc-skill"] | sort) and
+  (.repositories | type == "array" and length == 4) and
+  ([.repositories[].path] | sort) == (["Vdoc", "Vdoc-admin", "Vdoc-mcp", "Vdoc-site"] | sort) and
   all(.repositories[];
     (.remote | type == "string" and test("^https://github\\.com/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+\\.git$")) and
     (.ref | type == "string" and
@@ -174,7 +174,7 @@ jq -e '
   ) and
   (.controlPlane.manifest == "workspace-distribution.json") and
   (.controlPlane.sha256 | type == "string" and test("^[0-9a-f]{64}$"))
-' "$lock_file" >/dev/null || fail 'workspace lock is not a complete five-repository release lock'
+' "$lock_file" >/dev/null || fail 'workspace lock is not a complete four-repository release lock'
 
 while IFS= read -r relative_path; do
   absolute_path="$ROOT_DIR/$relative_path"
@@ -207,7 +207,7 @@ fi
 
 file_count="$(jq '.files | length' "$MANIFEST_FILE")"
 if [[ "$MODE" == check ]]; then
-  printf 'Docker Compose bootstrap distribution verified: %s files and 5 locked repositories.\n' "$file_count"
+  printf 'Docker Compose bootstrap distribution verified: %s files and 4 locked repositories.\n' "$file_count"
   exit 0
 fi
 

@@ -61,7 +61,6 @@ assert.deepEqual(lock.repositories.map((repo) => repo.path).sort(), [
   'Vdoc-admin',
   'Vdoc-mcp',
   'Vdoc-site',
-  'Vdoc-skill',
 ])
 for (const repo of lock.repositories) {
   assert.equal(repo.ref, `refs/tags/${releaseTag}`)

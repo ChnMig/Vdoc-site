@@ -13,42 +13,38 @@ Vdoc Skill 是安装到 Agent runtime 的工作流包。它不存数据、不计
 
 ## 安装
 
-把 Skill 安装到 `$HOME/.agents/skills/vdoc`（个人范围）或 `.agents/skills/vdoc`（当前仓库范围），并让 `SKILL.md` 位于 `vdoc` skill root。安装 commit 必须和发布包 `workspace.lock.json` 中的 `Vdoc-skill` 一致：
+从 v0.3.7 起，可选 Skill 位于 `Vdoc-mcp/skills/vdoc`，并随 MCP 包一起发布；不安装 Skill 也能使用 MCP 工具。两者统一使用发布锁中的 `Vdoc-mcp` commit：
 
 ```sh
-# 个人安装；仓库范围请改成 .agents/skills/vdoc
+# Personal install; change the directory for another agent or project scope.
 VDOC_SKILL_DIR="$HOME/.agents/skills/vdoc"
-VDOC_SKILL_COMMIT=bf5f77435612410d63dcb14c85a14521f1e606ba
-test ! -e "$VDOC_SKILL_DIR"
-mkdir -p "$(dirname -- "$VDOC_SKILL_DIR")"
-git init "$VDOC_SKILL_DIR"
-git -C "$VDOC_SKILL_DIR" remote add origin https://github.com/ChnMig/Vdoc-skill.git
-git -C "$VDOC_SKILL_DIR" fetch --depth 1 origin "$VDOC_SKILL_COMMIT"
-git -C "$VDOC_SKILL_DIR" checkout --detach FETCH_HEAD
-test "$(git -C "$VDOC_SKILL_DIR" rev-parse HEAD)" = "$VDOC_SKILL_COMMIT"
+npm install --global git+https://github.com/ChnMig/Vdoc-mcp.git#4e7043e5ce3af40ebe5a3345952707c1e99c7e68
+vdoc-mcp skill install --directory "$VDOC_SKILL_DIR"
 test -f "$VDOC_SKILL_DIR/SKILL.md"
 ```
 
-如果目标目录已存在，先核对当前 `HEAD`；升级时只 fetch 并 checkout 新版已审核 lock 中的 commit，不要对已安装 Skill 执行未固定来源的 `git pull`。
+安装器会链接完整 Skill，包括引用文件、模板和示例。Claude Code 可使用 `--directory "$HOME/.claude/skills/vdoc"`，项目范围可使用 `--directory .agents/skills/vdoc`。
 
-目录内容应包含：
+如果目标目录已经存在，安装器不会覆盖它。迁移前保留本地修改并移走旧安装；个人规则应独立存放，不要修改链接指向的包文件。
 
-```text
-SKILL.md
-templates/
-  endpoint-integration.md
-  frontend-change-summary.md
-examples/
-  endpoint-query-example.md
-  compare-versions-example.md
-```
+### 更新
 
-Skill 必须和 `@vdoc/mcp` 配套使用。Skill 是工作流说明，MCP 才是实时 tool surface 和事实来源。
+使用新版已审核 lock 中的 MCP commit，在同一个 npm 全局安装位置重新安装即可，链接的 Skill 会同步更新。之后重新加载 Agent 并重启 MCP。切换 Node 安装或 npm prefix 后需要重新链接。若 MCP 配置仍固定在另一个 Git commit，也要更新该配置，或改为启动全局 `vdoc-mcp` 命令。
 
-验证 package：
+目前包尚未发布到 npm。发布并从 Git 固定安装迁移到 registry 安装后，才适用 `npm update --global @vdoc/mcp`。不要从临时 `npx` 缓存目录建立持久 Skill 链接。
+
+### 使用 Skills CLI 单独安装
 
 ```sh
-cd Vdoc-skill
+npx skills add ChnMig/Vdoc-mcp --skill vdoc -g
+```
+
+该方式跟随仓库默认分支，由 Skills CLI 独立管理，更新全局 MCP 包不会替它更新。固定版本安装可使用包含已审核 commit 和 `skills/vdoc` 目录的 GitHub tree URL。不要让两种安装器管理同一个目录；[MCP 连接](mcp-tools.md)仍需单独配置。
+
+在合并后的仓库中验证 MCP 与 Skill：
+
+```sh
+cd Vdoc-mcp
 npm test
 ```
 

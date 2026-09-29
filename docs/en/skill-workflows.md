@@ -13,44 +13,38 @@ If Vdoc is not running yet, follow the [Deployment Guide](deployment.md#quick-st
 
 ## Installation
 
-Install the Skill at `$HOME/.agents/skills/vdoc` for personal use or `.agents/skills/vdoc` for the current repository, with `SKILL.md` at the `vdoc` skill root. The installed commit must equal the `Vdoc-skill` entry in the release package's `workspace.lock.json`:
+Since v0.3.7, the optional Skill lives in `Vdoc-mcp/skills/vdoc` and is included in the MCP package. MCP works without it. Both use the `Vdoc-mcp` commit pinned by the workspace release lock:
 
 ```sh
-# Personal installation; use .agents/skills/vdoc for repository scope instead.
+# Personal install; change the directory for another agent or project scope.
 VDOC_SKILL_DIR="$HOME/.agents/skills/vdoc"
-VDOC_SKILL_COMMIT=bf5f77435612410d63dcb14c85a14521f1e606ba
-test ! -e "$VDOC_SKILL_DIR"
-mkdir -p "$(dirname -- "$VDOC_SKILL_DIR")"
-git init "$VDOC_SKILL_DIR"
-git -C "$VDOC_SKILL_DIR" remote add origin https://github.com/ChnMig/Vdoc-skill.git
-git -C "$VDOC_SKILL_DIR" fetch --depth 1 origin "$VDOC_SKILL_COMMIT"
-git -C "$VDOC_SKILL_DIR" checkout --detach FETCH_HEAD
-test "$(git -C "$VDOC_SKILL_DIR" rev-parse HEAD)" = "$VDOC_SKILL_COMMIT"
+npm install --global git+https://github.com/ChnMig/Vdoc-mcp.git#4e7043e5ce3af40ebe5a3345952707c1e99c7e68
+vdoc-mcp skill install --directory "$VDOC_SKILL_DIR"
 test -f "$VDOC_SKILL_DIR/SKILL.md"
 ```
 
-If the target already exists, verify its current `HEAD`. Upgrade only by
-fetching and checking out the commit from a newer reviewed lock; do not run an
-unpinned `git pull` in an installed Skill.
+The installer links the complete bundled Skill, including references, templates, and examples. For Claude Code, pass `--directory "$HOME/.claude/skills/vdoc"`; for project scope, use `--directory .agents/skills/vdoc`.
 
-The directory should contain:
+If the destination already exists, the installer leaves it untouched. Preserve local changes and move the old installation before migrating. Keep personal rules outside the linked package files.
 
-```text
-SKILL.md
-templates/
-  endpoint-integration.md
-  frontend-change-summary.md
-examples/
-  endpoint-query-example.md
-  compare-versions-example.md
-```
+### Updating
 
-The Skill must be paired with `@vdoc/mcp`. The Skill is workflow guidance; MCP is the live tool surface and source of facts.
+Install the MCP commit from the newer reviewed lock globally at the same npm prefix; the linked Skill updates with it. Reload your agent and restart MCP. Changing the Node installation or npm prefix requires relinking. Existing MCP configurations pinned to another Git commit must also be updated, or changed to use the global `vdoc-mcp` command.
 
-Validate the package:
+The package is not published to npm yet. `npm update --global @vdoc/mcp` will apply only after registry publication and migration from a Git-pinned install. Do not link a persistent Skill from an `npx` cache directory.
+
+### Independent Skills CLI installation
 
 ```sh
-cd Vdoc-skill
+npx skills add ChnMig/Vdoc-mcp --skill vdoc -g
+```
+
+This follows the default branch and is managed independently by Skills CLI; global MCP package updates do not update it. For a pinned installation, use the GitHub tree URL for the reviewed commit and `skills/vdoc` directory. Do not let Skills CLI and the MCP installer manage the same destination. Configure [MCP Tools](mcp-tools.md) separately.
+
+Validate both the Skill and MCP from the combined repository:
+
+```sh
+cd Vdoc-mcp
 npm test
 ```
 

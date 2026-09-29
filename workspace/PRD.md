@@ -2814,7 +2814,7 @@ MVP Skill 应满足：
   "mcpServers": {
     "vdoc": {
       "command": "npx",
-      "args": ["--yes", "github:ChnMig/Vdoc-mcp#c132b19e40f5b094a87ff7210e3634094ed18041"],
+      "args": ["--yes", "github:ChnMig/Vdoc-mcp#4e7043e5ce3af40ebe5a3345952707c1e99c7e68"],
       "env": {
         "VDOC_BASE_URL": "https://your-vdoc.example.com",
         "VDOC_MCP_TOKEN": "REPLACE_WITH_LOCAL_VDOC_MCP_TOKEN"
@@ -3314,7 +3314,7 @@ VDOC_MCP_TOKEN
 Skill 作为独立目录发布：
 
 ```text
-Vdoc-skill/SKILL.md
+Vdoc-mcp/skills/vdoc/SKILL.md
 ```
 
 也可以在 Web 页面提供复制和下载。

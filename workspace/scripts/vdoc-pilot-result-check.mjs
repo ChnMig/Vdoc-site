@@ -8,7 +8,7 @@ import { spawnSync } from "node:child_process";
 
 import { validateJsonSchema } from "./vdoc-json-schema-validate.mjs";
 
-const REQUIRED_REPOSITORIES = ["Vdoc", "Vdoc-admin", "Vdoc-site", "Vdoc-mcp", "Vdoc-skill"];
+const REQUIRED_REPOSITORIES = ["Vdoc", "Vdoc-admin", "Vdoc-site", "Vdoc-mcp"];
 const REQUIRED_CRITERIA = Array.from(
   { length: 14 },
   (_, index) => `prd-3.3-${String(index + 1).padStart(2, "0")}`,
@@ -237,7 +237,7 @@ function validateLock(lock) {
   }
   const paths = lock.repositories.map((entry) => entry.path);
   if (canonicalJson([...paths].sort()) !== canonicalJson([...REQUIRED_REPOSITORIES].sort())) {
-    fail("workspace lock must contain exactly the five Vdoc repositories");
+    fail("workspace lock must contain exactly the four Vdoc repositories");
   }
   for (const entry of lock.repositories) {
     exactKeys(entry, ["path", "remote", "ref", "commit"], `workspace lock repository ${entry.path ?? "?"}`);

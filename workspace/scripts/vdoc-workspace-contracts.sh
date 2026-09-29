@@ -112,7 +112,7 @@ mcp_marked_markdown_inventory() {
 }
 
 mcp_skill_test_tools() {
-  jq -r '.tools[].name' "$ROOT_DIR/Vdoc-skill/references/mcp-tools.json" | sort -u
+  jq -r '.tools[].name' "$ROOT_DIR/Vdoc-mcp/skills/vdoc/references/mcp-tools.json" | sort -u
 }
 
 assert_mcp_inventory_matches() {
@@ -123,7 +123,7 @@ assert_mcp_inventory_matches() {
   fi
 }
 
-for repo in Vdoc Vdoc-admin Vdoc-site Vdoc-mcp Vdoc-skill; do
+for repo in Vdoc Vdoc-admin Vdoc-site Vdoc-mcp; do
   workflow="$ROOT_DIR/$repo/.github/workflows/ci.yml"
   [[ -f "$workflow" ]] || fail "$repo CI workflow is missing"
   while IFS= read -r line; do
@@ -154,7 +154,7 @@ jq -e --arg release_ref "$release_ref" 'all(.repositories[]; .ref == $release_re
   "$ROOT_DIR/workspace.lock.json" >/dev/null || \
   fail "workspace lock must pin every repository to $release_ref"
 mcp_lock_commit="$(jq -r '.repositories[] | select(.path == "Vdoc-mcp") | .commit' "$ROOT_DIR/workspace.lock.json")"
-skill_lock_commit="$(jq -r '.repositories[] | select(.path == "Vdoc-skill") | .commit' "$ROOT_DIR/workspace.lock.json")"
+skill_lock_commit="$mcp_lock_commit"
 backend_lock_commit="$(jq -r '.repositories[] | select(.path == "Vdoc") | .commit' "$ROOT_DIR/workspace.lock.json")"
 admin_lock_commit="$(jq -r '.repositories[] | select(.path == "Vdoc-admin") | .commit' "$ROOT_DIR/workspace.lock.json")"
 [[ "$mcp_lock_commit" =~ ^[0-9a-f]{40}$ && "$skill_lock_commit" =~ ^[0-9a-f]{40}$ ]] || \
@@ -166,10 +166,14 @@ if rg -n --pcre2 --hidden \
   -g '!**/dist/**' \
   -g '!**/docs/.vitepress/dist/**' \
   -g '!**/.omo/**' \
+  -g '!**/.playwright-mcp/**' \
+  -g '!**/.impeccable/**' \
   -g '!**/.artifacts/**' \
   -g '!Vdoc-site/workspace/**' \
+  -g '!Vdoc-skill/**' \
   -g '!scripts/vdoc-workspace-contracts.sh' \
   -g '!Vdoc-mcp/README.md' \
+  -g '!Vdoc-mcp/skills/vdoc/README.md' \
   -g '!Vdoc-mcp/examples/**' \
   "github:ChnMig/Vdoc-mcp(?!#${mcp_lock_commit})|git\\+https://github\\.com/ChnMig/Vdoc-mcp\\.git(?!#${mcp_lock_commit})" \
   .; then
@@ -182,8 +186,11 @@ if rg -n --hidden \
   -g '!**/dist/**' \
   -g '!**/docs/.vitepress/dist/**' \
   -g '!**/.omo/**' \
+  -g '!**/.playwright-mcp/**' \
+  -g '!**/.impeccable/**' \
   -g '!**/.artifacts/**' \
   -g '!Vdoc-site/workspace/**' \
+  -g '!Vdoc-skill/**' \
   -g '!scripts/vdoc-workspace-contracts.sh' \
   'git clone[^\n]*ChnMig/Vdoc-skill\.git' \
   .; then
@@ -193,10 +200,10 @@ fi
 for file in \
   "$ROOT_DIR/Vdoc-site/docs/skill-workflows.md" \
   "$ROOT_DIR/Vdoc-site/docs/en/skill-workflows.md"; do
-  assert_file_contains "$file" "VDOC_SKILL_COMMIT=$skill_lock_commit"
+  assert_file_contains "$file" "git+https://github.com/ChnMig/Vdoc-mcp.git#$skill_lock_commit"
 done
-assert_file_contains "$ROOT_DIR/Vdoc-skill/README.md" 'VDOC_SKILL_COMMIT="$(jq -er'
-assert_file_contains "$ROOT_DIR/Vdoc-skill/README.md" 'select(.path == "Vdoc-skill")'
+assert_file_contains "$ROOT_DIR/Vdoc-mcp/skills/vdoc/README.md" 'VDOC_MCP_COMMIT="$(jq -er'
+assert_file_contains "$ROOT_DIR/Vdoc-mcp/skills/vdoc/README.md" 'select(.path == "Vdoc-mcp")'
 assert_file_contains "$ROOT_DIR/Vdoc-mcp/README.md" 'VDOC_MCP_COMMIT="$(jq -er'
 assert_file_contains "$ROOT_DIR/Vdoc-mcp/README.md" 'select(.path == "Vdoc-mcp")'
 for file in \
@@ -211,7 +218,7 @@ admin_mcp_source="$ROOT_DIR/Vdoc-admin/src/features/vdoc-admin/page-utils.ts"
 # Released Admin refs may predate page splitting; verify their existing barrel.
 [[ -f "$admin_skill_source" ]] || admin_skill_source="$ROOT_DIR/Vdoc-admin/src/features/vdoc-admin/pages.tsx"
 [[ -f "$admin_mcp_source" ]] || admin_mcp_source="$ROOT_DIR/Vdoc-admin/src/features/vdoc-admin/pages.tsx"
-assert_file_contains "$admin_skill_source" "const vdocSkillCommit = '$skill_lock_commit'"
+assert_file_contains "$admin_skill_source" 'npm install --global ${vdocMcpSource}'
 assert_file_contains "$admin_mcp_source" "github:ChnMig/Vdoc-mcp#$mcp_lock_commit"
 assert_backend_root_docs_are_distributed
 
@@ -268,10 +275,10 @@ assert_mcp_inventory_matches 'PRD.md' mcp_marked_plain_inventory "$ROOT_DIR/PRD.
 assert_mcp_inventory_matches 'IMPLEMENTATION_PLAN.md' mcp_marked_plain_inventory "$ROOT_DIR/IMPLEMENTATION_PLAN.md"
 assert_mcp_inventory_matches 'Chinese site docs' mcp_marked_markdown_inventory "$ROOT_DIR/Vdoc-site/docs/mcp-tools.md"
 assert_mcp_inventory_matches 'English site docs' mcp_marked_markdown_inventory "$ROOT_DIR/Vdoc-site/docs/en/mcp-tools.md"
-assert_mcp_inventory_matches 'Vdoc Skill' mcp_marked_plain_inventory "$ROOT_DIR/Vdoc-skill/SKILL.md"
+assert_mcp_inventory_matches 'Vdoc Skill' mcp_marked_plain_inventory "$ROOT_DIR/Vdoc-mcp/skills/vdoc/SKILL.md"
 assert_mcp_inventory_matches 'Vdoc Skill validation' mcp_skill_test_tools
 
-if ! diff -u <(jq -S . "$ROOT_DIR/contracts/mcp-tools-v0.2.json") <(jq -S . "$ROOT_DIR/Vdoc-skill/references/mcp-tools.json"); then
+if ! diff -u <(jq -S . "$ROOT_DIR/contracts/mcp-tools-v0.2.json") <(jq -S . "$ROOT_DIR/Vdoc-mcp/skills/vdoc/references/mcp-tools.json"); then
   fail 'Skill argument contract must match the workspace MCP manifest'
 fi
 
@@ -290,7 +297,7 @@ assert_file_contains "$ROOT_DIR/Vdoc-admin/.github/workflows/ci.yml" 'run: pnpm 
 assert_file_contains "$ROOT_DIR/Vdoc-admin/.github/workflows/ci.yml" 'run: pnpm test:browser'
 assert_file_contains "$ROOT_DIR/Vdoc-site/.github/workflows/ci.yml" 'run: pnpm test:performance'
 
-for repo in Vdoc Vdoc-admin Vdoc-mcp Vdoc-skill; do
+for repo in Vdoc Vdoc-admin Vdoc-mcp; do
   assert_file_contains "$ROOT_DIR/$repo/.github/workflows/ci.yml" 'contents: read'
   assert_file_contains "$ROOT_DIR/$repo/.github/workflows/ci.yml" 'persist-credentials: false'
 done
@@ -301,8 +308,11 @@ if rg -n --hidden \
   -g '!**/dist/**' \
   -g '!**/docs/.vitepress/dist/**' \
   -g '!**/.omo/**' \
+  -g '!**/.playwright-mcp/**' \
+  -g '!**/.impeccable/**' \
   -g '!**/.artifacts/**' \
   -g '!Vdoc-site/workspace/**' \
+  -g '!Vdoc-skill/**' \
   -g '!**/.impeccable/**' \
   -g '!**/.playwright-mcp/**' \
   -g '!scripts/vdoc-workspace-contracts.sh' \

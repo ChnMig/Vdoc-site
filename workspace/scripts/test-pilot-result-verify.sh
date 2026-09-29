@@ -52,7 +52,7 @@ cp "$ROOT_DIR/PILOT_RESULT.template.json" "$workspace/PILOT_RESULT.template.json
 repo_rows="$tmp/repositories.tsv"
 : >"$repo_rows"
 mkdir -p "$tmp/remotes"
-for repo in Vdoc Vdoc-admin Vdoc-site Vdoc-mcp Vdoc-skill; do
+for repo in Vdoc Vdoc-admin Vdoc-site Vdoc-mcp; do
   repo_dir="$workspace/$repo"
   remote="$tmp/remotes/$repo.git"
   git init -q --bare --initial-branch=main "$remote"
