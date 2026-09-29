@@ -2,6 +2,12 @@
 
 This page records the current user-visible v0.2 state covered by the VitePress docs. It is not a marketing list; it is what users should know before evaluation, deployment, or pilot use.
 
+## v0.3.5
+
+The deployment guide now displays the [complete Compose example for an existing PostgreSQL server](deployment.md#external-compose-example), including all YAML and field comments. Both language editions read from the same source as the downloadable file, keeping the example in sync with configuration updates.
+
+This documentation patch adds no application feature or database migration. All five distributions use v0.3.5.
+
 ## v0.3.4
 
 - Prevent late identity requests from overwriting or clearing a newer login session, including cancelled routes and sign-in with the same token.

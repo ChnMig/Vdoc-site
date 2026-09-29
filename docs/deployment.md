@@ -119,7 +119,11 @@ chmod 600 docker-compose.yml
 
 此版本的 `docker compose down` 不会停止外部数据库；`down -v` 仍会删除本项目的 RustFS 数据卷，从而丢失文档对象。迁移已有 Vdoc 部署时，需要同时迁移数据库内容、保留对象存储数据和原有密钥，不能只把 HOST 指向一个空库。
 
-完整字段说明直接写在下载的 YAML 注释中，包括连接池、TLS、密钥、端口、启动顺序和数据卷用途。
+### 外部 PostgreSQL 完整 Compose 示例 {#external-compose-example}
+
+下面直接引用发布的外部数据库版 YAML，包含全部服务、配置和字段注释，与下载文件保持一致。可整段复制为 `docker-compose.yml`，填写现有数据库连接信息并替换全部占位值后，按上面的步骤启动。
+
+<<< @/../workspace/deploy/docker-compose.external-postgres.yml{yaml} [docker-compose.external-postgres.yml]
 
 ## 更新版本
 

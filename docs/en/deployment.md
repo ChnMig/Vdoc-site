@@ -119,7 +119,11 @@ This variant starts RustFS, Backend, Admin and the one-shot configuration check.
 
 Here, `docker compose down` does not stop the external database. `down -v` still deletes this project's RustFS volumes and document objects. Moving an existing Vdoc installation requires transferring its database contents and preserving object storage and original keys; pointing HOST at an empty database is not a data migration.
 
-The downloaded YAML includes field comments covering the connection pool, TLS, keys, ports, startup order and data volumes.
+### Complete external PostgreSQL Compose example {#external-compose-example}
+
+The full example below reads directly from the published external-database YAML, including every service, setting and field comment, and matches the download. Copy the entire block into `docker-compose.yml`, fill in your existing database connection details, replace every placeholder, and follow the startup steps above.
+
+<<< @/../workspace/deploy/docker-compose.external-postgres.yml{yaml} [docker-compose.external-postgres.yml]
 
 ## Update versions
 

@@ -10,11 +10,12 @@
     "crossOriginRuntimeResources": 0
   },
   "contentAdditions": {
-    "bilingualCompleteComposeExampleBytes": 131072
+    "bilingualCompleteComposeExampleBytes": 131072,
+    "bilingualExternalPostgresComposeExampleBytes": 131072
   },
   "limits": {
     "totalFiles": 116,
-    "totalBytes": 3127706,
+    "totalBytes": 3258778,
     "downloadFiles": 6,
     "downloadBytes": 262144,
     "sharedJavaScriptGzipBytes": 92563,
