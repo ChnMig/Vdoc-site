@@ -18,7 +18,7 @@ Vdoc Skill 是安装到 Agent runtime 的工作流包。它不存数据、不计
 ```sh
 # 个人安装；仓库范围请改成 .agents/skills/vdoc
 VDOC_SKILL_DIR="$HOME/.agents/skills/vdoc"
-VDOC_SKILL_COMMIT=fec3d50781d3dc4e1ba4df552807aff297b7c72d
+VDOC_SKILL_COMMIT=bf5f77435612410d63dcb14c85a14521f1e606ba
 test ! -e "$VDOC_SKILL_DIR"
 mkdir -p "$(dirname -- "$VDOC_SKILL_DIR")"
 git init "$VDOC_SKILL_DIR"

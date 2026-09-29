@@ -2,6 +2,15 @@
 
 This page records the current user-visible v0.2 state covered by the VitePress docs. It is not a marketing list; it is what users should know before evaluation, deployment, or pilot use.
 
+## v0.3.6
+
+- Prevent delayed sign-in or registration responses from replacing a newer account; cancel requests when leaving the form and check session identity before applying results.
+- Keep CORS and security headers on global rate-limit rejections; preflight requests no longer consume business request quota.
+- Respect request/response direction for OpenAPI `readOnly` and `writeOnly` required fields, including references, nesting, and `allOf`; refresh stored diff facts when read.
+- Prevent old AI summary callbacks from repopulating the cache after sign-out, account changes, or a new login.
+
+This patch adds no database migrations and keeps the REST/MCP contracts compatible. Deployment continues to use application `latest` images, PostgreSQL `18`, RustFS `1.0.0`, and separate frontend/backend domains. See [Upgrade and Rollback](release-rollback.md).
+
 ## v0.3.5
 
 The deployment guide now displays the [complete Compose example for an existing PostgreSQL server](deployment.md#external-compose-example), including all YAML and field comments. Both language editions read from the same source as the downloadable file, keeping the example in sync with configuration updates.
