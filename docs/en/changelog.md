@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.3.8
+
+The default global MCP/Skill installation now downloads the compiled GitHub Release archive and checks `SHA256SUMS` before installing it. This avoids npm global Git source preparation failures. Existing pinned `npx` MCP configurations remain supported. No application database migration is added.
+
 ## v0.3.7
 
 - Consolidate the optional workflow Skill into `Vdoc-mcp/skills/vdoc`; MCP and Skill now share one package, version, and release.

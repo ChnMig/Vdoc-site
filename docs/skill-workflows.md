@@ -13,14 +13,24 @@ Vdoc Skill 是安装到 Agent runtime 的工作流包。它不存数据、不计
 
 ## 安装
 
-从 v0.3.7 起，可选 Skill 位于 `Vdoc-mcp/skills/vdoc`，并随 MCP 包一起发布；不安装 Skill 也能使用 MCP 工具。两者统一使用发布锁中的 `Vdoc-mcp` commit：
+从 v0.3.7 起，可选 Skill 位于 `Vdoc-mcp/skills/vdoc`，并随 MCP 包一起发布；不安装 Skill 也能使用 MCP 工具。两者统一使用发布锁中的 `Vdoc-mcp` 版本。下载并校验编译好的发行包，避免 npm 全局 Git 安装在准备阶段报 `tsc: command not found`：
 
 ```sh
 # Personal install; change the directory for another agent or project scope.
-VDOC_SKILL_DIR="$HOME/.agents/skills/vdoc"
-npm install --global git+https://github.com/ChnMig/Vdoc-mcp.git#4e7043e5ce3af40ebe5a3345952707c1e99c7e68
-vdoc-mcp skill install --directory "$VDOC_SKILL_DIR"
-test -f "$VDOC_SKILL_DIR/SKILL.md"
+(
+  set -eu
+  VDOC_SKILL_DIR="$HOME/.agents/skills/vdoc"
+  VDOC_MCP_VERSION=0.3.8
+  VDOC_MCP_PACKAGE_DIR="$(mktemp -d)"
+  trap 'rm -rf -- "$VDOC_MCP_PACKAGE_DIR"' EXIT
+  VDOC_MCP_RELEASE="https://github.com/ChnMig/Vdoc-mcp/releases/download/v$VDOC_MCP_VERSION"
+  curl -fsSL "$VDOC_MCP_RELEASE/vdoc-mcp-$VDOC_MCP_VERSION.tgz" -o "$VDOC_MCP_PACKAGE_DIR/vdoc-mcp-$VDOC_MCP_VERSION.tgz"
+  curl -fsSL "$VDOC_MCP_RELEASE/SHA256SUMS" -o "$VDOC_MCP_PACKAGE_DIR/SHA256SUMS"
+  (cd "$VDOC_MCP_PACKAGE_DIR" && shasum -a 256 -c SHA256SUMS)
+  npm install --global "$VDOC_MCP_PACKAGE_DIR/vdoc-mcp-$VDOC_MCP_VERSION.tgz"
+  vdoc-mcp skill install --directory "$VDOC_SKILL_DIR"
+  test -f "$VDOC_SKILL_DIR/SKILL.md"
+)
 ```
 
 安装器会链接完整 Skill，包括引用文件、模板和示例。Claude Code 可使用 `--directory "$HOME/.claude/skills/vdoc"`，项目范围可使用 `--directory .agents/skills/vdoc`。
@@ -29,7 +39,7 @@ test -f "$VDOC_SKILL_DIR/SKILL.md"
 
 ### 更新
 
-使用新版已审核 lock 中的 MCP commit，在同一个 npm 全局安装位置重新安装即可，链接的 Skill 会同步更新。之后重新加载 Agent 并重启 MCP。切换 Node 安装或 npm prefix 后需要重新链接。若 MCP 配置仍固定在另一个 Git commit，也要更新该配置，或改为启动全局 `vdoc-mcp` 命令。
+使用新版已审核 lock 对应的 MCP 发行包，校验后在同一个 npm 全局安装位置重新安装即可，链接的 Skill 会同步更新。之后重新加载 Agent 并重启 MCP。切换 Node 安装或 npm prefix 后需要重新链接。若 MCP 配置仍固定在另一个 Git commit，也要更新该配置，或改为启动全局 `vdoc-mcp` 命令。
 
 目前包尚未发布到 npm。发布并从 Git 固定安装迁移到 registry 安装后，才适用 `npm update --global @vdoc/mcp`。不要从临时 `npx` 缓存目录建立持久 Skill 链接。
 

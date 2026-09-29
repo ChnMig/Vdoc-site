@@ -1,5 +1,9 @@
 # 变更记录
 
+## v0.3.8
+
+默认全局 MCP/Skill 安装改为下载编译好的 GitHub Release 发行包，校验 `SHA256SUMS` 后再安装，避免 npm 全局 Git 安装在准备阶段失败。现有固定 commit 的 `npx` MCP 配置继续可用。本版不新增应用数据库迁移。
+
 ## v0.3.7
 
 - 将可选工作流 Skill 合并到 `Vdoc-mcp/skills/vdoc`，与 MCP 共用一个包、版本和发布流程。

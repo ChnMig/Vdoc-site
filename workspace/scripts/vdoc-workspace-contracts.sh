@@ -154,10 +154,11 @@ jq -e --arg release_ref "$release_ref" 'all(.repositories[]; .ref == $release_re
   "$ROOT_DIR/workspace.lock.json" >/dev/null || \
   fail "workspace lock must pin every repository to $release_ref"
 mcp_lock_commit="$(jq -r '.repositories[] | select(.path == "Vdoc-mcp") | .commit' "$ROOT_DIR/workspace.lock.json")"
-skill_lock_commit="$mcp_lock_commit"
+mcp_lock_ref="$(jq -r '.repositories[] | select(.path == "Vdoc-mcp") | .ref' "$ROOT_DIR/workspace.lock.json")"
+mcp_lock_version="${mcp_lock_ref#refs/tags/v}"
 backend_lock_commit="$(jq -r '.repositories[] | select(.path == "Vdoc") | .commit' "$ROOT_DIR/workspace.lock.json")"
 admin_lock_commit="$(jq -r '.repositories[] | select(.path == "Vdoc-admin") | .commit' "$ROOT_DIR/workspace.lock.json")"
-[[ "$mcp_lock_commit" =~ ^[0-9a-f]{40}$ && "$skill_lock_commit" =~ ^[0-9a-f]{40}$ ]] || \
+[[ "$mcp_lock_commit" =~ ^[0-9a-f]{40}$ && "$mcp_lock_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]] || \
   fail 'workspace lock is missing MCP or Skill commit provenance'
 
 if rg -n --pcre2 --hidden \
@@ -200,10 +201,11 @@ fi
 for file in \
   "$ROOT_DIR/Vdoc-site/docs/skill-workflows.md" \
   "$ROOT_DIR/Vdoc-site/docs/en/skill-workflows.md"; do
-  assert_file_contains "$file" "git+https://github.com/ChnMig/Vdoc-mcp.git#$skill_lock_commit"
+  assert_file_contains "$file" "VDOC_MCP_VERSION=$mcp_lock_version"
+  assert_file_contains "$file" 'shasum -a 256 -c SHA256SUMS'
+  assert_file_contains "$file" 'npm install --global "$VDOC_MCP_PACKAGE_DIR/vdoc-mcp-$VDOC_MCP_VERSION.tgz"'
 done
-assert_file_contains "$ROOT_DIR/Vdoc-mcp/skills/vdoc/README.md" 'VDOC_MCP_COMMIT="$(jq -er'
-assert_file_contains "$ROOT_DIR/Vdoc-mcp/skills/vdoc/README.md" 'select(.path == "Vdoc-mcp")'
+assert_file_contains "$ROOT_DIR/Vdoc-mcp/skills/vdoc/README.md" 'https://github.com/ChnMig/Vdoc-mcp#optional-skill-and-linked-updates'
 assert_file_contains "$ROOT_DIR/Vdoc-mcp/README.md" 'VDOC_MCP_COMMIT="$(jq -er'
 assert_file_contains "$ROOT_DIR/Vdoc-mcp/README.md" 'select(.path == "Vdoc-mcp")'
 for file in \
@@ -218,7 +220,9 @@ admin_mcp_source="$ROOT_DIR/Vdoc-admin/src/features/vdoc-admin/page-utils.ts"
 # Released Admin refs may predate page splitting; verify their existing barrel.
 [[ -f "$admin_skill_source" ]] || admin_skill_source="$ROOT_DIR/Vdoc-admin/src/features/vdoc-admin/pages.tsx"
 [[ -f "$admin_mcp_source" ]] || admin_mcp_source="$ROOT_DIR/Vdoc-admin/src/features/vdoc-admin/pages.tsx"
-assert_file_contains "$admin_skill_source" 'npm install --global ${vdocMcpSource}'
+assert_file_contains "$admin_skill_source" 'VDOC_MCP_VERSION=${vdocMcpReleaseVersion}'
+assert_file_contains "$admin_skill_source" 'shasum -a 256 -c SHA256SUMS'
+assert_file_contains "$admin_mcp_source" "export const vdocMcpReleaseVersion = '$mcp_lock_version'"
 assert_file_contains "$admin_mcp_source" "github:ChnMig/Vdoc-mcp#$mcp_lock_commit"
 assert_backend_root_docs_are_distributed
 

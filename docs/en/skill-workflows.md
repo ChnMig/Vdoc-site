@@ -13,14 +13,24 @@ If Vdoc is not running yet, follow the [Deployment Guide](deployment.md#quick-st
 
 ## Installation
 
-Since v0.3.7, the optional Skill lives in `Vdoc-mcp/skills/vdoc` and is included in the MCP package. MCP works without it. Both use the `Vdoc-mcp` commit pinned by the workspace release lock:
+Since v0.3.7, the optional Skill lives in `Vdoc-mcp/skills/vdoc` and is included in the MCP package. MCP works without it. Both use the `Vdoc-mcp` release pinned by the workspace lock. Install the compiled archive after verifying its checksum; this avoids npm global Git preparation failures such as `tsc: command not found`:
 
 ```sh
 # Personal install; change the directory for another agent or project scope.
-VDOC_SKILL_DIR="$HOME/.agents/skills/vdoc"
-npm install --global git+https://github.com/ChnMig/Vdoc-mcp.git#4e7043e5ce3af40ebe5a3345952707c1e99c7e68
-vdoc-mcp skill install --directory "$VDOC_SKILL_DIR"
-test -f "$VDOC_SKILL_DIR/SKILL.md"
+(
+  set -eu
+  VDOC_SKILL_DIR="$HOME/.agents/skills/vdoc"
+  VDOC_MCP_VERSION=0.3.8
+  VDOC_MCP_PACKAGE_DIR="$(mktemp -d)"
+  trap 'rm -rf -- "$VDOC_MCP_PACKAGE_DIR"' EXIT
+  VDOC_MCP_RELEASE="https://github.com/ChnMig/Vdoc-mcp/releases/download/v$VDOC_MCP_VERSION"
+  curl -fsSL "$VDOC_MCP_RELEASE/vdoc-mcp-$VDOC_MCP_VERSION.tgz" -o "$VDOC_MCP_PACKAGE_DIR/vdoc-mcp-$VDOC_MCP_VERSION.tgz"
+  curl -fsSL "$VDOC_MCP_RELEASE/SHA256SUMS" -o "$VDOC_MCP_PACKAGE_DIR/SHA256SUMS"
+  (cd "$VDOC_MCP_PACKAGE_DIR" && shasum -a 256 -c SHA256SUMS)
+  npm install --global "$VDOC_MCP_PACKAGE_DIR/vdoc-mcp-$VDOC_MCP_VERSION.tgz"
+  vdoc-mcp skill install --directory "$VDOC_SKILL_DIR"
+  test -f "$VDOC_SKILL_DIR/SKILL.md"
+)
 ```
 
 The installer links the complete bundled Skill, including references, templates, and examples. For Claude Code, pass `--directory "$HOME/.claude/skills/vdoc"`; for project scope, use `--directory .agents/skills/vdoc`.
@@ -29,7 +39,7 @@ If the destination already exists, the installer leaves it untouched. Preserve l
 
 ### Updating
 
-Install the MCP commit from the newer reviewed lock globally at the same npm prefix; the linked Skill updates with it. Reload your agent and restart MCP. Changing the Node installation or npm prefix requires relinking. Existing MCP configurations pinned to another Git commit must also be updated, or changed to use the global `vdoc-mcp` command.
+Install the verified MCP release archive from the newer reviewed lock globally at the same npm prefix; the linked Skill updates with it. Reload your agent and restart MCP. Changing the Node installation or npm prefix requires relinking. Existing MCP configurations pinned to another Git commit must also be updated, or changed to use the global `vdoc-mcp` command.
 
 The package is not published to npm yet. `npm update --global @vdoc/mcp` will apply only after registry publication and migration from a Git-pinned install. Do not link a persistent Skill from an `npx` cache directory.
 
