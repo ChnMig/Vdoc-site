@@ -2,6 +2,15 @@
 
 This page records the current user-visible v0.2 state covered by the VitePress docs. It is not a marketing list; it is what users should know before evaluation, deployment, or pilot use.
 
+## v0.3.4
+
+- Prevent late identity requests from overwriting or clearing a newer login session, including cancelled routes and sign-in with the same token.
+- Correct the document format in OpenAPI 3.1 draft previews and published Diffs. Cross-dialect comparisons use the target format; existing cached facts are repaired on read.
+- Keep the workbench theme context synchronized with operating-system theme changes.
+- Add a standalone Compose file for an existing PostgreSQL server, with field comments, downloads, and checksums for both deployment variants.
+
+No database migration is added beyond v0.3.3. REST/MCP contracts remain compatible. See [upgrade and rollback](release-rollback.md).
+
 ## v0.3.3
 
 - Standalone deployments use Backend/Admin `latest`, PostgreSQL `18` and RustFS `1.0.0`; pull/up updates containers.

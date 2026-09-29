@@ -27,11 +27,18 @@ function fixture() {
       readProjectText(`workspace/${file}`),
     )
   }
-  copyFileSync(
-    join(projectRoot, 'workspace/deploy/docker-compose.yml'),
-    join(root, 'workspace/deploy/docker-compose.yml'),
-  )
-  for (const file of ['docker-compose.yml', 'docker-compose.yml.sha256'])
+  for (const file of [
+    'docker-compose.yml',
+    'docker-compose.external-postgres.yml',
+  ])
+    copyFileSync(
+      join(projectRoot, 'workspace/deploy', file),
+      join(root, 'workspace/deploy', file),
+    )
+  for (const file of [
+    'docker-compose.yml',
+    'docker-compose.external-postgres.yml',
+  ].flatMap((name) => [name, `${name}.sha256`]))
     copyFileSync(
       join(projectRoot, 'docs/public/downloads', file),
       join(root, 'docs/public/downloads', file),
@@ -153,25 +160,28 @@ describe('published Pages download validation', () => {
     }
   })
 
-  it('rejects a changed standalone YAML even with a regenerated checksum', () => {
-    const { root } = fixture()
-    try {
-      const file = join(root, 'docs/public/downloads/docker-compose.yml')
-      writeFileSync(file, 'services: {}\n')
-      expect(check(root).stderr).toContain(
-        'standalone Compose checksum does not match',
-      )
-      const digest = createHash('sha256')
-        .update(readFileSync(file))
-        .digest('hex')
-      writeFileSync(`${file}.sha256`, `${digest}  docker-compose.yml\n`)
-      expect(check(root).stderr).toContain(
-        'standalone Compose differs from the tagged source',
-      )
-    } finally {
-      rmSync(root, { recursive: true, force: true })
-    }
-  })
+  it.each(['docker-compose.yml', 'docker-compose.external-postgres.yml'])(
+    'rejects changed %s even with a regenerated checksum',
+    (name) => {
+      const { root } = fixture()
+      try {
+        const file = join(root, 'docs/public/downloads', name)
+        writeFileSync(file, 'services: {}\n')
+        expect(check(root).stderr).toContain(
+          'standalone Compose checksum does not match',
+        )
+        const digest = createHash('sha256')
+          .update(readFileSync(file))
+          .digest('hex')
+        writeFileSync(`${file}.sha256`, `${digest}  ${name}\n`)
+        expect(check(root).stderr).toContain(
+          'standalone Compose differs from the tagged source',
+        )
+      } finally {
+        rmSync(root, { recursive: true, force: true })
+      }
+    },
+  )
 
   it('rejects changed download bytes and non-stable tags', () => {
     const { root, archive } = fixture()

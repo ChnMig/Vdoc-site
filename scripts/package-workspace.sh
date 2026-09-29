@@ -36,6 +36,8 @@ cp "$stage/output/$artifact_name.tar.gz" "$SITE_ROOT/docs/public/downloads/"
 cp "$stage/output/$artifact_name.tar.gz.sha256" "$SITE_ROOT/docs/public/downloads/"
 printf 'Website download prepared: docs/public/downloads/%s.tar.gz\n' "$artifact_name"
 
-cp "$SITE_ROOT/workspace/deploy/docker-compose.yml" "$SITE_ROOT/docs/public/downloads/docker-compose.yml"
-(cd "$SITE_ROOT/docs/public/downloads" && shasum -a 256 docker-compose.yml >docker-compose.yml.sha256)
-printf 'Standalone deployment prepared: docs/public/downloads/docker-compose.yml\n'
+for name in docker-compose.yml docker-compose.external-postgres.yml; do
+  cp "$SITE_ROOT/workspace/deploy/$name" "$SITE_ROOT/docs/public/downloads/$name"
+  (cd "$SITE_ROOT/docs/public/downloads" && shasum -a 256 "$name" >"$name.sha256")
+  printf 'Standalone deployment prepared: docs/public/downloads/%s\n' "$name"
+done

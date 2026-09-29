@@ -16,7 +16,9 @@ docker compose up -d
 
 Open `http://127.0.0.1:8081` and sign in with your configured initial administrator. Backend automatically creates its schema, applies pending migrations, and creates the storage bucket and initial administrator. Ordinary deployments need no `.env`, source lock, installer, or test database script. Backend/Admin follow the newest stable `latest` images, PostgreSQL follows `18` patch updates, and RustFS uses `1.0.0`. Back up data, keep the existing configuration and volumes, then repeat `pull` / `up -d --wait` to update. Running containers are not updated automatically. For a public domain, use the two-domain [Caddy configuration](https://chnmig.github.io/Vdoc-site/en/deployment#caddy-domain). See the [deployment guide](https://chnmig.github.io/Vdoc-site/en/deployment) and [upgrade guide](https://chnmig.github.io/Vdoc-site/en/release-rollback).
 
-The standalone source is `deploy/docker-compose.yml`. The root `docker-compose.yml` and instructions below support source development and release verification.
+Already have PostgreSQL? Use [docker-compose.external-postgres.yml](https://chnmig.github.io/Vdoc-site/downloads/docker-compose.external-postgres.yml) alone as `docker-compose.yml`, prepare a dedicated database/login, and fill its connection settings. It keeps RustFS and both application services while leaving PostgreSQL with your existing service. See [external database setup](https://chnmig.github.io/Vdoc-site/en/deployment#external-postgresql).
+
+The standalone sources are `deploy/docker-compose.yml` and `deploy/docker-compose.external-postgres.yml`, both with field comments. The root `docker-compose.yml` and instructions below support source development and release verification.
 
 This directory is the release control plane for the five Vdoc repositories:
 
@@ -42,8 +44,8 @@ pnpm site:package
 This produces:
 
 ```text
-vdoc-compose-bootstrap-v0.3.3.tar.gz
-vdoc-compose-bootstrap-v0.3.3.tar.gz.sha256
+vdoc-compose-bootstrap-v0.3.4.tar.gz
+vdoc-compose-bootstrap-v0.3.4.tar.gz.sha256
 ```
 
 This is not a binary installer or a container-image bundle. It contains `docker-compose.yml`, `.env.example`, the root deployment/release scripts, the MIT license, and `workspace.lock.json`. The optional offline installer downloads the separate Backend/Admin image archives, verifies their checksums and locked revisions, and loads them into Docker. Compose then starts PostgreSQL, RustFS, Backend, and Admin. Developers can instead initialize the five exact source checkouts and build locally. The archive contains no `.env`, credentials, local evidence, application binaries, container images, or repository working trees.
@@ -54,14 +56,14 @@ Public copies of these workspace files live in [Vdoc-site/workspace](https://git
 
 ```sh
 VDOC_BOOTSTRAP_BASE=https://chnmig.github.io/Vdoc-site/downloads
-curl -fLO "$VDOC_BOOTSTRAP_BASE/vdoc-compose-bootstrap-v0.3.3.tar.gz"
-curl -fLO "$VDOC_BOOTSTRAP_BASE/vdoc-compose-bootstrap-v0.3.3.tar.gz.sha256"
-shasum -a 256 -c vdoc-compose-bootstrap-v0.3.3.tar.gz.sha256
-tar -xzf vdoc-compose-bootstrap-v0.3.3.tar.gz
+curl -fLO "$VDOC_BOOTSTRAP_BASE/vdoc-compose-bootstrap-v0.3.4.tar.gz"
+curl -fLO "$VDOC_BOOTSTRAP_BASE/vdoc-compose-bootstrap-v0.3.4.tar.gz.sha256"
+shasum -a 256 -c vdoc-compose-bootstrap-v0.3.4.tar.gz.sha256
+tar -xzf vdoc-compose-bootstrap-v0.3.4.tar.gz
 cd vdoc-workspace
 ```
 
-Direct assets: [Compose bootstrap archive](https://chnmig.github.io/Vdoc-site/downloads/vdoc-compose-bootstrap-v0.3.3.tar.gz) and [SHA-256 file](https://chnmig.github.io/Vdoc-site/downloads/vdoc-compose-bootstrap-v0.3.3.tar.gz.sha256). See the [deployment guide](https://chnmig.github.io/Vdoc-site/en/deployment) for configuration and first login. The archive and all five source tags use `v0.3.3`. The source lock uses `@release` only for the Site commit: a Git commit cannot contain its own hash. The Site tag build resolves this entry, verifies all five public tags against their pinned commits, and ships a fully resolved lock with five exact commit hashes. Website downloads become available when the corresponding Site build is deployed. They are evaluation snapshots and may be replaced; retain the downloaded archive and checksum when reproducing an environment. The checksum checks the bytes against the accompanying file; it does not authenticate a release or prove production readiness or a completed Pilot.
+Direct assets: [Compose bootstrap archive](https://chnmig.github.io/Vdoc-site/downloads/vdoc-compose-bootstrap-v0.3.4.tar.gz) and [SHA-256 file](https://chnmig.github.io/Vdoc-site/downloads/vdoc-compose-bootstrap-v0.3.4.tar.gz.sha256). See the [deployment guide](https://chnmig.github.io/Vdoc-site/en/deployment) for configuration and first login. The archive and all five source tags use `v0.3.4`. The source lock uses `@release` only for the Site commit: a Git commit cannot contain its own hash. The Site tag build resolves this entry, verifies all five public tags against their pinned commits, and ships a fully resolved lock with five exact commit hashes. Website downloads become available when the corresponding Site build is deployed. They are evaluation snapshots and may be replaced; retain the downloaded archive and checksum when reproducing an environment. The checksum checks the bytes against the accompanying file; it does not authenticate a release or prove production readiness or a completed Pilot.
 
 ## Existing workspace
 

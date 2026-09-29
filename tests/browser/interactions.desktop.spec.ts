@@ -3,23 +3,26 @@ import { createHash } from 'node:crypto'
 import { previewBasePath, routeUrl } from './support/preview'
 
 test.describe('focused desktop interactions', () => {
-  test('serves the standalone Compose YAML and matching checksum inside the selected base', async ({
-    request,
-  }) => {
-    const archiveName = 'docker-compose.yml'
-    const response = await request.get(
-      `${previewBasePath}downloads/${archiveName}`,
-    )
-    expect(response.ok()).toBe(true)
-    const archive = await response.body()
-    expect(archive.toString()).toContain('ghcr.io/chnmig/vdoc:')
-    const checksum = await request.get(
-      `${previewBasePath}downloads/${archiveName}.sha256`,
-    )
-    expect(checksum.ok()).toBe(true)
-    const digest = createHash('sha256').update(archive).digest('hex')
-    expect(await checksum.text()).toBe(`${digest}  ${archiveName}\n`)
-  })
+  for (const archiveName of [
+    'docker-compose.yml',
+    'docker-compose.external-postgres.yml',
+  ])
+    test(`serves ${archiveName} and matching checksum inside the selected base`, async ({
+      request,
+    }) => {
+      const response = await request.get(
+        `${previewBasePath}downloads/${archiveName}`,
+      )
+      expect(response.ok()).toBe(true)
+      const archive = await response.body()
+      expect(archive.toString()).toContain('ghcr.io/chnmig/vdoc:')
+      const checksum = await request.get(
+        `${previewBasePath}downloads/${archiveName}.sha256`,
+      )
+      expect(checksum.ok()).toBe(true)
+      const digest = createHash('sha256').update(archive).digest('hex')
+      expect(await checksum.text()).toBe(`${digest}  ${archiveName}\n`)
+    })
 
   for (const locale of [
     {

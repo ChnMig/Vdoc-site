@@ -13,9 +13,9 @@
     "bilingualCompleteComposeExampleBytes": 131072
   },
   "limits": {
-    "totalFiles": 114,
+    "totalFiles": 116,
     "totalBytes": 3127706,
-    "downloadFiles": 4,
+    "downloadFiles": 6,
     "downloadBytes": 262144,
     "sharedJavaScriptGzipBytes": 92563,
     "sharedCssGzipBytes": 20404,

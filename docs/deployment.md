@@ -19,6 +19,8 @@ chmod 600 docker-compose.yml
 
 默认镜像策略：Backend 和 Admin 使用 `latest`，跟随已发布的稳定版本；PostgreSQL 使用 `18`，跟随 18.x 补丁；RustFS 使用 `1.0.0`。下载地址和应用镜像名无需随每次发版修改。`latest` 在执行 `docker compose pull` 时解析，已运行的容器不会自行升级。
 
+已有 PostgreSQL 时，选择[外部数据库版](#external-postgresql)，它不启动数据库容器。两份 YAML 都附带字段注释，任选一份单独使用。
+
 [Site Release](https://github.com/ChnMig/Vdoc-site/releases) 保留各版 YAML 和 `docker-compose.yml.sha256`，可核验配置文件来源。新版本 YAML 中的 `latest` 仍是滚动引用；需要固定应用版本时，将两处应用镜像改为所需的同一个 `vX.Y.Z` tag 或已记录的 digest。
 
 <div id="initial-admin"></div>
@@ -66,6 +68,59 @@ Compose 会先运行一次 `config-check`。如果还留有占位值或必填配
 
 <<< @/../workspace/deploy/docker-compose.yml{yaml} [docker-compose.yml]
 
+## 接入现有 PostgreSQL {#external-postgresql}
+
+下载 [docker-compose.external-postgres.yml](https://chnmig.github.io/Vdoc-site/downloads/docker-compose.external-postgres.yml)，将它单独保存为部署目录中的 `docker-compose.yml`。不要与内置数据库版叠加使用，Compose 的文件合并不会自动删除原有 `postgres` 服务。
+
+```sh
+mkdir vdoc-external-db
+cd vdoc-external-db
+curl -fL https://chnmig.github.io/Vdoc-site/downloads/docker-compose.external-postgres.yml -o docker-compose.yml
+chmod 600 docker-compose.yml
+```
+
+这份配置只启动 RustFS、Backend、Admin 和一次性配置检查，不创建 PostgreSQL 服务或数据库数据卷。数据库的版本、备份、可用性和升级由现有服务负责；此示例使用 PostgreSQL 18 验证。应用镜像仍使用 `latest`，RustFS 仍固定 `1.0.0`。
+
+1. 在现有实例中准备一个 **Vdoc 专用数据库**和账号。后端会在该库中创建表并执行迁移，但不会创建数据库本身。账号需要连接、读写以及创建/修改应用表和索引的权限；新库建议由该账号拥有，且具备 `public` schema 的 `USAGE`、`CREATE` 权限。不要复用其他业务的库。若尚未创建，可由数据库管理员在 `psql` 中执行：
+
+   ```sql
+   CREATE ROLE vdoc LOGIN;
+   \password vdoc
+   CREATE DATABASE vdoc OWNER vdoc;
+   ```
+
+   `\password` 会交互式设置密码。已创建数据库或账号时直接使用现有配置，无需重复执行。
+
+2. 编辑顶部 `x-backend-environment` 中的连接字段，并替换存储、JWT、MCP 和初始管理员的全部占位值：
+
+   | 字段                                                            | 填写方式                                                                                                                                    |
+   | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+   | `VDOC_DATABASE_HOST`                                            | 容器可访问的数据库域名或 IP，不带协议、端口                                                                                                 |
+   | `VDOC_DATABASE_PORT`                                            | 实际数据库端口，默认 `5432`                                                                                                                 |
+   | `VDOC_DATABASE_NAME` / `VDOC_DATABASE_USER`                     | 已准备好的专用库名和账号                                                                                                                    |
+   | `VDOC_DATABASE_PASSWORD`                                        | 该账号的密码，无需 URL 编码；字面量 `$` 写为 `$$`                                                                                           |
+   | `VDOC_DATABASE_SSL_MODE`                                        | 默认 `require`，强制 TLS 加密但不校验服务端身份；仅对明确未启用 TLS 的可信本机/私网实例改为 `disable`。云数据库按服务商的证书和校验要求配置 |
+   | `VDOC_DATABASE_MAX_OPEN_CONNS` / `VDOC_DATABASE_MAX_IDLE_CONNS` | 默认 `20` / `5`，按数据库连接额度调整；空闲数不能超过总数                                                                                   |
+
+   数据库运行在 Docker 宿主机时，可将 HOST 设为 `host.docker.internal`，使用数据库在宿主机开放的端口。文件已为 Backend 添加 Linux 的 `host-gateway` 映射。容器内 `127.0.0.1` 指向容器本身；数据库应监听容器可达的地址，`pg_hba.conf` 和防火墙应允许实际容器来源连接。
+
+   若数据库位于另一个 Compose 网络，也可以将 Backend 加入该已有网络，通过数据库服务名连接；保留 Backend 默认网络，确保它仍可访问 RustFS。单独填写另一个网络内的服务名不会建立连通性。
+
+3. 若使用域名，将 `VDOC_ADMIN_API_BASE_URL` 改为后端 HTTPS origin；[双域名 Caddy 配置](#caddy-domain)与内置数据库版相同。确认外部数据库已就绪后启动：
+
+   ```sh
+   docker compose config --quiet
+   docker compose pull
+   docker compose up -d --wait
+   docker compose logs --tail=100 backend admin rustfs
+   ```
+
+`config-check` 只检查配置，不连接或验证外部数据库。实际连接、鉴权、TLS 和迁移在 Backend 启动时完成；连接失败可查看后端日志。外部数据库的就绪状态无法用本项目的 `depends_on` 管理。
+
+此版本的 `docker compose down` 不会停止外部数据库；`down -v` 仍会删除本项目的 RustFS 数据卷，从而丢失文档对象。迁移已有 Vdoc 部署时，需要同时迁移数据库内容、保留对象存储数据和原有密钥，不能只把 HOST 指向一个空库。
+
+完整字段说明直接写在下载的 YAML 注释中，包括连接池、TLS、密钥、端口、启动顺序和数据卷用途。
+
 ## 更新版本
 
 默认无需修改两处应用镜像名。先查看版本说明并备份数据，保留原 YAML、账号、密钥、域名和数据卷，然后执行：
@@ -87,6 +142,8 @@ docker compose logs --tail=100 backend admin postgres rustfs
 docker compose stop
 docker compose up -d
 ```
+
+外部数据库版的日志命令省略 `postgres`；`pull` 不会更新外部数据库。
 
 `docker compose down` 删除容器和网络，但保留数据卷。不要对需要保留的数据使用 `docker compose down -v`，它会删除 `postgres-data`、`rustfs-data` 和 `rustfs-logs`。保持 Compose 项目名 `vdoc`，否则 Docker 会使用另一组卷。
 
@@ -151,6 +208,6 @@ curl -fsS https://docs.example.com/runtime-config.js
 
 ## 源码开发与高级配置
 
-只部署应用无需源码下载包。需要修改代码、运行一次性 E2E 测试或使用外部数据库/对象存储时，查看[公开工作区部署文档](https://github.com/ChnMig/Vdoc-site/blob/main/workspace/COMPOSE_DEPLOY.md)。源码工作区仍提供 `.env`、测试数据库脚本和精确源码锁，它们用于开发与发布校验。
+只部署应用无需源码下载包；现有 PostgreSQL 可直接使用[外部数据库版](#external-postgresql)。需要修改代码、运行一次性 E2E 测试或使用外部对象存储时，查看[公开工作区部署文档](https://github.com/ChnMig/Vdoc-site/blob/main/workspace/COMPOSE_DEPLOY.md)。源码工作区仍提供 `.env`、测试数据库脚本和精确源码锁，它们用于开发与发布校验。
 
 密钥轮换涉及已存储密文，不能仅覆盖原密钥。需要轮换时，按[运行维护说明](https://github.com/ChnMig/Vdoc-site/blob/main/workspace/RELEASE_DEPLOY.md)配置历史 KID/keyring，并完成验证后再移除旧密钥。

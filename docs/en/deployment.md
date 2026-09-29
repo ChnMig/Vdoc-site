@@ -19,6 +19,8 @@ chmod 600 docker-compose.yml
 
 Backend and Admin use `latest`, tracking published stable releases. PostgreSQL uses `18`, tracking 18.x patch updates, while RustFS uses `1.0.0`. The download URL and application image names stay the same across releases. Docker resolves `latest` when you run `docker compose pull`; running containers do not update by themselves.
 
+If you already run PostgreSQL, choose the [external database variant](#external-postgresql), which does not start a database container. Both YAML files include field comments. Use either file on its own.
+
 [Site Releases](https://github.com/ChnMig/Vdoc-site/releases) retain each YAML and its `docker-compose.yml.sha256` sidecar to verify the configuration source. A versioned YAML containing `latest` still follows rolling images. To pin an application release, replace both application aliases with the same desired `vX.Y.Z` tag or recorded digests.
 
 <div id="initial-admin"></div>
@@ -66,6 +68,59 @@ This example includes all settings, four persistent services, a one-shot configu
 
 <<< @/../workspace/deploy/docker-compose.yml{yaml} [docker-compose.yml]
 
+## Connect to existing PostgreSQL {#external-postgresql}
+
+Download [docker-compose.external-postgres.yml](https://chnmig.github.io/Vdoc-site/downloads/docker-compose.external-postgres.yml) and save it as the only `docker-compose.yml` in a dedicated deployment directory. Do not layer it over the bundled database variant: Compose merging does not remove the original `postgres` service.
+
+```sh
+mkdir vdoc-external-db
+cd vdoc-external-db
+curl -fL https://chnmig.github.io/Vdoc-site/downloads/docker-compose.external-postgres.yml -o docker-compose.yml
+chmod 600 docker-compose.yml
+```
+
+This variant starts RustFS, Backend, Admin and the one-shot configuration check. It creates no PostgreSQL service or database volume. Your existing database service controls its version, backups, availability and upgrades; this example is tested with PostgreSQL 18. Application images still use `latest`, and RustFS stays on `1.0.0`.
+
+1. Prepare a **dedicated Vdoc database** and login. Backend creates tables and applies migrations inside that database, but does not create the database itself. The login needs connection, read/write, and application table/index creation and alteration permissions. For a new database, make this login its owner and allow `USAGE` and `CREATE` on the `public` schema. Do not reuse another application's database. If these do not exist, a database administrator can run in `psql`:
+
+   ```sql
+   CREATE ROLE vdoc LOGIN;
+   \password vdoc
+   CREATE DATABASE vdoc OWNER vdoc;
+   ```
+
+   `\password` sets the password interactively. Use existing database/login settings if already prepared; do not recreate them.
+
+2. Edit the connection fields in `x-backend-environment`, and replace all storage, JWT, MCP and initial administrator placeholders:
+
+   | Field                                                           | Value                                                                                                                                                                                                                                                     |
+   | --------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+   | `VDOC_DATABASE_HOST`                                            | Database hostname or IP reachable from the container, without a scheme or port                                                                                                                                                                            |
+   | `VDOC_DATABASE_PORT`                                            | Actual database port, default `5432`                                                                                                                                                                                                                      |
+   | `VDOC_DATABASE_NAME` / `VDOC_DATABASE_USER`                     | Prepared dedicated database and login                                                                                                                                                                                                                     |
+   | `VDOC_DATABASE_PASSWORD`                                        | Login password; no URL encoding needed, but write literal `$` as `$$`                                                                                                                                                                                     |
+   | `VDOC_DATABASE_SSL_MODE`                                        | Default `require` encrypts traffic using TLS without verifying server identity. Use `disable` only for a trusted local/private instance explicitly running without TLS. Follow your managed database provider's certificate and verification requirements |
+   | `VDOC_DATABASE_MAX_OPEN_CONNS` / `VDOC_DATABASE_MAX_IDLE_CONNS` | Default `20` / `5`; fit the database connection quota, with idle connections no greater than the total                                                                                                                                                    |
+
+   For a database on the Docker host, use `host.docker.internal` and the host's database port. Backend includes the Linux `host-gateway` mapping. Container `127.0.0.1` points to that container; the database must listen on a container-reachable address, and `pg_hba.conf` and the firewall must allow the actual container source.
+
+   If the database runs on another Compose network, attach Backend to that existing network to use its database service name. Retain Backend's default network for RustFS access. A service name alone does not connect separate networks.
+
+3. For domain access, set `VDOC_ADMIN_API_BASE_URL` to the backend HTTPS origin; the [two-domain Caddy setup](#caddy-domain) is unchanged. Once the existing database is ready, run:
+
+   ```sh
+   docker compose config --quiet
+   docker compose pull
+   docker compose up -d --wait
+   docker compose logs --tail=100 backend admin rustfs
+   ```
+
+`config-check` validates configuration without connecting to the database. Backend performs the real connection, authentication, TLS negotiation and migrations at startup; inspect its logs if connection fails. This project's `depends_on` cannot manage readiness of an external database.
+
+Here, `docker compose down` does not stop the external database. `down -v` still deletes this project's RustFS volumes and document objects. Moving an existing Vdoc installation requires transferring its database contents and preserving object storage and original keys; pointing HOST at an empty database is not a data migration.
+
+The downloaded YAML includes field comments covering the connection pool, TLS, keys, ports, startup order and data volumes.
+
 ## Update versions
 
 Keep the image names unchanged to follow stable releases. Read release notes, back up data, preserve the existing YAML, credentials, keys, domain settings and volumes, then run:
@@ -87,6 +142,8 @@ docker compose logs --tail=100 backend admin postgres rustfs
 docker compose stop
 docker compose up -d
 ```
+
+For the external database variant, omit `postgres` from the logs command. `pull` does not update the external database.
 
 `docker compose down` removes containers and networks while preserving named volumes. Do not use `docker compose down -v` for data you need to keep: it deletes `postgres-data`, `rustfs-data`, and `rustfs-logs`. Keep the Compose project name `vdoc`; changing it selects different volumes.
 
@@ -151,6 +208,6 @@ See [Workbench usage](admin-usage.md) for details. Core workflows need no AI pro
 
 ## Source Development and Advanced Settings
 
-Application deployments do not require the source bootstrap archive. To modify code, run disposable E2E tests, or use external database/object storage services, see the [public workspace deployment guide](https://github.com/ChnMig/Vdoc-site/blob/main/workspace/COMPOSE_DEPLOY.md). The source workspace retains `.env`, test database scripts, and exact source locks for development and release verification.
+Application deployments do not require the source bootstrap archive; existing PostgreSQL instances can use the [external database variant](#external-postgresql) directly. To modify code, run disposable E2E tests, or use external object storage, see the [public workspace deployment guide](https://github.com/ChnMig/Vdoc-site/blob/main/workspace/COMPOSE_DEPLOY.md). The source workspace retains `.env`, test database scripts, and exact source locks for development and release verification.
 
 Key rotation must account for stored ciphertext; replacing a key alone is insufficient. Follow the [operations guide](https://github.com/ChnMig/Vdoc-site/blob/main/workspace/RELEASE_DEPLOY.md) to configure historical KIDs and the keyring, and verify the rewrite before removing old keys.

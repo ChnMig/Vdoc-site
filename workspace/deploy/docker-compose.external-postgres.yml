@@ -1,4 +1,6 @@
-# 完整部署：包含 PostgreSQL、RustFS、后端和前端。保存为 docker-compose.yml。
+# 接入现有 PostgreSQL：只启动 RustFS、后端和前端，不创建或管理数据库服务/数据卷。
+# 单独保存为 docker-compose.yml 使用，不要与内置数据库版用 -f 叠加。
+# 先由数据库管理员创建 Vdoc 专用数据库和可执行表结构迁移的账号。
 # 替换全部 CHANGE_ME 值；此文件包含密码和密钥，请限制读取权限并保留备份。
 # 值中的字面量美元符号写为 $$；&name 定义 YAML 锚点，*name 引用同一值。
 # 更新时保留账号、密钥和项目名；运行中的容器不会自动更新，需执行：
@@ -23,16 +25,23 @@ x-backend-environment: &backend-environment
   VDOC_SERVER_CORS_ALLOWED_ORIGINS: "*"
   # 启用 PostgreSQL 持久化。
   VDOC_DATABASE_ENABLED: "true"
-  # 使用下方 postgres 服务的内部 DNS 名，不是宿主机 localhost。
-  VDOC_DATABASE_HOST: postgres
-  # PostgreSQL 容器内监听端口，无需向宿主机发布。
+  # 现有数据库的可达域名/IP；不带协议或端口，不能填容器自己的 127.0.0.1。
+  # 宿主机上的数据库可填 host.docker.internal，下方 extra_hosts 提供 Linux 映射。
+  VDOC_DATABASE_HOST: "CHANGE_ME_DATABASE_HOST"
+  # 现有数据库对应用容器开放的端口，按实际服务配置修改。
   VDOC_DATABASE_PORT: "5432"
-  # 首次初始化的应用数据库名、账号、密码，通过锚点共享给 postgres 服务。
-  VDOC_DATABASE_NAME: &database-name vdoc
-  VDOC_DATABASE_USER: &database-user vdoc
-  VDOC_DATABASE_PASSWORD: &database-password "CHANGE_ME_DATABASE_PASSWORD"
-  # 此内置数据库仅在 Compose 网络内通信，未配置 TLS。
-  VDOC_DATABASE_SSL_MODE: disable
+  # 已创建的 Vdoc 专用数据库；后端会在其中建表/迁移，不会创建数据库本身。
+  VDOC_DATABASE_NAME: vdoc
+  # 连接账号应拥有此数据库/应用表，并具备 public schema 的 USAGE、CREATE 权限。
+  VDOC_DATABASE_USER: vdoc
+  # 现有账号的真实密码；无需 URL 编码，字面量 $ 仍需写成 $$。
+  VDOC_DATABASE_PASSWORD: "CHANGE_ME_DATABASE_PASSWORD"
+  # require 强制 TLS 加密，但不校验服务端身份；按数据库服务的 TLS 要求配置。
+  # 仅对明确未启用 TLS 的可信本机/私网数据库改成 disable。
+  VDOC_DATABASE_SSL_MODE: require
+  # 连接池上限与空闲连接数，多个应用实例需共同考虑数据库连接额度。
+  VDOC_DATABASE_MAX_OPEN_CONNS: "20"
+  VDOC_DATABASE_MAX_IDLE_CONNS: "5"
   # 启用存放文档内容的 S3 兼容对象存储。
   VDOC_STORAGE_ENABLED: "true"
   # RustFS 内部地址：仅填写主机和端口，不带 http:// 或路径。
@@ -75,34 +84,6 @@ services:
     healthcheck:
       disable: true
 
-  # 内置 PostgreSQL，仅其他容器可访问；数据独立持久化。
-  postgres:
-    # 跟随 18.x 补丁；跨大版本升级必须另外迁移数据库数据。
-    image: postgres:18
-    # 异常退出和 Docker 重启后自动恢复，手动停止后保持停止。
-    restart: unless-stopped
-    # 配置检查成功后才允许初始化数据库。
-    depends_on:
-      config-check:
-        condition: service_completed_successfully
-    environment:
-      # 这些初始化值仅在数据卷为空时生效，修改它们不会重置现有数据库密码。
-      POSTGRES_DB: *database-name
-      POSTGRES_USER: *database-user
-      POSTGRES_PASSWORD: *database-password
-      # 数据库容器的时区。
-      TZ: Asia/Shanghai
-    volumes:
-      # PostgreSQL 18 使用父目录挂载，实际数据位于版本对应的子目录。
-      - postgres-data:/var/lib/postgresql
-    healthcheck:
-      # pg_isready 检查服务就绪；$$ 将变量留给容器内 shell 展开。
-      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
-      # 每 10 秒检查一次，单次超时 5 秒，连续失败 10 次判为不健康。
-      interval: 10s
-      timeout: 5s
-      retries: 10
-
   # 文档对象存储；9000 为 S3 API，9001 为控制台，仅在容器网络内开放。
   rustfs:
     # 按部署约定固定在 RustFS 1.0.0。
@@ -141,14 +122,15 @@ services:
   backend:
     image: *backend-image
     restart: unless-stopped
-    # 等数据库、存储的健康检查通过后启动；运行期间故障由各服务自行恢复。
+    # Compose 仅等待本项目的存储；外部 PostgreSQL 需事先可达且账号、库已准备好。
     depends_on:
-      postgres:
-        condition: service_healthy
       rustfs:
         condition: service_healthy
     # 引用顶部配置；HTTP 健康检查继承后端镜像的 HEALTHCHECK。
     environment: *backend-environment
+    # 将宿主机别名映射到 Docker 网关，兼容 Linux Docker；不影响远程数据库连接。
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     ports:
       # 宿主机绑定地址:宿主机端口:容器端口；宿主机 Caddy 将后端域名反代到此端口。
       - "127.0.0.1:8080:8080"
@@ -175,10 +157,9 @@ services:
       timeout: 5s
       retries: 6
 
-# Docker 管理的持久卷：普通 down 会保留，down -v 会删除，升级时不要删除。
+# 此文件仅管理 RustFS 卷；外部 PostgreSQL 的数据、备份和升级由原服务单独管理。
+# 普通 down 保留这些卷，down -v 会删除对象数据和日志，升级时不要删除。
 volumes:
-  # 数据库表、索引与迁移记录。
-  postgres-data:
   # 文档原始内容等对象数据。
   rustfs-data:
   # RustFS 运行日志。

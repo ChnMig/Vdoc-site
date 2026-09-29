@@ -111,6 +111,7 @@ jobs:
           name: site-distribution
           path: |
             .artifacts/release/docker-compose.yml
+            .artifacts/release/docker-compose.external-postgres.yml
             .artifacts/release/*.tar.gz
             .artifacts/release/*.sha256
           include-hidden-files: true
@@ -167,7 +168,7 @@ jobs:
           if [[ "$RELEASE_TAG" == *-* ]]; then
             options+=(--prerelease)
           fi
-          gh release create "$RELEASE_TAG" release/docker-compose.yml release/*.tar.gz release/*.sha256 \
+          gh release create "$RELEASE_TAG" release/docker-compose*.yml release/*.tar.gz release/*.sha256 \
             --verify-tag --generate-notes --title "$RELEASE_TAG" "${options[@]}"
 
   pages:

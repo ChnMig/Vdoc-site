@@ -39,16 +39,22 @@ function fixture(candidate = false) {
     join(root, 'workspace/workspace-distribution.json'),
     JSON.stringify(manifest),
   )
-  copyFileSync(
-    join(projectRoot, 'workspace/deploy/docker-compose.yml'),
-    join(root, 'workspace/deploy/docker-compose.yml'),
-  )
+  for (const file of [
+    'docker-compose.yml',
+    'docker-compose.external-postgres.yml',
+  ])
+    copyFileSync(
+      join(projectRoot, 'workspace/deploy', file),
+      join(root, 'workspace/deploy', file),
+    )
   writeFileSync(join(built, 'index.html'), '<!doctype html><title>Vdoc</title>')
   for (const file of [
     archiveName,
     `${archiveName}.sha256`,
     'docker-compose.yml',
     'docker-compose.yml.sha256',
+    'docker-compose.external-postgres.yml',
+    'docker-compose.external-postgres.yml.sha256',
   ]) {
     const source = join(projectRoot, 'docs/public/downloads', file)
     copyFileSync(source, join(downloads, file))
@@ -86,6 +92,8 @@ function fixture(candidate = false) {
     `${archiveName}.sha256`,
     'docker-compose.yml',
     'docker-compose.yml.sha256',
+    'docker-compose.external-postgres.yml',
+    'docker-compose.external-postgres.yml.sha256',
   ])
     copyFileSync(join(downloads, file), join(built, 'downloads', file))
   return { root, built, downloads }
@@ -116,6 +124,7 @@ describe('site release packaging', () => {
         archiveName,
         'vdoc-site-static.tar.gz',
         'docker-compose.yml',
+        'docker-compose.external-postgres.yml',
       ]
       expect(readdirSync(output).sort()).toEqual(
         archives.flatMap((file) => [file, `${file}.sha256`]).sort(),
@@ -143,6 +152,8 @@ describe('site release packaging', () => {
         'index.html',
         'downloads/docker-compose.yml',
         'downloads/docker-compose.yml.sha256',
+        'downloads/docker-compose.external-postgres.yml',
+        'downloads/docker-compose.external-postgres.yml.sha256',
         `downloads/${archiveName}`,
         `downloads/${archiveName}.sha256`,
       ]) {
@@ -155,22 +166,25 @@ describe('site release packaging', () => {
     }
   })
 
-  it('refuses a stale built download before producing release assets', () => {
-    const { root, built } = fixture()
-    try {
-      writeFileSync(join(built, 'downloads', archiveName), 'stale download')
-      const result = spawnSync(
-        'bash',
-        [join(root, 'scripts/package-site.sh')],
-        {
-          encoding: 'utf8',
-        },
-      )
-      expect(result.status).not.toBe(0)
-      expect(result.stderr).toContain('Built download is missing or stale')
-      expect(existsSync(join(root, '.artifacts/release'))).toBe(false)
-    } finally {
-      rmSync(root, { recursive: true, force: true })
-    }
-  })
+  it.each([archiveName, 'docker-compose.external-postgres.yml'])(
+    'refuses stale built %s before producing release assets',
+    (file) => {
+      const { root, built } = fixture()
+      try {
+        writeFileSync(join(built, 'downloads', file), 'stale download')
+        const result = spawnSync(
+          'bash',
+          [join(root, 'scripts/package-site.sh')],
+          {
+            encoding: 'utf8',
+          },
+        )
+        expect(result.status).not.toBe(0)
+        expect(result.stderr).toContain('Built download is missing or stale')
+        expect(existsSync(join(root, '.artifacts/release'))).toBe(false)
+      } finally {
+        rmSync(root, { recursive: true, force: true })
+      }
+    },
+  )
 })

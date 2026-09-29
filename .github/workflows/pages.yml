@@ -91,10 +91,12 @@ jobs:
           artifact="$(jq -er '.artifact_name | select(test("^[A-Za-z0-9._-]+$"))' workspace/workspace-distribution.json)"
           gh release download "$RELEASE_TAG" --dir docs/public/downloads \
             --pattern "$artifact.tar.gz" --pattern "$artifact.tar.gz.sha256"
-          if [[ -f workspace/deploy/docker-compose.yml ]]; then
-            gh release download "$RELEASE_TAG" --dir docs/public/downloads \
-              --pattern docker-compose.yml --pattern docker-compose.yml.sha256
-          fi
+          for name in docker-compose.yml docker-compose.external-postgres.yml; do
+            if [[ -f "workspace/deploy/$name" ]]; then
+              gh release download "$RELEASE_TAG" --dir docs/public/downloads \
+                --pattern "$name" --pattern "$name.sha256"
+            fi
+          done
 
       - name: Verify the published download and source identity
         env:

@@ -83,9 +83,12 @@ assert.deepEqual(
   template,
   'Published Compose lock differs from the tagged source template',
 )
-// Older tagged sites predate the standalone YAML; keep Pages rollback working.
-if (existsSync(join(site, 'workspace/deploy/docker-compose.yml'))) {
-  const name = 'docker-compose.yml'
+// Older tags may contain one or neither variant; preserve Pages rollback support.
+for (const name of [
+  'docker-compose.yml',
+  'docker-compose.external-postgres.yml',
+]) {
+  if (!existsSync(join(site, 'workspace/deploy', name))) continue
   const compose = readFileSync(join(site, 'docs/public/downloads', name))
   const checksum = createHash('sha256').update(compose).digest('hex')
   assert.equal(

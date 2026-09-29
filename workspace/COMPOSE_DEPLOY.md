@@ -11,9 +11,23 @@ docker compose up -d
 
 Open `http://127.0.0.1:8081` and sign in with your configured initial administrator. Backend automatically creates its schema, applies pending migrations, and creates the storage bucket and initial administrator. Ordinary deployments need no `.env`, source lock, installer, or test database script. Backend/Admin follow the newest stable `latest` images, PostgreSQL follows `18` patch updates, and RustFS uses `1.0.0`. Back up data, keep the existing configuration and volumes, then repeat `pull` / `up -d --wait` to update. Running containers are not updated automatically. For a public domain, use the two-domain [Caddy configuration](https://chnmig.github.io/Vdoc-site/en/deployment#caddy-domain). See the [deployment guide](https://chnmig.github.io/Vdoc-site/en/deployment) and [upgrade guide](https://chnmig.github.io/Vdoc-site/en/release-rollback).
 
-The standalone source is `deploy/docker-compose.yml`. The root `docker-compose.yml` and instructions below support source development and release verification.
+The standalone sources are `deploy/docker-compose.yml` (bundled PostgreSQL) and `deploy/docker-compose.external-postgres.yml` (existing PostgreSQL). Both include field comments. The root `docker-compose.yml` and instructions below support source development and release verification.
 
-The optional [source workspace archive](https://chnmig.github.io/Vdoc-site/downloads/vdoc-compose-bootstrap-v0.3.3.tar.gz) is a Docker Compose bootstrap, for source builds and offline installation. It supplies the Compose/configuration files and a
+## Use an existing PostgreSQL service
+
+Download [docker-compose.external-postgres.yml](https://chnmig.github.io/Vdoc-site/downloads/docker-compose.external-postgres.yml) and save it as `docker-compose.yml` in a dedicated directory. Use it alone; do not merge it with the bundled database file. It starts only RustFS, Backend, Admin and the one-shot configuration check, with no PostgreSQL service or database volume.
+
+Prepare a dedicated Vdoc database and login first. The login should own the application database/tables and have `USAGE` / `CREATE` on its `public` schema so startup migrations can create and alter tables and indexes. Backend creates its schema inside an existing database; it does not create the database itself. Set `VDOC_DATABASE_HOST`, `PORT`, `NAME`, `USER`, `PASSWORD` and `SSL_MODE`, then replace the remaining storage, JWT, MCP and initial-administrator placeholders. The default TLS mode `require` encrypts traffic without verifying server identity. Use `disable` only for an explicitly non-TLS trusted local/private database, and follow managed providers' certificate/verification requirements. Configure pool limits to fit the server's connection quota.
+
+For a database on the Docker host, use `host.docker.internal` and the host's database port. Backend includes the Linux `host-gateway` mapping. The database must listen on a container-reachable address and permit the connection in `pg_hba.conf` and the firewall. Container `127.0.0.1` is not the host. Alternatively, attach Backend to an existing database container network, retaining its default network for RustFS.
+
+Set `VDOC_ADMIN_API_BASE_URL` to the backend HTTPS origin when using Caddy. The frontend/backend ports remain 8081/8080 and CORS remains `*`. Once the existing database is ready, run `docker compose config --quiet`, `docker compose pull`, and `docker compose up -d --wait`. The configuration check is read-only and does not test connectivity; actual connection, TLS and migration errors appear in Backend logs. See the full [external PostgreSQL guide](https://chnmig.github.io/Vdoc-site/en/deployment#external-postgresql).
+
+Database backups, maintenance and version upgrades stay with the existing service. Stopping this Compose project does not stop that database; deleting this project's RustFS volumes still destroys document objects. Moving an existing Vdoc installation requires transferring database contents and retaining object data and original keys, not just changing its host to an empty database.
+
+## Source workspace deployment
+
+The optional [source workspace archive](https://chnmig.github.io/Vdoc-site/downloads/vdoc-compose-bootstrap-v0.3.4.tar.gz) is a Docker Compose bootstrap, for source builds and offline installation. It supplies the Compose/configuration files and a
 lock that fetches reviewed source commits; `docker compose ... up -d --build`
 builds Backend/Admin locally and starts the four-service self-hosted stack.
 
@@ -81,3 +95,5 @@ scripts/vdoc-release-dry-run.sh
 The dry-run covers all five repositories and both supported Site base paths. It does not publish, deploy, push images, create git refs, or start the Compose stack. Live PostgreSQL/RustFS E2E remains opt-in via `--include-live` and requires already-running disposable services.
 
 To verify the documented two-domain Caddy deployment with real browser login, publishing, MCP and anonymous sharing, install the Admin development dependencies and Chromium, then run `node scripts/test-caddy-deployment.mjs`. It creates isolated containers and volumes, uses local HTTPS certificates only for the test, and removes its resources afterward. Image overrides `--backend-image` and `--admin-image` allow testing candidates before publication.
+
+Run `python3 scripts/test-external-postgres-compose.py` to verify the existing-database variant with a separately managed, disposable PostgreSQL 18 instance, TLS and a non-superuser application owner. It checks migrations, login, publication, persistence after app recreation and preservation of the external service after app teardown. Docker and OpenSSL are required; it uses no production connection settings and removes only its isolated test resources.
