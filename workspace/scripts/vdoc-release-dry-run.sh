@@ -56,6 +56,7 @@ build_plan() {
   add_command '[workspace] Test repository lock tooling' "$ROOT_DIR" 'scripts/test-workspace-lock.sh'
   add_command '[workspace] Verify bootstrap distribution' "$ROOT_DIR" 'scripts/vdoc-workspace-package.sh --check'
   add_command '[workspace] Test bootstrap distribution' "$ROOT_DIR" 'scripts/test-workspace-package.sh'
+  add_command '[workspace] Test stable and prerelease distribution paths' "$ROOT_DIR" 'scripts/test-release-versions.sh'
   add_command '[workspace] Test published-asset verifier' "$ROOT_DIR" 'scripts/test-workspace-release-assets-verify.sh'
   add_command '[workspace] Test Pilot result gate' "$ROOT_DIR" 'scripts/test-pilot-result-verify.sh'
   add_command '[workspace] Verify cross-repository contracts' "$ROOT_DIR" 'scripts/vdoc-workspace-contracts.sh'

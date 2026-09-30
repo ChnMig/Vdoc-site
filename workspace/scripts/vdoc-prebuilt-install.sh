@@ -6,7 +6,9 @@ fail() { printf 'FAIL: %s\n' "$1" >&2; exit 1; }
 [[ $# -eq 0 ]] || fail 'Usage: scripts/vdoc-prebuilt-install.sh (loads the images pinned by this release)'
 for command in curl jq shasum docker; do command -v "$command" >/dev/null || fail "Required command: $command"; done
 version="$(jq -er '.version' "$ROOT_DIR/workspace-distribution.json")"
-[[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || fail 'Invalid distribution version'
+# SemVer without build metadata: '+' is not valid in a Docker image tag.
+release_version_pattern='^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-(0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*)(\.(0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*))*)?$'
+[[ "$version" =~ $release_version_pattern ]] || fail 'Invalid distribution version'
 tag="v$version"
 if jq -e ' .candidate == true' "$ROOT_DIR/workspace.lock.json" >/dev/null; then fail "Candidate archives cannot be installed; download the published release"; fi
 jq -e --arg ref "refs/tags/$tag" 'all(.repositories[]; .ref == $ref)' "$ROOT_DIR/workspace.lock.json" >/dev/null || fail 'Source lock must match the release tag'

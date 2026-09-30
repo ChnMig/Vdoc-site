@@ -74,6 +74,8 @@ test_list_covers_release_surfaces_without_live() {
   assert_contains "$out" 'scripts/vdoc-workspace-package.sh --check'
   assert_contains "$out" '[workspace] Test bootstrap distribution'
   assert_contains "$out" 'scripts/test-workspace-package.sh'
+  assert_contains "$out" '[workspace] Test stable and prerelease distribution paths'
+  assert_contains "$out" 'scripts/test-release-versions.sh'
   assert_contains "$out" '[workspace] Test published-asset verifier'
   assert_contains "$out" 'scripts/test-workspace-release-assets-verify.sh'
   assert_contains "$out" '[workspace] Test Pilot result gate'

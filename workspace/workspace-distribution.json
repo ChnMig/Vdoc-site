@@ -1,8 +1,8 @@
 {
   "schema_version": 2,
   "name": "vdoc-compose-bootstrap",
-  "version": "0.3.8",
-  "artifact_name": "vdoc-compose-bootstrap-v0.3.8",
+  "version": "0.3.9",
+  "artifact_name": "vdoc-compose-bootstrap-v0.3.9",
   "root_directory": "vdoc-workspace",
   "repository_lock": "workspace.lock.json",
   "files": [
@@ -35,6 +35,7 @@
     "scripts/test-pilot-result-verify.sh",
     "scripts/test-prebuilt-install.sh",
     "scripts/test-release-dry-run.sh",
+    "scripts/test-release-versions.sh",
     "scripts/test-single-compose.py",
     "scripts/test-workspace-lock.sh",
     "scripts/test-workspace-package.sh",
@@ -67,6 +68,7 @@
     "scripts/test-pilot-result-verify.sh",
     "scripts/test-prebuilt-install.sh",
     "scripts/test-release-dry-run.sh",
+    "scripts/test-release-versions.sh",
     "scripts/test-single-compose.py",
     "scripts/test-workspace-lock.sh",
     "scripts/test-workspace-package.sh",

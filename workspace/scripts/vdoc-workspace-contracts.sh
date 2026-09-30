@@ -158,7 +158,8 @@ mcp_lock_ref="$(jq -r '.repositories[] | select(.path == "Vdoc-mcp") | .ref' "$R
 mcp_lock_version="${mcp_lock_ref#refs/tags/v}"
 backend_lock_commit="$(jq -r '.repositories[] | select(.path == "Vdoc") | .commit' "$ROOT_DIR/workspace.lock.json")"
 admin_lock_commit="$(jq -r '.repositories[] | select(.path == "Vdoc-admin") | .commit' "$ROOT_DIR/workspace.lock.json")"
-[[ "$mcp_lock_commit" =~ ^[0-9a-f]{40}$ && "$mcp_lock_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]] || \
+release_version_pattern='^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-(0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*)(\.(0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*))*)?$'
+[[ "$mcp_lock_commit" =~ ^[0-9a-f]{40}$ && "$mcp_lock_version" =~ $release_version_pattern ]] || \
   fail 'workspace lock is missing MCP or Skill commit provenance'
 
 if rg -n --pcre2 --hidden \

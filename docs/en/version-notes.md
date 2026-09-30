@@ -1,5 +1,15 @@
 # Version Notes
 
+## v0.3.9
+
+- Evaluate OpenAPI request property changes against `additionalProperties`, so narrowed input requires handling; refresh stored diff facts when read.
+- Recheck the parent team inside project creation transactions, preventing active projects from being created after another instance archives their team.
+- Keep MCP response reads bounded while allowing the JSON escaping overhead of documents within the default backend size limit.
+- Preserve the super administrator's All projects audit selection and the original filename and extension of public-share downloads.
+- Accept valid prerelease versions across coordinated locks, packaging, and installation; prereleases still cannot replace `latest` or deploy the stable website.
+
+No database migration is added and REST/MCP tool parameters remain compatible. Back up the database and object storage before upgrading, then update the MCP/Skill package and restart the agent.
+
 ## v0.3.8
 
 The default global MCP/Skill installation now downloads the compiled GitHub Release archive and checks `SHA256SUMS` before installing it. This avoids npm global Git source preparation failures. Existing pinned `npx` MCP configurations remain supported. No application database migration is added.

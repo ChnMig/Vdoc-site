@@ -101,4 +101,33 @@ jq -e '.candidate == true' "$tmp/workspace/workspace.lock.json" >/dev/null
 for script in vdoc-workspace-init.sh vdoc-workspace-verify.sh; do
   expect_failure 'candidate bootstrap is for local checks only' bash "$SITE_ROOT/workspace/scripts/$script"
 done
-printf 'Release lock tests passed: exact tags, moved/missing refs, source identity, atomic failure, and candidate isolation.\n'
+
+# The Site release workflow also publishes coordinated prereleases; Pages and
+# latest promotion retain their separate stable-only gates.
+prerelease="$version-rc.1"
+tag="v$prerelease"
+jq --arg version "$prerelease" '.version = $version' "$tmp/workspace/workspace-distribution.json" >"$tmp/next.json"
+mv "$tmp/next.json" "$tmp/workspace/workspace-distribution.json"
+jq --arg ref "refs/tags/$tag" '.repositories[].ref = $ref | del(.candidate)' "$tmp/template.json" >"$tmp/next.json"
+mv "$tmp/next.json" "$tmp/template.json"
+for repo in Vdoc Vdoc-admin Vdoc-mcp Vdoc-site; do
+  jq --arg version "$prerelease" '.version = $version' "$tmp/$repo/package.json" >"$tmp/next.json"
+  mv "$tmp/next.json" "$tmp/$repo/package.json"
+  git -C "$tmp/$repo" add package.json
+  git -C "$tmp/$repo" commit --quiet -m prerelease
+  git -C "$tmp/$repo" tag -a "$tag" -m prerelease
+  git -C "$tmp/$repo" push --quiet "$tmp/remotes/$repo.git" main "refs/tags/$tag"
+  commit="$(git -C "$tmp/$repo" rev-parse HEAD)"
+  [[ "$repo" != Vdoc-site ]] || commit=@release
+  jq --arg path "$repo" --arg commit "$commit" '(.repositories[] | select(.path == $path) | .commit) = $commit' "$tmp/template.json" >"$tmp/next.json"
+  mv "$tmp/next.json" "$tmp/template.json"
+done
+reset_lock
+GITHUB_REF="refs/tags/$tag" resolve_lock
+site_commit="$(git -C "$tmp/Vdoc-site" rev-parse HEAD)"
+jq -e --arg commit "$site_commit" --arg ref "refs/tags/$tag" '
+  .candidate != true and all(.repositories[]; .ref == $ref and (.commit | test("^[0-9a-f]{40}$"))) and
+  (.repositories[] | select(.path == "Vdoc-site") | .commit == $commit)
+' "$tmp/workspace/workspace.lock.json" >/dev/null
+GITHUB_REF="refs/tags/v$version" expect_failure 'workflow tag does not match' resolve_lock
+printf 'Release lock tests passed: stable/prerelease exact tags, moved/missing refs, source identity, atomic failure, and candidate isolation.\n'

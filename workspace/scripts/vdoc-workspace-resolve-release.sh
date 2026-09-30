@@ -17,7 +17,9 @@ done
 
 lock="$ROOT_DIR/workspace.lock.json"
 version="$(jq -er '.version' "$ROOT_DIR/workspace-distribution.json")"
-[[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || fail 'invalid release version'
+# SemVer without build metadata: '+' is not valid in a Docker image tag.
+release_version_pattern='^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-(0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*)(\.(0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*))*)?$'
+[[ "$version" =~ $release_version_pattern ]] || fail 'invalid release version'
 ref="refs/tags/v$version"
 if [[ "${GITHUB_REF:-}" == refs/tags/* && "${GITHUB_REF:-}" != "$ref" ]]; then
   fail 'workflow tag does not match the Compose release version'

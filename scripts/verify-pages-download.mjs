@@ -12,7 +12,7 @@ assert(
 )
 assert.match(
   releaseTag,
-  /^v[0-9]+\.[0-9]+\.[0-9]+$/,
+  /^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$/,
   'Pages requires a stable release tag',
 )
 const site = resolve(siteDirectory)

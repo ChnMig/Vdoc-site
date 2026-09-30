@@ -71,10 +71,11 @@ command -v gzip >/dev/null 2>&1 || fail 'required command not found: gzip'
 command -v shasum >/dev/null 2>&1 || fail 'required command not found: shasum'
 [[ -f "$MANIFEST_FILE" ]] || fail "workspace distribution manifest not found: $MANIFEST_FILE"
 
-jq -e '
+release_version_pattern='^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-(0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*)(\.(0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*))*)?$'
+jq -e --arg version_pattern "$release_version_pattern" '
   .schema_version == 2 and
   (.name | type == "string" and test("^[a-z0-9-]+$")) and
-  (.version | type == "string" and test("^[0-9]+\\.[0-9]+\\.[0-9]+$")) and
+  (.version | type == "string" and test($version_pattern)) and
   (.artifact_name | type == "string" and test("^[A-Za-z0-9._-]+$")) and
   (.root_directory | type == "string" and test("^[A-Za-z0-9._-]+$")) and
   (.repository_lock | type == "string") and
