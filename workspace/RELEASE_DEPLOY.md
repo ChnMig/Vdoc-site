@@ -12,13 +12,13 @@ Before publishing, run `python3 scripts/test-single-compose.py` with the candida
 
 ## 1. Required Checks
 
-For the 0.3.9 release, the Compose archive is `vdoc-compose-bootstrap-v0.3.9.tar.gz`. Update and commit the combined MCP/Skill package first, update their install pins in Admin and Site, then commit Admin. Pin Backend/Admin/MCP commits in the workspace source lock and update `.env.example` build provenance. Keep only the Site commit as `@release`, sync the workspace export, and commit Site last.
+For the 0.3.10 release, the Compose archive is `vdoc-compose-bootstrap-v0.3.10.tar.gz`. Update and commit the combined MCP/Skill package first, update their install pins in Admin and Site, then commit Admin. Pin Backend/Admin/MCP commits in the workspace source lock and update `.env.example` build provenance. Keep only the Site commit as `@release`, sync the workspace export, and commit Site last.
 
 Coordinated release versions use `MAJOR.MINOR.PATCH` or `MAJOR.MINOR.PATCH-prerelease` with valid SemVer identifiers. Build metadata (`+build`) is not supported because Docker image tags cannot contain `+`. Prereleases never replace `latest` or deploy stable Pages.
 
 Backend/Admin release jobs promote `latest` only after creating a stable GitHub Release. Repository-wide serialization and numeric stable-version ordering prevent prereleases and older reruns from replacing a newer alias.
 
-Push the Backend, MCP, and Admin `v0.3.9` tags before the Site tag. The Site tag build resolves its own tag to its checkout commit, checks all other tags against the committed lock, and includes four exact commit hashes in the archive. A missing or mismatched tag fails the release; there is no fallback to a branch or an older release. Do not move published tags.
+Push the Backend, MCP, and Admin `v0.3.10` tags before the Site tag. The Site tag build resolves its own tag to its checkout commit, checks all other tags against the committed lock, and includes four exact commit hashes in the archive. A missing or mismatched tag fails the release; there is no fallback to a branch or an older release. Do not move published tags.
 
 Backend/Admin tag workflows also build and smoke-test native Linux amd64 and arm64 Docker images. Their compressed Docker archives and per-image SHA-256 files are retained as release assets; the release waits for both image jobs. The bootstrap image loader verifies those files, their platform, and their source-revision labels against the lock.
 
@@ -26,11 +26,22 @@ Before publication, run `pnpm workspace:package --candidate` in Site for content
 
 Run or confirm the CI workflows for each repository. The workflow files live under hidden `.github/` directories in each subproject; from the workspace root you can verify them with `rg --hidden --files -g 'ci.yml' .`.
 
-Use the root release dry-run from the workspace root as the local closure gate before tagging:
+Use the root candidate dry-run from the workspace root as the local closure gate before tagging:
 
 ```sh
-scripts/vdoc-release-dry-run.sh --list
+scripts/vdoc-release-dry-run.sh --list --candidate
+scripts/vdoc-release-dry-run.sh --candidate
+```
+
+The complete candidate gate requires the same-version release template: all four refs must name the intended `refs/tags/vMAJOR.MINOR.PATCH` (or supported prerelease) and all four commits must be exact hashes with a matching control-plane digest. An unresolved `@release` Site commit is not accepted in the local gate lock. Each checkout must be clean and its declared origin must match the lock. Before the future tags exist, the candidate gate proves the same source commits against advertised `refs/heads/main`; an existing release tag must also match. Local `origin/*` tracking refs cannot prove that a commit was pushed. The standalone candidate source helper also accepts safe advertised branch refs, but a branch lock is not a complete release-gate template.
+
+Candidate mode retains the full component checks and cross-repository version, MCP/Skill pin, and Compose provenance contracts. Its bootstrap inventory check uses a disposable marked candidate copy, leaves the source lock unchanged, and creates no deployable artifact. `candidate: true` locks remain rejected by the published verifier, initializer, and default package path. Candidate success certifies source checks only. The fixed Pilot `release_dry_run` attestation continues to execute the default published gate; candidate output cannot substitute for a published closure or Pilot final evidence.
+
+After all release tags are advertised, run the default published closure gate and the published-asset verifier. Record these stages separately; candidate success is not evidence of tag or asset publication.
+
+```sh
 scripts/vdoc-release-dry-run.sh
+scripts/vdoc-workspace-release-assets-verify.sh
 ```
 
 The four repository baselines are pinned in `workspace.lock.json` schema v2 by remote, advertised ref, and commit; the same lock binds the non-Git root control plane to its canonical distributed-file SHA-256. Use `scripts/vdoc-workspace-init.sh` only to clone missing repositories on a fresh machine, and `scripts/vdoc-workspace-verify.sh` to verify an existing workspace. Existing repositories are never fetched, reset, checked out, or cleaned by the initializer. The verifier uses `git ls-remote`, so forged or stale local `origin/*` refs cannot prove publication.
@@ -45,7 +56,7 @@ scripts/vdoc-workspace-verify.sh
 
 The default refresh never mutates the lock. `--write` is atomic and refuses dirty or unpushed HEADs. A `refs/heads/main` lock proves the current remote tip only; an immutable release claim requires reviewed release tags and a final lock generated against them.
 
-The dry-run is local only. It verifies the workspace lock and its tests, Compose configuration, backend formatting/vet/tests/E2E/build, Admin formatting/typecheck/lint/unit/build/entrypoint/browser checks, both Site base paths with browser and performance checks, and MCP/Skill package dry-runs. It does not publish packages, deploy services, push images, create git refs, or automate external release infrastructure. Add `--include-live` only when disposable live PostgreSQL/RustFS resources are already running; without it, live persistence is explicitly not covered.
+Both dry-run modes are local only and pin Go to 1.25.5 with `GOFLAGS=-mod=readonly`. They verify the workspace lock and its tests, Compose configuration, backend formatting/vet/tests/E2E/build, Admin formatting/typecheck/lint/unit/build/entrypoint/browser checks, both Site base paths with browser and performance checks, and MCP/Skill package dry-runs. It does not publish packages, deploy services, push images, create git refs, or automate external release infrastructure. Add `--include-live` only when disposable live PostgreSQL/RustFS resources are already running; without it, live persistence is explicitly not covered.
 
 It also validates the Docker Compose bootstrap inventory, its post-publication asset verifier, and the Pilot result gate. These are structural checks: the dry-run does not fabricate a public release or approve a real Pilot result.
 
@@ -312,9 +323,9 @@ The default gate requires four distinct target-user roles and binds them to real
 
 An empty template, `--allow-incomplete` success, a missing/unexercised target-user role, staff-only execution, missing role feedback, missing or hash-mismatched evidence, same-person/unsigned sign-off, a post-signature edit, or automated tests alone means **Pilot not yet validated**. The signing helper is provenance, not cryptographic identity authentication; signer identity and immutable evidence storage remain human controls. Do not convert `failed`, `blocked`, or negative verbatim feedback into a passing release narrative.
 
-Ordinary deployments download `docker-compose.yml` alone, generated from `deploy/docker-compose.yml`. It contains configuration and stable `latest` GHCR application references, PostgreSQL `18`, and RustFS `1.0.0`. A versioned YAML download preserves the configuration source; its rolling image references are resolved at pull time. Record deployed image digests for rollback, or replace the two application aliases with the desired immutable release tag. The optional developer artifact is a Docker Compose bootstrap. `scripts/vdoc-workspace-package.sh` creates `vdoc-compose-bootstrap-v0.3.9.tar.gz` with normalized order, modes, ownership, timestamps, and gzip metadata. Byte-for-byte reproducibility requires the same tar implementation: BSD tar and GNU tar can encode equivalent headers differently. Verify the official CI archive against its published SHA-256; when comparing a local build from another platform, also compare file contents and parsed metadata. The archive contains Compose/configuration files, the root MIT license, release tools, and the exact source lock; users build Backend/Admin images locally with Docker.
+Ordinary deployments download `docker-compose.yml` alone, generated from `deploy/docker-compose.yml`. It contains configuration and stable `latest` GHCR application references, PostgreSQL `18`, and RustFS `1.0.0`. A versioned YAML download preserves the configuration source; its rolling image references are resolved at pull time. Record deployed image digests for rollback, or replace the two application aliases with the desired immutable release tag. The optional developer artifact is a Docker Compose bootstrap. `scripts/vdoc-workspace-package.sh` creates `vdoc-compose-bootstrap-v0.3.10.tar.gz` with normalized order, modes, ownership, timestamps, and gzip metadata. Byte-for-byte reproducibility requires the same tar implementation: BSD tar and GNU tar can encode equivalent headers differently. Verify the official CI archive against its published SHA-256; when comparing a local build from another platform, also compare file contents and parsed metadata. The archive contains Compose/configuration files, the root MIT license, release tools, and the exact source lock; users build Backend/Admin images locally with Docker.
 
-Vdoc-site provides the public workspace sources and website evaluation downloads; see [README.md](README.md#docker-compose-bootstrap-artifact). Those mutable website snapshots are not an immutable GitHub Release. The `v0.3.9` tag workflow produces the versioned Compose download after verifying all four source tags.
+Vdoc-site provides the public workspace sources and website evaluation downloads; see [README.md](README.md#docker-compose-bootstrap-artifact). Those mutable website snapshots are not an immutable GitHub Release. The `v0.3.10` tag workflow produces the versioned Compose download after verifying all four source tags.
 
 The Site tag workflow publishes both the tarball and `.sha256` file to GitHub Releases automatically. Record the exact tagged URL and checksum, together with any required release sign-off. Substitute an actually published Site tag below, then verify the public bytes instead of trusting the README link:
 
@@ -322,7 +333,7 @@ The Site tag workflow publishes both the tarball and `.sha256` file to GitHub Re
 scripts/vdoc-workspace-release-assets-verify.sh \
   --release-base-url 'https://github.com/ChnMig/Vdoc-site/releases/download/<published-release-tag>' \
   --expected-sha256 <archive-sha256> \
-  --local-artifact dist/vdoc-compose-bootstrap-v0.3.9.tar.gz
+  --local-artifact dist/vdoc-compose-bootstrap-v0.3.10.tar.gz
 ```
 
 The in-lock root digest detects partial control-plane drift but is not an external signature because the lock and verifier ship together. Local package creation does not prove public availability; the release is not closed until the post-publication verifier succeeds.

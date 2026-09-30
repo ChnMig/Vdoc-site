@@ -3,6 +3,17 @@ set -euo pipefail
 
 ROOT_DIR="$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd -P)"
 cd "$ROOT_DIR"
+CANDIDATE=0
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --candidate) CANDIDATE=1; shift ;;
+    -h|--help)
+      printf 'Usage: scripts/vdoc-workspace-contracts.sh [--candidate]\n'
+      exit 0
+      ;;
+    *) printf 'FAIL: unknown argument: %s\n' "$1" >&2; exit 2 ;;
+  esac
+done
 
 fail() {
   printf 'FAIL: %s\n' "$1" >&2
@@ -150,12 +161,29 @@ done
   fail 'workspace.lock.json must use schemaVersion 2'
 release_version="$(jq -r '.version' "$ROOT_DIR/workspace-distribution.json")"
 release_ref="refs/tags/v$release_version"
+if [[ "$CANDIDATE" -eq 1 ]]; then
+  # Source verification is mandatory even for a direct contracts --candidate run.
+  "$ROOT_DIR/scripts/vdoc-workspace-candidate-verify.sh"
+else
+  jq -e '.candidate != true' "$ROOT_DIR/workspace.lock.json" >/dev/null || \
+    fail 'candidate lock cannot prove published release contracts'
+fi
+# The complete closure gate uses the same-version release template in both
+# modes. Branch-only source locks are supported by the source helper alone.
 jq -e --arg release_ref "$release_ref" 'all(.repositories[]; .ref == $release_ref)' \
   "$ROOT_DIR/workspace.lock.json" >/dev/null || \
   fail "workspace lock must pin every repository to $release_ref"
+for repo in Vdoc-admin Vdoc-site Vdoc-mcp; do
+  [[ "$(jq -r '.version' "$ROOT_DIR/$repo/package.json")" == "$release_version" ]] || \
+    fail "$repo package version must match workspace release $release_version"
+done
 mcp_lock_commit="$(jq -r '.repositories[] | select(.path == "Vdoc-mcp") | .commit' "$ROOT_DIR/workspace.lock.json")"
 mcp_lock_ref="$(jq -r '.repositories[] | select(.path == "Vdoc-mcp") | .ref' "$ROOT_DIR/workspace.lock.json")"
-mcp_lock_version="${mcp_lock_ref#refs/tags/v}"
+if [[ "$CANDIDATE" -eq 1 ]]; then
+  mcp_lock_version="$release_version"
+else
+  mcp_lock_version="${mcp_lock_ref#refs/tags/v}"
+fi
 backend_lock_commit="$(jq -r '.repositories[] | select(.path == "Vdoc") | .commit' "$ROOT_DIR/workspace.lock.json")"
 admin_lock_commit="$(jq -r '.repositories[] | select(.path == "Vdoc-admin") | .commit' "$ROOT_DIR/workspace.lock.json")"
 release_version_pattern='^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-(0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*)(\.(0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*))*)?$'
@@ -326,4 +354,8 @@ if rg -n --hidden \
   fail 'workspace still contains a retired install, port, package-manager, or Skill path'
 fi
 
-printf 'Workspace contracts passed.\n'
+if [[ "$CANDIDATE" -eq 1 ]]; then
+  printf 'Candidate workspace contracts passed; publication is not certified.\n'
+else
+  printf 'Workspace contracts passed.\n'
+fi

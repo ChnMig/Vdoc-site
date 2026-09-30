@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.3.10
+
+- Cancel pending draft file submissions after sign-out, account changes, or leaving the page while preserving normal saves.
+- Keep branch defaults accurate after switching the default; prevent old request completions from clearing a new project's or document's form input.
+- Distinguish loading, failed, and successfully empty share inventories with retry; clear old secrets and setup configurations when refreshed MCP tokens are revoked or expired.
+- Continue rejecting truncated AI output while retaining provider-reported token usage in failure audits.
+- Validate candidate sources before tagging and retain strict tag and asset identity checks after publication; clarify that published versions on archived branches remain comparable within active documents.
+
+No database migration is added and REST/MCP tool parameters remain compatible. Back up the database and object storage before upgrading, then update the MCP/Skill package and restart the agent.
+
 ## v0.3.9
 
 - Evaluate OpenAPI request property changes against `additionalProperties`, so narrowed input requires handling; refresh stored diff facts when read.

@@ -91,6 +91,9 @@ test_list_covers_release_surfaces_without_live() {
   assert_contains "$out" '[backend] Go vet'
   assert_contains "$out" '[backend] Layering and prototype audit'
   assert_contains "$out" '[backend] Go tests'
+  assert_contains "$out" 'GOCACHE=/tmp/vdoc-go-cache make test-race'
+  assert_contains "$out" 'pnpm workspace:check'
+  assert_contains "$out" 'pnpm workspace:package'
   assert_contains "$out" '[backend] In-memory E2E smoke'
   assert_contains "$out" '[backend] Build binary'
   assert_contains "$out" '[admin] Typecheck'
@@ -166,14 +169,17 @@ test_help_lists_flags() {
   tmp="$(mktemp -d)"
   out="$tmp/help.txt"
   "$SCRIPT" --help >"$out"
-  assert_contains "$out" 'Usage: scripts/vdoc-release-dry-run.sh [--list] [--include-live] [--help]'
+  assert_contains "$out" 'Usage: scripts/vdoc-release-dry-run.sh [--list] [--candidate] [--include-live] [--help]'
   assert_contains "$out" '--list'
   assert_contains "$out" '--include-live'
+  assert_contains "$out" '--candidate'
 }
 
 test_execution_uses_non_mutating_ci_environment() {
   assert_contains "$SCRIPT" 'export CI=true'
   assert_contains "$SCRIPT" 'export pnpm_config_verify_deps_before_run=false'
+  assert_contains "$SCRIPT" 'export GOTOOLCHAIN=go1.25.5'
+  assert_contains "$SCRIPT" 'export GOFLAGS=-mod=readonly'
 }
 
 test_execution_stops_on_first_failed_gate() {
@@ -193,6 +199,47 @@ test_execution_stops_on_first_failed_gate() {
   assert_not_contains "$out" '[backend] Go format check'
 }
 
+test_candidate_plan_preserves_component_gates() {
+  local tmp published candidate
+  tmp="$(mktemp -d)"
+  published="$tmp/published.txt"
+  candidate="$tmp/candidate.txt"
+  "$SCRIPT" --list >"$published"
+  "$SCRIPT" --list --candidate >"$candidate"
+  assert_contains "$candidate" 'Candidate source checks: release publication is not certified'
+  assert_contains "$candidate" '[workspace] Verify candidate source lock'
+  assert_contains "$candidate" 'scripts/vdoc-workspace-candidate-verify.sh'
+  assert_contains "$candidate" 'scripts/vdoc-workspace-candidate-verify.sh --package-check'
+  assert_contains "$candidate" 'scripts/vdoc-workspace-contracts.sh --candidate'
+  assert_not_contains "$candidate" 'scripts/vdoc-workspace-package.sh --check'
+  assert_line_before "$candidate" '[workspace] Verify candidate source lock' '[workspace] Verify candidate bootstrap distribution'
+  assert_line_before "$candidate" '[workspace] Verify candidate bootstrap distribution' '[workspace] Verify candidate cross-repository contracts'
+  assert_line_before "$candidate" '[workspace] Verify candidate cross-repository contracts' '[backend] Go format check'
+  assert_contains "$candidate" 'pnpm workspace:package --candidate'
+  assert_line_before "$candidate" '[site] Verify workspace export' '[site] Prepare current workspace downloads'
+  assert_line_before "$candidate" '[site] Prepare current workspace downloads' '[site] Content tests'
+  # Both modes must retain exactly the same component commands and sequence,
+  # apart from explicitly marked candidate download preparation.
+  awk '/^[0-9]+\. \[(backend|admin|site|mcp)\]/ {sub(/^[0-9]+\. /, ""); print; getline; print; getline; print}' "$published" >"$tmp/published-components.txt"
+  awk '/^[0-9]+\. \[(backend|admin|site|mcp)\]/ {sub(/^[0-9]+\. /, ""); print; getline; print; getline; print}' "$candidate" >"$tmp/candidate-components.txt"
+  sed 's/pnpm workspace:package --candidate/pnpm workspace:package/' "$tmp/candidate-components.txt" >"$tmp/candidate-components-normalized.txt"
+  diff -u "$tmp/published-components.txt" "$tmp/candidate-components-normalized.txt" || fail 'candidate mode dropped or changed a component gate'
+  assert_no_forbidden_commands "$candidate"
+}
+
+test_candidate_execution_stops_on_invalid_source_lock() {
+  local tmp status
+  tmp="$(mktemp -d)"
+  set +e
+  VDOC_WORKSPACE_LOCK_FILE="$tmp/missing-lock.json" "$SCRIPT" --candidate >"$tmp/out" 2>"$tmp/err"
+  status="$?"
+  set -e
+  [[ "$status" -eq 1 ]] || fail "expected candidate verifier failure exit code 1, got $status"
+  assert_contains "$tmp/err" 'FAIL: [workspace] Verify candidate source lock failed with exit code 1'
+  assert_not_contains "$tmp/out" '[workspace] Test repository lock tooling'
+  assert_not_contains "$tmp/out" '[backend] Go format check'
+}
+
 printf 'test: list covers release surfaces without live\n'
 test_list_covers_release_surfaces_without_live
 printf 'test: list preserves fail-fast order\n'
@@ -207,4 +254,8 @@ printf 'test: execution uses a non-mutating CI environment\n'
 test_execution_uses_non_mutating_ci_environment
 printf 'test: execution stops on first failed gate\n'
 test_execution_stops_on_first_failed_gate
+printf 'test: candidate plan preserves every component gate\n'
+test_candidate_plan_preserves_component_gates
+printf 'test: candidate execution rejects an invalid source lock\n'
+test_candidate_execution_stops_on_invalid_source_lock
 printf 'ok\n'
