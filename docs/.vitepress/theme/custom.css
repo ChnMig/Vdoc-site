@@ -42,10 +42,21 @@
   --shiki-dark: #e1e4e8;
 }
 
+.vp-code .vp-code-function {
+  --shiki-light: #22863a;
+  --shiki-dark: #85e89d;
+}
+
+.vp-code .vp-code-comment {
+  --shiki-light: #6a737d;
+  --shiki-dark: #6a737d;
+}
+
 html:not(.dark) .vp-code span[style*='--shiki-light:#D73A49'] {
   --shiki-light: #c12a3a !important;
 }
 
+html:not(.dark) .vp-code .vp-code-comment,
 html:not(.dark) .vp-code span[style*='--shiki-light:#6A737D'] {
   --shiki-light: #666f79 !important;
 }
@@ -54,6 +65,7 @@ html:not(.dark) .vp-code span[style*='--shiki-light:#E36209'] {
   --shiki-light: #9f4100 !important;
 }
 
+html:not(.dark) .vp-code .vp-code-function,
 html:not(.dark) .vp-code span[style*='--shiki-light:#22863A'] {
   --shiki-light: #1f7533 !important;
 }
