@@ -18,9 +18,9 @@ Agent 运行的机器还需安装 Node.js 20 或更新版本、npm 和 Git。尚
 当前 `@vdoc/mcp` 尚未发布到 npm registry。请直接从官方 GitHub 仓库运行或安装：
 
 ```sh
-npx --yes github:ChnMig/Vdoc-mcp#9c0b89473b8e6f8b963bf0771992fe6d203a18ff
+npx --yes github:ChnMig/Vdoc-mcp#454d107eeaf048630eaf5548c956f3e2dba74eca
 # 或全局安装 GitHub 版本
-npm install -g git+https://github.com/ChnMig/Vdoc-mcp.git#9c0b89473b8e6f8b963bf0771992fe6d203a18ff
+npm install -g git+https://github.com/ChnMig/Vdoc-mcp.git#454d107eeaf048630eaf5548c956f3e2dba74eca
 ```
 
 一次性使用时，推荐在 Agent MCP config 中通过固定 commit 的 `npx` 调用，不要把 token 放在 `args`。上面的 40 位 commit 必须和已审核发布包 `workspace.lock.json` 的 `Vdoc-mcp` 项一致；不要删掉 fragment 或改成可移动 branch。
@@ -59,7 +59,7 @@ stdout 保留给 MCP protocol，普通诊断看 stderr。
       "command": "npx",
       "args": [
         "--yes",
-        "github:ChnMig/Vdoc-mcp#9c0b89473b8e6f8b963bf0771992fe6d203a18ff"
+        "github:ChnMig/Vdoc-mcp#454d107eeaf048630eaf5548c956f3e2dba74eca"
       ],
       "env": {
         "VDOC_BASE_URL": "https://your-vdoc.example.test",

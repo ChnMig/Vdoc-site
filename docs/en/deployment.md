@@ -58,6 +58,8 @@ After validation, Compose starts PostgreSQL, RustFS, Backend, and Admin. Backend
 
 Open the [Vdoc workbench](http://127.0.0.1:8081) and sign in with your configured administrator account. Backend health is available at `http://127.0.0.1:8080/api/v1/open/health`.
 
+Both Compose files default to `VDOC_ADMIN_API_BASE_URL: 'same-origin'`. Browsers request `/api/v1/...` on the current workbench origin, and Admin's built-in Caddy forwards those requests to `backend:8080`. For local access, the API origin is `http://127.0.0.1:8081`. The separate backend port remains available for direct Skill, MCP and CLI access.
+
 Next: [publish your first document and query it with an agent](admin-usage.md).
 
 <div id="compose-example"></div>
@@ -106,7 +108,7 @@ This variant starts RustFS, Backend, Admin and the one-shot configuration check.
 
    If the database runs on another Compose network, attach Backend to that existing network to use its database service name. Retain Backend's default network for RustFS access. A service name alone does not connect separate networks.
 
-3. For domain access, set `VDOC_ADMIN_API_BASE_URL` to the backend HTTPS origin; the [two-domain Caddy setup](#caddy-domain) is unchanged. Once the existing database is ready, run:
+3. For domain access, retain `VDOC_ADMIN_API_BASE_URL: 'same-origin'`; use the same [two-domain Caddy setup](#caddy-domain) as the bundled database variant. Once the existing database is ready, run:
 
    ```sh
    docker compose config --quiet
@@ -128,6 +130,8 @@ The full example below reads directly from the published external-database YAML,
 ## Update versions
 
 Keep the image names unchanged to follow stable releases. Read release notes, back up data, preserve the existing YAML, credentials, keys, domain settings and volumes, then run:
+
+If the existing `VDOC_ADMIN_API_BASE_URL` points to a separate backend domain or `127.0.0.1:8080`, first change it to `'same-origin'` and recreate Admin as described in [Upgrade and Rollback](release-rollback.md). The new mode uses Admin's built-in `/api/*` proxy; pulling an image does not update an existing cross-origin API setting.
 
 ```sh
 docker compose pull
@@ -155,23 +159,25 @@ PostgreSQL 18 mounts its data volume at `/var/lib/postgresql`. Vdoc application 
 
 ## Use a domain with Caddy {#caddy-domain}
 
-Keep frontend and backend on separate domains and ports: `docs.example.com` proxies to `127.0.0.1:8081`, while `api.example.com` proxies to `127.0.0.1:8080`. This example runs Caddy on the same host as Docker.
+Keep frontend and backend on separate domains and ports: `docs.example.com` proxies to `127.0.0.1:8081`, while `api.example.com` proxies to `127.0.0.1:8080`. Browsers use `docs.example.com/api/v1/...`; Skill, MCP and CLI clients use `api.example.com`. This example runs Caddy on the same host as Docker.
 
 1. Point both domains' DNS A/AAAA records at the server and allow inbound ports 80/443 to Caddy. Keep only reachable IPv6 records. Caddy obtains and renews HTTPS certificates automatically.
-2. Keep backend CORS set to `*` and set the frontend API URL to the backend HTTPS origin, without `/api` or a trailing slash:
+2. Retain these settings from either Compose file:
 
    ```yaml
-   VDOC_SERVER_CORS_ALLOWED_ORIGINS: '*'
-   VDOC_ADMIN_API_BASE_URL: 'https://api.example.com'
+   VDOC_SERVER_ENABLE_CORS: 'true'
+   VDOC_ADMIN_API_BASE_URL: 'same-origin'
    ```
 
-   The first is under `x-backend-environment` and permits browser clients from any origin. The second is under `services.admin.environment`; Admin runtime config and CSP permit that backend origin. Open CORS retains login, permission, MCP Token and share-capability checks and does not enable cross-site cookies. CLI Skill/MCP clients normally are not subject to browser CORS; they also connect to the backend domain. Leaving the local defaults makes visitors' browsers call their own `127.0.0.1`. Run `docker compose up -d --wait` after changing configuration so Admin regenerates its runtime config.
+   The first is under `x-backend-environment`; the second is under `services.admin.environment`. `same-origin` makes the runtime config use `window.location.origin`, with `'self'` allowed in CSP `connect-src`. Browser authentication requests reach Backend through Admin's built-in proxy.
+
+   Backend currently returns `Access-Control-Allow-Headers: *` without explicitly allowing `Authorization`, so this response cannot be relied on for authenticated cross-origin browser requests. Skill, MCP and CLI clients normally are not subject to browser CORS and continue to use `https://api.example.com`. When upgrading from a cross-origin configuration, change the API setting to `'same-origin'` and run `docker compose up -d --wait --force-recreate admin` to regenerate Admin's runtime config.
 
 3. Add this block to the external Caddyfile, replace both domains, then run `caddy validate --config /etc/caddy/Caddyfile` and `caddy reload --config /etc/caddy/Caddyfile`:
 
 <<< @/../workspace/deploy/Caddyfile{caddyfile} [Caddyfile]
 
-Caddy selects upstreams by hostname without path routing or rewriting. Backend retains the full `/api/v1/...` path. Admin serves the SPA fallback, so refreshing project pages, sign-in pages and share links works.
+The outer Caddy still selects upstreams by hostname and needs no additional path routing or rewriting. Admin's built-in Caddy forwards `/api/*` to `backend:8080`, retaining the full `/api/v1/...` path. Admin serves the SPA fallback for other paths, so refreshing project pages, sign-in pages and share links works.
 
 Backend/Admin ports bind only to host loopback. PostgreSQL and RustFS need no public port; Backend reads document content from storage.
 
@@ -188,18 +194,19 @@ networks:
     name: vdoc_default
 ```
 
-Start Vdoc first to create the network. If you changed its project name, use the actual network name. Preserve Caddy's other networks and configuration. The browser-facing API origin remains `https://api.example.com`, never a Docker service name.
+Start Vdoc first to create the network. If you changed its project name, use the actual network name. Preserve Caddy's other networks and configuration. Keep Admin's API setting at `'same-origin'`; browsers use `https://docs.example.com`, never a Docker service name.
 
-For client-IP logging and rate limits, set Backend's `VDOC_SERVER_TRUSTED_PROXIES` to the trusted Caddy source IP or dedicated proxy subnet as seen by Backend; host forwarding may appear as the Docker gateway. Trust only controlled proxies, never `0.0.0.0/0`.
+Browser API requests pass through both external Caddy and Admin's built-in Caddy. Admin does not trust incoming `X-Forwarded-For` by default, and Backend also trusts no proxies by default. For real client-IP logging or rate limits, configure the external proxy as `trusted_proxies` in the `servers` block of a custom Admin Caddyfile, and set Backend's `VDOC_SERVER_TRUSTED_PROXIES` to the Admin source IP or dedicated proxy subnet as seen by Backend. Direct requests to the separate API domain pass through external Caddy alone; host forwarding may appear as the Docker gateway. Verify the full forwarding chain and trust only controlled proxies, never `0.0.0.0/0`.
 
 ### Verify first use
 
 ```sh
 curl -fsS https://api.example.com/api/v1/open/health
+curl -fsS https://docs.example.com/api/v1/open/health
 curl -fsS https://docs.example.com/runtime-config.js
 ```
 
-The health response should have `code: 200`; `apiBaseUrl` should match the backend HTTPS domain. Sign in with the initial administrator, then:
+Both health responses should have `code: 200`; the runtime config should contain `apiBaseUrl: window.location.origin`. When browsers execute this JavaScript, the API origin is `https://docs.example.com`, rather than the separate backend domain. Sign in with the initial administrator, then:
 
 1. Create a team, project and Markdown or OpenAPI document.
 2. Create a draft, submit it for review, publish it and open the published content.

@@ -58,7 +58,7 @@ services:
       start_period: 40s
 
   backend:
-    image: vdoc-backend:v0.3.10
+    image: vdoc-backend:v0.3.13
     build:
       context: ./Vdoc
       args:
@@ -77,7 +77,7 @@ services:
       # Docker is the process supervisor. Disable the host-style PID file so
       # SIGKILL/OOM restarts cannot be blocked by a stale writable-layer file.
       VDOC_SERVER_PID_FILE: ""
-      VDOC_SERVER_CORS_ALLOWED_ORIGINS: ${VDOC_SERVER_CORS_ALLOWED_ORIGINS:-http://127.0.0.1:8081,http://localhost:8081}
+      VDOC_SERVER_ENABLE_CORS: ${VDOC_SERVER_ENABLE_CORS:-true}
       VDOC_AUTH_ALLOW_REGISTRATION: ${VDOC_AUTH_ALLOW_REGISTRATION:-false}
       VDOC_AUTH_RATE_LIMIT: ${VDOC_AUTH_RATE_LIMIT:-2}
       VDOC_AUTH_RATE_BURST: ${VDOC_AUTH_RATE_BURST:-5}
@@ -101,7 +101,7 @@ services:
       - "${VDOC_PUBLISH_ADDRESS:-127.0.0.1}:${VDOC_BACKEND_HOST_PORT:-8080}:${VDOC_BACKEND_CONTAINER_PORT:-8080}"
 
   admin:
-    image: vdoc-admin:v0.3.10
+    image: vdoc-admin:v0.3.13
     build:
       context: ./Vdoc-admin
       args:
@@ -113,7 +113,8 @@ services:
       backend:
         condition: service_healthy
     environment:
-      VDOC_ADMIN_API_BASE_URL: ${VDOC_ADMIN_API_BASE_URL:-${VDOC_BACKEND_PUBLIC_ORIGIN:-http://127.0.0.1:8080}}
+      VDOC_ADMIN_API_BASE_URL: ${VDOC_ADMIN_API_BASE_URL:-same-origin}
+      VDOC_ADMIN_API_UPSTREAM: backend:${VDOC_BACKEND_CONTAINER_PORT:-8080}
     ports:
       - "${VDOC_PUBLISH_ADDRESS:-127.0.0.1}:${VDOC_ADMIN_HOST_PORT:-8081}:8080"
     healthcheck:

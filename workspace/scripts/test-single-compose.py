@@ -49,8 +49,6 @@ def scenario(legacy=False):
         project = 'vdoc-single-' + secrets.token_hex(5)
         api_port, admin_port = port(), port()
         source = template.replace('127.0.0.1:8080:8080', f'127.0.0.1:{api_port}:8080')
-        source = source.replace('VDOC_ADMIN_API_BASE_URL: "http://127.0.0.1:8080"',
-                                f'VDOC_ADMIN_API_BASE_URL: "http://127.0.0.1:{api_port}"')
         source = source.replace('127.0.0.1:8081', f'127.0.0.1:{admin_port}')
         source = source.replace('localhost:8081', f'localhost:{admin_port}')
         compose_file.write_text(source)
@@ -75,7 +73,10 @@ def scenario(legacy=False):
             if token:
                 headers['Authorization'] = token
             payload = None if data is None else json.dumps(data).encode()
-            req = Request(f'http://127.0.0.1:{api_port}' + path, data=payload, headers=headers)
+            # Browser APIs must traverse Admin's same-origin proxy; MCP can use
+            # the separately published backend port without browser CORS.
+            destination_port = api_port if rpc else admin_port
+            req = Request(f'http://127.0.0.1:{destination_port}' + path, data=payload, headers=headers)
             with urlopen(req, timeout=25) as response:
                 result = json.load(response)
             if rpc:
@@ -110,9 +111,6 @@ def scenario(legacy=False):
             if legacy:
                 new_image = args.backend_image or backend_source
                 source = source.replace(new_image, args.legacy_backend_image)
-                # Older backends predate explicit wildcard CORS support.
-                source = source.replace('VDOC_SERVER_CORS_ALLOWED_ORIGINS: "*"',
-                                        f'VDOC_SERVER_CORS_ALLOWED_ORIGINS: "http://127.0.0.1:{admin_port}"')
                 if args.legacy_storage_image:
                     source = source.replace('rustfs/rustfs:1.0.0', args.legacy_storage_image)
                 source = source.replace('command: ["--check-config"]', 'command: ["--version"]')
@@ -121,6 +119,9 @@ def scenario(legacy=False):
             compose_file.write_text(source)
             compose('up', '-d', '--wait', '--wait-timeout', '180')
             assert sorted(p.name for p in folder.iterdir()) == ['docker-compose.yml']
+            with urlopen(f'http://127.0.0.1:{admin_port}/runtime-config.js', timeout=10) as response:
+                assert 'apiBaseUrl: window.location.origin' in response.read().decode()
+            request('/api/v1/open/health')
             auth = request('/api/v1/open/auth/login', {'email': 'admin@example.com', 'password': admin_password})
             token = auth['token']; private_values.append(token)
             assert auth['user']['is_super_admin']
@@ -148,7 +149,7 @@ def scenario(legacy=False):
             assert request(content_url, token=token)['content'] == content
             mcp = request('/api/v1/private/mcp-tokens', {'name': 'Persistent token', 'scopes': [3]}, token)
             private_values.append(mcp['token'])
-            print('PASS: automatic schema/admin/bucket setup; document stored; no test database', flush=True)
+            print('PASS: same-origin health/login/private API proxy; automatic schema/admin/bucket setup; document stored; no test database', flush=True)
 
             # 仅替换后端版本/配置；原有卷、凭据和已签发令牌必须继续可用。
             compose_file.write_text(current_source)

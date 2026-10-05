@@ -22,13 +22,16 @@ docker compose exec -T postgres \
 
 保留 PostgreSQL 密码、存储凭据、JWT/MCP 密钥、管理员设置、端口、项目名和数据卷。`v0.3.10` 相对 v0.3.6 不新增应用数据库迁移；从 v0.3.0 或更早版本升级时，会执行尚未应用的 `007_parser_facts_and_history_pages.sql`，新增解析版本字段、历史查询索引和 Diff 的 `must_handle` 字段。升级前完成上面的备份；本版不会自动执行数据库降级。
 
+若旧部署的 `services.admin.environment.VDOC_ADMIN_API_BASE_URL` 指向独立后端域名或 `127.0.0.1:8080`，改为 `'same-origin'`。当前 Admin 内置 Caddy 将 `/api/*` 同源转发到 `backend:8080`，运行时配置使用 `window.location.origin`；浏览器通过工作台域名访问 API，Skill、MCP 和 CLI 仍可直接访问后端域名。删除旧的 CORS origin 配置，并保留 `VDOC_SERVER_ENABLE_CORS: 'true'`。两份单文件 Compose（内置或外部 PostgreSQL）都使用这一默认配置。
+
 ```sh
 docker compose pull
 docker compose up -d --wait
+docker compose up -d --wait --force-recreate admin
 docker compose ps
 ```
 
-新容器会挂载原有数据卷。Backend 自动检查 `schema_migrations`，按顺序执行尚未应用的迁移，并校验已应用迁移的内容。迁移失败会中止启动；不会清空数据库或跳过错误继续提供服务。已完成的迁移不会因重启反复执行。
+显式重新创建 Admin 会重新生成运行时配置；只重启旧容器不会应用修改后的 Compose 环境变量。新容器会挂载原有数据卷。Backend 自动检查 `schema_migrations`，按顺序执行尚未应用的迁移，并校验已应用迁移的内容。迁移失败会中止启动；不会清空数据库或跳过错误继续提供服务。已完成的迁移不会因重启反复执行。
 
 Vdoc 的迁移只负责应用数据结构，不包含 PostgreSQL 主版本升级。默认 `postgres:18` 跟随 18.x 补丁，`rustfs/rustfs:1.0.0` 固定版本。跨 PostgreSQL 主版本或更换 RustFS 版本前，需按相应升级说明迁移并验证。
 
@@ -58,11 +61,13 @@ docker compose exec backend /app/vdoc --version
 - 新草稿仍能提交、审核和发布。
 - 使用 AI 或公开分享时，原 Provider 配置及分享链接仍可使用。
 
+使用域名时，检查 `https://docs.example.com/api/v1/open/health` 的 `code` 为 `200`，并检查 `https://docs.example.com/runtime-config.js` 包含 `apiBaseUrl: window.location.origin`。浏览器执行后应使用实际工作台 origin（本例为 `https://docs.example.com`），再验证登录和发布等认证流程。
+
 正常的配置检查容器会退出为 `Exited (0)`。如果检查失败，修正 YAML 后再启动；不要反复删库重试。业务排查可继续阅读[管理端使用](admin-usage.md)、[AI 配置](admin-ai.md)和[MCP 工具](mcp-tools.md)。
 
 ## 回滚
 
-回退到 v0.3.2 或更早的后端时，把 `VDOC_SERVER_CORS_ALLOWED_ORIGINS` 的 `*` 改回实际前端 HTTPS origin；这些旧版尚不支持通配配置。
+回滚到不包含同源 `/api/*` 反代的旧 Admin 时，恢复该版本对应的 API 和代理配置；这些镜像不能直接使用 `'same-origin'`。若恢复跨域访问，网关需显式允许实际工作台 origin 和 `Authorization` 等请求头，或按旧版本支持的 origin 方案配置，并用浏览器验证预检与认证请求。不要仅凭 CORS 通配响应判断跨域登录可用。
 
 先停止 Backend 和 Admin，保留当前数据和日志。对照目标版本的升级说明确定旧版是否兼容迁移后的数据库：
 

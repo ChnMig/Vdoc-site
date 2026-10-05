@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.3.13
+
+- Bind workbench requests to the account credentials at invocation, preventing old operations from using a newly signed-in account's token. Stop the second step of an initial AI chat after sign-out, reauthentication or navigation.
+- Show an invalid-link message when a version deep link conflicts with the current branch filter.
+- Retain upstream token usage in failed AI audits when permission/configuration changes or cancellation invalidate the result.
+- Move public-share password verification outside the global store lock, then recheck access and the password snapshot before issuing an unlock proof.
+- Bound and cancel HTTP error response streams in MCP, preserving the received status instead of reporting a timeout. Harden unknown-error sanitization and fixed-commit installation failures.
+- Allow the Skill to edit only a draft's version name or changelog while retaining the content and revision from the same read.
+- Route Docker workbench API requests through its own `/api` proxy, fixing login and public-share requests in the default deployment. Update both deployment guides and the release lock.
+
+This release adds no application database migration and preserves REST/MCP tool parameters. When upgrading an existing Compose configuration, set `VDOC_ADMIN_API_BASE_URL` to `same-origin`, preserve accounts, keys and volumes, then recreate Admin. Backend no longer uses the legacy `cors_allowed_origins` setting; cross-origin browser APIs require built-in CORS to be disabled and explicit authentication/share headers to be permitted at the gateway. See [upgrade and rollback](release-rollback.md). Restart the Agent after updating MCP/Skill.
+
 ## v0.3.10
 
 - Cancel pending draft file submissions after sign-out, account changes, or leaving the page while preserving normal saves.

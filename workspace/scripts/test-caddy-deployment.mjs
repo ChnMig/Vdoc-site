@@ -13,7 +13,9 @@ import { parseArgs } from 'node:util'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const { chromium, expect } = createRequire(join(root, 'Vdoc-admin/package.json'))('@playwright/test')
-const { values } = parseArgs({ options: { 'backend-image': { type: 'string' }, 'admin-image': { type: 'string' } } })
+const { values } = parseArgs({ options: { 'backend-image': { type: 'string' }, 'admin-image': { type: 'string' }, 'backend-container-port': { type: 'string', default: '8080' } } })
+const backendContainerPort = Number(values['backend-container-port'])
+assert.ok(Number.isInteger(backendContainerPort) && backendContainerPort > 0 && backendContainerPort <= 65535, 'Backend container port must be valid')
 const directory = mkdtempSync(join(tmpdir(), 'vdoc-caddy-'))
 const project = `vdoc-caddy-${randomBytes(5).toString('hex')}`
 const secrets = []
@@ -41,6 +43,7 @@ async function freePort() {
 }
 
 let browser
+let strictBrowser
 try {
   const edgePort = await freePort()
   const backendPort = await freePort()
@@ -49,9 +52,12 @@ try {
   const backend = `https://api.vdoc.localhost:${edgePort}`
   const password = secret()
   let source = readFileSync(join(root, 'deploy/docker-compose.yml'), 'utf8')
-    .replace('127.0.0.1:8080:8080', `127.0.0.1:${backendPort}:8080`)
+    .replace('VDOC_SERVER_PORT: "8080"', `VDOC_SERVER_PORT: "${backendContainerPort}"`)
+    .replace('127.0.0.1:8080:8080', `127.0.0.1:${backendPort}:${backendContainerPort}`)
     .replace('127.0.0.1:8081:8080', `127.0.0.1:${adminPort}:8080`)
-    .replace('VDOC_ADMIN_API_BASE_URL: "http://127.0.0.1:8080"', `VDOC_ADMIN_API_BASE_URL: ${JSON.stringify(backend)}`)
+  if (backendContainerPort !== 8080) {
+    source = source.replace('VDOC_ADMIN_API_BASE_URL: "same-origin"', `VDOC_ADMIN_API_BASE_URL: "same-origin"\n      VDOC_ADMIN_API_UPSTREAM: "backend:${backendContainerPort}"`)
+  }
   for (const [name, image] of [['backend', values['backend-image']], ['admin', values['admin-image']]]) {
     if (image) source = source.replace(new RegExp(`(^x-${name}-image: &${name}-image )\\S+`, 'm'), `$1${image}`)
   }
@@ -62,7 +68,7 @@ try {
     .replaceAll('docs.example.com', 'vdoc.localhost')
     .replaceAll('api.example.com', 'api.vdoc.localhost')
     .replaceAll('127.0.0.1:8081', 'admin:8080')
-    .replaceAll('127.0.0.1:8080', 'backend:8080')
+    .replaceAll('127.0.0.1:8080', `backend:${backendContainerPort}`)
     .replaceAll('.localhost {', '.localhost {\n\ttls internal')
   writeFileSync(join(directory, 'Caddyfile'), caddy)
   writeFileSync(join(directory, 'proxy.json'), JSON.stringify({
@@ -81,16 +87,23 @@ try {
   const browserOptions = { ignoreHTTPSErrors: true, serviceWorkers: 'block' }
   const context = await browser.newContext(browserOptions)
   const page = await context.newPage()
-  await page.goto(`${frontend}/sign-in`)
-  assert.equal(await page.evaluate(() => window.__VDOC_ADMIN_CONFIG__.apiBaseUrl), backend)
-  await page.getByLabel('Email', { exact: true }).fill('admin@example.com')
-  await page.getByLabel('Password', { exact: true }).fill(password)
-  await page.getByRole('button', { name: 'Sign in to Vdoc' }).click()
-  await expect(page).toHaveURL(`${frontend}/`)
+  const apiRequests = []
+  page.on('request', (request) => {
+    if (new URL(request.url()).pathname.startsWith('/api/')) apiRequests.push(request.url())
+  })
+  for (const origin of [`http://127.0.0.1:${adminPort}`, frontend]) {
+    await page.goto(`${origin}/sign-in`)
+    assert.equal(await page.evaluate(() => window.__VDOC_ADMIN_CONFIG__.apiBaseUrl), origin)
+    await page.getByLabel('Email', { exact: true }).fill('admin@example.com')
+    await page.getByLabel('Password', { exact: true }).fill(password)
+    await page.getByRole('button', { name: 'Sign in to Vdoc' }).click()
+    await expect(page).toHaveURL(`${origin}/`)
+    assert.ok(apiRequests.some((url) => url === `${origin}/api/v1/open/auth/login`), 'Sign-in must use the workbench origin')
+  }
   const token = await page.evaluate(() => sessionStorage.getItem('vdoc_admin_access_token'))
   assert.ok(token, 'Real sign-in must establish an account session')
   secrets.push(token)
-  process.stdout.write('PASS: browser sign-in across frontend/backend HTTPS domains, runtime config, CSP and CORS\n')
+  process.stdout.write('PASS: real browser sign-in over local HTTP and HTTPS; runtime config follows workbench origin\n')
 
   async function raw(path, data, authorization = token) {
     return page.evaluate(async ({ url, data, authorization }) => {
@@ -100,7 +113,7 @@ try {
         ...(data === undefined ? {} : { body: JSON.stringify(data) }),
       })
       return response.json()
-    }, { url: backend + path, data, authorization })
+    }, { url: frontend + path, data, authorization })
   }
   async function api(path, data) {
     const result = await raw(path, data)
@@ -129,7 +142,11 @@ try {
 
   const mcp = await api('/api/v1/private/mcp-tokens', { name: 'Caddy smoke token', scopes: [3] })
   secrets.push(mcp.token)
-  const result = await raw('/api/v1/open/mcp', { jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: 'get_latest_doc', arguments: { project_id: projectData.id, document_id: document.id, branch_id: branch.id } } }, mcp.token)
+  const mcpResponse = await context.request.post(`${backend}/api/v1/open/mcp`, {
+    headers: { Authorization: mcp.token },
+    data: { jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: 'get_latest_doc', arguments: { project_id: projectData.id, document_id: document.id, branch_id: branch.id } } },
+  })
+  const result = await mcpResponse.json()
   assert.ok(!result.error && JSON.stringify(result.result).includes('Caddy split-domain publication'), 'MCP must read the actual published document')
   process.stdout.write('PASS: MCP get_latest_doc returns the published document through the backend domain\n')
 
@@ -137,19 +154,70 @@ try {
   secrets.push(share.secret)
   const anonymous = await browser.newContext(browserOptions)
   const sharePage = await anonymous.newPage()
+  const shareRequests = []
+  sharePage.on('request', (request) => {
+    if (new URL(request.url()).pathname.startsWith('/api/')) shareRequests.push(request.url())
+  })
   await sharePage.goto(`${frontend}/share/${share.share.id}#${share.secret}`)
   await expect(sharePage.getByText('Published behind two HTTPS domains.', { exact: true })).toBeVisible()
   assert.ok(!sharePage.url().includes('#'), 'Share capability must be removed from the browser address')
-  const preflight = await context.request.fetch(`${backend}/api/v1/open/health`, { method: 'OPTIONS', headers: { Origin: 'https://untrusted.example.test', 'Access-Control-Request-Method': 'POST' } })
-  assert.equal(preflight.status(), 204)
+  assert.ok(shareRequests.length > 0 && shareRequests.every((url) => new URL(url).origin === frontend), 'Share API requests must stay on the workbench origin')
+  assert.ok(apiRequests.every((url) => !url.startsWith(backend)), 'Authenticated browser API requests must stay on the workbench origin')
+
+  const sharePassword = secret()
+  const protectedShare = await api(`${base}/shares`, { branch_id: branch.id, version_scope: 1, expiry_preset: '1_month', password: sharePassword })
+  secrets.push(protectedShare.secret)
+  let sentUnlockProof = false
+  sharePage.on('request', (request) => {
+    if (request.headers()['x-vdoc-share-unlock']) sentUnlockProof = true
+  })
+  await sharePage.goto(`${frontend}/share/${protectedShare.share.id}#${protectedShare.secret}`)
+  await sharePage.getByLabel('Share password', { exact: true }).fill(sharePassword)
+  await sharePage.getByRole('button', { name: 'Unlock document', exact: true }).click()
+  await expect(sharePage.getByText('Published behind two HTTPS domains.', { exact: true })).toBeVisible()
+  assert.ok(sentUnlockProof, 'Protected share reads must carry the unlock proof through the same-origin proxy')
+  assert.ok(shareRequests.every((url) => new URL(url).origin === frontend), 'Protected share requests must stay on the workbench origin')
+  process.stdout.write('PASS: password-protected share unlock and content read use same-origin Authorization and unlock-proof headers\n')
+
+  const preflight = await context.request.fetch(`${backend}/api/v1/open/health`, { method: 'OPTIONS', headers: { Origin: frontend, 'Access-Control-Request-Method': 'POST', 'Access-Control-Request-Headers': 'authorization,content-type' } })
+  assert.equal(preflight.status(), 200)
+  assert.equal(await preflight.text(), 'Options Request!')
   assert.equal(preflight.headers()['access-control-allow-origin'], '*')
+  assert.equal(preflight.headers()['access-control-allow-headers'], '*')
   assert.equal(preflight.headers()['access-control-allow-credentials'], undefined)
-  process.stdout.write('PASS: anonymous share works across domains; arbitrary-origin CORS preflight succeeds without credentialed cookies\n')
+  process.stdout.write('PASS: anonymous share uses same-origin API; unchanged upstream wildcard CORS response retained\n')
+
+  // The real backend health page has no frontend CSP. Reproduce the original
+  // wildcard-Authorization CORS failure independently of the Admin CSP.
+  // Chromium currently accepts wildcard Authorization by default; only this
+  // diagnostic opts into its standards-strict enforcement. Business smoke above
+  // uses the browser's default flags.
+  strictBrowser = await chromium.launch({ args: ['--host-resolver-rules=MAP *.localhost 127.0.0.1', '--enable-features=CorsNonWildcardRequestHeadersSupport'] })
+  const strictContext = await strictBrowser.newContext(browserOptions)
+  const corsProbe = await strictContext.newPage()
+  const localBackend = `http://127.0.0.1:${backendPort}`
+  await corsProbe.goto(`${localBackend}/api/v1/open/health`)
+  const corsResult = await corsProbe.evaluate(async ({ localBackend, backend, token }) => {
+    const identityPath = '/api/v1/private/identity/me'
+    const sameOrigin = await fetch(localBackend + identityPath, { headers: { Authorization: token } })
+    const identity = await sameOrigin.json()
+    try {
+      await fetch(backend + identityPath, { headers: { Authorization: token } })
+      return { sameOriginCode: identity.code, crossOriginBlocked: false }
+    } catch (error) {
+      return { sameOriginCode: identity.code, crossOriginBlocked: error instanceof TypeError }
+    }
+  }, { localBackend, backend, token })
+  assert.equal(corsResult.sameOriginCode, 200)
+  assert.equal(corsResult.crossOriginBlocked, true, 'Upstream wildcard Allow-Headers must not silently permit cross-origin Authorization')
+  await corsProbe.close()
+  process.stdout.write('PASS: standards-strict browser blocks cross-origin Authorization while same-origin identity succeeds\n')
 } catch (error) {
   process.stderr.write(redact(error.stack ?? error) + '\n')
   process.exitCode = 1
 } finally {
   if (browser) await browser.close()
+  if (strictBrowser) await strictBrowser.close()
   try {
     compose('down', '--volumes', '--remove-orphans')
     process.stdout.write('PASS: isolated test containers and volumes removed\n')

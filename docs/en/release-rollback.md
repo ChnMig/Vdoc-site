@@ -22,13 +22,16 @@ Keep Backend/Admin on `latest` to follow stable application releases. Read [Site
 
 Preserve PostgreSQL and storage credentials, JWT/MCP keys, administrator settings, ports, project name, and volumes. `v0.3.10` adds no application database migration beyond v0.3.6. Upgrades from v0.3.0 or earlier apply the pending `007_parser_facts_and_history_pages.sql`, adding parser metadata, history query indexes, and the Diff `must_handle` field. Complete the backup above before upgrading; this release does not automatically downgrade the database.
 
+If the existing `services.admin.environment.VDOC_ADMIN_API_BASE_URL` points to a separate backend domain or `127.0.0.1:8080`, change it to `'same-origin'`. Current Admin's built-in Caddy forwards `/api/*` to `backend:8080` on the same origin, and the runtime config uses `window.location.origin`. Browsers access the API through the workbench domain; Skill, MCP and CLI clients can still use the backend domain directly. Remove the old CORS origin setting and retain `VDOC_SERVER_ENABLE_CORS: 'true'`. Both single-file Compose variants, with bundled or external PostgreSQL, use this default.
+
 ```sh
 docker compose pull
 docker compose up -d --wait
+docker compose up -d --wait --force-recreate admin
 docker compose ps
 ```
 
-New containers mount the existing volumes. Backend checks `schema_migrations`, applies pending migrations in order, and validates previously applied migration contents. Migration failure aborts startup; it does not clear data or ignore errors. Completed migrations are not reapplied on each restart.
+Explicitly recreating Admin regenerates its runtime config; restarting an existing container does not apply edited Compose environment variables. New containers mount the existing volumes. Backend checks `schema_migrations`, applies pending migrations in order, and validates previously applied migration contents. Migration failure aborts startup; it does not clear data or ignore errors. Completed migrations are not reapplied on each restart.
 
 Vdoc migrations cover application data structures, not PostgreSQL major upgrades. The default `postgres:18` receives 18.x patches, while `rustfs/rustfs:1.0.0` stays fixed. Follow the relevant migration instructions before changing the PostgreSQL major or RustFS version.
 
@@ -58,11 +61,13 @@ Use your configured ports if different. Confirm backend health and version, then
 - A new draft can still be submitted, reviewed, and published.
 - Existing Provider settings and share links still work if you use AI or public sharing.
 
+For domain deployments, verify that `https://docs.example.com/api/v1/open/health` returns `code: 200` and `https://docs.example.com/runtime-config.js` contains `apiBaseUrl: window.location.origin`. When browsers execute it, the API must use the actual workbench origin (`https://docs.example.com` in this example). Then verify authenticated flows such as login and publishing.
+
 A completed configuration check normally shows `Exited (0)`. If it fails, correct the YAML before restarting; do not delete the database to retry. See [First Use](admin-usage.md), [Admin AI](admin-ai.md), and [MCP Tools](mcp-tools.md) for product checks.
 
 ## Rollback
 
-When rolling Backend back to v0.3.2 or earlier, replace `VDOC_SERVER_CORS_ALLOWED_ORIGINS="*"` with the exact frontend HTTPS origin; those versions do not support wildcard configuration.
+When rolling back to an Admin without the built-in same-origin `/api/*` proxy, restore that version's API and proxy configuration; those images cannot directly use `'same-origin'`. If restoring cross-origin access, configure the gateway to explicitly allow the actual workbench origin and request headers such as `Authorization`, or use an origin configuration supported by that old version, and verify browser preflight and authenticated requests. A wildcard CORS response alone does not confirm that cross-origin login works.
 
 Stop Backend and Admin first, preserving current data and logs. Read the target release's instructions to determine whether the previous version supports the migrated database:
 
