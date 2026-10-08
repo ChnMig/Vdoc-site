@@ -15,15 +15,31 @@ The agent machine also needs Node.js 20 or later, npm, and Git. If Vdoc is not r
 
 ## Installation Options
 
-`@vdoc/mcp` is not published to the npm registry yet. Run or install it directly from the official GitHub repository:
+`@vdoc/mcp` is not published to the npm registry yet. For one-off usage, run the commit-pinned source from the official GitHub repository:
 
 ```sh
-npx --yes github:ChnMig/Vdoc-mcp#2cb446cdd930f9d93261c61509db6b9baf52e37c
-# Or install the GitHub version globally
-npm install -g git+https://github.com/ChnMig/Vdoc-mcp.git#2cb446cdd930f9d93261c61509db6b9baf52e37c
+npx --yes github:ChnMig/Vdoc-mcp#1b9311b2f9bafef4bf391a01babced820a5c67f5
 ```
 
 For one-off usage, prefer the commit-pinned `npx` source in the Agent MCP config. The 40-character commit above must equal the `Vdoc-mcp` entry in the reviewed release package's `workspace.lock.json`; do not remove the fragment or replace it with a moving branch. Do not put tokens in `args`.
+
+For global installation, use the compiled release archive and verify it before installing. Source Git installs can fail during npm preparation with `tsc: command not found`; the release archive needs no compilation at install time:
+
+```sh
+(
+  set -eu
+  VDOC_MCP_VERSION=0.3.14
+  VDOC_MCP_PACKAGE_DIR="$(mktemp -d)"
+  trap 'rm -rf -- "$VDOC_MCP_PACKAGE_DIR"' EXIT
+  VDOC_MCP_RELEASE="https://github.com/ChnMig/Vdoc-mcp/releases/download/v$VDOC_MCP_VERSION"
+  curl -fsSL "$VDOC_MCP_RELEASE/vdoc-mcp-$VDOC_MCP_VERSION.tgz" -o "$VDOC_MCP_PACKAGE_DIR/vdoc-mcp-$VDOC_MCP_VERSION.tgz"
+  curl -fsSL "$VDOC_MCP_RELEASE/SHA256SUMS" -o "$VDOC_MCP_PACKAGE_DIR/SHA256SUMS"
+  (cd "$VDOC_MCP_PACKAGE_DIR" && shasum -a 256 -c SHA256SUMS)
+  npm install --global "$VDOC_MCP_PACKAGE_DIR/vdoc-mcp-$VDOC_MCP_VERSION.tgz"
+)
+```
+
+Use the MCP version selected by your deployment package's `workspace.lock.json`. To use the global install from an Agent, change its config's `command` to `vdoc-mcp` and remove the `npx` `args`, keeping the private `env`. Restart the MCP connection after updating. See [Skill Workflows](skill-workflows.md#installation) for optional Skill installation and updates.
 
 `VDOC_MCP_TOKEN` is an environment variable in the shell or Agent configuration, not a package CLI argument. Never put the raw token in `npx`, `npm`, or adapter `args`. Run `set +x` to disable xtrace before manual diagnosis, and keep credentials out of shell history, logs, and screenshots.
 
@@ -59,7 +75,7 @@ For local full Compose, `VDOC_BASE_URL` is usually `http://127.0.0.1:8080`. For 
       "command": "npx",
       "args": [
         "--yes",
-        "github:ChnMig/Vdoc-mcp#2cb446cdd930f9d93261c61509db6b9baf52e37c"
+        "github:ChnMig/Vdoc-mcp#1b9311b2f9bafef4bf391a01babced820a5c67f5"
       ],
       "env": {
         "VDOC_BASE_URL": "https://your-vdoc.example.test",

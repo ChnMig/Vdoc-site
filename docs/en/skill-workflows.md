@@ -20,7 +20,7 @@ Since v0.3.7, the optional Skill lives in `Vdoc-mcp/skills/vdoc` and is included
 (
   set -eu
   VDOC_SKILL_DIR="$HOME/.agents/skills/vdoc"
-  VDOC_MCP_VERSION=0.3.13
+  VDOC_MCP_VERSION=0.3.14
   VDOC_MCP_PACKAGE_DIR="$(mktemp -d)"
   trap 'rm -rf -- "$VDOC_MCP_PACKAGE_DIR"' EXIT
   VDOC_MCP_RELEASE="https://github.com/ChnMig/Vdoc-mcp/releases/download/v$VDOC_MCP_VERSION"

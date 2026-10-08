@@ -1,5 +1,17 @@
 # Version Notes
 
+## v0.3.14
+
+- Reject invalid boolean configuration instead of silently falling back to in-memory storage. Cancel dependency startup and background summary work promptly.
+- Retain provider-reported token usage when a Provider test is canceled or a summary/chat request is superseded, without overwriting newer content.
+- Reject published version-name collisions when editing or submitting drafts. Reuse stored objects for unchanged saves while preserving transactions, audits and concurrency checks.
+- Scope project-member forms to the project and login session, preserving new input after delayed success. Show loading, failure, retry and empty states for user token inventories.
+- Refresh a current-version share once when publication races with content loading. Ignore download errors from an older unlock proof after reauthentication.
+- Recursively sanitize MCP error data while preserving error codes and JSON types. Keep successful document content unchanged.
+- Pass PostgreSQL credentials as separate Compose connection fields, preserving literal special characters. Align troubleshooting with single-file deployment and use verified release archives for global MCP/Skill installation.
+
+This release adds no application database migration and preserves REST/MCP tool parameters. Back up the database and object storage, preserve accounts, keys and volumes, then update images and recreate containers. Reload the Agent and restart MCP after updating MCP/Skill. See [upgrade and rollback](release-rollback.md).
+
 ## v0.3.13
 
 - Bind workbench requests to the account credentials at invocation, preventing old operations from using a newly signed-in account's token. Stop the second step of an initial AI chat after sign-out, reauthentication or navigation.

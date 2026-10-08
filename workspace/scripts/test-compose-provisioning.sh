@@ -119,6 +119,52 @@ test_backend_disables_supervisor_pid_file() {
   assert_contains "$ROOT_DIR/Vdoc/Dockerfile" 'VDOC_SERVER_PID_FILE=""'
 }
 
+test_backend_preserves_shared_database_credentials() {
+  local tmp block
+  tmp="$(mktemp -d)"
+  block="$tmp/backend-service.yml"
+  write_service_block backend "$block"
+  assert_contains "$block" 'VDOC_DATABASE_HOST: postgres'
+  assert_contains "$block" 'VDOC_DATABASE_NAME: ${VDOC_POSTGRES_DB:-vdoc}'
+  assert_contains "$block" 'VDOC_DATABASE_USER: ${VDOC_POSTGRES_USER:-vdoc}'
+  assert_contains "$block" 'VDOC_DATABASE_PASSWORD: ${VDOC_POSTGRES_PASSWORD:?set VDOC_POSTGRES_PASSWORD}'
+  assert_not_contains "$block" 'VDOC_DATABASE_DSN:'
+  assert_not_contains "$ROOT_DIR/.env.example" 'unless percent-encoded'
+
+  # Compose configuration must preserve shared credentials before the backend
+  # builds its URI. This uses synthetic values and never starts a container.
+  if command -v docker >/dev/null 2>&1 && docker compose version >/dev/null 2>&1; then
+    python3 - "$ROOT_DIR" <<'PY'
+import json
+import os
+from pathlib import Path
+import subprocess
+import sys
+
+root = Path(sys.argv[1])
+base = {key: value for key, value in os.environ.items()
+        if not key.startswith(('VDOC_', 'COMPOSE_'))}
+for password in ('Synthetic%40Password123456', 'Synthetic%3APassword123456',
+                 'Synthetic/@?#%:$ Password123456'):
+    environment = {**base, 'VDOC_POSTGRES_PASSWORD': password,
+                   'VDOC_POSTGRES_USER': 'synthetic@example.test',
+                   'VDOC_POSTGRES_DB': 'synthetic/db'}
+    output = subprocess.check_output(
+        ['docker', 'compose', '--env-file', str(root / '.env.example'),
+         '-f', str(root / 'docker-compose.yml'), 'config', '--format', 'json'],
+        env=environment, cwd=root, text=True, stderr=subprocess.PIPE)
+    services = json.loads(output)['services']
+    postgres = services['postgres']['environment']
+    backend = services['backend']['environment']
+    # Compose's serialized model escapes $ for safe re-interpolation.
+    assert backend['VDOC_DATABASE_PASSWORD'] == postgres['POSTGRES_PASSWORD'] == password.replace('$', '$$')
+    assert backend['VDOC_DATABASE_USER'] == postgres['POSTGRES_USER'] == environment['VDOC_POSTGRES_USER']
+    assert backend['VDOC_DATABASE_NAME'] == postgres['POSTGRES_DB'] == environment['VDOC_POSTGRES_DB']
+    assert 'VDOC_DATABASE_DSN' not in backend
+PY
+  fi
+}
+
 test_init_script_refuses_app_database_name() {
   local tmp bin out err
   assert_file_exists "$INIT_SCRIPT"
@@ -167,6 +213,7 @@ test_init_script_creates_disposable_database() {
 run_test 'postgres service exposes disposable test DB env' test_postgres_service_exposes_test_db_env
 run_test 'postgres service mounts init script' test_postgres_service_mounts_init_script
 run_test 'backend disables supervisor-managed PID file' test_backend_disables_supervisor_pid_file
+run_test 'backend preserves shared database credentials' test_backend_preserves_shared_database_credentials
 run_test 'init script refuses app database name' test_init_script_refuses_app_database_name
 run_test 'init script creates disposable database' test_init_script_creates_disposable_database
 printf 'ok\n'

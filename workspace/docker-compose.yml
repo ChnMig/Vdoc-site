@@ -58,7 +58,7 @@ services:
       start_period: 40s
 
   backend:
-    image: vdoc-backend:v0.3.13
+    image: vdoc-backend:v0.3.14
     build:
       context: ./Vdoc
       args:
@@ -83,7 +83,13 @@ services:
       VDOC_AUTH_RATE_BURST: ${VDOC_AUTH_RATE_BURST:-5}
       VDOC_JWT_KEY: ${VDOC_JWT_KEY:?set VDOC_JWT_KEY}
       VDOC_DATABASE_ENABLED: "true"
-      VDOC_DATABASE_DSN: postgres://${VDOC_POSTGRES_USER:-vdoc}:${VDOC_POSTGRES_PASSWORD:?set VDOC_POSTGRES_PASSWORD}@postgres:5432/${VDOC_POSTGRES_DB:-vdoc}?sslmode=disable
+      # Keep shared credentials literal; Backend encodes URI-reserved characters.
+      VDOC_DATABASE_HOST: postgres
+      VDOC_DATABASE_PORT: "5432"
+      VDOC_DATABASE_NAME: ${VDOC_POSTGRES_DB:-vdoc}
+      VDOC_DATABASE_USER: ${VDOC_POSTGRES_USER:-vdoc}
+      VDOC_DATABASE_PASSWORD: ${VDOC_POSTGRES_PASSWORD:?set VDOC_POSTGRES_PASSWORD}
+      VDOC_DATABASE_SSL_MODE: disable
       VDOC_STORAGE_ENABLED: "true"
       VDOC_STORAGE_ENDPOINT: rustfs:9000
       VDOC_STORAGE_BUCKET: ${VDOC_STORAGE_BUCKET:-vdoc}
@@ -101,7 +107,7 @@ services:
       - "${VDOC_PUBLISH_ADDRESS:-127.0.0.1}:${VDOC_BACKEND_HOST_PORT:-8080}:${VDOC_BACKEND_CONTAINER_PORT:-8080}"
 
   admin:
-    image: vdoc-admin:v0.3.13
+    image: vdoc-admin:v0.3.14
     build:
       context: ./Vdoc-admin
       args:

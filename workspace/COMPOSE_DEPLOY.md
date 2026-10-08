@@ -27,7 +27,7 @@ Database backups, maintenance and version upgrades stay with the existing servic
 
 ## Source workspace deployment
 
-The optional [source workspace archive](https://chnmig.github.io/Vdoc-site/downloads/vdoc-compose-bootstrap-v0.3.9.tar.gz) is a Docker Compose bootstrap, for source builds and offline installation. It supplies the Compose/configuration files and a
+The optional [source workspace archive](https://chnmig.github.io/Vdoc-site/downloads/vdoc-compose-bootstrap-v0.3.14.tar.gz) is a Docker Compose bootstrap, for source builds and offline installation. It supplies the Compose/configuration files and a
 lock that fetches reviewed source commits; `docker compose ... up -d --build`
 builds Backend/Admin locally and starts the four-service self-hosted stack.
 

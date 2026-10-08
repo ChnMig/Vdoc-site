@@ -15,15 +15,31 @@ Agent 运行的机器还需安装 Node.js 20 或更新版本、npm 和 Git。尚
 
 ## 安装方式
 
-当前 `@vdoc/mcp` 尚未发布到 npm registry。请直接从官方 GitHub 仓库运行或安装：
+当前 `@vdoc/mcp` 尚未发布到 npm registry。一次性使用可通过官方 GitHub 仓库的固定提交运行：
 
 ```sh
-npx --yes github:ChnMig/Vdoc-mcp#2cb446cdd930f9d93261c61509db6b9baf52e37c
-# 或全局安装 GitHub 版本
-npm install -g git+https://github.com/ChnMig/Vdoc-mcp.git#2cb446cdd930f9d93261c61509db6b9baf52e37c
+npx --yes github:ChnMig/Vdoc-mcp#1b9311b2f9bafef4bf391a01babced820a5c67f5
 ```
 
 一次性使用时，推荐在 Agent MCP config 中通过固定 commit 的 `npx` 调用，不要把 token 放在 `args`。上面的 40 位 commit 必须和已审核发布包 `workspace.lock.json` 的 `Vdoc-mcp` 项一致；不要删掉 fragment 或改成可移动 branch。
+
+全局安装使用已编译的发行包，先校验再安装。源码 Git 安装在 npm 的准备阶段可能报 `tsc: command not found`，发行包无需在安装时编译：
+
+```sh
+(
+  set -eu
+  VDOC_MCP_VERSION=0.3.14
+  VDOC_MCP_PACKAGE_DIR="$(mktemp -d)"
+  trap 'rm -rf -- "$VDOC_MCP_PACKAGE_DIR"' EXIT
+  VDOC_MCP_RELEASE="https://github.com/ChnMig/Vdoc-mcp/releases/download/v$VDOC_MCP_VERSION"
+  curl -fsSL "$VDOC_MCP_RELEASE/vdoc-mcp-$VDOC_MCP_VERSION.tgz" -o "$VDOC_MCP_PACKAGE_DIR/vdoc-mcp-$VDOC_MCP_VERSION.tgz"
+  curl -fsSL "$VDOC_MCP_RELEASE/SHA256SUMS" -o "$VDOC_MCP_PACKAGE_DIR/SHA256SUMS"
+  (cd "$VDOC_MCP_PACKAGE_DIR" && shasum -a 256 -c SHA256SUMS)
+  npm install --global "$VDOC_MCP_PACKAGE_DIR/vdoc-mcp-$VDOC_MCP_VERSION.tgz"
+)
+```
+
+使用与部署包 `workspace.lock.json` 一致的 MCP 版本。要让 Agent 使用全局安装，将配置的 `command` 改为 `vdoc-mcp` 并移除 `npx` 的 `args`，保留私密 `env`。更新后重启 MCP 连接。可选 Skill 的安装和更新见 [Skill 工作流](skill-workflows.md#安装)。
 
 `VDOC_MCP_TOKEN` 是 shell 或 Agent 配置中的环境变量，不是 package CLI argument。不要把原始 token 放进 `npx`、`npm` 或 adapter 的 `args`。手工排查前运行 `set +x` 关闭 xtrace，并确保凭据不进入 shell history、日志或截图。
 
@@ -59,7 +75,7 @@ stdout 保留给 MCP protocol，普通诊断看 stderr。
       "command": "npx",
       "args": [
         "--yes",
-        "github:ChnMig/Vdoc-mcp#2cb446cdd930f9d93261c61509db6b9baf52e37c"
+        "github:ChnMig/Vdoc-mcp#1b9311b2f9bafef4bf391a01babced820a5c67f5"
       ],
       "env": {
         "VDOC_BASE_URL": "https://your-vdoc.example.test",
