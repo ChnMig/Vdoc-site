@@ -13,21 +13,13 @@ If Vdoc is not running yet, follow the [Deployment Guide](deployment.md#quick-st
 
 ## Installation
 
-Since v0.3.7, the optional Skill lives in `Vdoc-mcp/skills/vdoc` and is included in the MCP package. MCP works without it. Both use the `Vdoc-mcp` release pinned by the workspace lock. Install the compiled archive after verifying its checksum; this avoids npm global Git preparation failures such as `tsc: command not found`:
+Since v0.3.7, the optional Skill lives in `Vdoc-mcp/skills/vdoc` and is included in the MCP package. MCP works without it. Both use the `Vdoc-mcp` release pinned by the workspace lock. First [verify and globally install the compiled MCP release archive](mcp-tools.md#installation-options); this avoids npm global Git preparation failures such as `tsc: command not found`. After installation succeeds, link the Skill:
 
 ```sh
 # Personal install; change the directory for another agent or project scope.
 (
   set -eu
   VDOC_SKILL_DIR="$HOME/.agents/skills/vdoc"
-  VDOC_MCP_VERSION=0.3.14
-  VDOC_MCP_PACKAGE_DIR="$(mktemp -d)"
-  trap 'rm -rf -- "$VDOC_MCP_PACKAGE_DIR"' EXIT
-  VDOC_MCP_RELEASE="https://github.com/ChnMig/Vdoc-mcp/releases/download/v$VDOC_MCP_VERSION"
-  curl -fsSL "$VDOC_MCP_RELEASE/vdoc-mcp-$VDOC_MCP_VERSION.tgz" -o "$VDOC_MCP_PACKAGE_DIR/vdoc-mcp-$VDOC_MCP_VERSION.tgz"
-  curl -fsSL "$VDOC_MCP_RELEASE/SHA256SUMS" -o "$VDOC_MCP_PACKAGE_DIR/SHA256SUMS"
-  (cd "$VDOC_MCP_PACKAGE_DIR" && shasum -a 256 -c SHA256SUMS)
-  npm install --global "$VDOC_MCP_PACKAGE_DIR/vdoc-mcp-$VDOC_MCP_VERSION.tgz"
   vdoc-mcp skill install --directory "$VDOC_SKILL_DIR"
   test -f "$VDOC_SKILL_DIR/SKILL.md"
 )

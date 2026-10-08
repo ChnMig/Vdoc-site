@@ -8,7 +8,7 @@ const css = readFileSync(join(docsRoot, '.vitepress/theme/custom.css'), 'utf8')
 
 function expandSharedColors(html: string): string {
   return html.replace(
-    /class="(vp-code-(?:string|value|text|function|comment))"/g,
+    /class="(vpc-(?:string|value|text|function|comment|purple|red))"/g,
     (_, name) => {
       const declarations = css.match(
         new RegExp(`\\.vp-code \\.${name} \\{([^}]+)\\}`),

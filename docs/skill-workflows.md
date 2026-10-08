@@ -13,21 +13,13 @@ Vdoc Skill 是安装到 Agent runtime 的工作流包。它不存数据、不计
 
 ## 安装
 
-从 v0.3.7 起，可选 Skill 位于 `Vdoc-mcp/skills/vdoc`，并随 MCP 包一起发布；不安装 Skill 也能使用 MCP 工具。两者统一使用发布锁中的 `Vdoc-mcp` 版本。下载并校验编译好的发行包，避免 npm 全局 Git 安装在准备阶段报 `tsc: command not found`：
+从 v0.3.7 起，可选 Skill 位于 `Vdoc-mcp/skills/vdoc`，并随 MCP 包一起发布；不安装 Skill 也能使用 MCP 工具。两者统一使用发布锁中的 `Vdoc-mcp` 版本。先按 [MCP 安装方式](mcp-tools.md#安装方式) 下载、校验并全局安装编译好的发行包，避免 npm 全局 Git 安装在准备阶段报 `tsc: command not found`。安装成功后，再链接 Skill：
 
 ```sh
 # Personal install; change the directory for another agent or project scope.
 (
   set -eu
   VDOC_SKILL_DIR="$HOME/.agents/skills/vdoc"
-  VDOC_MCP_VERSION=0.3.14
-  VDOC_MCP_PACKAGE_DIR="$(mktemp -d)"
-  trap 'rm -rf -- "$VDOC_MCP_PACKAGE_DIR"' EXIT
-  VDOC_MCP_RELEASE="https://github.com/ChnMig/Vdoc-mcp/releases/download/v$VDOC_MCP_VERSION"
-  curl -fsSL "$VDOC_MCP_RELEASE/vdoc-mcp-$VDOC_MCP_VERSION.tgz" -o "$VDOC_MCP_PACKAGE_DIR/vdoc-mcp-$VDOC_MCP_VERSION.tgz"
-  curl -fsSL "$VDOC_MCP_RELEASE/SHA256SUMS" -o "$VDOC_MCP_PACKAGE_DIR/SHA256SUMS"
-  (cd "$VDOC_MCP_PACKAGE_DIR" && shasum -a 256 -c SHA256SUMS)
-  npm install --global "$VDOC_MCP_PACKAGE_DIR/vdoc-mcp-$VDOC_MCP_VERSION.tgz"
   vdoc-mcp skill install --directory "$VDOC_SKILL_DIR"
   test -f "$VDOC_SKILL_DIR/SKILL.md"
 )

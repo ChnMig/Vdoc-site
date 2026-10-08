@@ -1,11 +1,13 @@
 import type { MarkdownOptions } from 'vitepress'
 
 const sharedColors = new Map([
-  ['--shiki-light:#032F62;--shiki-dark:#9ECBFF', 'vp-code-string'],
-  ['--shiki-light:#005CC5;--shiki-dark:#79B8FF', 'vp-code-value'],
-  ['--shiki-light:#24292E;--shiki-dark:#E1E4E8', 'vp-code-text'],
-  ['--shiki-light:#22863A;--shiki-dark:#85E89D', 'vp-code-function'],
-  ['--shiki-light:#6A737D;--shiki-dark:#6A737D', 'vp-code-comment'],
+  ['--shiki-light:#032F62;--shiki-dark:#9ECBFF', 'vpc-string'],
+  ['--shiki-light:#005CC5;--shiki-dark:#79B8FF', 'vpc-value'],
+  ['--shiki-light:#24292E;--shiki-dark:#E1E4E8', 'vpc-text'],
+  ['--shiki-light:#22863A;--shiki-dark:#85E89D', 'vpc-function'],
+  ['--shiki-light:#6A737D;--shiki-dark:#6A737D', 'vpc-comment'],
+  ['--shiki-light:#6F42C1;--shiki-dark:#B392F0', 'vpc-purple'],
+  ['--shiki-light:#D73A49;--shiki-dark:#F97583', 'vpc-red'],
 ])
 
 export const sharedCodeColors: NonNullable<

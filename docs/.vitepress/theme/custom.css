@@ -26,37 +26,48 @@
   scroll-margin-top: calc(var(--vp-nav-height) + 72px);
 }
 
-/* Share frequent Shiki color pairs across code tokens without changing either theme. */
-.vp-code .vp-code-string {
+/* Short token classes share frequent Shiki color pairs without changing either theme. */
+.vp-code .vpc-string {
   --shiki-light: #032f62;
   --shiki-dark: #9ecbff;
 }
 
-.vp-code .vp-code-value {
+.vp-code .vpc-value {
   --shiki-light: #005cc5;
   --shiki-dark: #79b8ff;
 }
 
-.vp-code .vp-code-text {
+.vp-code .vpc-text {
   --shiki-light: #24292e;
   --shiki-dark: #e1e4e8;
 }
 
-.vp-code .vp-code-function {
+.vp-code .vpc-function {
   --shiki-light: #22863a;
   --shiki-dark: #85e89d;
 }
 
-.vp-code .vp-code-comment {
+.vp-code .vpc-comment {
   --shiki-light: #6a737d;
   --shiki-dark: #6a737d;
 }
 
+.vp-code .vpc-purple {
+  --shiki-light: #6f42c1;
+  --shiki-dark: #b392f0;
+}
+
+.vp-code .vpc-red {
+  --shiki-light: #d73a49;
+  --shiki-dark: #f97583;
+}
+
+html:not(.dark) .vp-code .vpc-red,
 html:not(.dark) .vp-code span[style*='--shiki-light:#D73A49'] {
   --shiki-light: #c12a3a !important;
 }
 
-html:not(.dark) .vp-code .vp-code-comment,
+html:not(.dark) .vp-code .vpc-comment,
 html:not(.dark) .vp-code span[style*='--shiki-light:#6A737D'] {
   --shiki-light: #666f79 !important;
 }
@@ -65,7 +76,7 @@ html:not(.dark) .vp-code span[style*='--shiki-light:#E36209'] {
   --shiki-light: #9f4100 !important;
 }
 
-html:not(.dark) .vp-code .vp-code-function,
+html:not(.dark) .vp-code .vpc-function,
 html:not(.dark) .vp-code span[style*='--shiki-light:#22863A'] {
   --shiki-light: #1f7533 !important;
 }
