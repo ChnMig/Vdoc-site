@@ -228,11 +228,20 @@ if rg -n --hidden \
 fi
 
 for file in \
-  "$ROOT_DIR/Vdoc-site/docs/skill-workflows.md" \
-  "$ROOT_DIR/Vdoc-site/docs/en/skill-workflows.md"; do
+  "$ROOT_DIR/Vdoc-site/docs/mcp-tools.md" \
+  "$ROOT_DIR/Vdoc-site/docs/en/mcp-tools.md"; do
   assert_file_contains "$file" "VDOC_MCP_VERSION=$mcp_lock_version"
   assert_file_contains "$file" 'shasum -a 256 -c SHA256SUMS'
   assert_file_contains "$file" 'npm install --global "$VDOC_MCP_PACKAGE_DIR/vdoc-mcp-$VDOC_MCP_VERSION.tgz"'
+done
+# Skill 使用同一个已校验安装入口，避免两页重复维护下载和校验命令。
+assert_file_contains "$ROOT_DIR/Vdoc-site/docs/skill-workflows.md" 'mcp-tools.md#安装方式'
+assert_file_contains "$ROOT_DIR/Vdoc-site/docs/en/skill-workflows.md" 'mcp-tools.md#installation-options'
+for file in \
+  "$ROOT_DIR/Vdoc-site/docs/skill-workflows.md" \
+  "$ROOT_DIR/Vdoc-site/docs/en/skill-workflows.md"; do
+  assert_file_contains "$file" 'vdoc-mcp skill install --directory "$VDOC_SKILL_DIR"'
+  assert_file_contains "$file" 'test -f "$VDOC_SKILL_DIR/SKILL.md"'
 done
 assert_file_contains "$ROOT_DIR/Vdoc-mcp/skills/vdoc/README.md" 'https://github.com/ChnMig/Vdoc-mcp#optional-skill-and-linked-updates'
 assert_file_contains "$ROOT_DIR/Vdoc-mcp/README.md" 'VDOC_MCP_COMMIT="$(jq -er'
