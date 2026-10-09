@@ -1,5 +1,11 @@
 # Version Notes
 
+## v0.3.15
+
+Fix literal prompt placeholders in the Chinese and English AI setup guide. <code v-pre>{{context}}</code> and <code v-pre>{{message}}</code> remain visible so the required fields can be preserved.
+
+This documentation patch adds no database migration and uses the v0.3.14 application behavior and upgrade process.
+
 ## v0.3.14
 
 - Reject invalid boolean configuration instead of silently falling back to in-memory storage. Cancel dependency startup and background summary work promptly.

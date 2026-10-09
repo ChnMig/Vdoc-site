@@ -43,7 +43,7 @@ Vdoc 使用 OpenAI-compatible 提供商，支持两种 API 模式：
 - `diff_change_summary`
 - `page_chat`
 
-每项包含 `system_prompt`、`user_prompt_template` 和 `enabled`。两个文本字段都不能为空；所有 `user_prompt_template` 必须保留字面量 `{{context}}`，`page_chat` 还必须保留 `{{message}}`。`prompt_key` 由请求路径确定，不在更新 body 中重复传递。项目覆盖优先于系统或内置模板。关闭摘要提示词会把对应生成结果记录为 `skipped`，不会阻塞 Draft 提交或 Version 发布。提示词覆盖是管理员维护的产品数据；日志和审计元数据必须排除提示词中嵌入的密钥、token 和其他秘密。
+每项包含 `system_prompt`、`user_prompt_template` 和 `enabled`。两个文本字段都不能为空；所有 `user_prompt_template` 必须保留字面量 <code v-pre>{{context}}</code>，`page_chat` 还必须保留 <code v-pre>{{message}}</code>。`prompt_key` 由请求路径确定，不在更新 body 中重复传递。项目覆盖优先于系统或内置模板。关闭摘要提示词会把对应生成结果记录为 `skipped`，不会阻塞 Draft 提交或 Version 发布。提示词覆盖是管理员维护的产品数据；日志和审计元数据必须排除提示词中嵌入的密钥、token 和其他秘密。
 
 ## 自动摘要和手动重新生成
 

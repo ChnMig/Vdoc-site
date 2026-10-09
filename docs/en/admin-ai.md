@@ -43,7 +43,7 @@ System and project scopes can override these prompt keys:
 - `diff_change_summary`
 - `page_chat`
 
-Each prompt has `system_prompt`, `user_prompt_template`, and `enabled`. Both text fields must be non-blank. Every `user_prompt_template` must retain the literal `{{context}}`, and `page_chat` must also retain `{{message}}`. The request path is the source of truth for `prompt_key`; update bodies do not repeat it. A project override takes precedence over the system or built-in template. Disabling a summary prompt records the matching generation as `skipped` and does not block Draft submission or Version publishing. Prompt overrides are managed product data; logs and audit metadata must exclude keys, tokens, and other secrets embedded in prompts.
+Each prompt has `system_prompt`, `user_prompt_template`, and `enabled`. Both text fields must be non-blank. Every `user_prompt_template` must retain the literal <code v-pre>{{context}}</code>, and `page_chat` must also retain <code v-pre>{{message}}</code>. The request path is the source of truth for `prompt_key`; update bodies do not repeat it. A project override takes precedence over the system or built-in template. Disabling a summary prompt records the matching generation as `skipped` and does not block Draft submission or Version publishing. Prompt overrides are managed product data; logs and audit metadata must exclude keys, tokens, and other secrets embedded in prompts.
 
 ## Automatic Summaries and Regeneration
 

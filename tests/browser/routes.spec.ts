@@ -51,3 +51,18 @@ test('shared code colors retain the readable light and dark palettes', async ({
     })
   }
 })
+
+for (const route of ['/admin-ai', '/en/admin-ai']) {
+  test(`${route} displays required prompt placeholders literally`, async ({
+    page,
+  }) => {
+    await page.goto(routeUrl(route), { waitUntil: 'networkidle' })
+    const instructions = page.locator('.vp-doc p').filter({
+      has: page.locator('code').filter({ hasText: /^user_prompt_template$/ }),
+    })
+    await expect(instructions).toHaveCount(1)
+    await expect
+      .poll(() => instructions.locator('code').allTextContents())
+      .toEqual(expect.arrayContaining(['{{context}}', '{{message}}']))
+  })
+}
