@@ -6,6 +6,7 @@ test.describe('focused desktop interactions', () => {
   for (const archiveName of [
     'docker-compose.yml',
     'docker-compose.external-postgres.yml',
+    'docker-compose.beta.yml',
   ])
     test(`serves ${archiveName} and matching checksum inside the selected base`, async ({
       request,
@@ -16,6 +17,10 @@ test.describe('focused desktop interactions', () => {
       expect(response.ok()).toBe(true)
       const archive = await response.body()
       expect(archive.toString()).toContain('ghcr.io/chnmig/vdoc:')
+      if (archiveName === 'docker-compose.beta.yml') {
+        expect(archive.toString()).toContain('ghcr.io/chnmig/vdoc:beta')
+        expect(archive.toString()).toContain('ghcr.io/chnmig/vdoc-admin:beta')
+      }
       const checksum = await request.get(
         `${previewBasePath}downloads/${archiveName}.sha256`,
       )
@@ -28,6 +33,10 @@ test.describe('focused desktop interactions', () => {
     {
       home: '/',
       deployment: '/deployment',
+      mcp: '/mcp-tools',
+      skill: '/skill-workflows',
+      mcpChannelLink: '独立渠道安装入口',
+      skillChannelLink: 'Skill 渠道隔离',
       firstUse: '/admin-usage',
       nextAction: '发布第一份文档并让 Agent 查询',
       initialAdminHeading: '2. 填写配置和登录账号',
@@ -36,6 +45,10 @@ test.describe('focused desktop interactions', () => {
     {
       home: '/en/',
       deployment: '/en/deployment',
+      mcp: '/en/mcp-tools',
+      skill: '/en/skill-workflows',
+      mcpChannelLink: 'separate channel installers',
+      skillChannelLink: 'Skill channel isolation',
       firstUse: '/en/admin-usage',
       nextAction: 'publish your first document and query it with an agent',
       initialAdminHeading: '2. Fill In Settings and Your Login',
@@ -78,6 +91,47 @@ test.describe('focused desktop interactions', () => {
       ).toBeVisible()
       await expect(page.locator('.vp-doc')).toContainText('docs/team-guide.md')
       await expect(page.locator('.vp-doc')).toContainText('get_latest_doc')
+    })
+
+    test(`${locale.home} follows Beta channel setup from deployment to MCP and Skill`, async ({
+      page,
+    }) => {
+      await page.goto(`${routeUrl(locale.deployment)}#beta-channel`, {
+        waitUntil: 'networkidle',
+      })
+      await expect(page.locator('#beta-channel')).toBeVisible()
+      await expect(
+        page.getByRole('link', {
+          name: 'docker-compose.beta.yml',
+          exact: true,
+        }),
+      ).toHaveAttribute(
+        'href',
+        'https://chnmig.github.io/Vdoc-site/downloads/docker-compose.beta.yml',
+      )
+      await page
+        .getByRole('link', { name: locale.mcpChannelLink, exact: true })
+        .click()
+      await expect(page).toHaveURL(`${routeUrl(locale.mcp)}#release-channels`)
+      await expect(page.locator('#release-channels')).toBeVisible()
+      const installer = page
+        .locator('.vp-doc div[class*="language-"]')
+        .filter({ hasText: 'VDOC_MCP_INSTALLER_TAG=' })
+      await expect(installer).toHaveCount(1)
+      await expect(installer).toContainText(
+        /VDOC_MCP_INSTALLER_TAG='v[0-9]+\.[0-9]+\.[0-9]+(?:-beta\.[0-9]+)?'/,
+      )
+      await expect(installer).toContainText(
+        'node install-channel.mjs --channel beta',
+      )
+      await page
+        .getByRole('link', { name: locale.skillChannelLink, exact: true })
+        .click()
+      await expect(page).toHaveURL(`${routeUrl(locale.skill)}#release-channels`)
+      await expect(page.locator('#release-channels')).toBeVisible()
+      await expect(page.locator('.vp-doc')).toContainText(
+        'mcp/beta/node_modules/.bin/vdoc-mcp" skill install --directory .agents/skills/vdoc',
+      )
     })
   }
 

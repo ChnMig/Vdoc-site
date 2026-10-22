@@ -165,6 +165,7 @@ run_published_path() {
 }
 
 run_published_path 0.3.9
+run_published_path 0.3.9-beta.1
 run_published_path 0.3.9-rc.1
 
 printf 'test: numeric, alphanumeric, and hyphenated prerelease identifiers are accepted\n'
@@ -218,4 +219,4 @@ if [[ -f "$ROOT_DIR/Vdoc-site/scripts/verify-pages-download.mjs" ]]; then
   expect_failure 'Pages requires a stable release tag' \
     node "$ROOT_DIR/Vdoc-site/scripts/verify-pages-download.mjs" "$tmp" v0.3.9-rc.1
 fi
-printf 'Release version tests passed: stable and rc published paths, immutable refs, exact image URLs, and malformed version guards.\n'
+printf 'Release version tests passed: stable, beta and rc published paths, immutable refs, exact image URLs, and malformed version guards.\n'

@@ -19,9 +19,34 @@ chmod 600 docker-compose.yml
 
 默认镜像策略：Backend 和 Admin 使用 `latest`，跟随已发布的稳定版本；PostgreSQL 使用 `18`，跟随 18.x 补丁；RustFS 使用 `1.0.0`。下载地址和应用镜像名无需随每次发版修改。`latest` 在执行 `docker compose pull` 时解析，已运行的容器不会自行升级。
 
-已有 PostgreSQL 时，选择[外部数据库版](#external-postgresql)，它不启动数据库容器。两份 YAML 都附带字段注释，任选一份单独使用。
+已有 PostgreSQL 时，选择[外部数据库版](#external-postgresql)，它不启动数据库容器。测试环境选择下面的 [Beta 渠道](#beta-channel)。各份 YAML 都附带字段注释，单独使用。
 
 [Site Release](https://github.com/ChnMig/Vdoc-site/releases) 保留各版 YAML 和 `docker-compose.yml.sha256`，可核验配置文件来源。新版本 YAML 中的 `latest` 仍是滚动引用；需要固定应用版本时，将两处应用镜像改为所需的同一个 `vX.Y.Z` tag 或已记录的 digest。
+
+## Beta 测试渠道 {#beta-channel}
+
+| 渠道   | Compose                   | 应用镜像  | 项目名      | 工作台端口 |
+| ------ | ------------------------- | --------- | ----------- | ---------- |
+| 稳定版 | `docker-compose.yml`      | `:latest` | `vdoc`      | `8081`     |
+| Beta   | `docker-compose.beta.yml` | `:beta`   | `vdoc-beta` | `18081`    |
+
+Beta 跟随 `vMAJOR.MINOR.PATCH-beta.N` 测试版；发布 beta 只更新 `:beta`，不会更新稳定版的 `:latest` 或线上官网。正式发版只更新稳定渠道。两套环境可以在同一台机器运行：Beta 默认使用独立网络、PostgreSQL/RustFS 数据卷、数据库 `vdoc_beta`、存储桶 `vdoc-beta`，后端端口为 `18080`。
+
+下载 [docker-compose.beta.yml](https://chnmig.github.io/Vdoc-site/downloads/docker-compose.beta.yml)，也可以从已发布的 Beta [Site Release](https://github.com/ChnMig/Vdoc-site/releases) 获取同名资产。首次使用前需要已有成功发布的 beta 镜像。将测试配置保存在独立目录，单独填写全部 `CHANGE_ME` 值，使用新的密码、JWT/MCP 密钥和测试账号：
+
+```sh
+mkdir vdoc-beta
+cd vdoc-beta
+curl -fL https://chnmig.github.io/Vdoc-site/downloads/docker-compose.beta.yml -o docker-compose.beta.yml
+chmod 600 docker-compose.beta.yml
+# 填写测试环境配置后启动；以后重复这两条命令只更新 beta。
+docker compose -f docker-compose.beta.yml pull
+docker compose -f docker-compose.beta.yml up -d --wait
+```
+
+打开 [Beta 工作台](http://127.0.0.1:18081)。不要将两份渠道 Compose 合并，不要把 Beta 的项目名改成 `vdoc`，也不要让它连接线上数据库或存储桶；启动时的自动迁移会修改实际连接的数据库。
+
+MCP 和配套 Skill 同样分渠道，使用[独立渠道安装入口](mcp-tools.md#release-channels)。测试 Agent 使用 beta MCP 的绝对路径、Beta 后端地址和测试 Token；稳定 Agent 使用 release MCP 与线上凭据。重复渠道安装命令即可更新该渠道的 MCP/Skill，然后重启 MCP 连接、重新加载 Agent。容器和客户端都需要执行更新命令才会升级。
 
 <div id="initial-admin"></div>
 

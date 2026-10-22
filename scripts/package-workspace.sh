@@ -10,6 +10,7 @@ elif [[ $# -ne 0 ]]; then
   exit 1
 fi
 node "$SITE_ROOT/scripts/sync-workspace.mjs" --check
+node "$SITE_ROOT/scripts/verify-beta-compose.mjs" "$SITE_ROOT/workspace/deploy/docker-compose.beta.yml"
 
 stage="$(mktemp -d)"
 trap 'rm -rf -- "$stage"' EXIT
@@ -36,7 +37,7 @@ cp "$stage/output/$artifact_name.tar.gz" "$SITE_ROOT/docs/public/downloads/"
 cp "$stage/output/$artifact_name.tar.gz.sha256" "$SITE_ROOT/docs/public/downloads/"
 printf 'Website download prepared: docs/public/downloads/%s.tar.gz\n' "$artifact_name"
 
-for name in docker-compose.yml docker-compose.external-postgres.yml; do
+for name in docker-compose.yml docker-compose.external-postgres.yml docker-compose.beta.yml; do
   cp "$SITE_ROOT/workspace/deploy/$name" "$SITE_ROOT/docs/public/downloads/$name"
   (cd "$SITE_ROOT/docs/public/downloads" && shasum -a 256 "$name" >"$name.sha256")
   printf 'Standalone deployment prepared: docs/public/downloads/%s\n' "$name"

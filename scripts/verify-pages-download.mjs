@@ -4,6 +4,7 @@ import { createHash } from 'node:crypto'
 import { existsSync, readFileSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import process from 'node:process'
+import { verifyBetaCompose } from './verify-beta-compose.mjs'
 
 const [siteDirectory, releaseTag, ...extra] = process.argv.slice(2)
 assert(
@@ -82,10 +83,11 @@ assert.deepEqual(
   template,
   'Published Compose lock differs from the tagged source template',
 )
-// Older tags may contain one or neither variant; preserve Pages rollback support.
+// Older tags may omit variants, including beta; preserve Pages rollback support.
 for (const name of [
   'docker-compose.yml',
   'docker-compose.external-postgres.yml',
+  'docker-compose.beta.yml',
 ]) {
   if (!existsSync(join(site, 'workspace/deploy', name))) continue
   const compose = readFileSync(join(site, 'docs/public/downloads', name))
@@ -100,6 +102,10 @@ for (const name of [
     readFileSync(join(site, 'workspace/deploy', name)),
     'Published standalone Compose differs from the tagged source',
   )
+  if (name === 'docker-compose.beta.yml') {
+    verifyBetaCompose(compose)
+    continue
+  }
   for (const repository of ['vdoc', 'vdoc-admin']) {
     assert(
       ['latest', releaseTag].some((tag) =>

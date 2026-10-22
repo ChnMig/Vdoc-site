@@ -1,0 +1,188 @@
+# Beta 测试部署：包含独立 PostgreSQL、RustFS、后端和前端。保存为 docker-compose.beta.yml。
+# 替换全部 CHANGE_ME 值；此文件包含密码和密钥，请限制读取权限并保留备份。
+# 值中的字面量美元符号写为 $$；&name 定义 YAML 锚点，*name 引用同一值。
+# 更新时保留账号、密钥和项目名；运行中的容器不会自动更新，需执行：
+# docker compose -f docker-compose.beta.yml pull && docker compose -f docker-compose.beta.yml up -d --wait
+# 项目名 vdoc-beta 隔离网络和数据卷；不要改成线上 vdoc，也不要连接线上数据库或存储桶。
+# 为测试环境单独生成全部密码、JWT/MCP 密钥与 MCP Token。
+name: vdoc-beta
+
+# 后端镜像：beta 只跟随 vMAJOR.MINOR.PATCH-beta.N 测试版，不接收正式版更新。
+x-backend-image: &backend-image ghcr.io/chnmig/vdoc:beta
+# 前端镜像：beta 测试渠道；固定版本时应与后端选择相同的 beta tag。
+x-admin-image: &admin-image ghcr.io/chnmig/vdoc-admin:beta
+
+# 后端与一次性配置检查共用的环境变量，无需额外 .env 文件。
+x-backend-environment: &backend-environment
+  # 运行模式仍为 release；Docker 镜像的 beta 标签决定发布渠道。
+  model: release
+  # 后端容器内的 HTTP 端口，需与 backend.ports 的容器端口一致。
+  VDOC_SERVER_PORT: "8080"
+  # 容器由 Docker 管理，留空以禁用宿主机模式的 PID 文件。
+  VDOC_SERVER_PID_FILE: ""
+  # 保留后端内置 CORS；Admin 浏览器 API 由同源代理转发。
+  VDOC_SERVER_ENABLE_CORS: "true"
+  # 启用 PostgreSQL 持久化。
+  VDOC_DATABASE_ENABLED: "true"
+  # 使用下方 postgres 服务的内部 DNS 名，不是宿主机 localhost。
+  VDOC_DATABASE_HOST: postgres
+  # PostgreSQL 容器内监听端口，无需向宿主机发布。
+  VDOC_DATABASE_PORT: "5432"
+  # 首次初始化的应用数据库名、账号、密码，通过锚点共享给 postgres 服务。
+  VDOC_DATABASE_NAME: &database-name vdoc_beta
+  VDOC_DATABASE_USER: &database-user vdoc_beta
+  VDOC_DATABASE_PASSWORD: &database-password "CHANGE_ME_DATABASE_PASSWORD"
+  # 此内置数据库仅在 Compose 网络内通信，未配置 TLS。
+  VDOC_DATABASE_SSL_MODE: disable
+  # 启用存放文档内容的 S3 兼容对象存储。
+  VDOC_STORAGE_ENABLED: "true"
+  # RustFS 内部地址：仅填写主机和端口，不带 http:// 或路径。
+  VDOC_STORAGE_ENDPOINT: rustfs:9000
+  # 存储桶名；后端首次启动会创建尚不存在的桶。
+  VDOC_STORAGE_BUCKET: vdoc-beta
+  # RustFS 账号至少 3 字符、密码至少 8 字符；通过锚点与存储服务保持一致。
+  VDOC_STORAGE_ACCESS_KEY: &storage-user "CHANGE_ME_STORAGE_ACCESS_KEY"
+  VDOC_STORAGE_SECRET_KEY: &storage-password "CHANGE_ME_STORAGE_SECRET_KEY"
+  # 内部 RustFS 使用 HTTP；若改用外部 HTTPS S3 服务，改为 true。
+  VDOC_STORAGE_USE_SSL: "false"
+  # RustFS 使用路径式桶地址，不要求为每个桶配置子域名。
+  VDOC_STORAGE_PATH_STYLE: "true"
+  # 登录 JWT 签名密钥：至少 32 字符的独立随机值，升级时保留。
+  VDOC_JWT_KEY: "CHANGE_ME_JWT_KEY"
+  # MCP Token、AI Provider 密钥、分享凭证的加密密钥，至少 32 字符，勿与 JWT 共用。
+  VDOC_MCP_TOKEN_CIPHER_KEY: "CHANGE_ME_MCP_ENCRYPTION_KEY"
+  # 当前加密密钥的标识；仅按密钥轮换流程变更。
+  VDOC_MCP_TOKEN_CIPHER_KID: local-aes-gcm-v1
+  # 历史 KID 到密钥的 JSON 映射；首次部署留空对象，轮换时参考维护文档。
+  VDOC_MCP_TOKEN_CIPHER_KEYRING: "{}"
+  # 关闭公开注册，由管理员管理用户账号。
+  VDOC_AUTH_ALLOW_REGISTRATION: "false"
+  # 仅当用户表为空时创建首个管理员；重启不会覆盖已有账号和密码。
+  VDOC_INITIAL_ADMIN_EMAIL: "admin@example.com"
+  VDOC_INITIAL_ADMIN_NAME: "Vdoc Admin"
+  # 首次管理员密码为 12–72 字节。
+  VDOC_INITIAL_ADMIN_PASSWORD: "CHANGE_ME_INITIAL_ADMIN_PASSWORD"
+
+# 常驻服务与一次性配置检查；容器之间默认通过同一个 Compose 网络通信。
+services:
+  # 只校验配置，不连接数据库、不执行迁移；成功后退出码为 0。
+  config-check:
+    # 复用与后端相同的镜像、配置和检查入口。
+    image: *backend-image
+    command: ["--check-config"]
+    environment: *backend-environment
+    # 一次性任务不自动重启；禁用镜像自带的常驻 HTTP 健康检查。
+    restart: "no"
+    healthcheck:
+      disable: true
+
+  # 内置 PostgreSQL，仅其他容器可访问；数据独立持久化。
+  postgres:
+    # 跟随 18.x 补丁；跨大版本升级必须另外迁移数据库数据。
+    image: postgres:18
+    # 异常退出和 Docker 重启后自动恢复，手动停止后保持停止。
+    restart: unless-stopped
+    # 配置检查成功后才允许初始化数据库。
+    depends_on:
+      config-check:
+        condition: service_completed_successfully
+    environment:
+      # 这些初始化值仅在数据卷为空时生效，修改它们不会重置现有数据库密码。
+      POSTGRES_DB: *database-name
+      POSTGRES_USER: *database-user
+      POSTGRES_PASSWORD: *database-password
+      # 数据库容器的时区。
+      TZ: Asia/Shanghai
+    volumes:
+      # PostgreSQL 18 使用父目录挂载，实际数据位于版本对应的子目录。
+      - postgres-data:/var/lib/postgresql
+    healthcheck:
+      # pg_isready 检查服务就绪；$$ 将变量留给容器内 shell 展开。
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      # 每 10 秒检查一次，单次超时 5 秒，连续失败 10 次判为不健康。
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # 文档对象存储；9000 为 S3 API，9001 为控制台，仅在容器网络内开放。
+  rustfs:
+    # 按部署约定固定在 RustFS 1.0.0。
+    image: rustfs/rustfs:1.0.0
+    restart: unless-stopped
+    # 避免在密码、密钥等配置仍无效时初始化存储。
+    depends_on:
+      config-check:
+        condition: service_completed_successfully
+    environment:
+      # 对象数据目录，必须与下方 rustfs-data 的挂载目标一致。
+      RUSTFS_VOLUMES: /data
+      # 容器内 S3 API 和控制台监听地址。
+      RUSTFS_ADDRESS: 0.0.0.0:9000
+      RUSTFS_CONSOLE_ADDRESS: 0.0.0.0:9001
+      # 启用内部管理控制台；未配置 ports，因此不会向宿主机发布。
+      RUSTFS_CONSOLE_ENABLE: "true"
+      # 与后端使用同一组存储凭据。
+      RUSTFS_ACCESS_KEY: *storage-user
+      RUSTFS_SECRET_KEY: *storage-password
+    volumes:
+      # 对象数据和运行日志分别保存在持久卷中。
+      - rustfs-data:/data
+      - rustfs-logs:/app/logs
+    healthcheck:
+      # 用 S3 API 的健康接口确认存储服务就绪。
+      test: ["CMD-SHELL", "curl -f http://127.0.0.1:9000/health"]
+      # 检查间隔、单次超时和连续失败次数。
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      # 启动宽限期内的失败不计入 retries。
+      start_period: 40s
+
+  # 后端 API：启动时应用数据库迁移、准备存储桶并按需创建初始管理员。
+  backend:
+    image: *backend-image
+    restart: unless-stopped
+    # 等数据库、存储的健康检查通过后启动；运行期间故障由各服务自行恢复。
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rustfs:
+        condition: service_healthy
+    # 引用顶部配置；HTTP 健康检查继承后端镜像的 HEALTHCHECK。
+    environment: *backend-environment
+    ports:
+      # 宿主机绑定地址:宿主机端口:容器端口；宿主机 Caddy 将后端域名反代到测试端口 18080。
+      - "127.0.0.1:18080:8080"
+
+  # 前端工作台：浏览器 API 经容器内的 /api 同源代理访问后端。
+  admin:
+    image: *admin-image
+    restart: unless-stopped
+    # 后端健康后启动前端。
+    depends_on:
+      backend:
+        condition: service_healthy
+    environment:
+      # same-origin 使用当前工作台 origin，/api/* 经 Admin Caddy 转发到 backend:8080。
+      # 本机和 HTTPS 域名部署均保留此值；MCP/CLI 可继续直连独立后端端口/域名。
+      VDOC_ADMIN_API_BASE_URL: "same-origin"
+      # 工作台生成 beta 专用 MCP/Skill 安装与客户端配置。
+      VDOC_ADMIN_RELEASE_CHANNEL: "beta"
+    ports:
+      # 宿主机 Caddy 将前端域名反代到 18081；容器内前端仍监听 8080。
+      - "127.0.0.1:18081:8080"
+    healthcheck:
+      # 检查前端 HTTP 服务；每 10 秒检查，单次超时 5 秒，连续失败 6 次判为不健康。
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+
+# Docker 管理的持久卷：普通 down 会保留，down -v 会删除，升级时不要删除。
+volumes:
+  # 数据库表、索引与迁移记录。
+  postgres-data:
+  # 文档原始内容等对象数据。
+  rustfs-data:
+  # RustFS 运行日志。
+  rustfs-logs:

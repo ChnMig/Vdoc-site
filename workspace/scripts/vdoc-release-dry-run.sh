@@ -71,6 +71,7 @@ build_plan() {
   fi
   add_command '[workspace] Test bootstrap distribution' "$ROOT_DIR" 'scripts/test-workspace-package.sh'
   add_command '[workspace] Test stable and prerelease distribution paths' "$ROOT_DIR" 'scripts/test-release-versions.sh'
+  add_command '[workspace] Verify release/beta deployment isolation' "$ROOT_DIR" 'scripts/test-release-channels.sh'
   add_command '[workspace] Test published-asset verifier' "$ROOT_DIR" 'scripts/test-workspace-release-assets-verify.sh'
   add_command '[workspace] Test Pilot result gate' "$ROOT_DIR" 'scripts/test-pilot-result-verify.sh'
   if [[ "$CANDIDATE" -eq 1 ]]; then
@@ -86,6 +87,7 @@ build_plan() {
   add_command '[backend] Go vet' "$ROOT_DIR/Vdoc" 'GOCACHE=/tmp/vdoc-go-cache go vet ./...'
   add_command '[backend] Layering and prototype audit' "$ROOT_DIR/Vdoc" 'GOCACHE=/tmp/vdoc-go-cache ./scripts/vdoc-prototype-audit.sh'
   add_command '[backend] Go tests' "$ROOT_DIR/Vdoc" 'GOCACHE=/tmp/vdoc-go-cache make test-race'
+  add_command '[backend] Image channel publication guards' "$ROOT_DIR/Vdoc" 'bash scripts/test-promote-latest-image.sh && bash scripts/test-promote-beta-image.sh && bash scripts/test-publish-release.sh'
   add_command '[backend] In-memory E2E smoke' "$ROOT_DIR/Vdoc" 'GOCACHE=/tmp/vdoc-go-cache ./scripts/vdoc-e2e.sh all'
   add_command '[backend] Build binary' "$ROOT_DIR/Vdoc" 'GOCACHE=/tmp/vdoc-go-cache go build -trimpath -o /tmp/vdoc-ci .'
 
@@ -95,6 +97,7 @@ build_plan() {
   add_command '[admin] Test' "$ROOT_DIR/Vdoc-admin" 'pnpm test'
   add_command '[admin] Build' "$ROOT_DIR/Vdoc-admin" 'pnpm build'
   add_command '[admin] Entrypoint security test' "$ROOT_DIR/Vdoc-admin" 'pnpm test:entrypoint'
+  add_command '[admin] Image channel publication guards' "$ROOT_DIR/Vdoc-admin" 'bash scripts/test-promote-latest-image.sh && bash scripts/test-promote-beta-image.sh && bash scripts/test-publish-release.sh'
   add_command '[admin] Browser tests' "$ROOT_DIR/Vdoc-admin" 'pnpm test:browser'
 
   add_command '[site] Verify workspace export' "$ROOT_DIR/Vdoc-site" 'pnpm workspace:check'

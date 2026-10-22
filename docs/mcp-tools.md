@@ -18,7 +18,7 @@ Agent 运行的机器还需安装 Node.js 20 或更新版本、npm 和 Git。尚
 当前 `@vdoc/mcp` 尚未发布到 npm registry。一次性使用可通过官方 GitHub 仓库的固定提交运行：
 
 ```sh
-npx --yes github:ChnMig/Vdoc-mcp#c8363cc706932117c5a04ec68010933738724799
+npx --yes github:ChnMig/Vdoc-mcp#933f0b1f1d166fdff1da5caa49807177bbf512cc
 ```
 
 一次性使用时，推荐在 Agent MCP config 中通过固定 commit 的 `npx` 调用，不要把 token 放在 `args`。上面的 40 位 commit 必须和已审核发布包 `workspace.lock.json` 的 `Vdoc-mcp` 项一致；不要删掉 fragment 或改成可移动 branch。
@@ -28,7 +28,7 @@ npx --yes github:ChnMig/Vdoc-mcp#c8363cc706932117c5a04ec68010933738724799
 ```sh
 (
   set -eu
-  VDOC_MCP_VERSION=0.3.15
+  VDOC_MCP_VERSION=0.3.16-beta.1
   VDOC_MCP_PACKAGE_DIR="$(mktemp -d)"
   trap 'rm -rf -- "$VDOC_MCP_PACKAGE_DIR"' EXIT
   VDOC_MCP_RELEASE="https://github.com/ChnMig/Vdoc-mcp/releases/download/v$VDOC_MCP_VERSION"
@@ -42,6 +42,35 @@ npx --yes github:ChnMig/Vdoc-mcp#c8363cc706932117c5a04ec68010933738724799
 使用与部署包 `workspace.lock.json` 一致的 MCP 版本。要让 Agent 使用全局安装，将配置的 `command` 改为 `vdoc-mcp` 并移除 `npx` 的 `args`，保留私密 `env`。更新后重启 MCP 连接。可选 Skill 的安装和更新见 [Skill 工作流](skill-workflows.md#安装)。
 
 `VDOC_MCP_TOKEN` 是 shell 或 Agent 配置中的环境变量，不是 package CLI argument。不要把原始 token 放进 `npx`、`npm` 或 adapter 的 `args`。手工排查前运行 `set +x` 关闭 xtrace，并确保凭据不进入 shell history、日志或截图。
+
+## 持续跟随 release / beta {#release-channels}
+
+MCP 与配套 Skill 使用同一个渠道发行包。`release` 只选择正式版，`beta` 只选择 `vMAJOR.MINOR.PATCH-beta.N` 预发布；没有对应版本时安装器会报错，不会跨渠道回退。两者分别安装在 `~/.local/share/vdoc/mcp/release` 与 `~/.local/share/vdoc/mcp/beta`，不会替换已有全局 MCP。
+
+首次从已审核、包含渠道安装器的 [MCP Release](https://github.com/ChnMig/Vdoc-mcp/releases) 下载 `install-channel.mjs` 和 `install-channel.mjs.sha256`。下面将安装器固定到 `v0.3.16-beta.1`，在独立工具目录中执行；下载或摘要校验失败会停止安装。旧版本没有这两个资产：
+
+```sh
+(
+  set -eu
+  VDOC_MCP_INSTALLER_TAG='v0.3.16-beta.1'
+  VDOC_MCP_INSTALLER_RELEASE="https://github.com/ChnMig/Vdoc-mcp/releases/download/$VDOC_MCP_INSTALLER_TAG"
+  curl -fL "$VDOC_MCP_INSTALLER_RELEASE/install-channel.mjs" -o install-channel.mjs
+  curl -fL "$VDOC_MCP_INSTALLER_RELEASE/install-channel.mjs.sha256" -o install-channel.mjs.sha256
+  shasum -a 256 -c install-channel.mjs.sha256
+  node install-channel.mjs --channel beta
+  # 稳定环境使用：node install-channel.mjs --channel release
+)
+```
+
+每次执行都会解析该渠道最新已发布版本，校验其发行包再安装。安装器会打印 MCP 可执行文件的绝对路径。将它填入 Agent 配置的 `command`，移除 `npx` 的 `args`：稳定连接命名为 `vdoc`，测试连接命名为 `vdoc_beta`。Beta 使用 `VDOC_BASE_URL=http://127.0.0.1:18080`（或测试域名）及 Beta 工作台创建的 Token；线上 Token 不在测试连接中使用。客户端连接两个环境时，必须由用户明确选择查询对象。
+
+安装后，重复以下命令即可更新 beta MCP 和配套 Skill；稳定更新将两处 `beta` 改成 `release`：
+
+```sh
+node "$HOME/.local/share/vdoc/mcp/beta/node_modules/@vdoc/mcp/scripts/install-channel.mjs" --channel beta
+```
+
+更新后重启 MCP 连接并重新加载 Agent。Skill 应链接到各自 Agent 或项目的独立目录，见 [Skill 渠道隔离](skill-workflows.md#release-channels)。渠道安装器需要 Node.js 20+ 和 npm，无需 npm registry 发布。
 
 本地开发或 package smoke：
 
@@ -75,7 +104,7 @@ stdout 保留给 MCP protocol，普通诊断看 stderr。
       "command": "npx",
       "args": [
         "--yes",
-        "github:ChnMig/Vdoc-mcp#c8363cc706932117c5a04ec68010933738724799"
+        "github:ChnMig/Vdoc-mcp#933f0b1f1d166fdff1da5caa49807177bbf512cc"
       ],
       "env": {
         "VDOC_BASE_URL": "https://your-vdoc.example.test",

@@ -12,13 +12,19 @@ Before publishing, run `python3 scripts/test-single-compose.py` with the candida
 
 ## 1. Required Checks
 
-For the 0.3.15 release, the Compose archive is `vdoc-compose-bootstrap-v0.3.15.tar.gz`. Update and commit the combined MCP/Skill package first, update their install pins in Admin and Site, then commit Admin. Pin Backend/Admin/MCP commits in the workspace source lock and update `.env.example` build provenance. Keep only the Site commit as `@release`, sync the workspace export, and commit Site last.
+For the 0.3.16-beta.1 release, the Compose archive is `vdoc-compose-bootstrap-v0.3.16-beta.1.tar.gz`. Update and commit the combined MCP/Skill package first, update their install pins in Admin and Site, then commit Admin. Pin Backend/Admin/MCP commits in the workspace source lock and update `.env.example` build provenance. Keep only the Site commit as `@release`, sync the workspace export, and commit Site last.
 
 Coordinated release versions use `MAJOR.MINOR.PATCH` or `MAJOR.MINOR.PATCH-prerelease` with valid SemVer identifiers. Build metadata (`+build`) is not supported because Docker image tags cannot contain `+`. Prereleases never replace `latest` or deploy stable Pages.
 
+The rolling test channel uses `vMAJOR.MINOR.PATCH-beta.N` tags (`N` is a non-negative integer without leading zeros). Publish the same version across Backend, MCP/Skill, Admin and Site, keeping the exact source lock and MCP install pins aligned. Push Backend/MCP/Admin tags first, then Site. Backend/Admin publish immutable version images and update only `:beta`; stable tags update only `:latest`. Numeric version ordering prevents older reruns from moving either alias backwards. Other prerelease suffixes such as `rc.1` publish exact assets without updating either rolling alias. A beta Site release retains its downloads but never replaces the stable website.
+
+`deploy/docker-compose.yml` follows `:latest` in project `vdoc`; `deploy/docker-compose.beta.yml` follows `:beta` in project `vdoc-beta`, using host ports 18080/18081 and independent networks, PostgreSQL and RustFS volumes. Keep separate credentials, encryption keys and MCP tokens. Never connect beta Backend to the stable database or storage bucket: startup migrations run against the configured database. Use each file on its own, not as an override for the other. The first beta deployment requires a successfully published beta release; there is no fallback to stable images.
+
+MCP and its bundled Skill share the same channel and package version. The GitHub Release includes `install-channel.mjs` and `install-channel.mjs.sha256`. Download the installer from a reviewed exact release, verify its checksum, then run `node install-channel.mjs --channel release` or `--channel beta`. Each execution resolves the newest published version in that channel, verifies its archive, and installs into a separate prefix under `~/.local/share/vdoc/mcp/<channel>`. Configure each agent with the absolute executable path printed by the installer and that environment's Backend URL/token. Link each channel's Skill into its own agent/project directory. Repeat the channel installer and restart MCP/reload the agent to update; existing global or commit-pinned MCP installations remain explicit alternatives. This does not publish to the npm registry or update a running agent automatically.
+
 Backend/Admin release jobs promote `latest` only after creating a stable GitHub Release. Repository-wide serialization and numeric stable-version ordering prevent prereleases and older reruns from replacing a newer alias.
 
-Push the Backend, MCP, and Admin `v0.3.15` tags before the Site tag. The Site tag build resolves its own tag to its checkout commit, checks all other tags against the committed lock, and includes four exact commit hashes in the archive. A missing or mismatched tag fails the release; there is no fallback to a branch or an older release. Do not move published tags.
+Push the Backend, MCP, and Admin `v0.3.16-beta.1` tags before the Site tag. The Site tag build resolves its own tag to its checkout commit, checks all other tags against the committed lock, and includes four exact commit hashes in the archive. A missing or mismatched tag fails the release; there is no fallback to a branch or an older release. Do not move published tags.
 
 Backend/Admin tag workflows also build and smoke-test native Linux amd64 and arm64 Docker images. Their compressed Docker archives and per-image SHA-256 files are retained as release assets; the release waits for both image jobs. The bootstrap image loader verifies those files, their platform, and their source-revision labels against the lock.
 
@@ -42,7 +48,7 @@ After all release tags are advertised, run the default published closure gate an
 ```sh
 scripts/vdoc-release-dry-run.sh
 scripts/vdoc-workspace-release-assets-verify.sh \
-  --release-base-url https://github.com/ChnMig/Vdoc-site/releases/download/v0.3.15
+  --release-base-url https://github.com/ChnMig/Vdoc-site/releases/download/v0.3.16-beta.1
 ```
 
 The four repository baselines are pinned in `workspace.lock.json` schema v2 by remote, advertised ref, and commit; the same lock binds the non-Git root control plane to its canonical distributed-file SHA-256. Use `scripts/vdoc-workspace-init.sh` only to clone missing repositories on a fresh machine, and `scripts/vdoc-workspace-verify.sh` to verify an existing workspace. Existing repositories are never fetched, reset, checked out, or cleaned by the initializer. The verifier uses `git ls-remote`, so forged or stale local `origin/*` refs cannot prove publication.
@@ -324,9 +330,9 @@ The default gate requires four distinct target-user roles and binds them to real
 
 An empty template, `--allow-incomplete` success, a missing/unexercised target-user role, staff-only execution, missing role feedback, missing or hash-mismatched evidence, same-person/unsigned sign-off, a post-signature edit, or automated tests alone means **Pilot not yet validated**. The signing helper is provenance, not cryptographic identity authentication; signer identity and immutable evidence storage remain human controls. Do not convert `failed`, `blocked`, or negative verbatim feedback into a passing release narrative.
 
-Ordinary deployments download `docker-compose.yml` alone, generated from `deploy/docker-compose.yml`. It contains configuration and stable `latest` GHCR application references, PostgreSQL `18`, and RustFS `1.0.0`. A versioned YAML download preserves the configuration source; its rolling image references are resolved at pull time. Record deployed image digests for rollback, or replace the two application aliases with the desired immutable release tag. The optional developer artifact is a Docker Compose bootstrap. `scripts/vdoc-workspace-package.sh` creates `vdoc-compose-bootstrap-v0.3.15.tar.gz` with normalized order, modes, ownership, timestamps, and gzip metadata. Byte-for-byte reproducibility requires the same tar implementation: BSD tar and GNU tar can encode equivalent headers differently. Verify the official CI archive against its published SHA-256; when comparing a local build from another platform, also compare file contents and parsed metadata. The archive contains Compose/configuration files, the root MIT license, release tools, and the exact source lock; users build Backend/Admin images locally with Docker.
+Ordinary deployments download `docker-compose.yml` alone, generated from `deploy/docker-compose.yml`. It contains configuration and stable `latest` GHCR application references, PostgreSQL `18`, and RustFS `1.0.0`. A versioned YAML download preserves the configuration source; its rolling image references are resolved at pull time. Record deployed image digests for rollback, or replace the two application aliases with the desired immutable release tag. The optional developer artifact is a Docker Compose bootstrap. `scripts/vdoc-workspace-package.sh` creates `vdoc-compose-bootstrap-v0.3.16-beta.1.tar.gz` with normalized order, modes, ownership, timestamps, and gzip metadata. Byte-for-byte reproducibility requires the same tar implementation: BSD tar and GNU tar can encode equivalent headers differently. Verify the official CI archive against its published SHA-256; when comparing a local build from another platform, also compare file contents and parsed metadata. The archive contains Compose/configuration files, the root MIT license, release tools, and the exact source lock; users build Backend/Admin images locally with Docker.
 
-Vdoc-site provides the public workspace sources and website evaluation downloads; see [README.md](README.md#docker-compose-bootstrap-artifact). Those mutable website snapshots are not an immutable GitHub Release. The `v0.3.15` tag workflow produces the versioned Compose download after verifying all four source tags.
+Vdoc-site provides the public workspace sources and website evaluation downloads; see [README.md](README.md#docker-compose-bootstrap-artifact). Those mutable website snapshots are not an immutable GitHub Release. The `v0.3.16-beta.1` tag workflow produces the versioned Compose download after verifying all four source tags.
 
 The Site tag workflow publishes both the tarball and `.sha256` file to GitHub Releases automatically. Record the exact tagged URL and checksum, together with any required release sign-off. Substitute an actually published Site tag below, then verify the public bytes instead of trusting the README link:
 
@@ -334,7 +340,7 @@ The Site tag workflow publishes both the tarball and `.sha256` file to GitHub Re
 scripts/vdoc-workspace-release-assets-verify.sh \
   --release-base-url 'https://github.com/ChnMig/Vdoc-site/releases/download/<published-release-tag>' \
   --expected-sha256 <archive-sha256> \
-  --local-artifact dist/vdoc-compose-bootstrap-v0.3.15.tar.gz
+  --local-artifact dist/vdoc-compose-bootstrap-v0.3.16-beta.1.tar.gz
 ```
 
 The in-lock root digest detects partial control-plane drift but is not an external signature because the lock and verifier ship together. Local package creation does not prove public availability; the release is not closed until the post-publication verifier succeeds.

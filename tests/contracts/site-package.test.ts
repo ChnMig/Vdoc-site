@@ -35,6 +35,10 @@ function fixture(candidate = false) {
     join(projectRoot, 'scripts/package-site.sh'),
     join(root, 'scripts/package-site.sh'),
   )
+  copyFileSync(
+    join(projectRoot, 'scripts/verify-beta-compose.mjs'),
+    join(root, 'scripts/verify-beta-compose.mjs'),
+  )
   writeFileSync(
     join(root, 'workspace/workspace-distribution.json'),
     JSON.stringify(manifest),
@@ -42,6 +46,7 @@ function fixture(candidate = false) {
   for (const file of [
     'docker-compose.yml',
     'docker-compose.external-postgres.yml',
+    'docker-compose.beta.yml',
   ])
     copyFileSync(
       join(projectRoot, 'workspace/deploy', file),
@@ -55,6 +60,8 @@ function fixture(candidate = false) {
     'docker-compose.yml.sha256',
     'docker-compose.external-postgres.yml',
     'docker-compose.external-postgres.yml.sha256',
+    'docker-compose.beta.yml',
+    'docker-compose.beta.yml.sha256',
   ]) {
     const source = join(projectRoot, 'docs/public/downloads', file)
     copyFileSync(source, join(downloads, file))
@@ -94,6 +101,8 @@ function fixture(candidate = false) {
     'docker-compose.yml.sha256',
     'docker-compose.external-postgres.yml',
     'docker-compose.external-postgres.yml.sha256',
+    'docker-compose.beta.yml',
+    'docker-compose.beta.yml.sha256',
   ])
     copyFileSync(join(downloads, file), join(built, 'downloads', file))
   return { root, built, downloads }
@@ -125,6 +134,7 @@ describe('site release packaging', () => {
         'vdoc-site-static.tar.gz',
         'docker-compose.yml',
         'docker-compose.external-postgres.yml',
+        'docker-compose.beta.yml',
       ]
       expect(readdirSync(output).sort()).toEqual(
         archives.flatMap((file) => [file, `${file}.sha256`]).sort(),
@@ -154,6 +164,8 @@ describe('site release packaging', () => {
         'downloads/docker-compose.yml.sha256',
         'downloads/docker-compose.external-postgres.yml',
         'downloads/docker-compose.external-postgres.yml.sha256',
+        'downloads/docker-compose.beta.yml',
+        'downloads/docker-compose.beta.yml.sha256',
         `downloads/${archiveName}`,
         `downloads/${archiveName}.sha256`,
       ]) {
@@ -166,18 +178,62 @@ describe('site release packaging', () => {
     }
   })
 
-  it.each([archiveName, 'docker-compose.external-postgres.yml'])(
-    'refuses stale built %s before producing release assets',
-    (file) => {
+  it.each([
+    archiveName,
+    'docker-compose.external-postgres.yml',
+    'docker-compose.beta.yml',
+  ])('refuses stale built %s before producing release assets', (file) => {
+    const { root, built } = fixture()
+    try {
+      writeFileSync(join(built, 'downloads', file), 'stale download')
+      const result = spawnSync(
+        'bash',
+        [join(root, 'scripts/package-site.sh')],
+        {
+          encoding: 'utf8',
+        },
+      )
+      expect(result.status).not.toBe(0)
+      expect(result.stderr).toContain('Built download is missing or stale')
+      expect(existsSync(join(root, '.artifacts/release'))).toBe(false)
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+
+  it('refuses beta Compose containing stable images before producing release assets', () => {
+    const { root } = fixture()
+    try {
+      const beta = join(root, 'workspace/deploy/docker-compose.beta.yml')
+      writeFileSync(
+        beta,
+        readFileSync(beta, 'utf8').replaceAll(':beta', ':latest'),
+      )
+      const result = spawnSync(
+        'bash',
+        [join(root, 'scripts/package-site.sh')],
+        { encoding: 'utf8' },
+      )
+      expect(result.status).not.toBe(0)
+      expect(result.stderr).toContain(
+        'Beta Compose must contain exactly the backend and Admin beta images',
+      )
+      expect(existsSync(join(root, '.artifacts/release'))).toBe(false)
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+
+  it.each(['docker-compose.beta.yml', 'docker-compose.beta.yml.sha256'])(
+    'refuses a missing beta download %s before producing release assets',
+    (name) => {
       const { root, built } = fixture()
       try {
-        writeFileSync(join(built, 'downloads', file), 'stale download')
+        rmSync(join(built, 'downloads', name))
         const result = spawnSync(
           'bash',
           [join(root, 'scripts/package-site.sh')],
-          {
-            encoding: 'utf8',
-          },
+          { encoding: 'utf8' },
         )
         expect(result.status).not.toBe(0)
         expect(result.stderr).toContain('Built download is missing or stale')
@@ -187,4 +243,24 @@ describe('site release packaging', () => {
       }
     },
   )
+
+  it('refuses a beta download with an invalid checksum before producing release assets', () => {
+    const { root, built, downloads } = fixture()
+    try {
+      const name = 'docker-compose.beta.yml.sha256'
+      const invalidChecksum = `${'0'.repeat(64)}  docker-compose.beta.yml\n`
+      writeFileSync(join(downloads, name), invalidChecksum)
+      writeFileSync(join(built, 'downloads', name), invalidChecksum)
+      const result = spawnSync(
+        'bash',
+        [join(root, 'scripts/package-site.sh')],
+        { encoding: 'utf8' },
+      )
+      expect(result.status).not.toBe(0)
+      expect(result.stdout).toContain('docker-compose.beta.yml: FAILED')
+      expect(existsSync(join(root, '.artifacts/release'))).toBe(false)
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
 })

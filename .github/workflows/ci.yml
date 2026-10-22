@@ -66,10 +66,16 @@ jobs:
           for image in vdoc vdoc-admin; do
             docker buildx imagetools inspect "ghcr.io/chnmig/$image:$RELEASE_TAG" --raw |
               jq -e '[.manifests[] | select(.platform.os == "linux") | .platform.architecture] | sort == ["amd64", "arm64"]'
+            channel=''
             if [[ "$RELEASE_TAG" != *-* ]]; then
+              channel=latest
+            elif [[ "$RELEASE_TAG" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)-beta\.(0|[1-9][0-9]*)$ ]]; then
+              channel=beta
+            fi
+            if [[ -n "$channel" ]]; then
               released="$(docker buildx imagetools inspect "ghcr.io/chnmig/$image:$RELEASE_TAG" --format '{{.Manifest.Digest}}')"
-              latest="$(docker buildx imagetools inspect "ghcr.io/chnmig/$image:latest" --format '{{.Manifest.Digest}}')"
-              [[ "$released" == "$latest" ]] || { echo "latest does not match the coordinated $image release" >&2; exit 1; }
+              promoted="$(docker buildx imagetools inspect "ghcr.io/chnmig/$image:$channel" --format '{{.Manifest.Digest}}')"
+              [[ "$released" == "$promoted" ]] || { echo "$channel does not match the coordinated $image release" >&2; exit 1; }
             fi
           done
 
@@ -112,6 +118,7 @@ jobs:
           path: |
             .artifacts/release/docker-compose.yml
             .artifacts/release/docker-compose.external-postgres.yml
+            .artifacts/release/docker-compose.beta.yml
             .artifacts/release/*.tar.gz
             .artifacts/release/*.sha256
           include-hidden-files: true

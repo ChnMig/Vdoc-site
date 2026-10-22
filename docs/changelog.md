@@ -1,5 +1,11 @@
 # 变更记录
 
+## v0.3.16-beta.1
+
+新增独立 Beta 渠道：使用 [Beta Compose](deployment.md#beta-channel) 部署测试环境，Backend 和 Admin 跟随 `:beta`，稳定环境继续跟随 `:latest`。两套配置使用独立端口、网络、数据库和存储卷。
+
+[MCP 和配套 Skill](mcp-tools.md#release-channels) 支持按渠道安装与更新，各自保存在独立目录。官网补齐安装、更新及 Agent 配置指引。本次不新增数据库迁移；测试环境须使用独立账号、密钥和 Token。
+
 ## v0.3.15
 
 修复中英文 AI 配置说明中的提示模板占位符展示：<code v-pre>{{context}}</code> 和 <code v-pre>{{message}}</code> 按字面显示，便于保留必要字段。

@@ -13,6 +13,8 @@ Open `http://127.0.0.1:8081` and sign in with your configured initial administra
 
 The standalone sources are `deploy/docker-compose.yml` (bundled PostgreSQL) and `deploy/docker-compose.external-postgres.yml` (existing PostgreSQL). Both include field comments. The root `docker-compose.yml` and instructions below support source development and release verification.
 
+The separate test source `deploy/docker-compose.beta.yml` follows only `:beta` Backend/Admin images. It uses project `vdoc-beta`, ports 18080/18081 and its own PostgreSQL/RustFS volumes, so it can run beside project `vdoc`. Fill it with independent credentials and keys, then run `docker compose -f deploy/docker-compose.beta.yml pull` and `docker compose -f deploy/docker-compose.beta.yml up -d --wait`. Do not merge the two channel files or point beta at the stable database or storage bucket. Repeating these commands updates only the selected channel. MCP/Skill also have isolated channel installation directories; see `RELEASE_DEPLOY.md` and the public MCP guide.
+
 ## Use an existing PostgreSQL service
 
 Download [docker-compose.external-postgres.yml](https://chnmig.github.io/Vdoc-site/downloads/docker-compose.external-postgres.yml) and save it as `docker-compose.yml` in a dedicated directory. Use it alone; do not merge it with the bundled database file. It starts only RustFS, Backend, Admin and the one-shot configuration check, with no PostgreSQL service or database volume.
@@ -27,7 +29,7 @@ Database backups, maintenance and version upgrades stay with the existing servic
 
 ## Source workspace deployment
 
-The optional [source workspace archive](https://chnmig.github.io/Vdoc-site/downloads/vdoc-compose-bootstrap-v0.3.15.tar.gz) is a Docker Compose bootstrap, for source builds and offline installation. It supplies the Compose/configuration files and a
+The optional [source workspace archive](https://chnmig.github.io/Vdoc-site/downloads/vdoc-compose-bootstrap-v0.3.16-beta.1.tar.gz) is a Docker Compose bootstrap, for source builds and offline installation. It supplies the Compose/configuration files and a
 lock that fetches reviewed source commits; `docker compose ... up -d --build`
 builds Backend/Admin locally and starts the four-service self-hosted stack.
 

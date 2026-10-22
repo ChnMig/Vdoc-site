@@ -47,25 +47,24 @@ describe('public Compose workspace distribution', () => {
     )
   })
 
-  it.each(['docker-compose.yml', 'docker-compose.external-postgres.yml'])(
-    'ships %s identical to the public source with its checksum',
-    (file) => {
-      const content = readFileSync(
-        join(projectRoot, 'docs/public/downloads', file),
-      )
-      expect(content).toEqual(readFileSync(join(workspaceRoot, 'deploy', file)))
-      const digest = createHash('sha256').update(content).digest('hex')
-      expect(
-        readFileSync(
-          join(projectRoot, 'docs/public/downloads', `${file}.sha256`),
-          'utf8',
-        ),
-      ).toBe(`${digest}  ${file}\n`)
-      expect(content.toString()).not.toMatch(
-        /(?:env_file:|build:|\.\/scripts\/)/,
-      )
-    },
-  )
+  it.each([
+    'docker-compose.yml',
+    'docker-compose.external-postgres.yml',
+    'docker-compose.beta.yml',
+  ])('ships %s identical to the public source with its checksum', (file) => {
+    const content = readFileSync(
+      join(projectRoot, 'docs/public/downloads', file),
+    )
+    expect(content).toEqual(readFileSync(join(workspaceRoot, 'deploy', file)))
+    const digest = createHash('sha256').update(content).digest('hex')
+    expect(
+      readFileSync(
+        join(projectRoot, 'docs/public/downloads', `${file}.sha256`),
+        'utf8',
+      ),
+    ).toBe(`${digest}  ${file}\n`)
+    expect(content.toString()).not.toMatch(/(?:env_file:|build:|\.\/scripts\/)/)
+  })
 
   it('contains exactly the public sources and executable modes, with no environment secrets or checkouts', () => {
     const entries = execFileSync('tar', ['-tzf', archivePath], {

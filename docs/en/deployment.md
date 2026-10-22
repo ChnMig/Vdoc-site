@@ -23,6 +23,31 @@ If you already run PostgreSQL, choose the [external database variant](#external-
 
 [Site Releases](https://github.com/ChnMig/Vdoc-site/releases) retain each YAML and its `docker-compose.yml.sha256` sidecar to verify the configuration source. A versioned YAML containing `latest` still follows rolling images. To pin an application release, replace both application aliases with the same desired `vX.Y.Z` tag or recorded digests.
 
+## Beta test channel {#beta-channel}
+
+| Channel | Compose                   | Application images | Project     | Workbench port |
+| ------- | ------------------------- | ------------------ | ----------- | -------------- |
+| Stable  | `docker-compose.yml`      | `:latest`          | `vdoc`      | `8081`         |
+| Beta    | `docker-compose.beta.yml` | `:beta`            | `vdoc-beta` | `18081`        |
+
+Beta follows `vMAJOR.MINOR.PATCH-beta.N` test releases. Publishing beta updates only `:beta`; it does not update stable `:latest` or the public website. Stable releases update only the stable channel. Both environments can run on one host: Beta has separate networks, PostgreSQL/RustFS volumes, database `vdoc_beta`, bucket `vdoc-beta`, and Backend port `18080`.
+
+Download [docker-compose.beta.yml](https://chnmig.github.io/Vdoc-site/downloads/docker-compose.beta.yml), or obtain the same asset from a published Beta [Site Release](https://github.com/ChnMig/Vdoc-site/releases). A successful beta image release is required before first use. Keep the test configuration in its own directory and replace every `CHANGE_ME` value with separate passwords, JWT/MCP keys and test accounts:
+
+```sh
+mkdir vdoc-beta
+cd vdoc-beta
+curl -fL https://chnmig.github.io/Vdoc-site/downloads/docker-compose.beta.yml -o docker-compose.beta.yml
+chmod 600 docker-compose.beta.yml
+# Fill the test settings first. Repeat these commands to update only beta.
+docker compose -f docker-compose.beta.yml pull
+docker compose -f docker-compose.beta.yml up -d --wait
+```
+
+Open the [Beta workbench](http://127.0.0.1:18081). Use each channel file on its own. Keep Beta's project name `vdoc-beta`, and never point it at the stable database or bucket: startup migrations modify the configured database.
+
+MCP and its bundled Skill also have [separate channel installers](mcp-tools.md#release-channels). Configure a test Agent with the beta MCP executable's absolute path, Beta Backend URL and test Token; use release MCP and production credentials for the stable Agent. Repeat the selected channel's installation command to update MCP/Skill, then restart MCP and reload the Agent. Containers and clients upgrade when you run their update commands.
+
 <div id="initial-admin"></div>
 
 ## 2. Fill In Settings and Your Login

@@ -35,6 +35,16 @@ Vdoc Skill 是安装到 Agent runtime 的工作流包。它不存数据、不计
 
 目前包尚未发布到 npm。发布并从 Git 固定安装迁移到 registry 安装后，才适用 `npm update --global @vdoc/mcp`。不要从临时 `npx` 缓存目录建立持久 Skill 链接。
 
+### release / beta 隔离 {#release-channels}
+
+通过 [MCP 渠道安装入口](mcp-tools.md#release-channels) 安装后，在专用测试项目中链接 beta 包附带的 Skill：
+
+```sh
+"$HOME/.local/share/vdoc/mcp/beta/node_modules/.bin/vdoc-mcp" skill install --directory .agents/skills/vdoc
+```
+
+稳定项目从 `~/.local/share/vdoc/mcp/release/node_modules/.bin/vdoc-mcp` 链接到它自己的 Skill 目录。不要在同一目录同时安装两套 Skill；Beta 项目使用 Beta MCP 配置和 Token。重复对应渠道的 MCP 安装命令后，链接会显示该渠道的新 Skill，重新加载 Agent 即可。通过默认分支的 Skills CLI 安装不提供这一渠道隔离，应改用渠道发行包或固定提交。
+
 ### 使用 Skills CLI 单独安装
 
 ```sh

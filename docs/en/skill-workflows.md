@@ -35,6 +35,16 @@ Install the verified MCP release archive from the newer reviewed lock globally a
 
 The package is not published to npm yet. `npm update --global @vdoc/mcp` will apply only after registry publication and migration from a Git-pinned install. Do not link a persistent Skill from an `npx` cache directory.
 
+### release / beta isolation {#release-channels}
+
+After using the [MCP channel installer](mcp-tools.md#release-channels), link the beta package's Skill inside a dedicated test project:
+
+```sh
+"$HOME/.local/share/vdoc/mcp/beta/node_modules/.bin/vdoc-mcp" skill install --directory .agents/skills/vdoc
+```
+
+Stable projects link from `~/.local/share/vdoc/mcp/release/node_modules/.bin/vdoc-mcp` into their own Skill directories. Keep the two channels in separate destinations and configure the Beta project with Beta MCP and its Token. Repeating the selected channel's MCP install command updates that channel's linked Skill; reload the Agent afterwards. Default-branch Skills CLI installations do not provide this isolation; use channel release packages or an exact reviewed commit.
+
 ### Independent Skills CLI installation
 
 ```sh

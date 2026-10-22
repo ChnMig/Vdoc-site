@@ -16,7 +16,8 @@ tar -xOf "$SITE_ROOT/docs/public/downloads/$artifact_name.tar.gz" "$root_directo
     printf 'Release packaging requires a published, fully resolved Compose download; candidates are not deployable.\n' >&2
     exit 1
   }
-compose_files=(docker-compose.yml docker-compose.external-postgres.yml)
+node "$SITE_ROOT/scripts/verify-beta-compose.mjs" "$SITE_ROOT/workspace/deploy/docker-compose.beta.yml"
+compose_files=(docker-compose.yml docker-compose.external-postgres.yml docker-compose.beta.yml)
 downloads=("$artifact_name.tar.gz" "$artifact_name.tar.gz.sha256")
 checksums=("$artifact_name.tar.gz.sha256")
 for file in "${compose_files[@]}"; do

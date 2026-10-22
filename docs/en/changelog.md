@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.3.16-beta.1
+
+Adds an isolated Beta channel. Use [Beta Compose](deployment.md#beta-channel) for a test environment: Backend and Admin follow `:beta`, while stable deployments continue following `:latest`. Each environment has separate ports, networks, databases, and storage volumes.
+
+[MCP and its bundled Skill](mcp-tools.md#release-channels) support channel installation and updates in separate directories. The guides cover installation, updates, and Agent configuration. This release adds no database migrations; use separate credentials, keys, and Tokens for testing.
+
 ## v0.3.15
 
 Fix literal prompt placeholders in the Chinese and English AI setup guide. <code v-pre>{{context}}</code> and <code v-pre>{{message}}</code> remain visible so the required fields can be preserved.

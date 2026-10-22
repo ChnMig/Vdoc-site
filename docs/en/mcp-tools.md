@@ -18,7 +18,7 @@ The agent machine also needs Node.js 20 or later, npm, and Git. If Vdoc is not r
 `@vdoc/mcp` is not published to the npm registry yet. For one-off usage, run the commit-pinned source from the official GitHub repository:
 
 ```sh
-npx --yes github:ChnMig/Vdoc-mcp#c8363cc706932117c5a04ec68010933738724799
+npx --yes github:ChnMig/Vdoc-mcp#933f0b1f1d166fdff1da5caa49807177bbf512cc
 ```
 
 For one-off usage, prefer the commit-pinned `npx` source in the Agent MCP config. The 40-character commit above must equal the `Vdoc-mcp` entry in the reviewed release package's `workspace.lock.json`; do not remove the fragment or replace it with a moving branch. Do not put tokens in `args`.
@@ -28,7 +28,7 @@ For global installation, use the compiled release archive and verify it before i
 ```sh
 (
   set -eu
-  VDOC_MCP_VERSION=0.3.15
+  VDOC_MCP_VERSION=0.3.16-beta.1
   VDOC_MCP_PACKAGE_DIR="$(mktemp -d)"
   trap 'rm -rf -- "$VDOC_MCP_PACKAGE_DIR"' EXIT
   VDOC_MCP_RELEASE="https://github.com/ChnMig/Vdoc-mcp/releases/download/v$VDOC_MCP_VERSION"
@@ -42,6 +42,35 @@ For global installation, use the compiled release archive and verify it before i
 Use the MCP version selected by your deployment package's `workspace.lock.json`. To use the global install from an Agent, change its config's `command` to `vdoc-mcp` and remove the `npx` `args`, keeping the private `env`. Restart the MCP connection after updating. See [Skill Workflows](skill-workflows.md#installation) for optional Skill installation and updates.
 
 `VDOC_MCP_TOKEN` is an environment variable in the shell or Agent configuration, not a package CLI argument. Never put the raw token in `npx`, `npm`, or adapter `args`. Run `set +x` to disable xtrace before manual diagnosis, and keep credentials out of shell history, logs, and screenshots.
+
+## Follow release / beta updates {#release-channels}
+
+MCP and its bundled Skill use one package per channel. `release` selects only stable releases; `beta` selects only `vMAJOR.MINOR.PATCH-beta.N` prereleases. A missing channel fails without falling back to another channel. Separate prefixes at `~/.local/share/vdoc/mcp/release` and `~/.local/share/vdoc/mcp/beta` preserve any existing global MCP installation.
+
+First download `install-channel.mjs` and `install-channel.mjs.sha256` from a reviewed [MCP Release](https://github.com/ChnMig/Vdoc-mcp/releases) that includes them. The commands below pin the installer to `v0.3.16-beta.1`; run them in a dedicated tools directory. A failed download or checksum stops installation. Older releases do not contain these assets:
+
+```sh
+(
+  set -eu
+  VDOC_MCP_INSTALLER_TAG='v0.3.16-beta.1'
+  VDOC_MCP_INSTALLER_RELEASE="https://github.com/ChnMig/Vdoc-mcp/releases/download/$VDOC_MCP_INSTALLER_TAG"
+  curl -fL "$VDOC_MCP_INSTALLER_RELEASE/install-channel.mjs" -o install-channel.mjs
+  curl -fL "$VDOC_MCP_INSTALLER_RELEASE/install-channel.mjs.sha256" -o install-channel.mjs.sha256
+  shasum -a 256 -c install-channel.mjs.sha256
+  node install-channel.mjs --channel beta
+  # For stable: node install-channel.mjs --channel release
+)
+```
+
+Each execution resolves the channel's newest published version, verifies its archive, then installs it. Put the printed absolute executable path in your Agent's `command`, removing `npx` arguments. Name the stable connection `vdoc` and the test connection `vdoc_beta`. Beta uses `VDOC_BASE_URL=http://127.0.0.1:18080` (or your test domain) and a Token created in Beta Admin. Keep production Tokens out of the test connection. When both environments are configured, explicitly select which connection to query.
+
+After installation, repeat this command to update beta MCP and its bundled Skill; replace both `beta` values with `release` for stable updates:
+
+```sh
+node "$HOME/.local/share/vdoc/mcp/beta/node_modules/@vdoc/mcp/scripts/install-channel.mjs" --channel beta
+```
+
+Restart MCP and reload the Agent after updating. Link each channel's Skill into its own agent or project directory; see [Skill channel isolation](skill-workflows.md#release-channels). The installer requires Node.js 20+ and npm, without requiring npm registry publication.
 
 Local development or package smoke:
 
@@ -75,7 +104,7 @@ For local full Compose, `VDOC_BASE_URL` is usually `http://127.0.0.1:8080`. For 
       "command": "npx",
       "args": [
         "--yes",
-        "github:ChnMig/Vdoc-mcp#c8363cc706932117c5a04ec68010933738724799"
+        "github:ChnMig/Vdoc-mcp#933f0b1f1d166fdff1da5caa49807177bbf512cc"
       ],
       "env": {
         "VDOC_BASE_URL": "https://your-vdoc.example.test",
