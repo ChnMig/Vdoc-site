@@ -1,6 +1,6 @@
 # Changelog
 
-## v0.3.17-beta.2
+## v0.3.17-beta.3
 
 - Teams, Projects, Users, Documents, Branches, and MCP Token pages show lists first. Create buttons and row-level Edit actions open labeled forms. Fix project-form alignment, tighten list spacing, and adapt the forms to mobile screens.
 - Both regular users and administrators can [change their own password in Settings](admin-usage.md#change-password), after verifying the current password. Success signs out the current browser. Server operators can use the [command-line reset](troubleshooting.md#reset-admin-password) when a super administrator forgets their password.

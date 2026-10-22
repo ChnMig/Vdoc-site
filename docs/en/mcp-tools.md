@@ -18,7 +18,7 @@ The agent machine also needs Node.js 20 or later, npm, and Git. If Vdoc is not r
 `@vdoc/mcp` is not published to the npm registry yet. For one-off usage, run the commit-pinned source from the official GitHub repository:
 
 ```sh
-npx --yes github:ChnMig/Vdoc-mcp#e54050c7fe87d13ec51b0e06198fceefb395a8ba
+npx --yes github:ChnMig/Vdoc-mcp#89dc7421e351ddd6c377f5c47ca6b18f3956d5c3
 ```
 
 For one-off usage, prefer the commit-pinned `npx` source in the Agent MCP config. The 40-character commit above must equal the `Vdoc-mcp` entry in the reviewed release package's `workspace.lock.json`; do not remove the fragment or replace it with a moving branch. Do not put tokens in `args`.
@@ -28,7 +28,7 @@ For global installation, use the compiled release archive and verify it before i
 ```sh
 (
   set -eu
-  VDOC_MCP_VERSION=0.3.17-beta.2
+  VDOC_MCP_VERSION=0.3.17-beta.3
   VDOC_MCP_PACKAGE_DIR="$(mktemp -d)"
   trap 'rm -rf -- "$VDOC_MCP_PACKAGE_DIR"' EXIT
   VDOC_MCP_RELEASE="https://github.com/ChnMig/Vdoc-mcp/releases/download/v$VDOC_MCP_VERSION"
@@ -47,12 +47,12 @@ Use the MCP version selected by your deployment package's `workspace.lock.json`.
 
 MCP and its bundled Skill use one package per channel. `release` selects only stable releases; `beta` selects only `vMAJOR.MINOR.PATCH-beta.N` prereleases. A missing channel fails without falling back to another channel. Separate prefixes at `~/.local/share/vdoc/mcp/release` and `~/.local/share/vdoc/mcp/beta` preserve any existing global MCP installation.
 
-First download `install-channel.mjs` and `install-channel.mjs.sha256` from a reviewed [MCP Release](https://github.com/ChnMig/Vdoc-mcp/releases) that includes them. The commands below pin the installer to `v0.3.17-beta.2`; run them in a dedicated tools directory. A failed download or checksum stops installation. Older releases do not contain these assets:
+First download `install-channel.mjs` and `install-channel.mjs.sha256` from a reviewed [MCP Release](https://github.com/ChnMig/Vdoc-mcp/releases) that includes them. The commands below pin the installer to `v0.3.17-beta.3`; run them in a dedicated tools directory. A failed download or checksum stops installation. Older releases do not contain these assets:
 
 ```sh
 (
   set -eu
-  VDOC_MCP_INSTALLER_TAG='v0.3.17-beta.2'
+  VDOC_MCP_INSTALLER_TAG='v0.3.17-beta.3'
   VDOC_MCP_INSTALLER_RELEASE="https://github.com/ChnMig/Vdoc-mcp/releases/download/$VDOC_MCP_INSTALLER_TAG"
   curl -fL "$VDOC_MCP_INSTALLER_RELEASE/install-channel.mjs" -o install-channel.mjs
   curl -fL "$VDOC_MCP_INSTALLER_RELEASE/install-channel.mjs.sha256" -o install-channel.mjs.sha256
@@ -104,7 +104,7 @@ For local full Compose, `VDOC_BASE_URL` is usually `http://127.0.0.1:8080`. For 
       "command": "npx",
       "args": [
         "--yes",
-        "github:ChnMig/Vdoc-mcp#e54050c7fe87d13ec51b0e06198fceefb395a8ba"
+        "github:ChnMig/Vdoc-mcp#89dc7421e351ddd6c377f5c47ca6b18f3956d5c3"
       ],
       "env": {
         "VDOC_BASE_URL": "https://your-vdoc.example.test",
