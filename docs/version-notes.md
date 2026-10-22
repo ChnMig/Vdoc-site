@@ -1,5 +1,12 @@
 # 版本说明
 
+## v0.3.17-beta.1
+
+- 团队、项目、用户、文档、分支和 MCP Token 页面以列表为主，点击“创建”或行内“编辑”后打开带字段标签的表单。修复项目表单错位，调整列表留白并适配手机。
+- 普通用户和管理员都可以在[设置中修改自己的密码](admin-usage.md#change-password)，需要校验当前密码；成功后当前浏览器退出登录。忘记超级管理员密码时，由服务器维护者使用[命令行重置](troubleshooting.md#reset-admin-password)。
+
+本次为 Beta 测试版，仅更新 `:beta` 渠道；稳定镜像 `:latest` 和稳定官网保持原版本。不新增数据库迁移，MCP 工具参数保持兼容；测试环境继续使用独立数据库、存储和凭据。
+
 ## v0.3.16
 
 新增独立 Beta 渠道：使用 [Beta Compose](deployment.md#beta-channel) 部署测试环境，Backend 和 Admin 跟随 `:beta`，稳定环境继续跟随 `:latest`。两套配置使用独立端口、网络、数据库和存储卷。

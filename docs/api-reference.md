@@ -67,6 +67,17 @@ curl_with_jwt() {
 curl_with_jwt -sS "$API_BASE/api/v1/private/identity/me"
 ```
 
+## 修改自己的密码 {#change-password-api}
+
+`POST /api/v1/private/identity/me/password` 使用当前登录 JWT，只修改该 JWT 对应用户的密码，不接受目标用户 ID。
+
+| JSON 字段          | 含义                                                                  |
+| ------------------ | --------------------------------------------------------------------- |
+| `current_password` | 当前密码，必填。                                                      |
+| `new_password`     | 新密码，必填；12–72 个 UTF-8 字节、首尾无空白，且不能与当前密码相同。 |
+
+成功返回 `code: 200`、`status: "OK"`，不返回密码或哈希。当前密码错误或新密码不符合规则时返回 `INVALID_ARGUMENT`，不会修改密码；校验期间凭据发生并发变更时返回 `FAILED_PRECONDITION`，需要重新确认当前密码后再试。Admin 成功后会清除当前浏览器会话并转到登录页。
+
 ## 角色和文档类型
 
 - SuperAdmin 可以做系统级管理和审核。

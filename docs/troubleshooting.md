@@ -74,6 +74,22 @@ backend 启用 database 或 storage 后，依赖不可达会启动失败，不�
 - Skill、MCP 和 CLI 使用独立 Backend 地址；它们的 `VDOC_BASE_URL` 与浏览器 API origin 用途不同。
 - Private API 使用 raw JWT `Authorization` header，不加 `Bearer`。
 
+## 忘记管理员密码 {#reset-admin-password}
+
+已登录且记得当前密码时，使用工作台[设置中的修改密码](admin-usage.md#change-password)。忘记 SuperAdmin 密码时，服务器维护者可以通过后端的 `--resetadmin` 命令重置已有、启用状态的超级管理员账号。
+
+在服务器上保存 Compose 文件的目录中，用 Bash 执行以下命令，将示例邮箱替换为需要重置的管理员邮箱。输入不会回显，新密码不写入命令参数：
+
+```bash
+IFS= read -r -s -p '新密码：' VDOC_NEW_ADMIN_PASSWORD
+printf '\n'
+printf '%s\n' "$VDOC_NEW_ADMIN_PASSWORD" |
+  docker compose exec -T backend /app/vdoc --resetadmin admin@example.com
+unset VDOC_NEW_ADMIN_PASSWORD
+```
+
+新密码遵循 12–72 个 UTF-8 字节、首尾无空白的规则。命令通过容器已有的配置连接数据库，不要求当前密码。若同时部署稳定版和 Beta，必须在 `docker compose` 后指定对应的 `-p` 项目名与 `-f` 文件，分别重置；两套账号独立。修改 `VDOC_INITIAL_ADMIN_PASSWORD` 并重启不会修改已有密码。
+
 ## 登录后接口显示 HTTP 200 但仍失败
 
 Vdoc REST 使用 envelope。不要只看 HTTP status，要看 body：

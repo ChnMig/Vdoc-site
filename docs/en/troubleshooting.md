@@ -74,6 +74,22 @@ When database or storage is enabled, unreachable dependencies stop backend start
 - Skill, MCP, and CLI clients use the separate Backend address; their `VDOC_BASE_URL` serves a different purpose from the browser API origin.
 - Private API calls use raw JWT `Authorization`, no `Bearer` prefix.
 
+## Forgotten Administrator Password {#reset-admin-password}
+
+If you are signed in and know your current password, use [Change password in Settings](admin-usage.md#change-password). If a SuperAdmin forgets their password, a server operator can reset an existing active SuperAdmin account with Backend's `--resetadmin` command.
+
+Run the following in Bash from the directory containing your Compose file. Replace the example email with the administrator's email. Input is hidden and the new password is not placed in command arguments:
+
+```bash
+IFS= read -r -s -p 'New password: ' VDOC_NEW_ADMIN_PASSWORD
+printf '\n'
+printf '%s\n' "$VDOC_NEW_ADMIN_PASSWORD" |
+  docker compose exec -T backend /app/vdoc --resetadmin admin@example.com
+unset VDOC_NEW_ADMIN_PASSWORD
+```
+
+The new password must contain 12–72 UTF-8 bytes with no leading or trailing whitespace. The command connects to the database using the container's existing configuration and does not require the current password. For parallel stable and Beta deployments, add the corresponding `-p` project and `-f` file after `docker compose` and reset each account separately. Changing `VDOC_INITIAL_ADMIN_PASSWORD` and restarting does not change an existing password.
+
 ## Login API Returns HTTP 200 but Still Fails
 
 Vdoc REST uses an envelope. Inspect the body, not only HTTP status:

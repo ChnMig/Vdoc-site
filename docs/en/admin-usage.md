@@ -14,13 +14,21 @@ This trial uses Markdown to cover create, review, publish, and query. Admin AI, 
 
 Open the [local workbench](http://127.0.0.1:8081) and log in with the email and password you set in `docker-compose.yml` during deployment. For a remote deployment, open its workbench URL.
 
-Create or select a Team, then create a Project named **Vdoc Trial**. Use the initial SuperAdmin for this trial; add Reader, Writer, and Project Admin members when you start collaborating.
+Teams and Projects open as lists. Click **Create team** or **Create project** beside the list title, fill in the dialog, and submit. Use the row-level **Edit** action to change a name or description. Create or select a Team, then create a Project named **Vdoc Trial**. Use the initial SuperAdmin for this trial; add Reader, Writer, and Project Admin members when you start collaborating.
 
 If the account is not set up, return to [initial-admin configuration](deployment.md#initial-admin). Changing initialization fields does not reset accounts in an existing database.
 
+### Change Your Password {#change-password}
+
+After signing in, open **Settings** from the avatar menu and use **Change password**. Enter your current password, a new password, and its confirmation. Both regular users and administrators can change their own password.
+
+The new password must differ from the current one, contain 12–72 UTF-8 bytes, and have no leading or trailing whitespace. After a successful change, the current browser signs out; sign in again with your new password. If the current password is incorrect or the confirmation does not match, correct the form and retry.
+
+If an administrator forgets their password, a server operator can use the [command-line reset](troubleshooting.md#reset-admin-password). Changing `VDOC_INITIAL_ADMIN_PASSWORD` in Compose does not reset an existing account.
+
 ## 2. Create the Sample Document
 
-In document management, select your new project and fill in:
+In document management, select your new project and click **Create document** beside the list title. Fill in the form:
 
 | Field                    | Sample value                               |
 | ------------------------ | ------------------------------------------ |
@@ -55,7 +63,7 @@ On the versions page, confirm that `dev` contains published `v1` and that its co
 
 ## 5. Create a Read Token
 
-Open the MCP Token page and create a user-bound token:
+Open the MCP Token page, click **Create MCP token** beside the list title, and create a user-bound token:
 
 - Select **`doc:read`** for Markdown access. This query does not need draft-write permissions.
 - Confirm the token's user can access **Vdoc Trial** and set a future expiry.
@@ -78,7 +86,7 @@ Choose the configuration format for your client. The MCP Token page in Admin als
       "command": "npx",
       "args": [
         "--yes",
-        "github:ChnMig/Vdoc-mcp#0d218b46264086903caf839033c4ff3db099aa5c"
+        "github:ChnMig/Vdoc-mcp#a151279691e25b01d5c1f452d18a31d9c2b277b4"
       ],
       "env": {
         "VDOC_BASE_URL": "http://127.0.0.1:8080",
@@ -92,7 +100,7 @@ Choose the configuration format for your client. The MCP Token page in Admin als
 ```toml [Codex]
 [mcp_servers.vdoc]
 command = "npx"
-args = ["--yes", "github:ChnMig/Vdoc-mcp#0d218b46264086903caf839033c4ff3db099aa5c"]
+args = ["--yes", "github:ChnMig/Vdoc-mcp#a151279691e25b01d5c1f452d18a31d9c2b277b4"]
 startup_timeout_sec = 60
 tool_timeout_sec = 180
 

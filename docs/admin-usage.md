@@ -14,13 +14,21 @@
 
 打开 [本机工作台](http://127.0.0.1:8081)，用部署时在 `docker-compose.yml` 中设置的邮箱和密码登录。如果使用远程环境，请打开对应的工作台地址。
 
-在工作台创建或选择一个 Team，然后创建名为 **Vdoc 试用** 的 Project。用初始 SuperAdmin 完成这次试用即可；团队协作时再添加 Reader、Writer 和 Project Admin 成员。
+团队和项目页面默认展示列表。点击列表标题旁的**创建团队**或**创建项目**按钮，在弹出的表单中填写并提交；行内**编辑**按钮用于修改名称和描述。创建或选择一个 Team，然后创建名为 **Vdoc 试用** 的 Project。用初始 SuperAdmin 完成这次试用即可；团队协作时再添加 Reader、Writer 和 Project Admin 成员。
 
 账号尚未设置时，返回 [初始管理员配置](deployment.md#initial-admin)。已有数据库时修改初始化字段不会重置账号。
 
+### 修改自己的密码 {#change-password}
+
+登录后，点击右上角头像进入**设置**，在**修改密码**中输入当前密码、新密码和确认新密码。普通用户和管理员都可以修改自己的密码。
+
+新密码必须与当前密码不同，长度为 12–72 个 UTF-8 字节，且首尾不能有空白字符。提交成功后，当前浏览器会退出登录，请使用新密码重新登录。当前密码不正确或两次新密码不一致时，按表单提示修正后重试。
+
+忘记管理员密码时，由服务器维护者使用[命令行重置](troubleshooting.md#reset-admin-password)。修改 Compose 中的 `VDOC_INITIAL_ADMIN_PASSWORD` 不会重置已有账号。
+
 ## 2. 创建示例文档
 
-进入文档管理，选择刚创建的项目，填写：
+进入文档管理，选择刚创建的项目，点击列表标题旁的**创建文档**，在表单中填写：
 
 | 字段           | 示例值                  |
 | -------------- | ----------------------- |
@@ -55,7 +63,7 @@
 
 ## 5. 创建读取令牌
 
-打开 MCP Token 页面，创建用户绑定的令牌：
+打开 MCP Token 页面，点击列表标题旁的**创建 MCP 令牌**，创建用户绑定的令牌：
 
 - 选择 **`doc:read`**，用于读取 Markdown；这次查询不需要草稿写入权限。
 - 确认令牌关联用户可以访问 **Vdoc 试用** 项目，并设置未来的过期时间。
@@ -78,7 +86,7 @@
       "command": "npx",
       "args": [
         "--yes",
-        "github:ChnMig/Vdoc-mcp#0d218b46264086903caf839033c4ff3db099aa5c"
+        "github:ChnMig/Vdoc-mcp#a151279691e25b01d5c1f452d18a31d9c2b277b4"
       ],
       "env": {
         "VDOC_BASE_URL": "http://127.0.0.1:8080",
@@ -92,7 +100,7 @@
 ```toml [Codex]
 [mcp_servers.vdoc]
 command = "npx"
-args = ["--yes", "github:ChnMig/Vdoc-mcp#0d218b46264086903caf839033c4ff3db099aa5c"]
+args = ["--yes", "github:ChnMig/Vdoc-mcp#a151279691e25b01d5c1f452d18a31d9c2b277b4"]
 startup_timeout_sec = 60
 tool_timeout_sec = 180
 

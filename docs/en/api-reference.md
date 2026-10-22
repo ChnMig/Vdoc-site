@@ -67,6 +67,17 @@ Verify private identity:
 curl_with_jwt -sS "$API_BASE/api/v1/private/identity/me"
 ```
 
+## Change Your Password {#change-password-api}
+
+`POST /api/v1/private/identity/me/password` uses the current login JWT and changes only that user's password. It does not accept a target user ID.
+
+| JSON field         | Meaning                                                                                                               |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------- |
+| `current_password` | Required current password.                                                                                            |
+| `new_password`     | Required new password: 12–72 UTF-8 bytes, no leading or trailing whitespace, and different from the current password. |
+
+Success returns `code: 200` and `status: "OK"`, without a password or hash. An incorrect current password or invalid new password returns `INVALID_ARGUMENT` without changing the password. If credentials change concurrently after validation, the response is `FAILED_PRECONDITION`; confirm the current password and retry. After success, Admin clears the current browser session and opens the sign-in page.
+
 ## Roles and Document Types
 
 - SuperAdmin can manage and approve at the system level.

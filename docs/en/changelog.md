@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.3.17-beta.1
+
+- Teams, Projects, Users, Documents, Branches, and MCP Token pages show lists first. Create buttons and row-level Edit actions open labeled forms. Fix project-form alignment, tighten list spacing, and adapt the forms to mobile screens.
+- Both regular users and administrators can [change their own password in Settings](admin-usage.md#change-password), after verifying the current password. Success signs out the current browser. Server operators can use the [command-line reset](troubleshooting.md#reset-admin-password) when a super administrator forgets their password.
+
+This Beta updates only the `:beta` channel. Stable `:latest` images and the stable website retain their current release. No database migration is added and MCP tool parameters remain compatible; use separate databases, storage, and credentials for testing.
+
 ## v0.3.16
 
 Adds an isolated Beta channel. Use [Beta Compose](deployment.md#beta-channel) for a test environment: Backend and Admin follow `:beta`, while stable deployments continue following `:latest`. Each environment has separate ports, networks, databases, and storage volumes.
