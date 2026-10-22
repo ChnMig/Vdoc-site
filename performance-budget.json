@@ -12,11 +12,12 @@
   "contentAdditions": {
     "bilingualCompleteComposeExampleBytes": 131072,
     "bilingualExternalPostgresComposeExampleBytes": 131072,
-    "bilingualBetaChannelGuideBytes": 40960
+    "bilingualBetaChannelGuideBytes": 40960,
+    "bilingualBetaReleaseNotesBytes": 8192
   },
   "limits": {
     "totalFiles": 116,
-    "totalBytes": 3299738,
+    "totalBytes": 3307930,
     "downloadFiles": 8,
     "downloadBytes": 262144,
     "sharedJavaScriptGzipBytes": 92563,
