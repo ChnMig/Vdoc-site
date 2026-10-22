@@ -1,6 +1,6 @@
 # 版本说明
 
-## v0.3.16-beta.1
+## v0.3.16
 
 新增独立 Beta 渠道：使用 [Beta Compose](deployment.md#beta-channel) 部署测试环境，Backend 和 Admin 跟随 `:beta`，稳定环境继续跟随 `:latest`。两套配置使用独立端口、网络、数据库和存储卷。
 

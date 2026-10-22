@@ -1,6 +1,6 @@
 # Version Notes
 
-## v0.3.16-beta.1
+## v0.3.16
 
 Adds an isolated Beta channel. Use [Beta Compose](deployment.md#beta-channel) for a test environment: Backend and Admin follow `:beta`, while stable deployments continue following `:latest`. Each environment has separate ports, networks, databases, and storage volumes.
 

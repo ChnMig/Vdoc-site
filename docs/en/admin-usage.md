@@ -78,7 +78,7 @@ Choose the configuration format for your client. The MCP Token page in Admin als
       "command": "npx",
       "args": [
         "--yes",
-        "github:ChnMig/Vdoc-mcp#87cb2bd9851d8cdb956ebe5a4e6eac707bc19382"
+        "github:ChnMig/Vdoc-mcp#0d218b46264086903caf839033c4ff3db099aa5c"
       ],
       "env": {
         "VDOC_BASE_URL": "http://127.0.0.1:8080",
@@ -92,7 +92,7 @@ Choose the configuration format for your client. The MCP Token page in Admin als
 ```toml [Codex]
 [mcp_servers.vdoc]
 command = "npx"
-args = ["--yes", "github:ChnMig/Vdoc-mcp#87cb2bd9851d8cdb956ebe5a4e6eac707bc19382"]
+args = ["--yes", "github:ChnMig/Vdoc-mcp#0d218b46264086903caf839033c4ff3db099aa5c"]
 startup_timeout_sec = 60
 tool_timeout_sec = 180
 
