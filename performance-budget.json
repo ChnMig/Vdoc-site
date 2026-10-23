@@ -15,11 +15,12 @@
     "bilingualBetaChannelGuideBytes": 40960,
     "bilingualBetaReleaseNotesBytes": 8192,
     "bilingualSelfServicePasswordGuideBytes": 32768,
-    "bilingualDeploymentVersionUpdateGuideBytes": 24576
+    "bilingualDeploymentVersionUpdateGuideBytes": 24576,
+    "bilingualAdminLayoutGuideBytes": 8192
   },
   "limits": {
     "totalFiles": 116,
-    "totalBytes": 3365274,
+    "totalBytes": 3373466,
     "downloadFiles": 8,
     "downloadBytes": 262144,
     "sharedJavaScriptGzipBytes": 92563,

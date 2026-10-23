@@ -2,7 +2,7 @@
 
 ## v0.3.17-beta.5
 
-Settings and management layout improvements. See the [changelog](changelog.md). Beta only; [update manually](release-rollback.md).
+[Settings and list layout updates](changelog.md).
 
 ## v0.3.17-beta.4
 

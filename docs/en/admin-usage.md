@@ -18,7 +18,7 @@ Teams and Projects open as lists. Click **Create team** or **Create project** be
 
 If the account is not set up, return to [initial-admin configuration](deployment.md#initial-admin). Changing initialization fields does not reset accounts in an existing database.
 
-In `v0.3.17-beta.5`, **Settings** has **Account, Appearance, AI, and Version** categories. Appearance offers theme and language controls; AI separates system defaults from project overrides. Changing categories or AI scope retains unsaved input. On other management pages, expand **Page guide** beside the title for general guidance.
+Settings has Account, Appearance, AI and Version. Appearance controls theme/language; AI has system/project scopes. Category/scope changes retain unsaved input. Expand **Page guide** beside the page title.
 
 ### Change Your Password {#change-password}
 

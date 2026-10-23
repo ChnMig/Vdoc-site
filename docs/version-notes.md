@@ -2,7 +2,7 @@
 
 ## v0.3.17-beta.5
 
-设置与管理页布局优化，详见[变更记录](changelog.md)。仅 Beta；[手动升级](release-rollback.md)。
+[设置与列表布局优化](changelog.md)。
 
 ## v0.3.17-beta.4
 

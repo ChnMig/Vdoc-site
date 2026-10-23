@@ -2,10 +2,7 @@
 
 ## v0.3.17-beta.5
 
-- Settings: Account, Appearance, AI, Version; system/project AI scopes.
-- Simpler lists and cards, collapsible Page guide; better small-screen layouts.
-
-Beta only; stable images/site unchanged. Keep test databases, storage and credentials separate. No migrations or API changes; [update manually](release-rollback.md).
+Settings categories, system/project AI scopes, simpler lists/guides and small-screen layouts. [First Use](admin-usage.md) · [Manual Beta update](release-rollback.md).
 
 ## v0.3.17-beta.4
 
