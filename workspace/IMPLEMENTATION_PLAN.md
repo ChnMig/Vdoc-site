@@ -126,6 +126,7 @@ GET  /api/v1/open/document-shares/:share_id/versions/:version_id/download
 
 ```text
 GET  /api/v1/private/identity/me
+POST /api/v1/private/identity/me/password
 GET  /api/v1/private/system/version
 GET  /api/v1/private/system/updates
 GET  /api/v1/private/system/users
