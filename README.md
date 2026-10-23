@@ -51,6 +51,8 @@ pnpm test:performance:pages
 
 The performance suite runs with one Playwright worker so browser teardown and measurements remain deterministic across both base paths. Route, interaction, and accessibility checks keep their normal parallel execution.
 
+The build budget counts generated HTML, page modules, and local-search indexes separately from downloads. Beta.4 adds a 24 KiB content allowance for the bilingual deployment-version/update guide, API reference, and release notes. Summarizing version notes and linking the full changelog reduced root page output from 3,093,886 to 3,089,877 bytes. The `/Vdoc-site/` base measures 3,101,419 bytes because generated URLs include the base prefix; both fit the 3,103,130-byte page limit. Shared JavaScript, CSS, request-count, LCP, and TBT limits are unchanged.
+
 ## Content Sources
 
 The workspace root is not a Git repository. Public copies of its product documents and deployment resources are versioned in [workspace/](workspace/README.md); the original planning documents remain at the maintainer's workspace root.

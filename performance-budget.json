@@ -14,11 +14,12 @@
     "bilingualExternalPostgresComposeExampleBytes": 131072,
     "bilingualBetaChannelGuideBytes": 40960,
     "bilingualBetaReleaseNotesBytes": 8192,
-    "bilingualSelfServicePasswordGuideBytes": 32768
+    "bilingualSelfServicePasswordGuideBytes": 32768,
+    "bilingualDeploymentVersionUpdateGuideBytes": 24576
   },
   "limits": {
     "totalFiles": 116,
-    "totalBytes": 3340698,
+    "totalBytes": 3365274,
     "downloadFiles": 8,
     "downloadBytes": 262144,
     "sharedJavaScriptGzipBytes": 92563,
