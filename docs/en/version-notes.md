@@ -2,9 +2,7 @@
 
 ## v0.3.17-beta.5
 
-Rebuild [Settings](admin-usage.md#change-password) around Account, Appearance, AI, and Version, with separate system/project AI scopes and a compact password form. Simplify other management-page headings and card hierarchy, make general guidance collapsible, group lists and filters, and improve narrow-screen and long-content layouts.
-
-See the [full changelog](changelog.md). This Beta adds no database migration and preserves REST/MCP contracts. Only `:beta` updates; stable images and the website retain their release. Update checks still report availability only; [deployment remains manual](release-rollback.md).
+Settings and management layout improvements. See the [changelog](changelog.md). Beta only; [update manually](release-rollback.md).
 
 ## v0.3.17-beta.4
 

@@ -2,9 +2,7 @@
 
 ## v0.3.17-beta.5
 
-重做[设置页](admin-usage.md#change-password)，分为账号、外观、AI 配置和版本；AI 按系统默认与项目覆盖分组，修改密码表单保持紧凑。其他管理页面精简标题与卡片层级，通用指引可折叠，列表和筛选更集中，并改善窄屏与长内容布局。
-
-详见[完整变更记录](changelog.md)。本版为 Beta，不新增数据库迁移，REST/MCP 契约保持兼容；只更新 `:beta`，稳定镜像与官网不变。检查更新仍只提示，升级需[手动执行](release-rollback.md)。
+设置与管理页布局优化，详见[变更记录](changelog.md)。仅 Beta；[手动升级](release-rollback.md)。
 
 ## v0.3.17-beta.4
 
