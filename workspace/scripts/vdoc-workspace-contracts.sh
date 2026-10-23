@@ -268,7 +268,12 @@ assert_backend_root_docs_are_distributed
 jq -e '.files | index("LICENSE") != null' "$ROOT_DIR/workspace-distribution.json" >/dev/null || \
   fail 'Docker Compose bootstrap omits the root MIT license'
 
-bootstrap_asset_url="https://chnmig.github.io/Vdoc-site/downloads/$(jq -r .artifact_name "$ROOT_DIR/workspace-distribution.json").tar.gz"
+if [[ "$release_version" == *-* ]]; then
+  # Prereleases never deploy stable Pages; their downloads live on GitHub Releases.
+  bootstrap_asset_url="https://github.com/ChnMig/Vdoc-site/releases/download/v${release_version}/$(jq -r .artifact_name "$ROOT_DIR/workspace-distribution.json").tar.gz"
+else
+  bootstrap_asset_url="https://chnmig.github.io/Vdoc-site/downloads/$(jq -r .artifact_name "$ROOT_DIR/workspace-distribution.json").tar.gz"
+fi
 assert_file_contains "$ROOT_DIR/README.md" "$bootstrap_asset_url"
 assert_file_contains "$ROOT_DIR/README.md" "$bootstrap_asset_url.sha256"
 assert_file_contains "$ROOT_DIR/README.md" 'https://github.com/ChnMig/Vdoc-site/tree/main/workspace'
