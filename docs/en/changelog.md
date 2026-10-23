@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.3.17-beta.5
+
+- Rebuild Settings around **Account, Appearance, AI, and Version** categories. Keep identity details and a compact password form together; offer theme and language controls directly in Appearance.
+- Separate AI **System defaults** and **Project override**, grouping each scope's provider and prompts. Arrange prompts side by side on wide screens and retain unsaved input across category and scope changes.
+- Use compact management-page headings and put general guidance under **Page guide**. Group lists, filters, and actions; turn dashboard setup into a step list and organize Skill instructions alongside their installation commands.
+- Refine Documents, Drafts, Versions, Diffs, Projects, Audit, and MCP credential layouts. Fix horizontal overflow with narrow screens, long project names, and English content while retaining permissions, review and publication, credential handling, and manual updates.
+
+This Beta updates only `:beta`; stable `:latest` images and the stable website retain their current release. No database migration is added and REST/MCP tool parameters remain compatible. Operators still update containers manually using [upgrade and rollback](release-rollback.md). Keep separate databases, storage, and credentials for testing.
+
 ## v0.3.17-beta.4
 
 - Beta Admin uses a separate Beta icon. [Version and updates in Settings](admin-usage.md#version-and-updates) shows the deployed frontend and backend versions and update channel.

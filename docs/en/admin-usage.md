@@ -18,9 +18,11 @@ Teams and Projects open as lists. Click **Create team** or **Create project** be
 
 If the account is not set up, return to [initial-admin configuration](deployment.md#initial-admin). Changing initialization fields does not reset accounts in an existing database.
 
+In `v0.3.17-beta.5`, **Settings** has **Account, Appearance, AI, and Version** categories. Appearance offers theme and language controls; AI separates system defaults from project overrides. Changing categories or AI scope retains unsaved input. On other management pages, expand **Page guide** beside the title for general guidance.
+
 ### Change Your Password {#change-password}
 
-After signing in, open **Settings** from the avatar menu and use **Change password**. Enter your current password, a new password, and its confirmation. Both regular users and administrators can change their own password.
+After signing in, open **Settings** from the avatar menu and choose **Account → Change password**. Enter your current password, a new password, and its confirmation. Both regular users and administrators can change their own password.
 
 The new password must differ from the current one, contain 12–72 UTF-8 bytes, and have no leading or trailing whitespace. After a successful change, the current browser signs out; sign in again with your new password. If the current password is incorrect or the confirmation does not match, correct the form and retry.
 
@@ -28,7 +30,7 @@ If an administrator forgets their password, a server operator can use the [comma
 
 ### Version and Updates {#version-and-updates}
 
-After signing in, open **Settings** and find **Version and updates** to view the deployed frontend version, backend version, and update channel. Beta deployments use a separate Beta icon. If the frontend and backend versions or channels differ, the page prompts you to check the deployment configuration.
+After signing in, open **Settings → Version** and find **Version and updates** to view the deployed frontend version, backend version, and update channel. Beta deployments use a separate Beta icon. If the frontend and backend versions or channels differ, the page prompts you to check the deployment configuration.
 
 Click **Check for updates** to query official releases. The current backend version determines the channel: Beta checks only Beta releases, and stable checks only stable releases. Available updates include a release-notes link; failed checks can be retried. Development builds do not support release checks.
 
@@ -94,7 +96,7 @@ Choose the configuration format for your client. The MCP Token page in Admin als
       "command": "npx",
       "args": [
         "--yes",
-        "github:ChnMig/Vdoc-mcp#77fceda5fd0757cc88027d9bd5bae1c8b0c0761c"
+        "github:ChnMig/Vdoc-mcp#8e360300dae363353e78408498c6f6135b473fe6"
       ],
       "env": {
         "VDOC_BASE_URL": "http://127.0.0.1:8080",
@@ -108,7 +110,7 @@ Choose the configuration format for your client. The MCP Token page in Admin als
 ```toml [Codex]
 [mcp_servers.vdoc]
 command = "npx"
-args = ["--yes", "github:ChnMig/Vdoc-mcp#77fceda5fd0757cc88027d9bd5bae1c8b0c0761c"]
+args = ["--yes", "github:ChnMig/Vdoc-mcp#8e360300dae363353e78408498c6f6135b473fe6"]
 startup_timeout_sec = 60
 tool_timeout_sec = 180
 
