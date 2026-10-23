@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.3.17-beta.6
+
+Organize Drafts, Versions, Diffs and MCP into task tabs, with clear list actions and Add member dialogs. Unify selects and date/time pickers; improve command copying, password inputs, prompt cards and small screens. See [First Use](admin-usage.md).
+
+No API or database migration changes. Only `:beta` updates; stable stays unchanged. [Manual upgrade](release-rollback.md).
+
 ## v0.3.17-beta.5
 
 Settings categories, system/project AI scopes, simpler lists/guides and small-screen layouts. [First Use](admin-usage.md) · [Manual Beta update](release-rollback.md).
@@ -9,7 +15,7 @@ Settings categories, system/project AI scopes, simpler lists/guides and small-sc
 - Beta Admin uses a separate Beta icon. [Version and updates in Settings](admin-usage.md#version-and-updates) shows the deployed frontend and backend versions and update channel.
 - Release information is fetched only after clicking **Check for updates**. Beta backends check only Beta releases; stable backends check only stable releases. Failed checks show an error and can be retried. The page reports available versions and links to release notes; operators still update deployments manually.
 - Keep the change-password form compact and place system prompts side by side on wide screens, retaining a single column on narrow screens.
-- MCP credential expiry uses the native date-and-time picker. Enter the current device's local time; submission converts it to UTC. Leaving it blank still means no expiry.
+- This release introduced the native MCP credential date-and-time picker. Enter the current device's local time; submission converts it to UTC. Leaving it blank still means no expiry.
 - Upgrade the Admin Docker build stage and CI to Node.js 24.22.1. The running Admin image continues to serve static pages. MCP uses Node.js on the Agent machine, which users must upgrade separately.
 
 This Beta updates only the `:beta` channel. Stable `:latest` images and the stable website retain their current release. No database migration is added and MCP tool parameters remain compatible; use separate databases, storage, and credentials for testing. See [upgrade and rollback](release-rollback.md).

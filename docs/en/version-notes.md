@@ -1,21 +1,20 @@
 # Version Notes
 
+## v0.3.17-beta.6
+
+Task layouts and shared form controls: see the [changelog](changelog.md). Beta only; no API or database migration changes.
+
 ## v0.3.17-beta.5
 
 [Settings and list layout updates](changelog.md).
 
 ## v0.3.17-beta.4
 
-Beta Admin adds a separate icon and [deployed versions with manual update checks in Settings](admin-usage.md#version-and-updates). Checks follow the backend's Beta or stable channel and only report availability; operators still deploy updates manually.
-
-This release also fixes password-form and prompt layouts, adds the MCP credential date-and-time picker, and upgrades the Admin build environment to Node.js 24.22.1. Users must upgrade the MCP machine's Node.js separately. See the [full changelog](changelog.md). No database migration is added. Only `:beta` is updated; stable images and the website retain their release.
+[Deployed versions, channel checks, and Node.js build update](changelog.md).
 
 ## v0.3.17-beta.3
 
-- Teams, Projects, Users, Documents, Branches, and MCP Token pages show lists first. Create buttons and row-level Edit actions open labeled forms. Fix project-form alignment, tighten list spacing, and adapt the forms to mobile screens.
-- Both regular users and administrators can [change their own password in Settings](admin-usage.md#change-password), after verifying the current password. Success signs out the current browser. Server operators can use the [command-line reset](troubleshooting.md#reset-admin-password) when a super administrator forgets their password.
-
-This Beta updates only the `:beta` channel. Stable `:latest` images and the stable website retain their current release. No database migration is added and MCP tool parameters remain compatible; use separate databases, storage, and credentials for testing.
+[List layouts and password changes](changelog.md). Both versions update Beta only, add no migration, and leave stable images and the website unchanged.
 
 ## v0.3.16
 

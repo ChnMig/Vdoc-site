@@ -20,6 +20,8 @@ If the account is not set up, return to [initial-admin configuration](deployment
 
 Settings has Account, Appearance, AI and Version. Appearance controls theme/language; AI has system/project scopes. Category/scope changes retain unsaved input. Expand **Page guide** beside the page title.
 
+Drafts, Versions, Diffs and MCP use task tabs. Create, edit and add members through the corresponding list actions. Project selectors and date/time pickers use workbench components; selected dates and times use the device's local time and convert to UTC on submission.
+
 ### Change Your Password {#change-password}
 
 After signing in, open **Settings** from the avatar menu and choose **Account → Change password**. Enter your current password, a new password, and its confirmation. Both regular users and administrators can change their own password.
@@ -96,7 +98,7 @@ Choose the configuration format for your client. The MCP Token page in Admin als
       "command": "npx",
       "args": [
         "--yes",
-        "github:ChnMig/Vdoc-mcp#8e360300dae363353e78408498c6f6135b473fe6"
+        "github:ChnMig/Vdoc-mcp#8037d90b2e3a33dd7be9652e9114e9ee1495b0a4"
       ],
       "env": {
         "VDOC_BASE_URL": "http://127.0.0.1:8080",
@@ -110,7 +112,7 @@ Choose the configuration format for your client. The MCP Token page in Admin als
 ```toml [Codex]
 [mcp_servers.vdoc]
 command = "npx"
-args = ["--yes", "github:ChnMig/Vdoc-mcp#8e360300dae363353e78408498c6f6135b473fe6"]
+args = ["--yes", "github:ChnMig/Vdoc-mcp#8037d90b2e3a33dd7be9652e9114e9ee1495b0a4"]
 startup_timeout_sec = 60
 tool_timeout_sec = 180
 

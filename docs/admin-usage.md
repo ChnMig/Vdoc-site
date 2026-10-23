@@ -20,6 +20,8 @@
 
 设置分账号、外观、AI 配置、版本。外观切换主题/语言，AI 分系统默认/项目覆盖；切换分类或 AI 范围保留未保存输入。其他页面点击标题旁**使用说明**展开指引。
 
+草稿、版本、差异和 MCP 页面按任务分标签页。创建、编辑和添加成员从对应列表的按钮进入。项目等下拉与日期时间选择使用工作台组件；日期时间按设备本地时间选择，提交时转换为 UTC。
+
 ### 修改自己的密码 {#change-password}
 
 登录后，点击右上角头像进入**设置**，选择**账号 → 修改密码**，输入当前密码、新密码和确认新密码。普通用户和管理员都可以修改自己的密码。
@@ -96,7 +98,7 @@
       "command": "npx",
       "args": [
         "--yes",
-        "github:ChnMig/Vdoc-mcp#8e360300dae363353e78408498c6f6135b473fe6"
+        "github:ChnMig/Vdoc-mcp#8037d90b2e3a33dd7be9652e9114e9ee1495b0a4"
       ],
       "env": {
         "VDOC_BASE_URL": "http://127.0.0.1:8080",
@@ -110,7 +112,7 @@
 ```toml [Codex]
 [mcp_servers.vdoc]
 command = "npx"
-args = ["--yes", "github:ChnMig/Vdoc-mcp#8e360300dae363353e78408498c6f6135b473fe6"]
+args = ["--yes", "github:ChnMig/Vdoc-mcp#8037d90b2e3a33dd7be9652e9114e9ee1495b0a4"]
 startup_timeout_sec = 60
 tool_timeout_sec = 180
 
