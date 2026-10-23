@@ -26,6 +26,14 @@ The new password must differ from the current one, contain 12–72 UTF-8 bytes, 
 
 If an administrator forgets their password, a server operator can use the [command-line reset](troubleshooting.md#reset-admin-password). Changing `VDOC_INITIAL_ADMIN_PASSWORD` in Compose does not reset an existing account.
 
+### Version and Updates {#version-and-updates}
+
+After signing in, open **Settings** and find **Version and updates** to view the deployed frontend version, backend version, and update channel. Beta deployments use a separate Beta icon. If the frontend and backend versions or channels differ, the page prompts you to check the deployment configuration.
+
+Click **Check for updates** to query official releases. The current backend version determines the channel: Beta checks only Beta releases, and stable checks only stable releases. Available updates include a release-notes link; failed checks can be retried. Development builds do not support release checks.
+
+This feature only checks and reports availability. Operators still update containers manually using [upgrade and rollback](release-rollback.md).
+
 ## 2. Create the Sample Document
 
 In document management, select your new project and click **Create document** beside the list title. Fill in the form:
@@ -86,7 +94,7 @@ Choose the configuration format for your client. The MCP Token page in Admin als
       "command": "npx",
       "args": [
         "--yes",
-        "github:ChnMig/Vdoc-mcp#89dc7421e351ddd6c377f5c47ca6b18f3956d5c3"
+        "github:ChnMig/Vdoc-mcp#77fceda5fd0757cc88027d9bd5bae1c8b0c0761c"
       ],
       "env": {
         "VDOC_BASE_URL": "http://127.0.0.1:8080",
@@ -100,7 +108,7 @@ Choose the configuration format for your client. The MCP Token page in Admin als
 ```toml [Codex]
 [mcp_servers.vdoc]
 command = "npx"
-args = ["--yes", "github:ChnMig/Vdoc-mcp#89dc7421e351ddd6c377f5c47ca6b18f3956d5c3"]
+args = ["--yes", "github:ChnMig/Vdoc-mcp#77fceda5fd0757cc88027d9bd5bae1c8b0c0761c"]
 startup_timeout_sec = 60
 tool_timeout_sec = 180
 

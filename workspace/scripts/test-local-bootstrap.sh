@@ -183,7 +183,7 @@ test_compose_dependency_baseline_is_safe() {
   assert_contains "$compose" 'VERSION: ${VDOC_ADMIN_VERSION:?set VDOC_ADMIN_VERSION}'
   assert_contains "$ROOT_DIR/Vdoc/Dockerfile" 'golang:1.25.5-alpine@sha256:ac09a5f469f307e5da71e766b0bd59c9c49ea460a528cc3e6686513d64a6f1fb'
   assert_contains "$ROOT_DIR/Vdoc/Dockerfile" 'alpine:3.23@sha256:fd791d74b68913cbb027c6546007b3f0d3bc45125f797758156952bc2d6daf40'
-  assert_contains "$ROOT_DIR/Vdoc-admin/Dockerfile" 'node:22-alpine@sha256:c610fcdfb1d5b4740dd70c284ed3cb16bb857e0f7166196e36a5501df7a3aa32'
+  assert_contains "$ROOT_DIR/Vdoc-admin/Dockerfile" 'node:24.22.1-alpine@sha256:06d7adf3e0ef61a13f1d28682726366f97a15aa1888c934d3ecec86c33918b53'
   assert_contains "$ROOT_DIR/Vdoc-admin/Dockerfile" 'caddy:2-alpine@sha256:5f5c8640aae01df9654968d946d8f1a56c497f1dd5c5cda4cf95ab7c14d58648'
 }
 

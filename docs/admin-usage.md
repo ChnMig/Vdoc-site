@@ -26,6 +26,14 @@
 
 忘记管理员密码时，由服务器维护者使用[命令行重置](troubleshooting.md#reset-admin-password)。修改 Compose 中的 `VDOC_INITIAL_ADMIN_PASSWORD` 不会重置已有账号。
 
+### 版本与检查更新 {#version-and-updates}
+
+登录后进入**设置**，在**版本与更新**查看当前部署的前端版本、后端版本和更新渠道。Beta 部署使用独立 Beta 图标。前后端版本或渠道不一致时，页面会提示检查部署配置。
+
+点击**检查更新**才会查询官方发布信息；查询渠道由当前后端版本决定。Beta 仅检查 Beta 测试版，稳定版仅检查正式版。可用新版本会附带发行说明链接；检查失败时可以重试。开发构建不支持发布版本检查。
+
+此功能只检查和提示，更新容器仍需维护者按[升级与回滚](release-rollback.md)手动执行。
+
 ## 2. 创建示例文档
 
 进入文档管理，选择刚创建的项目，点击列表标题旁的**创建文档**，在表单中填写：
@@ -86,7 +94,7 @@
       "command": "npx",
       "args": [
         "--yes",
-        "github:ChnMig/Vdoc-mcp#89dc7421e351ddd6c377f5c47ca6b18f3956d5c3"
+        "github:ChnMig/Vdoc-mcp#77fceda5fd0757cc88027d9bd5bae1c8b0c0761c"
       ],
       "env": {
         "VDOC_BASE_URL": "http://127.0.0.1:8080",
@@ -100,7 +108,7 @@
 ```toml [Codex]
 [mcp_servers.vdoc]
 command = "npx"
-args = ["--yes", "github:ChnMig/Vdoc-mcp#89dc7421e351ddd6c377f5c47ca6b18f3956d5c3"]
+args = ["--yes", "github:ChnMig/Vdoc-mcp#77fceda5fd0757cc88027d9bd5bae1c8b0c0761c"]
 startup_timeout_sec = 60
 tool_timeout_sec = 180
 
