@@ -64,9 +64,9 @@ npm test
 
 - 写前端或后端 endpoint integration。
 - 判断 endpoint、field、enum、response property、auth scheme 或 server 是否存在。
-- 比较两个 API 或 Markdown Version。
+- 比较两个 API、Markdown 或 TXT Version。
 - 根据 semantic diff 准备迁移说明。
-- 引用已发布 Markdown 文档原文。
+- 引用已发布 Markdown / TXT 文档原文。
 - 创建、更新或提交 Draft。
 
 ## 工作流 1：endpoint 集成
@@ -86,9 +86,9 @@ npm test
 4. Agent 只基于返回结果说明 breaking change、兼容变化和迁移动作。
 5. 如果 Vdoc 没有对应版本，Agent 应要求先在 Admin 中发布版本，而不是编造结论。
 
-## 工作流 3：Markdown 文档 Draft
+## 工作流 3：Markdown / TXT 文档 Draft
 
-1. 用户要求修改已托管的 Markdown 文档。
+1. 用户要求修改已托管的 Markdown 或 TXT 文档。
 2. Agent 调用 `get_latest_doc` 读取已发布内容。
 3. Agent 基于用户要求生成修改稿。
 4. Agent 使用 `create_doc_draft` 或 `update_doc_draft` 创建 Draft。

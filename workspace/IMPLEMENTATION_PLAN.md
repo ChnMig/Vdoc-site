@@ -66,6 +66,7 @@ api/app/v1/private/team/       # Team API
 api/app/v1/private/project/    # Project API
 api/app/v1/private/member/     # Project Member / Role API
 api/app/v1/private/document/   # Project Document API
+api/app/v1/private/documentfolder/ # Project-local document folder API
 api/app/v1/private/branch/     # Document Branch API
 api/app/v1/private/draft/      # OpenAPI 与 Markdown 草稿、审核和发布 API
 api/app/v1/private/version/    # Document Version API
@@ -151,6 +152,9 @@ GET  /api/v1/private/projects/:project_id/member-candidates
 POST /api/v1/private/projects/:project_id/members
 PATCH /api/v1/private/projects/:project_id/members/:user_id/role
 DELETE /api/v1/private/projects/:project_id/members/:user_id
+
+GET  /api/v1/private/projects/:project_id/folders
+POST /api/v1/private/projects/:project_id/folders
 
 GET  /api/v1/private/projects/:project_id/documents
 POST /api/v1/private/projects/:project_id/documents

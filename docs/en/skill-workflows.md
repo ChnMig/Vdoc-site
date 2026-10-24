@@ -64,9 +64,9 @@ npm test
 
 - Writing frontend or backend endpoint integration.
 - Checking whether an endpoint, field, enum, response property, auth scheme, or server exists.
-- Comparing two API or Markdown Versions.
+- Comparing two API, Markdown, or TXT Versions.
 - Preparing migration notes from semantic diff.
-- Quoting reviewed Markdown document text.
+- Quoting reviewed Markdown / TXT document text.
 - Creating, updating, or submitting Drafts.
 
 ## Workflow 1: Endpoint Integration
@@ -86,9 +86,9 @@ npm test
 4. Agent explains breaking changes, compatible changes, and migration actions only from returned results.
 5. If Vdoc has no matching version, Agent should ask for a Version to be published in Admin instead of inventing conclusions.
 
-## Workflow 3: Markdown Document Draft
+## Workflow 3: Markdown / TXT Document Draft
 
-1. User asks to change a managed Markdown document.
+1. User asks to change a managed Markdown or TXT document.
 2. Agent calls `get_latest_doc` to read published content.
 3. Agent prepares a revision from the user request.
 4. Agent uses `create_doc_draft` or `update_doc_draft` to create a Draft.

@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.3.17-beta.7
+
+- Consolidate document menus into the **Document workspace**. Choose a team and project, select a document in the folder tree, then work with content, drafts, versions, diffs, and shares in one place. See [First Use](admin-usage.md).
+- Create project folders at any depth, including persistent empty folders. Keep document display names and filenames separate; filenames can default from the name or use the uploaded file's original name. The selected folder and filename determine the relative path.
+- Upload OpenAPI JSON/YAML, Markdown, or TXT while creating a document to save an initial draft on `dev`. Submission, review, and human publication remain required.
+- Add TXT as a distinct plain-text type across upload, preview, draft review, publication, line diffs, share downloads, and MCP reads and edits. Preserve original line endings, allow empty files, and display HTML and Markdown markers as plain text.
+- Center table headers and cells, and improve folder trees, lists, and action areas on narrow screens.
+
+This release adds database migrations `008_plain_text_documents.sql` and `009_document_folders.sql`. Backend startup automatically applies pending migrations. Back up PostgreSQL and object storage, then **upgrade Backend and Admin together**. Reload the Agent and restart MCP after updating MCP/Skill. See [upgrade and rollback](release-rollback.md).
+
+Only the Beta channel updates. Stable `:latest` images and the stable website retain their current release. Keep separate databases, storage, accounts, keys, and Tokens for Beta and stable environments.
+
 ## v0.3.17-beta.6
 
 Organize Drafts, Versions, Diffs and MCP into task tabs, with clear list actions and Add member dialogs. Unify selects and date/time pickers; improve command copying, password inputs, prompt cards and small screens. See [First Use](admin-usage.md).

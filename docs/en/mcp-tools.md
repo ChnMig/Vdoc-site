@@ -1,6 +1,6 @@
 # MCP Setup and Tools
 
-Connect your agent to Vdoc so it can query published OpenAPI and Markdown documents or submit drafts for human review. For a first connection, follow [Connect Your Agent](admin-usage.md#connect-agent), then [read your first document](admin-usage.md#first-query).
+Connect your agent to Vdoc so it can query published OpenAPI, Markdown, and TXT documents or submit drafts for human review. For a first connection, follow [Connect Your Agent](admin-usage.md#connect-agent), then [read your first document](admin-usage.md#first-query).
 
 `@vdoc/mcp` is the stdio adapter. It forwards `tools/list` and `tools/call` to Backend `/api/v1/open/mcp`; document storage and business logic stay on the Backend.
 
@@ -18,7 +18,7 @@ The agent machine also needs Node.js 20 or later, npm, and Git. If Vdoc is not r
 `@vdoc/mcp` is not published to the npm registry yet. For one-off usage, run the commit-pinned source from the official GitHub repository:
 
 ```sh
-npx --yes github:ChnMig/Vdoc-mcp#8037d90b2e3a33dd7be9652e9114e9ee1495b0a4
+npx --yes github:ChnMig/Vdoc-mcp#cc304364bce07c605029ca76144446307af761f7
 ```
 
 For one-off usage, prefer the commit-pinned `npx` source in the Agent MCP config. The 40-character commit above must equal the `Vdoc-mcp` entry in the reviewed release package's `workspace.lock.json`; do not remove the fragment or replace it with a moving branch. Do not put tokens in `args`.
@@ -28,7 +28,7 @@ For global installation, use the compiled release archive and verify it before i
 ```sh
 (
   set -eu
-  VDOC_MCP_VERSION=0.3.17-beta.6
+  VDOC_MCP_VERSION=0.3.17-beta.7
   VDOC_MCP_PACKAGE_DIR="$(mktemp -d)"
   trap 'rm -rf -- "$VDOC_MCP_PACKAGE_DIR"' EXIT
   VDOC_MCP_RELEASE="https://github.com/ChnMig/Vdoc-mcp/releases/download/v$VDOC_MCP_VERSION"
@@ -47,12 +47,12 @@ Use the MCP version selected by your deployment package's `workspace.lock.json`.
 
 MCP and its bundled Skill use one package per channel. `release` selects only stable releases; `beta` selects only `vMAJOR.MINOR.PATCH-beta.N` prereleases. A missing channel fails without falling back to another channel. Separate prefixes at `~/.local/share/vdoc/mcp/release` and `~/.local/share/vdoc/mcp/beta` preserve any existing global MCP installation.
 
-First download `install-channel.mjs` and `install-channel.mjs.sha256` from a reviewed [MCP Release](https://github.com/ChnMig/Vdoc-mcp/releases) that includes them. The commands below pin the installer to `v0.3.17-beta.6`; run them in a dedicated tools directory. A failed download or checksum stops installation. Older releases do not contain these assets:
+First download `install-channel.mjs` and `install-channel.mjs.sha256` from a reviewed [MCP Release](https://github.com/ChnMig/Vdoc-mcp/releases) that includes them. The commands below pin the installer to `v0.3.17-beta.7`; run them in a dedicated tools directory. A failed download or checksum stops installation. Older releases do not contain these assets:
 
 ```sh
 (
   set -eu
-  VDOC_MCP_INSTALLER_TAG='v0.3.17-beta.6'
+  VDOC_MCP_INSTALLER_TAG='v0.3.17-beta.7'
   VDOC_MCP_INSTALLER_RELEASE="https://github.com/ChnMig/Vdoc-mcp/releases/download/$VDOC_MCP_INSTALLER_TAG"
   curl -fL "$VDOC_MCP_INSTALLER_RELEASE/install-channel.mjs" -o install-channel.mjs
   curl -fL "$VDOC_MCP_INSTALLER_RELEASE/install-channel.mjs.sha256" -o install-channel.mjs.sha256
@@ -104,7 +104,7 @@ For local full Compose, `VDOC_BASE_URL` is usually `http://127.0.0.1:8080`. For 
       "command": "npx",
       "args": [
         "--yes",
-        "github:ChnMig/Vdoc-mcp#8037d90b2e3a33dd7be9652e9114e9ee1495b0a4"
+        "github:ChnMig/Vdoc-mcp#cc304364bce07c605029ca76144446307af761f7"
       ],
       "env": {
         "VDOC_BASE_URL": "https://your-vdoc.example.test",
@@ -136,15 +136,15 @@ v0.2 read tools cover:
 - projects
 - documents
 - API versions
-- Markdown versions
+- Markdown / TXT versions
 - endpoint detail
 - API diffs
-- Markdown docs
+- Markdown / TXT docs
 - change summaries
 
-`list_documents` filters results by token scope: `api:read` alone sees only OpenAPI documents, `doc:read` alone sees only Markdown documents, and a token with both sees both types. API read tools also require an OpenAPI target and Markdown read tools require a Markdown target, so one read scope cannot bypass the other.
+`list_documents` filters results by token scope: `api:read` alone sees only OpenAPI documents, `doc:read` sees Markdown and TXT documents, and a token with both sees all document types. API read tools require an OpenAPI target; `doc_*` read tools accept Markdown and TXT. One read scope cannot bypass the other.
 
-v0.2 draft tools cover creating, updating, viewing, and submitting OpenAPI and Markdown Drafts. The normative inventory is (and must match backend `tools/list`):
+v0.2 draft tools cover creating, updating, viewing, and submitting OpenAPI, Markdown, and TXT Drafts. The normative inventory is (and must match backend `tools/list`):
 
 <!-- VDOC_MCP_TOOL_INVENTORY_START -->
 
@@ -181,7 +181,7 @@ Use the current backend `tools/list` response as the final tool list. v0.2 does 
 
 ## Agent Behavior Rules
 
-- Query Vdoc before answering endpoint fields, response properties, enum values, auth schemes, or Markdown text.
+- Query Vdoc before answering endpoint fields, response properties, enum values, auth schemes, or Markdown / TXT text.
 - Prefer stable IDs and `relative_path` over display names.
 - Treat published Versions as immutable facts.
 - Do not say a Draft is published unless Admin approval has created a Version.
@@ -199,8 +199,9 @@ Use the current backend `tools/list` response as the final tool list. v0.2 does 
 ## v0.2: Explicit Branches and Historical Versions
 
 - `get_latest_doc` and `get_latest_schema` require `branch_id`; they never select across branches. Resolve branch names with `list_document_branches` first.
-- For complete historical content, use `get_doc_version` for Markdown or `get_schema_version` for OpenAPI, with `project_id`, `document_id`, and `version_id`. Verify and cite the returned `version` and `content`.
+- For complete historical content, use `get_doc_version` for Markdown / TXT or `get_schema_version` for OpenAPI, with `project_id`, `document_id`, and `version_id`. Verify and cite the returned `version` and `content`.
 - `get_api_version_draft` preserves its metadata and adds the raw body in `content.content`. Its `revision` and content come from one snapshot; use that revision as `expected_revision` when editing.
+- Markdown / TXT draft writes use `content`. Legacy `markdown_content` remains accepted; supply at least one body field, with identical values if both are present. TXT retains literal content and line endings, may be empty, and is not parsed as Markdown or OpenAPI. Check the deployed backend schema first.
 - Undeclared arguments return `INVALID_ARGUMENT`. Existing callers must supply a branch to latest-content tools and use the dedicated version tools for historical reads.
 
 Start with the [Codex/Cursor configuration steps](admin-usage.md#connect-agent).

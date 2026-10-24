@@ -1,7 +1,7 @@
 # Vdoc 主 PRD
 
 > 本文件是 Vdoc 主 PRD，合并了原 `PRD.md` 的精简 MVP 目标与 `PRD_new.md` 的完整产品方案。
-> v0.1 MVP 范围以 Project 下的多类型文档管理为准：Project 可以包含多个文档，每个文档有名称、类型、项目内相对路径等通用信息。文档类型至少支持 OpenAPI 接口文档和 Markdown 纯文档。OpenAPI 文档保留语义 Diff、Breaking Change、Endpoint Index 和 MCP 查询；Markdown 文档支持纯文件 Diff。两类文档沿用同一套分支/环境、草稿审核发布、Promote 到目标草稿和用户权限体系。MCP 不允许直接发布正式版本；发布必须在 Vdoc 后台由 Project Admin 或 SuperAdmin 人工审核触发。后台内置 AI 模块是必要能力：管理员可配置 OpenAI-compatible 模型，系统自动基于 Diff 生成版本变更总结，审核人和查看者可在后台页面围绕草稿、版本和 Diff 与 AI 对话。公开文档链接分享也是 v0.1 MVP 的正式能力：Project Admin 或 SuperAdmin 可以为指定文档分支创建多个独立、可撤销的公开链接，并在创建时选择无密码或密码保护；匿名访问者无需账号即可安全查看已发布内容并下载原文件。公开分享不改变草稿审核和人工发布边界，只能暴露已发布版本。
+> v0.1 MVP 范围以 Project 下的多类型文档管理为准：Project 可以包含多个文档，每个文档有名称、类型、项目内相对路径等通用信息。文档类型支持 OpenAPI 接口文档、Markdown 和 TXT 纯文档。OpenAPI 文档保留语义 Diff、Breaking Change、Endpoint Index 和 MCP 查询；Markdown 和 TXT 文档支持纯文件 Diff。三类文档沿用同一套分支/环境、草稿审核发布、Promote 到目标草稿和用户权限体系。MCP 不允许直接发布正式版本；发布必须在 Vdoc 后台由 Project Admin 或 SuperAdmin 人工审核触发。后台内置 AI 模块是必要能力：管理员可配置 OpenAI-compatible 模型，系统自动基于 Diff 生成版本变更总结，审核人和查看者可在后台页面围绕草稿、版本和 Diff 与 AI 对话。公开文档链接分享也是 v0.1 MVP 的正式能力：Project Admin 或 SuperAdmin 可以为指定文档分支创建多个独立、可撤销的公开链接，并在创建时选择无密码或密码保护；匿名访问者无需账号即可安全查看已发布内容并下载原文件。公开分享不改变草稿审核和人工发布边界，只能暴露已发布版本。
 
 ## 1. 产品概述
 
@@ -13,7 +13,7 @@
 
 Vdoc 是一个面向 AI 协作开发团队的文档协作中心。
 
-它以 Project 为协作边界，在 Project 下管理多种类型的文档。OpenAPI 接口文档提供版本管理、语义 Diff、Breaking Change 检测、Endpoint Index、MCP 接入和官方 Skill 工作流；Markdown 纯文档面向 `AGENTS.md`、prompt 文档、runbook、guide 等 `.md` 文件，提供版本快照、纯文本 Diff、草稿审核发布和 MCP 查询/草稿写入。后台内置 AI 模块使用管理员配置的 OpenAI-compatible 模型，根据 Diff 自动总结版本变化，并支持审核页、版本页和 Diff 页内对话。项目管理员还可以把指定分支的已发布文档通过受控公开链接提供给项目外部人员查看和下载。Vdoc 让后端、前端、产品、运维、外部文档使用者和 AI Agent 始终围绕可信文档协作。
+它以 Project 为协作边界，在 Project 下管理多种类型的文档。OpenAPI 接口文档提供版本管理、语义 Diff、Breaking Change 检测、Endpoint Index、MCP 接入和官方 Skill 工作流；Markdown 纯文档面向 `AGENTS.md`、prompt 文档、runbook、guide 等 `.md` 文件；TXT 纯文档面向 `.txt` 文件，按字面文本预览并保留换行。两者提供版本快照、行级 Diff、草稿审核发布和 MCP 查询/草稿写入。后台内置 AI 模块使用管理员配置的 OpenAI-compatible 模型，根据 Diff 自动总结版本变化，并支持审核页、版本页和 Diff 页内对话。项目管理员还可以把指定分支的已发布文档通过受控公开链接提供给项目外部人员查看和下载。Vdoc 让后端、前端、产品、运维、外部文档使用者和 AI Agent 始终围绕可信文档协作。
 
 ### 1.3 一句话介绍
 
@@ -21,7 +21,7 @@ Vdoc 是一个面向 AI 协作开发团队的文档协作中心。
 
 中文：
 
-**面向 AI 协作开发的文档协作中心，支持 OpenAPI API 文档、Markdown 纯文档、MCP 和 Skill。**
+**面向 AI 协作开发的文档协作中心，支持 OpenAPI API 文档、Markdown / TXT 纯文档、MCP 和 Skill。**
 
 ### 1.4 产品愿景
 
@@ -219,7 +219,7 @@ MVP 包含：
 2. 系统成员 / Team / Project / Role
 3. Project 文档管理
 4. API 文档模块：OpenAPI 上传、草稿、审核、发布、版本管理
-5. 纯文档模块：Markdown `.md` 文档上传、草稿、审核、发布、版本管理
+5. 纯文档模块：Markdown `.md` 和 TXT `.txt` 文档上传、草稿、审核、发布、版本管理
 6. API 文档展示
 7. Markdown 文档展示
 8. API 语义 Diff
@@ -232,7 +232,7 @@ MVP 包含：
 15. MCP Markdown 草稿提交、更新和提交审核
 16. 人工审核并发布 API 文档和 Markdown 文档版本
 17. 文档分支 / 环境管理，至少支持 `dev`、`test`、`prod`
-18. 文档通用信息管理：名称、类型、项目内相对路径、描述、状态
+18. 文档通用信息管理：展示名称、类型、独立文件名、项目文件夹、生成的相对路径、描述、状态
 19. 跨分支 Promote：例如把 `dev` 最新已发布 API 文档或 Markdown 文档合并到 `prod` 草稿，并走 Diff Preview 和人工审核
 20. 官方 Vdoc Skill
 21. Skill 工作流文档与模板
@@ -379,7 +379,7 @@ Reader 不能创建或管理文档公开链接。
 - 生成前端对接建议
 - 生成接口变更说明
 - 提交或更新 OpenAPI 草稿
-- 提交或更新 Markdown 文档草稿
+- 提交或更新 Markdown / TXT 文档草稿
 - 查看草稿审核结果并按意见修订
 
 AI Agent 不能绕过人工审核直接发布正式 Document Version。
@@ -554,12 +554,20 @@ Admin Console
 Project 下的文档实体。一个 Project 可以有多个文档，每个文档都保存通用信息：
 
 - `name`：展示名称，例如 `User Service API`、`AGENTS.md`、`Frontend Prompt Guide`。
-- `document_type`：文档类型码，v0.1 至少支持 1 OpenAPI 接口文档、2 Markdown 纯文档。
-- `relative_path`：在项目中的相对路径，例如 `docs/api/user-service.yaml`、`AGENTS.md`、`docs/prompts/frontend.md`。
+- `document_type`：文档类型码，1 OpenAPI 接口文档、2 Markdown、3 TXT。
+- `file_name`：独立文件名，不等同于展示名称；未手动修改时默认带入文档名称或上传原文件名，手动修改后独立保留。
+- `folder_id`：所选项目内文件夹；项目根目录为空。
+- `relative_path`：由文件夹和文件名生成的项目内路径，例如 `docs/api/user-service.yaml`、`AGENTS.md`、`docs/notes.txt`；旧客户端仅使用相对路径的模式继续兼容。
 - `description`：说明。
 - `status`：状态码，使用从 1 开始的整数码。
 
-文档类型决定后续处理方式。OpenAPI 接口文档会解析 Endpoint、生成 Semantic API Diff 和 Breaking Change；Markdown 纯文档只做 Markdown 快照和纯文件 Diff。
+文档类型决定后续处理方式。OpenAPI 解析 Endpoint、生成 Semantic API Diff 和 Breaking Change；Markdown 和 TXT 保存文本快照并做行级 Diff。TXT 不渲染 Markdown 语法。
+
+### 6.3.1 Document Folder
+
+文件夹以 Project 为边界，团队归属由项目决定；不能引用其他项目的父目录。文件夹独立持久化，空文件夹也可保留。项目根目录不需要实体目录行，子文件夹使用父目录关联，不设固定层级上限。后台用可展开的文件夹树选择位置，并可在任意节点下新建子文件夹。文件名必须是单个文件名，不能通过绝对路径、斜杠或 `.` / `..` 跳出所选文件夹。
+
+已有安全文档路径回填目录结构，不改写原文档路径或草稿、版本的历史路径快照。
 
 ### 6.4 OpenAPI Interface Document
 
@@ -591,6 +599,12 @@ relative_path: docs/prompts/frontend.md
 document_type: Markdown Document
 ```
 
+### 6.5.1 TXT Document
+
+TXT 文档使用 `document_type = 3`、`document_format = 4` 和 `.txt` 文件名。它保存原始文本与换行，raw 与 stable 内容保持一致，不经过 Markdown 或 OpenAPI 解析。`#`、链接和 HTML 在预览中作为文字显示；下载使用 `text/plain; charset=utf-8`。TXT 允许有意保存的空正文，Markdown / OpenAPI 的既有内容校验不变。
+
+TXT 沿用分支、草稿审核、不可变版本、Promote、分享和行级 Diff。MCP 使用 `doc:read` / `doc:draft` 及现有 `doc_*` 工具，不使用 API scope 或 Endpoint 工具。
+
 ### 6.6 Document Branch / Environment
 
 每个 Document 都有自己的发布轨道，用于表达多环境或功能分支。它不是代码仓库分支，而是 Vdoc 内的文档发布环境。
@@ -613,7 +627,7 @@ Document Version 是某个 Document 在某个 Branch 下的一次不可变快照
 
 Document Draft 是待审核的文档草稿，始终写入目标 branch。AI 可以通过 MCP 创建、更新和提交草稿，但不能直接发布为正式版本。
 
-OpenAPI 和 Markdown 草稿更新必须携带编辑快照的 `expected_revision`。版本标识由正文 hash、可编辑元数据和审核状态生成，不受数据库时间精度和缓存刷新影响。旧快照更新失败时保留本地修改，重新读取并合并后再保存；REST 正文响应同时返回同一快照的 `draft` 元数据。
+OpenAPI、Markdown 和 TXT 草稿更新必须携带编辑快照的 `expected_revision`。版本标识由正文 hash、可编辑元数据和审核状态生成，不受数据库时间精度和缓存刷新影响。旧快照更新失败时保留本地修改，重新读取并合并后再保存；REST 正文响应同时返回同一快照的 `draft` 元数据。
 
 已提交草稿还返回 `review_revision`。批准、要求修改和拒绝必须携带审核人实际查看的正文快照中 `detail.draft.review_revision`，请求字段名为 `expected_review_revision`。它绑定内容、提交轮次和预览使用的分支最新版本；缺失时返回 `INVALID_ARGUMENT`，内容修改、再次提交（包括相同内容）或分支已有新发布时返回 `FAILED_PRECONDITION`。此时保留审阅备注，重新加载正文和差异后再作决定；发布事务还会再次核对草稿和分支基线。已发布草稿保留历史审核基线。后端与 Admin 需同步升级。
 
@@ -627,7 +641,7 @@ Document Draft 支持：
 - `rejected`
 - `published`
 
-OpenAPI 文档草稿可由 Web 上传或 MCP `api:draft` tool 创建；Markdown 文档草稿可由 Web 上传、后台编辑或 MCP `doc:draft` tool 创建。发布前必须生成 Diff Preview，并由 Project Admin 或 SuperAdmin 审核。
+OpenAPI 文档草稿可由 Web 上传或 MCP `api:draft` tool 创建；Markdown / TXT 文档草稿可由 Web 上传、后台编辑或 MCP `doc:draft` tool 创建。发布前必须生成 Diff Preview，并由 Project Admin 或 SuperAdmin 审核。
 
 ### 6.8 Endpoint
 
@@ -655,7 +669,7 @@ GET /api/users/{id}
 
 ### 6.10 Plain File Diff
 
-基于 Markdown 文件文本的差异，用于纯文档模块。v0.1 只做纯文件 diff / unified diff，不做 Markdown AST 语义 diff。
+基于 Markdown / TXT 文件文本的行级差异，用于纯文档模块。不做 Markdown AST 语义 Diff，也不将 TXT 文本作为 API 兼容性判断。
 
 示例：
 
@@ -720,6 +734,8 @@ Public Document Share Link 是由 Project Admin 或 SuperAdmin 为某个 Documen
 
 ### 7.1 初始化流程
 
+后台默认进入文档工作区，按 Team → Project → 文件夹树 → Document 逐级定位。内容、草稿及审核、版本、差异和分享作为所选文档内的任务标签，元信息和分支管理收在管理员可见的文档设置中。侧边导航合并原有文档、草稿、版本、差异入口，保留团队、项目、用户、Agent 接入和系统管理入口；历史深链接仍打开对应文档任务。切换文档标签保留未保存的编辑，切换团队、项目或文件重置对应上下文。文件树区分已发布、有草稿和空文档，内容预览优先展示已发布版本，并明确标记尚未发布的草稿。
+
 ```text
 用户注册/登录
   ↓
@@ -733,7 +749,7 @@ Public Document Share Link 是由 Project Admin 或 SuperAdmin 为某个 Documen
   ↓
 创建 Project 文档
   ↓
-为文档填写名称、类型、项目内相对路径等信息
+填写展示名称、文档类型和独立文件名，在所选团队的项目文件夹树中选择位置；可选上传初始文件
 ```
 
 示例：
@@ -1253,16 +1269,21 @@ Document 是 Project 下的文档管理基本单位。一个 Project 可以有�
 
 - 创建文档
 - 查看文档列表
-- 编辑文档名称、描述、类型和相对路径
+- 编辑文档名称、描述、文件名和所选文件夹，完整相对路径由系统生成
+- 在项目文件夹树选择位置，并在任意层级新建可保留的空文件夹
+- 创建时可选上传初始文件，与文档及默认分支原子保存为首个 Draft；失败时整体回滚，不自动提交审核或发布
 - 查看文档版本
-- 按文档类型筛选，例如 OpenAPI 接口文档或 Markdown 纯文档
+- 按文档类型筛选：OpenAPI、Markdown 或 TXT
 
 #### 验收标准
 
 - Project 下可以有多个 Document。
 - Document 名称在 Project 内唯一。
 - Document `relative_path` 在 Project 内唯一。
-- Document `document_type` 使用整数码保存，v0.1 至少支持 1 OpenAPI 接口文档、2 Markdown 纯文档。
+- Document `document_type` 使用整数码保存：1 OpenAPI、2 Markdown、3 TXT。
+- 展示名称与文件名分开；手动修改文件名后，改展示名称不能覆盖该文件名。
+- 文件夹和文档位置必须属于当前 Project，目录树不能串入另一项目；既有路径和版本路径快照保持不变。
+- 可选初始上传生成 `dev` 上的初始草稿，无上传时只创建空文档；首次草稿仍需人工审核后发布。
 - Document 下可以有多个 Document Version。
 
 ---
@@ -1876,7 +1897,7 @@ AI 通过 MCP 可以：
 - 查询版本 diff
 - 查询前端变更摘要
 - 创建、更新和提交 OpenAPI 草稿
-- 创建、更新和提交 Markdown 文档草稿
+- 创建、更新和提交 Markdown / TXT 文档草稿
 - 查询草稿状态和审核意见
 - 后续版本规划项目绑定机器人/CI Token（v0.2.0 尚未包含）；正式版本发布仍必须由后台人工审核触发
 
@@ -2383,7 +2404,7 @@ v0.1 MVP 支持以下 Markdown 文档 tools。它们只读或写草稿，不能�
 | `list_doc_versions` | `doc:read` | 获取指定 Markdown Document 的已发布版本 ID 与 metadata；比较前必须先用它解析版本 ID。 |
 | `get_latest_doc` | `doc:read` | 获取指定 Markdown 类型 Document 在指定 branch 下的最新发布内容。 |
 | `compare_doc_versions` | `doc:read` | 比较同一 Markdown 类型 Document 的两个版本，返回纯文件 Diff。 |
-| `create_doc_draft` | `doc:draft` | 创建 Markdown 文档草稿，入参包含 `document_id`、`branch_id`、`version_name`、`markdown_content`、可选 `source_git_commit_id`。 |
+| `create_doc_draft` | `doc:draft` | 创建 Markdown / TXT 文档草稿，入参包含 `document_id`、`branch_id`、`version_name`、`content`、可选 `source_git_commit_id`；旧 `markdown_content` 仍兼容，两个正文同时提供时必须相同。 |
 | `update_doc_draft` | `doc:draft` | 更新尚未发布的 Markdown 草稿。 |
 | `submit_doc_draft` | `doc:draft` | 提交 Markdown 草稿进入人工审核。 |
 | `get_doc_draft` | `doc:read` | 查询 Markdown 草稿状态、纯文件 diff preview 和审核意见。 |
@@ -2688,7 +2709,7 @@ MVP Skill 应满足：
 - AI 输出区分 must-handle 和 optional
 - AI 可以生成稳定格式的接口变更说明
 - AI 可以提交或更新 OpenAPI 草稿，并明确说明仍需人工审核发布
-- AI 可以查询、比较、提交或更新 Markdown 文档草稿，并明确说明仍需人工审核发布
+- AI 可以查询、比较、提交或更新 Markdown / TXT 文档草稿，并明确说明仍需人工审核发布
 
 ---
 
@@ -2814,7 +2835,7 @@ MVP Skill 应满足：
   "mcpServers": {
     "vdoc": {
       "command": "npx",
-      "args": ["--yes", "github:ChnMig/Vdoc-mcp#8037d90b2e3a33dd7be9652e9114e9ee1495b0a4"],
+      "args": ["--yes", "github:ChnMig/Vdoc-mcp#cc304364bce07c605029ca76144446307af761f7"],
       "env": {
         "VDOC_BASE_URL": "https://your-vdoc.example.com",
         "VDOC_MCP_TOKEN": "REPLACE_WITH_LOCAL_VDOC_MCP_TOKEN"
@@ -2962,8 +2983,9 @@ Skill 文件：代码仓库或 RustFS 对象存储
 | `teams` | `name`、`slug`、`description`、`created_by`。 |
 | `projects` | `team_id`、`name`、`slug`、`description`、`status`、`created_by`。 |
 | `project_members` | `project_id`、`user_id`、`role`、`status`、`added_by`、`added_at`。MVP 不做邀请状态和邀请字段。 |
-| `documents` | `project_id`、`name`、`document_type`、`relative_path`、`description`、`status`、`created_by`。v0.1 类型至少包含 OpenAPI 接口文档和 Markdown 纯文档。 |
+| `documents` | `project_id`、`name`、`document_type`、`folder_id`、`relative_path`、`description`、`status`、`created_by`。类型包含 OpenAPI、Markdown、TXT；文件名可由相对路径末段读取。 |
 | `document_branches` | `document_id`、`name`、`kind`、`is_default`、`is_protected`、`status`。默认 `dev`、`test`、`prod`，`prod` 受保护。 |
+| `document_folders` | `project_id`、`parent_id`、`name`、`path`、`created_by`、时间戳；父目录必须在同项目内，路径大小写不敏感地唯一，空文件夹单独保存。 |
 | `document_drafts` | `document_id`、`branch_id`、`version_name`、`status`、`document_type`、RustFS object keys、hash、`source_git_commit_id`、`source_type`、`source_branch_id`、`source_version_id`、`base_version_id`、Diff Preview、审核字段。 |
 | `document_versions` | `document_id`、`branch_id`、`version_name`、`version_no`、`status`、`source_draft_id`、`source_git_commit_id`、`source_type`、`source_branch_id`、`source_version_id`、`base_version_id`、RustFS object keys、hash、`published_by`、`published_at`。 |
 | `api_endpoints` | `document_version_id`、`document_id`、`branch_id`、`method`、`path`、`operation_id`、`summary`、`tags`、hash 字段。仅 OpenAPI 类型文档写入。 |

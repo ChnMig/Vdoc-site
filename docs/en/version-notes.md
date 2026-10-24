@@ -1,5 +1,15 @@
 # Version Notes
 
+## v0.3.17-beta.7
+
+Document menus now share a **Document workspace** with a folder tree. Choose a team and project, then manage content, drafts, versions, diffs, and shares together. Project folders support any depth and persistent empty folders. Document display names and filenames remain separate, with the selected folder and filename determining the relative path. Table headers and cells are centered, with improved narrow-screen layouts. See the [changelog](changelog.md).
+
+Upload a file during document creation to save an initial `dev` draft; submission, review, and human publication remain required. The new TXT type supports plain-text previews, draft review, line diffs, share downloads, and MCP reads and edits while preserving line endings and allowing empty files. See [First Use](admin-usage.md).
+
+Backend startup automatically applies migrations `008_plain_text_documents.sql` and `009_document_folders.sql`. Back up the database and object storage, then **upgrade Backend and Admin together**. Reload the Agent and restart MCP after updating MCP/Skill. Rolling back an image does not reverse database migrations; read [upgrade and rollback](release-rollback.md) before upgrading.
+
+This is a Beta release only. Stable images and the stable website retain their current release; the two channels continue using separate databases, storage, and credentials.
+
 ## v0.3.17-beta.6
 
 Task layouts and shared form controls: see the [changelog](changelog.md). Beta only; no API or database migration changes.
