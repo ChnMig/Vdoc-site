@@ -2,15 +2,11 @@
 
 ## v0.3.17-beta.7
 
-- Consolidate document menus into the **Document workspace**. Choose a team and project, select a document in the folder tree, then work with content, drafts, versions, diffs, and shares in one place. See [First Use](admin-usage.md).
-- Create project folders at any depth, including persistent empty folders. Keep document display names and filenames separate; filenames can default from the name or use the uploaded file's original name. The selected folder and filename determine the relative path.
-- Upload OpenAPI JSON/YAML, Markdown, or TXT while creating a document to save an initial draft on `dev`. Submission, review, and human publication remain required.
-- Add TXT as a distinct plain-text type across upload, preview, draft review, publication, line diffs, share downloads, and MCP reads and edits. Preserve original line endings, allow empty files, and display HTML and Markdown markers as plain text.
-- Center table headers and cells, and improve folder trees, lists, and action areas on narrow screens.
+- Document menus share a folder workspace, with nested and empty folders and separate document names and filenames.
+- Initial uploads create unpublished `dev` drafts. TXT supports plain-text preview, review, publication, line diffs, sharing, and MCP reads and edits, preserving line endings and empty files.
+- Center table headers and cells; improve mobile layouts.
 
-This release adds database migrations `008_plain_text_documents.sql` and `009_document_folders.sql`. Backend startup automatically applies pending migrations. Back up PostgreSQL and object storage, then **upgrade Backend and Admin together**. Reload the Agent and restart MCP after updating MCP/Skill. See [upgrade and rollback](release-rollback.md).
-
-Only the Beta channel updates. Stable `:latest` images and the stable website retain their current release. Keep separate databases, storage, accounts, keys, and Tokens for Beta and stable environments.
+Migrations 008/009 apply at startup. Back up data and upgrade Backend and Admin together. Beta only; stable stays unchanged. Keep databases, storage, and credentials separate. [Guide](admin-usage.md) · [Upgrade](release-rollback.md).
 
 ## v0.3.17-beta.6
 
@@ -30,14 +26,12 @@ Settings categories, system/project AI scopes, simpler lists/guides and small-sc
 - This release introduced the native MCP credential date-and-time picker. Enter the current device's local time; submission converts it to UTC. Leaving it blank still means no expiry.
 - Upgrade the Admin Docker build stage and CI to Node.js 24.22.1. The running Admin image continues to serve static pages. MCP uses Node.js on the Agent machine, which users must upgrade separately.
 
-This Beta updates only the `:beta` channel. Stable `:latest` images and the stable website retain their current release. No database migration is added and MCP tool parameters remain compatible; use separate databases, storage, and credentials for testing. See [upgrade and rollback](release-rollback.md).
-
 ## v0.3.17-beta.3
 
 - Teams, Projects, Users, Documents, Branches, and MCP Token pages show lists first. Create buttons and row-level Edit actions open labeled forms. Fix project-form alignment, tighten list spacing, and adapt the forms to mobile screens.
 - Both regular users and administrators can [change their own password in Settings](admin-usage.md#change-password), after verifying the current password. Success signs out the current browser. Server operators can use the [command-line reset](troubleshooting.md#reset-admin-password) when a super administrator forgets their password.
 
-This Beta updates only the `:beta` channel. Stable `:latest` images and the stable website retain their current release. No database migration is added and MCP tool parameters remain compatible; use separate databases, storage, and credentials for testing.
+beta.3 and beta.4 update Beta only, without migrations; stable stays unchanged. [Upgrade](release-rollback.md).
 
 ## v0.3.16
 
@@ -51,7 +45,7 @@ Fix literal prompt placeholders in the Chinese and English AI setup guide. <code
 
 This documentation patch adds no database migration and uses the v0.3.14 application behavior and upgrade process.
 
-## v0.3.14
+## v0.3.14 {#v0-3-14}
 
 - Reject invalid boolean configuration instead of silently falling back to in-memory storage. Cancel dependency startup and background summary work promptly.
 - Retain provider-reported token usage when a Provider test is canceled or a summary/chat request is superseded, without overwriting newer content.
@@ -63,7 +57,7 @@ This documentation patch adds no database migration and uses the v0.3.14 applica
 
 This release adds no application database migration and preserves REST/MCP tool parameters. Back up the database and object storage, preserve accounts, keys and volumes, then update images and recreate containers. Reload the Agent and restart MCP after updating MCP/Skill. See [upgrade and rollback](release-rollback.md).
 
-## v0.3.13
+## v0.3.13 {#v0-3-13}
 
 - Bind workbench requests to the account credentials at invocation, preventing old operations from using a newly signed-in account's token. Stop the second step of an initial AI chat after sign-out, reauthentication or navigation.
 - Show an invalid-link message when a version deep link conflicts with the current branch filter.

@@ -2,13 +2,7 @@
 
 ## v0.3.17-beta.7
 
-Document menus now share a **Document workspace** with a folder tree. Choose a team and project, then manage content, drafts, versions, diffs, and shares together. Project folders support any depth and persistent empty folders. Document display names and filenames remain separate, with the selected folder and filename determining the relative path. Table headers and cells are centered, with improved narrow-screen layouts. See the [changelog](changelog.md).
-
-Upload a file during document creation to save an initial `dev` draft; submission, review, and human publication remain required. The new TXT type supports plain-text previews, draft review, line diffs, share downloads, and MCP reads and edits while preserving line endings and allowing empty files. See [First Use](admin-usage.md).
-
-Backend startup automatically applies migrations `008_plain_text_documents.sql` and `009_document_folders.sql`. Back up the database and object storage, then **upgrade Backend and Admin together**. Reload the Agent and restart MCP after updating MCP/Skill. Rolling back an image does not reverse database migrations; read [upgrade and rollback](release-rollback.md) before upgrading.
-
-This is a Beta release only. Stable images and the stable website retain their current release; the two channels continue using separate databases, storage, and credentials.
+Folder workspace, TXT, and initial uploads. See the [changelog](changelog.md).
 
 ## v0.3.17-beta.6
 
@@ -40,27 +34,11 @@ This documentation patch adds no database migration and uses the v0.3.14 applica
 
 ## v0.3.14
 
-- Reject invalid boolean configuration instead of silently falling back to in-memory storage. Cancel dependency startup and background summary work promptly.
-- Retain provider-reported token usage when a Provider test is canceled or a summary/chat request is superseded, without overwriting newer content.
-- Reject published version-name collisions when editing or submitting drafts. Reuse stored objects for unchanged saves while preserving transactions, audits and concurrency checks.
-- Scope project-member forms to the project and login session, preserving new input after delayed success. Show loading, failure, retry and empty states for user token inventories.
-- Refresh a current-version share once when publication races with content loading. Ignore download errors from an older unlock proof after reauthentication.
-- Recursively sanitize MCP error data while preserving error codes and JSON types. Keep successful document content unchanged.
-- Pass PostgreSQL credentials as separate Compose connection fields, preserving literal special characters. Align troubleshooting with single-file deployment and use verified release archives for global MCP/Skill installation.
-
-This release adds no application database migration and preserves REST/MCP tool parameters. Back up the database and object storage, preserve accounts, keys and volumes, then update images and recreate containers. Reload the Agent and restart MCP after updating MCP/Skill. See [upgrade and rollback](release-rollback.md).
+Configuration, AI audits, drafts, sessions, shares, MCP errors, and deployment fixes: [changelog](changelog.md#v0-3-14). No migrations. Back up data before [upgrading](release-rollback.md); restart the Agent after updating MCP and Skill.
 
 ## v0.3.13
 
-- Bind workbench requests to the account credentials at invocation, preventing old operations from using a newly signed-in account's token. Stop the second step of an initial AI chat after sign-out, reauthentication or navigation.
-- Show an invalid-link message when a version deep link conflicts with the current branch filter.
-- Retain upstream token usage in failed AI audits when permission/configuration changes or cancellation invalidate the result.
-- Move public-share password verification outside the global store lock, then recheck access and the password snapshot before issuing an unlock proof.
-- Bound and cancel HTTP error response streams in MCP, preserving the received status instead of reporting a timeout. Harden unknown-error sanitization and fixed-commit installation failures.
-- Allow the Skill to edit only a draft's version name or changelog while retaining the content and revision from the same read.
-- Route Docker workbench API requests through its own `/api` proxy, fixing login and public-share requests in the default deployment. Update both deployment guides and the release lock.
-
-This release adds no application database migration and preserves REST/MCP tool parameters. When upgrading an existing Compose configuration, set `VDOC_ADMIN_API_BASE_URL` to `same-origin`, preserve accounts, keys and volumes, then recreate Admin. Backend no longer uses the legacy `cors_allowed_origins` setting; cross-origin browser APIs require built-in CORS to be disabled and explicit authentication/share headers to be permitted at the gateway. See [upgrade and rollback](release-rollback.md). Restart the Agent after updating MCP/Skill.
+Session, version-link, AI audit, sharing, and MCP fixes: [changelog](changelog.md#v0-3-13). No migrations. Set `VDOC_ADMIN_API_BASE_URL` to `same-origin` and recreate Admin. See [upgrade guidance](release-rollback.md) for cross-origin and legacy CORS changes.
 
 ## v0.3.10
 
