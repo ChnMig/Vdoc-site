@@ -2836,7 +2836,7 @@ MVP Skill 应满足：
   "mcpServers": {
     "vdoc": {
       "command": "npx",
-      "args": ["--yes", "github:ChnMig/Vdoc-mcp#ea2445e4e528e4ee98b97ef35121c93975b07afa"],
+      "args": ["--yes", "github:ChnMig/Vdoc-mcp#659f1c216d1cfc75008b00dabc41a9c4578efd28"],
       "env": {
         "VDOC_BASE_URL": "https://your-vdoc.example.com",
         "VDOC_MCP_TOKEN": "REPLACE_WITH_LOCAL_VDOC_MCP_TOKEN"
