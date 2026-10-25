@@ -7,20 +7,17 @@ const docsRoot = new URL('../docs/', import.meta.url).pathname
 const css = readFileSync(join(docsRoot, '.vitepress/theme/custom.css'), 'utf8')
 
 function expandSharedColors(html: string): string {
-  return html.replace(
-    /class="(vpc-(?:string|value|text|function|comment|purple|red))"/g,
-    (_, name) => {
-      const declarations = css.match(
-        new RegExp(`\\.vp-code \\.${name} \\{([^}]+)\\}`),
-      )?.[1]
-      if (declarations === undefined) throw new Error(`Missing CSS for ${name}`)
-      const style = declarations
-        .replace(/\s/g, '')
-        .replace(/;$/, '')
-        .replace(/#[\da-f]+/g, (color) => color.toUpperCase())
-      return `style="${style}"`
-    },
-  )
+  return html.replace(/class="(vc-[svtfcpr])"/g, (_, name) => {
+    const declarations = css.match(
+      new RegExp(`\\.vp-code \\.${name} \\{([^}]+)\\}`),
+    )?.[1]
+    if (declarations === undefined) throw new Error(`Missing CSS for ${name}`)
+    const style = declarations
+      .replace(/\s/g, '')
+      .replace(/;$/, '')
+      .replace(/#[\da-f]+/g, (color) => color.toUpperCase())
+    return `style="${style}"`
+  })
 }
 
 function normalizeCodeGroupIds(html: string): string {

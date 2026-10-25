@@ -5,8 +5,8 @@ This runbook prepares and records a v0.1 Pilot. The automation path bootstraps `
 ## 1. Prerequisites
 
 - Go matching `Vdoc/go.mod`
-- Node.js 22.13 or newer for `Vdoc-admin/` and `Vdoc-site/`; Node.js 20 or newer for `Vdoc-mcp/` (including its bundled Skill)
-- `pnpm` 11.6.0 for `Vdoc-admin/` and `Vdoc-site/`
+- Node.js 26.12.1 for reproducible Admin, Site, and MCP checks; the MCP adapter's production engine minimum remains Node.js 20
+- `pnpm` 12.15.0 for `Vdoc-admin/` and `Vdoc-site/`
 - `npm` for `Vdoc-mcp/` (including its bundled Skill)
 - Docker with Compose v2
 - `git`, `jq`, and `shasum` for lock, evidence, and provenance checks

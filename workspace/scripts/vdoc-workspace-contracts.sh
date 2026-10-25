@@ -152,10 +152,10 @@ for repo in Vdoc Vdoc-admin Vdoc-site Vdoc-mcp; do
   done < <(grep -E '^[[:space:]]*uses:' "$workflow" || true)
 done
 
-[[ "$(jq -r '.packageManager' "$ROOT_DIR/Vdoc-admin/package.json")" == 'pnpm@11.6.0' ]] || \
-  fail 'Vdoc-admin packageManager must match CI pnpm 11.6.0'
-[[ "$(jq -r '.packageManager' "$ROOT_DIR/Vdoc-site/package.json")" == 'pnpm@11.6.0' ]] || \
-  fail 'Vdoc-site packageManager must match CI pnpm 11.6.0'
+[[ "$(jq -r '.packageManager' "$ROOT_DIR/Vdoc-admin/package.json")" == 'pnpm@12.15.0' ]] || \
+  fail 'Vdoc-admin packageManager must match CI pnpm 12.15.0'
+[[ "$(jq -r '.packageManager' "$ROOT_DIR/Vdoc-site/package.json")" == 'pnpm@12.15.0' ]] || \
+  fail 'Vdoc-site packageManager must match CI pnpm 12.15.0'
 
 [[ "$(jq -r '.schemaVersion' "$ROOT_DIR/workspace.lock.json")" == 2 ]] || \
   fail 'workspace.lock.json must use schemaVersion 2'

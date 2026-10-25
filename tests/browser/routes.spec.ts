@@ -21,8 +21,8 @@ test('shared code colors retain the readable light and dark palettes', async ({
       (dark) => document.documentElement.classList.toggle('dark', dark),
       theme === 'dark',
     )
-    const comment = page.locator('.vp-code .vpc-comment').first()
-    const functionToken = page.locator('.vp-code .vpc-function').first()
+    const comment = page.locator('.vp-code .vc-c').first()
+    const functionToken = page.locator('.vp-code .vc-f').first()
     await expect(comment).toHaveCSS(
       'color',
       theme === 'dark' ? 'rgb(106, 115, 125)' : 'rgb(102, 111, 121)',
@@ -31,11 +31,11 @@ test('shared code colors retain the readable light and dark palettes', async ({
       'color',
       theme === 'dark' ? 'rgb(133, 232, 157)' : 'rgb(31, 117, 51)',
     )
-    await expect(page.locator('.vp-code .vpc-purple').first()).toHaveCSS(
+    await expect(page.locator('.vp-code .vc-p').first()).toHaveCSS(
       'color',
       theme === 'dark' ? 'rgb(179, 146, 240)' : 'rgb(111, 66, 193)',
     )
-    await expect(page.locator('.vp-code .vpc-red').first()).toHaveCSS(
+    await expect(page.locator('.vp-code .vc-r').first()).toHaveCSS(
       'color',
       theme === 'dark' ? 'rgb(249, 117, 131)' : 'rgb(193, 42, 58)',
     )

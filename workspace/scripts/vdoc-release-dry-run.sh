@@ -7,7 +7,7 @@ INCLUDE_LIVE=0
 CANDIDATE=0
 
 # A release gate must inspect the prepared dependency tree, not mutate it.
-# pnpm 11 defaults verify-deps-before-run to "install", which can otherwise
+# pnpm may default verify-deps-before-run to "install", which can otherwise
 # replace node_modules or reach the registry before executing a test script.
 export CI=true
 export pnpm_config_verify_deps_before_run=false
