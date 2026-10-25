@@ -12,6 +12,47 @@ test.describe('production route quality', () => {
   }
 })
 
+for (const locale of [
+  { home: '/', search: '搜索文档' },
+  { home: '/en/', search: 'Search' },
+]) {
+  test(`${locale.home} search and feature names preserve their full meaning`, async ({
+    page,
+  }) => {
+    await page.goto(routeUrl(locale.home), { waitUntil: 'networkidle' })
+    const searchButton = page.getByRole('button', {
+      name: locale.search,
+      exact: true,
+    })
+    await expect(searchButton).toHaveAccessibleName(locale.search)
+    await expect(searchButton).toHaveAttribute(
+      'aria-keyshortcuts',
+      'Control+k Meta+k',
+    )
+
+    for (const link of await page.locator('a.VPFeature').all()) {
+      const visibleText = (await link.innerText()).replace(/\s+/g, ' ').trim()
+      await expect(link).toHaveAccessibleName(visibleText)
+    }
+
+    await searchButton.focus()
+    await page.keyboard.press('Enter')
+    const searchBox = page.locator('.VPLocalSearchBox')
+    await expect(searchBox).toBeVisible()
+    await expect(searchBox.locator('#localsearch-input')).toBeFocused()
+    await page.keyboard.press('Escape')
+    await expect(searchBox).toBeHidden()
+
+    for (const shortcut of ['Control+k', 'Meta+k']) {
+      await page.keyboard.press(shortcut)
+      await expect(searchBox).toBeVisible()
+      await expect(searchBox.locator('#localsearch-input')).toBeFocused()
+      await page.keyboard.press('Escape')
+      await expect(searchBox).toBeHidden()
+    }
+  })
+}
+
 test('shared code colors retain the readable light and dark palettes', async ({
   page,
 }, testInfo) => {

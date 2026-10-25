@@ -10,15 +10,34 @@ index 3b2dbdf6e0fff8ec2cd36ca80c713b9bfe738733..de80fc7c948196583874da85d3c3043b
      :class="{
        'has-sidebar': hasSidebar,
        'is-home': frontmatter.layout === 'home'
+diff --git a/dist/client/theme-default/components/VPNavBarSearchButton.vue b/dist/client/theme-default/components/VPNavBarSearchButton.vue
+--- a/dist/client/theme-default/components/VPNavBarSearchButton.vue
++++ b/dist/client/theme-default/components/VPNavBarSearchButton.vue
+@@ -16,10 +16,11 @@
+ <template>
+-  <button type="button" class="DocSearch DocSearch-Button" :aria-label="translate('button.buttonAriaLabel')">
+-    <span class="DocSearch-Button-Container">
++  <button type="button" class="DocSearch DocSearch-Button" aria-keyshortcuts="Control+k Meta+k">
++    <span class="visually-hidden">{{ translate('button.buttonAriaLabel') }}</span>
++    <span class="DocSearch-Button-Container" aria-hidden="true">
+       <span class="vp-icon DocSearch-Search-Icon"></span>
+       <span class="DocSearch-Button-Placeholder">{{ translate('button.buttonText') }}</span>
+     </span>
+-    <span class="DocSearch-Button-Keys">
++    <span class="DocSearch-Button-Keys" aria-hidden="true">
+       <kbd class="DocSearch-Button-Key"></kbd>
+       <kbd class="DocSearch-Button-Key">K</kbd>
+     </span>
 diff --git a/dist/client/theme-default/components/VPFeature.vue b/dist/client/theme-default/components/VPFeature.vue
-index e6e058802e5cd3eab7e8cac9a0ee6f9a4a8a97e3..77623550214321067e3668ad9c2a20617ef73d7b 100644
 --- a/dist/client/theme-default/components/VPFeature.vue
 +++ b/dist/client/theme-default/components/VPFeature.vue
-@@ -21,6 +21,7 @@ defineProps<{
-     :rel="rel"
-     :target="target"
-     :no-icon="true"
-+    :aria-label="title"
-     :tag="link ? 'a' : 'div'"
+@@ -25,3 +25,3 @@
    >
-     <article class="box">
+-    <article class="box">
++    <div class="box">
+       <div v-if="typeof icon === 'object' && icon.wrap" class="icon">
+@@ -50,3 +50,3 @@
+       </div>
+-    </article>
++    </div>
+   </VPLink>
