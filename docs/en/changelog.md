@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.3.17-beta.9
+
+- Bring team, project, people, and document browsing into **Workspace**. Each project groups Documents, Project members, and Project settings. Teams, projects, people, folders, and the three document types use distinct icons; access remains assigned per project.
+- Open documents on an independent page: the current project's file tree on the left, content in the center, and a heading outline with version, Diff, AI, and document settings tools on the right. Folder rows toggle with one click; document selection and folder location have separate states.
+- Move Share and Edit draft to the document header. Sharing pins the selected published version, and AI follows the selected version or draft. Narrow screens use a file drawer, outline dialog, and tools at the top.
+- Upgrade Go, React, the MCP SDK, and build and test dependencies. Use Go 1.27.3 and Node.js 26.12.1, Alpine 3.24.3 for the Backend runtime, and pinned Caddy 2.11.7 for Admin's static server. Sonyflake v2 explicitly preserves the original ID epoch and format.
+- Upgrade MCP to TypeScript 7.0.2. Admin/Site retain TypeScript 6.0.3 because the current `typescript-eslint` supports `>=4.8.4 <6.1.0`. The npm/pnpm dependency audits reported no known vulnerabilities.
+
+No database migration is added beyond beta.8. Beta only. [Guide](admin-usage.md) · [Manual upgrade](release-rollback.md). MCP uses Node.js on the Agent machine; update it there and restart MCP.
+
 ## v0.3.17-beta.8
 
 Unified document context with content, tools, AI, and settings. Share the displayed published version; use safe custom branch names. See [First Use](admin-usage.md). Migrations 010/011 apply at startup; back up and upgrade Backend/Admin together. Beta only; [manual upgrade](release-rollback.md).

@@ -30,11 +30,11 @@ Cite the document, branch, and version. If either version is missing, do not gue
 
 Document changes do not automatically update your code. Vdoc provides versions, Diffs, and endpoint content; the agent uses those results to suggest changes, and your team validates the code.
 
-Markdown follows the same draft, review, and publish flow, with file Diffs for changes. To try it yourself, **[deploy Vdoc](deployment.md#quick-start)** and follow **[First Use](admin-usage.md)** with a shorter Markdown example.
+Markdown and TXT follow the same draft, review, and publish flow, with file Diffs for changes. To try it yourself, **[deploy Vdoc](deployment.md#quick-start)** and follow **[First Use](admin-usage.md)** with a shorter Markdown example.
 
 ## What People, MCP, and the Skill Each Do
 
-- **Your team manages and publishes in Admin.** Create Teams, Projects, Documents, and Branches, inspect draft content and Diffs, approve versions, and configure MCP Tokens. Writers can create and submit drafts; a Project Admin or SuperAdmin approves publication.
+- **Your team manages and publishes in Admin.** Browse teams, projects, and folders in Workspace, then open a document on its own page. The project file tree is on the left, content in the center, and the outline and version, Diff, and AI tools on the right. The header provides Share and Edit draft. Project members are managed within each project. Writers can create and submit drafts; a Project Admin or SuperAdmin inspects content and Diffs, approves publication, and configures MCP Tokens.
 - **MCP provides document tools.** `@vdoc/mcp` forwards agent requests to Backend `/api/v1/open/mcp`. It queries published endpoints, Markdown, versions, and Diffs, and can create, update, or submit drafts according to token permissions. It does not store Vdoc documents locally or expose direct-publish tools.
 - **The Skill guides when to query.** Before endpoint integration, version migration, or Markdown edits, agents call MCP and use its results to answer or submit drafts. The Skill itself holds no live documents. See [Skill Workflows](skill-workflows.md).
 - **Built-in AI helps reviewers.** Optional [Admin AI](admin-ai.md) uses an administrator-configured model for summaries, Diff explanations, and page chat. Summaries are labeled AI-generated. They cannot replace machine Diff, approve, reject, modify, or publish content. Missing providers or failed calls leave the original Diff and human review available.
@@ -45,7 +45,7 @@ The same document may have different published content on `dev`, `test`, and `pr
 
 Read endpoint definitions with `get_endpoint_detail`, compare published API versions with `compare_api_versions`, and read Markdown with `get_latest_doc`. IDs and content should come from actual query results. If a target is missing or unpublished, the agent should explain what is missing instead of filling in fields.
 
-To change a document, the agent first reads the current version, then submits a new Draft for human review. Publication is complete when **Document tools → Versions** shows a new Version.
+To change a document, the agent first reads the current version, then submits a new Draft for human review. Publication is complete when **Versions** in the document page's tools shows a new Version.
 
 ## Where to Start
 

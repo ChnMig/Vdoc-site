@@ -14,19 +14,34 @@ This trial uses Markdown to cover create, review, publish, and query. Admin AI, 
 
 Open the [local workbench](http://127.0.0.1:8081) and log in with the email and password you set in `docker-compose.yml` during deployment. For a remote deployment, open its workbench URL.
 
-Teams and Projects open as lists. Click **Create team** or **Create project** beside the list title, fill in the dialog, and submit. Use the row-level **Edit** action to change a name or description. Create or select a Team, then create a Project named **Vdoc Trial**. Use the initial SuperAdmin for this trial; add Reader, Writer, and Project Admin members when you start collaborating.
+After sign-in, **Workspace** opens with a team and project tree on the left. The right side lists the teams, projects, or project folders and documents at your current location. Use the initial SuperAdmin to click **Create team** under **All teams**, or choose an existing team. Open that team and click **Create project** to create **Vdoc Trial**. Creation forms open in dialogs.
+
+Within a project, **Documents** browses its folders and files, while **Project members** lists its members. In an active project, a Project Admin or SuperAdmin can add members, assign Reader, Writer, or Project Admin roles, remove members, and access **Project settings**. SuperAdmins can also open **Team settings** and **People** from Workspace. Access is assigned per project; grouping projects in a team does not automatically grant access to the other projects.
 
 If the account is not set up, return to [initial-admin configuration](deployment.md#initial-admin). Changing initialization fields does not reset accounts in an existing database.
 
 Settings has Account, Appearance, AI and Version. Appearance controls theme/language; AI has system/project scopes. Category/scope changes retain unsaved input. Expand **Page guide** beside the page title.
 
-The **document workspace** opens after sign-in. Choose a team and project, then open a file. Click anywhere on a folder row to expand or collapse it without closing the current document; OpenAPI, Markdown, and TXT have distinct icons. The top controls select the branch, published or draft state, and revision. **Document**, **Document tools** (versions and diffs), **Document AI**, and **Document settings** (metadata and branches) share that context. Switching areas retains unsaved input.
+### Open a Document from Workspace
 
-The sidebar combines document tasks into one entry and keeps separate entries for teams, projects, users, and agent access. Project selectors and date/time pickers use workbench components; selected dates and times use the device's local time and convert to UTC on submission.
+Browse folders under the project's **Documents** tab and click a document to open its own reading page:
+
+| Area                           | Purpose                                                                                                                       |
+| ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
+| Project file tree on the left  | Shows only this project's folders and documents. Return to Workspace, switch files, or create folders and documents here.     |
+| Content in the center          | Read the selected published version or draft. Controls above it select the branch, content state, and revision.               |
+| Outline and tools on the right | Jump to a content heading or open Versions, Diffs, Document AI, and permission-gated Document settings and branch management. |
+| Document header                | Use **Share** or **Edit draft** when your role permits. Sharing targets the selected published version.                       |
+
+Click anywhere on a folder row to expand or collapse it and choose a creation location without closing the current document. The open document and folder location have separate selection states. Teams, projects, people, and folders have distinct icons, as do OpenAPI, Markdown, and TXT files. Switching tools within the same document retains unsaved input.
+
+On narrow screens, **Show files** opens the project tree in a drawer that closes after you choose a document. **On this page** opens the outline in a dialog, and document tools move to the top. Document AI occupies the content area until you return to the preview. Content without headings shows an empty-outline message.
+
+The global menu groups this browsing and management under **Workspace**; MCP, Skill, Audit, and Settings keep their own entries. Project selectors and date/time pickers use workbench components; selected dates and times use the device's local time and convert to UTC on submission.
 
 ### Change Your Password {#change-password}
 
-After signing in, open **Settings** from the avatar menu and choose **Account → Change password**. Enter your current password, a new password, and its confirmation. Both regular users and administrators can change their own password.
+After signing in, return to Workspace if you are on a document page, then open **Settings** from the avatar menu and choose **Account → Change password**. Enter your current password, a new password, and its confirmation. Both regular users and administrators can change their own password.
 
 The new password must differ from the current one, contain 12–72 UTF-8 bytes, and have no leading or trailing whitespace. After a successful change, the current browser signs out; sign in again with your new password. If the current password is incorrect or the confirmation does not match, correct the form and retry.
 
@@ -42,7 +57,7 @@ This feature only checks and reports availability. Operators still update contai
 
 ## 2. Create the Sample Document
 
-In the **document workspace**, choose a team and project, select a location in the folder tree, and click **New document**:
+In **Workspace**, open the team, project, and target folder, then click **Create document**. From an independent document page, you can also select a location in the left file tree and click **New document**:
 
 | Field         | Sample value    |
 | ------------- | --------------- |
@@ -59,7 +74,7 @@ TXT previews preserve plain text and line breaks: headings, links, and HTML are 
 
 ## 3. Submit Your First Draft
 
-Select this document, choose `dev` and **Draft** at the top, then create a draft in **Document**. Set the version name to `v1` and paste this Markdown into the content field, or upload it as an `.md` file:
+Open this document, choose `dev` and **Draft** at the top, then click **Edit draft** in the header to open **Editing and review**. Set the version name to `v1` and paste this Markdown into the content field, or upload it as an `.md` file:
 
 ```md
 # Team Guide
@@ -73,9 +88,9 @@ This content is a trial example. Create the Draft, then submit it for review. Sa
 
 ## 4. Review and Publish
 
-Select the submitted `v1` draft at the top, inspect its content and Diff in **Document**, then approve publication. A Project Admin or SuperAdmin performs this step.
+Select the submitted `v1` draft at the top and click **Edit draft**. Inspect its content and Diff in **Editing and review**, then approve publication. A Project Admin or SuperAdmin performs this step.
 
-Switch to published versions at the top and select `v1`. Confirm that `dev` contains the three rules. This is an immutable Version; changes need a new draft. **Document tools → Versions** shows publication history; **Diffs** compares versions. **Document AI** uses the selected content for summaries and chat. The tree distinguishes published documents, drafts, and empty documents.
+Choose **Published** at the top and select `v1`. Confirm that `dev` contains the three rules. This is an immutable Version; changes need a new draft. In the tools on the right, **Versions** shows publication history and **Diffs** compares versions. **Document AI** uses the selected content for summaries and chat. The tree distinguishes published documents, unpublished drafts, and empty documents.
 
 **Publishing is a human action.** MCP can submit drafts but cannot publish Versions directly.
 
@@ -104,7 +119,7 @@ Choose the configuration format for your client. The MCP Token page in Admin als
       "command": "npx",
       "args": [
         "--yes",
-        "github:ChnMig/Vdoc-mcp#ea2445e4e528e4ee98b97ef35121c93975b07afa"
+        "github:ChnMig/Vdoc-mcp#659f1c216d1cfc75008b00dabc41a9c4578efd28"
       ],
       "env": {
         "VDOC_BASE_URL": "http://127.0.0.1:8080",
@@ -118,7 +133,7 @@ Choose the configuration format for your client. The MCP Token page in Admin als
 ```toml [Codex]
 [mcp_servers.vdoc]
 command = "npx"
-args = ["--yes", "github:ChnMig/Vdoc-mcp#ea2445e4e528e4ee98b97ef35121c93975b07afa"]
+args = ["--yes", "github:ChnMig/Vdoc-mcp#659f1c216d1cfc75008b00dabc41a9c4578efd28"]
 startup_timeout_sec = 60
 tool_timeout_sec = 180
 
@@ -183,6 +198,6 @@ See [Troubleshooting](troubleshooting.md) for more detail.
 
 ### Create and Manage Public Shares
 
-A Project Admin or SuperAdmin selects a published version at the top and clicks **Share**. The link stays fixed to the version on screen, even after newer publications. Drafts cannot be publicly shared. Existing latest-version and all-version links retain their original scope.
+On the independent document page, a Project Admin or SuperAdmin selects a published version at the top and clicks **Share** in the header. Check the document, branch, and version in the dialog before creating the link. The link stays fixed to the version on screen, even after newer publications. Drafts cannot be publicly shared. Existing latest-version and all-version links retain their original scope.
 
 Expiry defaults to three months, with one month, six months, one year, and permanent also available. An optional password needs 12–72 UTF-8 bytes without leading or trailing Unicode whitespace. Copy the complete capability link; reveal it again or revoke it irreversibly when needed. The list distinguishes active, expired, and revoked links. Changing the project or document clears the displayed capability and unsubmitted password.

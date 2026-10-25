@@ -178,7 +178,7 @@ test_help_lists_flags() {
 test_execution_uses_non_mutating_ci_environment() {
   assert_contains "$SCRIPT" 'export CI=true'
   assert_contains "$SCRIPT" 'export pnpm_config_verify_deps_before_run=false'
-  assert_contains "$SCRIPT" 'export GOTOOLCHAIN=go1.25.5'
+  assert_contains "$SCRIPT" 'export GOTOOLCHAIN=go1.27.3'
   assert_contains "$SCRIPT" 'export GOFLAGS=-mod=readonly'
 }
 

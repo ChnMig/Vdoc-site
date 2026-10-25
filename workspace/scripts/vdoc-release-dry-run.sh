@@ -11,7 +11,7 @@ CANDIDATE=0
 # replace node_modules or reach the registry before executing a test script.
 export CI=true
 export pnpm_config_verify_deps_before_run=false
-export GOTOOLCHAIN=go1.25.5
+export GOTOOLCHAIN=go1.27.3
 export GOFLAGS=-mod=readonly
 
 LABELS=()

@@ -18,12 +18,16 @@ Product and platform teams developing with AI: backend maintainers publish contr
 
 ## How Documents Are Organized
 
-- **Project:** the documents for a product or service, with access managed by membership and role.
-- **Document:** OpenAPI or Markdown identified by a stable `relative_path`, such as `apis/orders.yaml` or `docs/team-guide.md`.
+- **Team:** groups related projects and forms the first navigation level in Workspace.
+- **Project:** the documents for a product or service, with access assigned through project membership and role.
+- **Folder:** a nested directory within a project. Empty folders persist, and subfolders can be created at any level.
+- **Document:** OpenAPI, Markdown, or TXT, each with its own icon. The display name and filename are separate; the folder and filename form a stable `relative_path`, such as `apis/orders.yaml`, `docs/team-guide.md`, or `notes/checklist.txt`.
 - **Branch:** separate document tracks for `dev`, `test`, and protected `prod`, with custom branches available.
 - **Draft and Version:** changes enter as drafts. A Project Admin or SuperAdmin approves publication to create an immutable version. Writers and agents can submit drafts.
 
-Your team manages these in the Admin workbench. MCP Tokens grant agents scoped read or draft permissions; Vdoc Skill provides a workflow for querying before collaborating.
+In Admin's **Workspace**, browse teams, projects, and folders to find a document. Each project groups its documents, members, and permission-gated settings; access is assigned per project. Click a document to enter its own page: the current project's file tree on the left, content in the center, and an outline with version, Diff, AI, and settings tools on the right. Branch and revision controls sit above the content, while Share and Edit draft are in the document header. Narrow screens use a drawer for files and a dialog for the outline.
+
+MCP Tokens grant agents scoped read or draft permissions; Vdoc Skill provides a workflow for querying before collaborating.
 
 ## After Your First Trial
 

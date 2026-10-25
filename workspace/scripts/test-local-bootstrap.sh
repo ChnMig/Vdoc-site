@@ -181,10 +181,10 @@ test_compose_dependency_baseline_is_safe() {
   assert_contains "$compose" 'GIT_COMMIT: ${VDOC_BACKEND_GIT_COMMIT:?set VDOC_BACKEND_GIT_COMMIT}'
   assert_contains "$compose" 'BUILD_TIME: ${VDOC_BACKEND_BUILD_TIME:?set VDOC_BACKEND_BUILD_TIME}'
   assert_contains "$compose" 'VERSION: ${VDOC_ADMIN_VERSION:?set VDOC_ADMIN_VERSION}'
-  assert_contains "$ROOT_DIR/Vdoc/Dockerfile" 'golang:1.25.5-alpine@sha256:ac09a5f469f307e5da71e766b0bd59c9c49ea460a528cc3e6686513d64a6f1fb'
-  assert_contains "$ROOT_DIR/Vdoc/Dockerfile" 'alpine:3.23@sha256:fd791d74b68913cbb027c6546007b3f0d3bc45125f797758156952bc2d6daf40'
-  assert_contains "$ROOT_DIR/Vdoc-admin/Dockerfile" 'node:24.22.1-alpine@sha256:06d7adf3e0ef61a13f1d28682726366f97a15aa1888c934d3ecec86c33918b53'
-  assert_contains "$ROOT_DIR/Vdoc-admin/Dockerfile" 'caddy:2-alpine@sha256:5f5c8640aae01df9654968d946d8f1a56c497f1dd5c5cda4cf95ab7c14d58648'
+  assert_contains "$ROOT_DIR/Vdoc/Dockerfile" 'golang:1.27.3-alpine@sha256:b8c9b82affbbb82a020bbcf998dad2ba9516944ac7e883524642a481a9505e9c'
+  assert_contains "$ROOT_DIR/Vdoc/Dockerfile" 'alpine:3.24.3@sha256:be2656061b536c1883c4034790e21d0a09c5aaaf51968b89368a3c0371ea2c9a'
+  assert_contains "$ROOT_DIR/Vdoc-admin/Dockerfile" 'node:26.12.1-alpine@sha256:40cd011b55415bc894e45b02fdd5a5dfde056921b7d23a64c74f80497af48797'
+  assert_contains "$ROOT_DIR/Vdoc-admin/Dockerfile" 'caddy:2.11.7-alpine@sha256:eb4d35b7452d1ab6171fbdbe8d9275b2301dad6dad92115d91e19fb9b24d510f'
 }
 
 test_existing_env_requires_force() {

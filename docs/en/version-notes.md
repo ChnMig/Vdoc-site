@@ -1,5 +1,13 @@
 # Version Notes
 
+## v0.3.17-beta.9
+
+Browse teams, projects, and folders in Workspace, then open a document on its own page: the project file tree on the left, content in the center, and an outline and tools on the right. Share and Edit draft are in the header; project membership is managed within the project. See [First Use](admin-usage.md) and the [changelog](changelog.md).
+
+Update dependencies and build tooling across all four repositories: Go 1.27.3, Node.js 26.12.1, and Caddy 2.11.7 for Admin. Admin/Site retain TypeScript 6.0.3 to match the lint tooling's supported range; MCP moves to TypeScript 7.0.2. The npm/pnpm dependency audits reported no known vulnerabilities, which is not a security guarantee for the entire running environment.
+
+No database migration is added beyond beta.8. This updates the Beta channel; back up and [upgrade manually](release-rollback.md). MCP runs on the Agent machine, so update Node.js there and restart MCP as well.
+
 ## v0.3.17-beta.8
 
 [Document workspace and fixed-version sharing](admin-usage.md); automatic migrations 010/011. See the [changelog](changelog.md).

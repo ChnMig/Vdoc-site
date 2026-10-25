@@ -14,7 +14,7 @@ Docs-only VitePress site for Vdoc. The site is the public documentation surface 
 - Playwright and axe browser checks.
 - ESLint and Prettier quality gates.
 
-Development requires Node.js `>=22.13` and pnpm `11.6.0`.
+Development uses Node.js `26.12.1` and pnpm `12.15.0`. Supported Node.js ranges are `^22.22.2 || ^24.15.0 || >=26.0.0`.
 Local browser checks use the installed Microsoft Edge Beta channel. CI installs only Playwright Chromium.
 
 ## Routes

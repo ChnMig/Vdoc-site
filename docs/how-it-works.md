@@ -30,11 +30,11 @@
 
 文档变更和代码修改不会自动完成同步：Vdoc 提供版本、Diff 和接口内容，Agent 基于查询结果提出建议，由团队验证代码。
 
-Markdown 也走同样的草稿、审核、发布流程，变化用文件 Diff 展示。想亲自跑一次，可以先 **[部署 Vdoc](deployment.md#quick-start)**，再按 **[首次使用](admin-usage.md)** 发布更短的 Markdown 示例。
+Markdown 和 TXT 也走同样的草稿、审核、发布流程，变化用文件 Diff 展示。想亲自跑一次，可以先 **[部署 Vdoc](deployment.md#quick-start)**，再按 **[首次使用](admin-usage.md)** 发布更短的 Markdown 示例。
 
 ## 人、MCP 和 Skill 的分工
 
-- **团队在 Admin 中管理和发布。** 创建 Team、Project、Document 和 Branch，检查草稿内容与 Diff，审核后生成版本，再为 Agent 配置 MCP Token。Writer 可以创建和提交草稿，Project Admin 或 SuperAdmin 批准发布。
+- **团队在 Admin 中管理和发布。** 从工作空间按 Team、Project 和文件夹打开独立文档页。项目文件树在左侧，正文在中间，目录和版本、差异、AI 等工具在右侧；顶栏提供分享与草稿编辑。项目成员在项目内管理。Writer 可以创建和提交草稿，Project Admin 或 SuperAdmin 检查内容与 Diff、批准发布，再为 Agent 配置 MCP Token。
 - **MCP 提供文档和操作工具。** `@vdoc/mcp` 将 Agent 的请求转发到 Backend `/api/v1/open/mcp`，查询已发布接口、Markdown、版本和 Diff，也可按令牌权限创建、更新和提交草稿。它不在本地保存 Vdoc 文档，也没有直接发布工具。
 - **Skill 指导 Agent 何时查询。** 在接口集成、版本迁移或 Markdown 修改前，先调用 MCP，基于返回内容回答或提交草稿。Skill 本身不保存实时文档。详见 [Skill 工作流](skill-workflows.md)。
 - **后台 AI 辅助审核。** 可选的 [Admin AI](admin-ai.md) 使用管理员配置的模型生成摘要、解释 Diff 和进行页面内对话。摘要标为 AI-generated，不能覆盖机器 Diff，也不能批准、拒绝、修改或发布内容。提供商未配置或调用失败时，原始 Diff 和人工审核仍可用。
@@ -45,7 +45,7 @@ Markdown 也走同样的草稿、审核、发布流程，变化用文件 Diff �
 
 查询接口时，先用 `get_endpoint_detail` 读取完整定义；比较已发布接口版本时，用 `compare_api_versions`；读取 Markdown 时，用 `get_latest_doc`。工具所需的 ID 和内容应来自实际查询结果。如果目标不存在或尚未发布，Agent 应说明缺少什么，而不是补写字段。
 
-想让 Agent 修改文档时，它应先读取当前版本，再提交新的 Draft，等待人工审核。只有**文档工具 → 版本**确实出现新的 Version，才算完成发布。
+想让 Agent 修改文档时，它应先读取当前版本，再提交新的 Draft，等待人工审核。只有独立文档页的**版本**工具确实出现新的 Version，才算完成发布。
 
 ## 从哪里开始
 

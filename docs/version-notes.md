@@ -1,5 +1,13 @@
 # 版本说明
 
+## v0.3.17-beta.9
+
+工作空间按团队、项目和文件夹浏览；点击文档进入独立页面，左侧为项目文件树，中间为正文，右侧为目录与工具。顶栏提供分享和草稿编辑，项目成员在项目内管理。详见[首次使用](admin-usage.md)与[变更记录](changelog.md)。
+
+更新四个项目的依赖和构建工具链：Go 1.27.3、Node.js 26.12.1，Admin 使用 Caddy 2.11.7。Admin/Site 因 lint 工具兼容范围继续固定 TypeScript 6.0.3，MCP 升至 TypeScript 7.0.2。本次 npm/pnpm 依赖审计未报告已知漏洞；这不代表对整个运行环境的安全保证。
+
+相对 beta.8 不新增数据库迁移。仅更新 Beta 渠道；备份后按[升级说明](release-rollback.md)手动更新。MCP 运行在 Agent 所在机器，请同步更新该机器的 Node.js 并重启 MCP。
+
 ## v0.3.17-beta.8
 
 [文档工作区与固定版本分享](admin-usage.md)，010/011 自动迁移。详见[变更记录](changelog.md)。

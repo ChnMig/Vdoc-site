@@ -60,7 +60,7 @@ Vdoc 使用 OpenAI-compatible 提供商，支持两种 API 模式：
 
 ## 页面内对话
 
-工作区的**文档 AI**跟随顶部选定的正式版本或草稿。Diff 上下文的摘要与对话仍由 API 提供，工作区差异工具不提供聊天入口。会话固定到当前 Project、Document 和 Draft、Version 或 Diff，只能读取当前用户有权访问的上下文。对话复用同一 Draft、Version 和 Diff 上下文构建器，不会追加其他页面数据。
+从**工作空间**打开一份文档，先在正文上方选定分支、正式版本或草稿及具体修订，再从文档工具打开**文档 AI**。宽屏在正文右侧显示摘要与聊天，窄屏单独显示 AI 面板，可返回内容预览。AI 始终使用顶部选定的版本，不会因为打开工具就改用最新版本。Diff 上下文的摘要与对话仍由 API 提供，工作区差异工具不提供聊天入口。会话固定到当前 Project、Document 和 Draft、Version 或 Diff，只能读取当前用户有权访问的上下文。对话复用同一 Draft、Version 和 Diff 上下文构建器，不会追加其他页面数据。
 
 回答必须标记为 AI-generated。页面对话不能跨 Project 读取内容，也不能把回答伪装成机器 Diff 或人工审核结论。
 
@@ -89,7 +89,7 @@ Project、Document 或目标 Branch 归档后，Project Admin 或 SuperAdmin 仍
 2. 如果项目需要独立模型、网关或提示词，由 Project Admin 配置项目覆盖并测试。
 3. 提交测试 Draft，确认 Draft 摘要状态可读取。
 4. 由人类审核并发布测试 Version，确认 Version 摘要可读取。
-5. 在 Draft、Version 或 Diff 页面发送一条无敏感信息的 chat 消息。
+5. 打开独立文档页，选定测试草稿或正式版本，在**文档 AI**中发送一条无敏感信息的 chat 消息，核对所选修订。
 6. 确认失败或禁用场景显示 `skipped` 或 `failed`，同时 Diff 和人工审核仍可用。
 7. 检查审计中有状态和 token usage，但没有原始凭据、credential header 或提示词中嵌入的秘密；prompt override、summary 和 chat 记录仍按产品定义可用。
 

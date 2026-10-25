@@ -18,12 +18,16 @@ Vdoc 是面向 AI 协作开发团队的文档协作中心。把 OpenAPI 接口�
 
 ## 文档怎样组织
 
-- **Project（项目）**：一个产品或服务的文档集合，按成员与角色管理访问。
-- **Document（文档）**：OpenAPI 或 Markdown，以稳定的 `relative_path` 定位，例如 `apis/orders.yaml` 或 `docs/team-guide.md`。
+- **Team（团队）**：归组相关项目，作为工作空间的第一层导航。
+- **Project（项目）**：一个产品或服务的文档集合，按项目成员与角色管理访问；人员权限在项目内分配。
+- **Folder（文件夹）**：项目内的多级目录，可以保留空文件夹，在任意目录下继续新建子目录。
+- **Document（文档）**：OpenAPI、Markdown 或 TXT，分别使用不同图标。显示名称与文件名分开保存，所选文件夹和文件名生成稳定的 `relative_path`，例如 `apis/orders.yaml`、`docs/team-guide.md` 或 `notes/checklist.txt`。
 - **Branch（分支）**：同一份文档可以分别维护 `dev`、`test` 和受保护的 `prod` 内容，也可创建自定义分支。
 - **Draft 与 Version（草稿与版本）**：修改先进入草稿；Project Admin 或 SuperAdmin 审核通过后生成不可变版本。Writer 和 Agent 可以提交草稿。
 
-团队在 Admin 工作台管理这些内容。Agent 使用 MCP Token 获得授权范围内的读取或草稿操作权限，Vdoc Skill 提供先查询再协作的工作流。
+在 Admin 的**工作空间**按团队、项目和文件夹逐级找到文档。项目内同时提供文档、项目成员和有权限时可见的项目设置；人员访问权限以项目为单位。点击文档后进入独立页面：左侧是当前项目的文件树，中间是正文，右侧是文档目录和版本、差异、AI、设置等工具。分支与版本在正文上方切换，分享与编辑草稿位于文档顶栏。窄屏通过抽屉和弹窗打开文件树与目录。
+
+Agent 使用 MCP Token 获得授权范围内的读取或草稿操作权限，Vdoc Skill 提供先查询再协作的工作流。
 
 ## 首次试用之后
 

@@ -60,7 +60,7 @@ Page AI Chat includes a bounded window of the current session history. A persist
 
 ## Page Chat
 
-**Document AI** follows the published version or draft selected at the top of the workspace. Diff summaries and chat remain available through the API; workspace diff tools have no chat entry. A session is bound to the current Project, Document, and Draft, Version, or Diff and reads only authorized context. Chat reuses the same Draft, Version, and Diff context builder without adding other page data.
+Open a document from **Workspace**, choose its branch, published or draft state, and revision above the content, then open **Document AI** from the document tools. Wide screens show summaries and chat beside the content; narrow screens show the AI panel until you return to the preview. AI uses the selected revision rather than switching to the latest version when a tool opens. Diff summaries and chat remain available through the API; workspace diff tools have no chat entry. A session is bound to the current Project, Document, and Draft, Version, or Diff and reads only authorized context. Chat reuses the same Draft, Version, and Diff context builder without adding other page data.
 
 Answers must be marked AI-generated. Page chat cannot read across Projects or present an answer as machine Diff or a human review decision.
 
@@ -89,7 +89,7 @@ See [API Reference](api-reference.md#admin-ai-routes) for the complete route and
 2. If a Project needs a separate model, gateway, or prompts, have its Project Admin configure and test the override.
 3. Submit a test Draft and confirm its summary status can be read.
 4. Have a human review and publish the test Version, then confirm the Version summary can be read.
-5. Send one non-sensitive chat message from a Draft, Version, or Diff page.
+5. Open an independent document page, select the test draft or published version, and send one non-sensitive message in **Document AI**. Confirm the selected revision.
 6. Confirm disabled or failed cases show `skipped` or `failed` while Diff and human review still work.
 7. Check that audit data has status and token usage, but no raw credentials, credential headers, or secrets embedded in prompts; prompt override, summary, and chat records remain available as defined by the product.
 
