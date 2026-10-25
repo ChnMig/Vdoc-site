@@ -2,7 +2,7 @@
 
 ## v0.3.17-beta.10
 
-- Separate Versions and Diffs. Compare published versions across the same document's branches, including archived history; preserve direction and stored results.
+- Separate Versions and Diffs. Compare published versions across the same document's branches, including archived history; preserve direction and stored results. OpenAPI browsing moves into the reader with existing endpoint links preserved.
 - Toggle AI beside readable content on wide screens or in a narrow-screen modal with keyboard focus cycling and dialog coordination. Retain the current context's chat and input across closing, reopening, and resizing.
 - Document settings has details/branches tabs. Tools retain the reader, scroll, and input; folders and project tabs update locally with short transitions, browser history, and reduced-motion support.
 

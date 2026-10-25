@@ -35,6 +35,8 @@ Browse folders under the project's **Documents** tab and click a document to ope
 
 Click anywhere on a folder row to expand or collapse it and choose a creation location without closing the current document. The open document and folder location have separate selection states. Teams, projects, people, and folders have distinct icons, as do OpenAPI, Markdown, and TXT files.
 
+Published OpenAPI content has **Source / Endpoints** tabs with search, grouping, pagination, and details. Existing endpoint links still work.
+
 **Versions** lists publication history across the document's branches; select a revision to read it. The separate **Diffs** tool selects a source and target branch with their published versions. Compare within or across branches of the same document, excluding drafts. Changes run from source to target. After changing a branch, reselect its version. Stored results load automatically; otherwise click **Compare**.
 
 **Document settings** contains **Document details** and **Branches** tabs. Switching retains unsaved input; actions depend on your project role and document status.
