@@ -60,7 +60,7 @@ Page AI Chat includes a bounded window of the current session history. A persist
 
 ## Page Chat
 
-**Document AI** follows the published version or draft selected at the top of the workspace. Diff summaries and chat remain available through the API; workspace diff tools have no chat entry. A session is bound to the current Project, Document, and Draft, Version, or Diff and reads only authorized context, without adding other page data.
+**Document AI** follows the published version or draft selected at the top of the workspace. Diff summaries and chat remain available through the API; workspace diff tools have no chat entry. A session is bound to the current Project, Document, and Draft, Version, or Diff and reads only authorized context. Chat reuses the same Draft, Version, and Diff context builder without adding other page data.
 
 Answers must be marked AI-generated. Page chat cannot read across Projects or present an answer as machine Diff or a human review decision.
 
