@@ -1,7 +1,7 @@
 # Vdoc 主 PRD
 
 > 本文件是 Vdoc 主 PRD，合并了原 `PRD.md` 的精简 MVP 目标与 `PRD_new.md` 的完整产品方案。
-> v0.1 MVP 范围以 Project 下的多类型文档管理为准：Project 可以包含多个文档，每个文档有名称、类型、项目内相对路径等通用信息。文档类型支持 OpenAPI 接口文档、Markdown 和 TXT 纯文档。OpenAPI 文档保留语义 Diff、Breaking Change、Endpoint Index 和 MCP 查询；Markdown 和 TXT 文档支持纯文件 Diff。三类文档沿用同一套分支/环境、草稿审核发布、Promote 到目标草稿和用户权限体系。MCP 不允许直接发布正式版本；发布必须在 Vdoc 后台由 Project Admin 或 SuperAdmin 人工审核触发。后台内置 AI 模块是必要能力：管理员可配置 OpenAI-compatible 模型，系统自动基于 Diff 生成版本变更总结，审核人和查看者可在后台页面围绕草稿、版本和 Diff 与 AI 对话。公开文档链接分享也是 v0.1 MVP 的正式能力：Project Admin 或 SuperAdmin 可以为指定文档分支创建多个独立、可撤销的公开链接，并在创建时选择无密码或密码保护；匿名访问者无需账号即可安全查看已发布内容并下载原文件。公开分享不改变草稿审核和人工发布边界，只能暴露已发布版本。
+> v0.1 MVP 范围以 Project 下的多类型文档管理为准：Project 可以包含多个文档，每个文档有名称、类型、项目内相对路径等通用信息。文档类型支持 OpenAPI 接口文档、Markdown 和 TXT 纯文档。OpenAPI 文档保留语义 Diff、Breaking Change、Endpoint Index 和 MCP 查询；Markdown 和 TXT 文档支持纯文件 Diff。三类文档沿用同一套分支/环境、草稿审核发布、Promote 到目标草稿和用户权限体系。MCP 不允许直接发布正式版本；发布必须在 Vdoc 后台由 Project Admin 或 SuperAdmin 人工审核触发。后台内置 AI 模块是必要能力：管理员可配置 OpenAI-compatible 模型，系统自动基于 Diff 生成版本变更总结，审核人和查看者可在文档 AI 中围绕所选草稿或正式版本对话，Diff 对话保留 API 能力。公开文档链接分享也是 v0.1 MVP 的正式能力：Project Admin 或 SuperAdmin 可以为指定文档分支创建多个独立、可撤销的公开链接，并在创建时选择无密码或密码保护；匿名访问者无需账号即可安全查看已发布内容并下载原文件。公开分享不改变草稿审核和人工发布边界，只能暴露已发布版本。
 
 ## 1. 产品概述
 
@@ -13,7 +13,7 @@
 
 Vdoc 是一个面向 AI 协作开发团队的文档协作中心。
 
-它以 Project 为协作边界，在 Project 下管理多种类型的文档。OpenAPI 接口文档提供版本管理、语义 Diff、Breaking Change 检测、Endpoint Index、MCP 接入和官方 Skill 工作流；Markdown 纯文档面向 `AGENTS.md`、prompt 文档、runbook、guide 等 `.md` 文件；TXT 纯文档面向 `.txt` 文件，按字面文本预览并保留换行。两者提供版本快照、行级 Diff、草稿审核发布和 MCP 查询/草稿写入。后台内置 AI 模块使用管理员配置的 OpenAI-compatible 模型，根据 Diff 自动总结版本变化，并支持审核页、版本页和 Diff 页内对话。项目管理员还可以把指定分支的已发布文档通过受控公开链接提供给项目外部人员查看和下载。Vdoc 让后端、前端、产品、运维、外部文档使用者和 AI Agent 始终围绕可信文档协作。
+它以 Project 为协作边界，在 Project 下管理多种类型的文档。OpenAPI 接口文档提供版本管理、语义 Diff、Breaking Change 检测、Endpoint Index、MCP 接入和官方 Skill 工作流；Markdown 纯文档面向 `AGENTS.md`、prompt 文档、runbook、guide 等 `.md` 文件；TXT 纯文档面向 `.txt` 文件，按字面文本预览并保留换行。两者提供版本快照、行级 Diff、草稿审核发布和 MCP 查询/草稿写入。后台内置 AI 模块使用管理员配置的 OpenAI-compatible 模型，根据 Diff 自动总结版本变化，并在文档 AI 中围绕所选正式版本或草稿对话，Diff 摘要与对话保留 API 能力。项目管理员还可以把指定分支的已发布文档通过受控公开链接提供给项目外部人员查看和下载。Vdoc 让后端、前端、产品、运维、外部文档使用者和 AI Agent 始终围绕可信文档协作。
 
 ### 1.3 一句话介绍
 
@@ -151,9 +151,9 @@ Vdoc 使用后台配置的 AI 模型自动生成文档变更总结
 公开分享模块：
 
 ```text
-Project Admin 或 SuperAdmin 选择文档和目标分支
+Project Admin 或 SuperAdmin 打开文档，选择目标分支和正式版本
   ↓
-选择仅最新版本或全部已发布版本，并设置有效期
+点击顶部分享，固定当前展示的正式版本，并设置有效期
   ↓
 选择无密码，或由管理员输入访问密码
   ↓
@@ -204,7 +204,7 @@ MVP 完成时应达到：
 10. Web UI 提供产品级首轮体验：清晰的信息架构、引导式 onboarding、面向空状态的下一步指引、角色权限提示和审核协作入口。
 11. Web UI 提供开发者门户式 API 文档浏览：按 tag / method / path 搜索和过滤 Endpoint，展示请求、响应、鉴权、服务地址、schema refs、版本内容和 breaking-change Diff。
 12. Project Admin 或 SuperAdmin 可以在后台配置 OpenAI-compatible AI 模型，系统能自动基于 OpenAPI/Markdown Diff 生成版本变更总结，并支持用户在审核页、版本页或 Diff 页内与 AI 对话。
-13. Project Admin 或 SuperAdmin 可以为同一文档分支创建多个彼此独立的公开链接，选择仅最新版本或全部已发布版本，从 1 个月、3 个月、6 个月、1 年和永久中选择有效期，并选择无密码或密码保护，默认有效期为 3 个月。
+13. Project Admin 或 SuperAdmin 可以从文档顶部为当前正式版本创建多个独立的固定版本链接，从 1 个月、3 个月、6 个月、1 年和永久中选择有效期，并选择无密码或密码保护，默认有效期为 3 个月；旧仅最新和全部版本链接继续兼容。
 14. 匿名访问者无需账号即可通过有效链接安全查看已发布的 OpenAPI 或 Markdown 文档并下载原文件；密码保护链接必须先输入正确密码，全部版本链接才可查看该分支的已发布历史，撤销、过期或上级资源停用后访问立即失效。
 
 ---
@@ -316,7 +316,7 @@ MVP 暂不做：
 - 审核并发布 OpenAPI 文档草稿为正式 Document Version
 - 审核并发布 Markdown 文档草稿为正式 Document Version
 - 配置项目可用的 AI 模型，或使用 SuperAdmin 配置的系统默认模型
-- 在草稿审核、版本查看和 Diff 查看时使用内置 AI 生成总结并进行对话
+- 在文档 AI 中围绕所选正式版本或草稿查看总结并对话，Diff 摘要和对话保留 API 能力
 - 为项目内文档的指定分支创建多个无密码或密码保护链接，查看保留的链接历史，重新显示或复制有效链接，并立即撤销不再需要的链接
 - 查看项目内审计日志，MVP 可选
 
@@ -617,7 +617,7 @@ test
 prod
 ```
 
-可选支持 `feature/*`，例如 `feature/checkout-v2` 或 `feature/agent-prompt-v2`。`prod` 默认受保护，发布到 `prod` 必须由 Project Admin 或 SuperAdmin 审核。
+支持安全的自定义分支名，例如 `main`、`release/2026` 或 `feature/checkout-v2`，不要求 `feature/` 前缀。`dev`、`test`、`prod` 保留环境分支类型，其他名字使用功能分支类型；`prod` 默认受保护，发布到 `prod` 必须由 Project Admin 或 SuperAdmin 审核。分支名不能含控制字符、反斜杠、空路径段或 `.` / `..` 路径段。
 
 不同分支下的版本互相隔离。同一 Document 下的版本唯一性按 `document_id + branch_id + version_name` 判断。
 
@@ -706,7 +706,7 @@ Built-in Admin AI 是 Vdoc 后台内置的 AI 模块，和 MCP/Skill 面向外�
 
 - OpenAPI 或 Markdown 草稿提交后，Vdoc 基于 Draft Diff Preview 生成审核总结。
 - 草稿审核通过并发布版本后，Vdoc 基于正式 Diff 生成版本变更总结。
-- 用户在 Draft Review、Version、Compare/Diff 页面可以打开 AI Chat 面板，围绕当前草稿、版本或 Diff 对话。
+- 工作区文档 AI 跟随顶部选定的正式版本或草稿；Diff 上下文的摘要和对话保留 API 能力，工作区差异工具不提供聊天入口。
 - AI 上下文必须来自 Vdoc 已保存的数据：Diff Summary、Diff Items、Endpoint Detail、Markdown snapshot、review comment、changelog 和版本 metadata。
 - AI 总结和对话结果必须标记为 AI-generated，不能覆盖机器生成的 Diff Item，也不能作为发布权限判断。
 - `api_key` 必须加密保存，后台列表和详情默认脱敏，只有具备配置权限的管理员可以更新。
@@ -720,7 +720,7 @@ Public Document Share Link 是由 Project Admin 或 SuperAdmin 为某个 Documen
 
 - 同一文档分支可以创建多个链接，每个链接独立生效、独立过期、独立撤销。
 - 链接创建后，其文档、分支、版本范围、有效期和密码保护策略不可修改；需要不同策略或更换密码时，必须撤销旧链接并创建新链接。
-- 版本范围支持 `latest` 和 `all_versions`。`latest` 始终指向该分支当前最新的已发布版本；`all_versions` 可以访问该分支全部已发布版本，并随未来人工发布的新版本更新。
+- 文档顶部分享固定当前正式版本，使用 `version_scope=3`（`fixed_version`）和 `version_id`；后续发布不改变链接内容。草稿没有分享入口。旧 `latest`（1）和 `all_versions`（2）继续有效，分别跟随最新发布或允许该分支全部已发布版本；创建这两类兼容策略时不传 `version_id`。
 - 有效期支持 1 个月、3 个月、6 个月、1 年和永久，默认 3 个月。
 - 创建时可以选择不设密码，或由管理员输入访问密码启用保护。系统只显示链接是 protected 或 unprotected，不返回或重新显示密码。
 - 公开分享只暴露已发布版本，不暴露草稿、审核内容或未发布版本，也不改变现有人工审核发布要求。
@@ -734,7 +734,11 @@ Public Document Share Link 是由 Project Admin 或 SuperAdmin 为某个 Documen
 
 ### 7.1 初始化流程
 
-后台默认进入文档工作区，按 Team → Project → 文件夹树 → Document 逐级定位。内容、草稿及审核、版本、差异和分享作为所选文档内的任务标签，元信息和分支管理收在管理员可见的文档设置中。侧边导航合并原有文档、草稿、版本、差异入口，保留团队、项目、用户、Agent 接入和系统管理入口；历史深链接仍打开对应文档任务。切换文档标签保留未保存的编辑，切换团队、项目或文件重置对应上下文。文件树区分已发布、有草稿和空文档，内容预览优先展示已发布版本，并明确标记尚未发布的草稿。
+后台默认进入文档工作区，按 Team → Project → 文件夹树 → Document 逐级定位。文件夹整行用于展开或收起，不切换已打开文档；OpenAPI、Markdown 和 TXT 使用可区分的类型图标，并标记已发布、有草稿或空文档状态。
+
+文档顶部统一选择分支、正式版或草稿以及具体版本或草稿记录；内容预览、审核、工具和 AI 使用同一上下文。主区分为文档、文档工具、文档 AI、文档设置；版本和差异收在文档工具，元信息与分支管理收在管理员可见的文档设置。分享是顶部按钮，只为当前展示的正式版本创建固定链接，草稿不可分享。
+
+侧边导航合并原有文档、草稿、版本、差异入口，保留团队、项目、用户、Agent 接入和系统管理入口；历史深链接仍打开对应文档和上下文。切换文档任务保留未保存的编辑，切换团队、项目或文件重置对应上下文。
 
 ```text
 用户注册/登录
@@ -1131,13 +1135,13 @@ API 文档 Promote 使用语义 Diff Preview；Markdown 文档 Promote 使用纯
 ### 7.12 创建和管理文档公开链接流程
 
 ```text
-Project Admin 或 SuperAdmin 进入文档公开分享管理页
+Project Admin 或 SuperAdmin 在文档顶部选择目标 Branch 和正式版本
   ↓
-选择 Document 和目标 Branch
+点击分享按钮；草稿不能创建分享
   ↓
-确认该 Branch 已有至少一个人工发布的版本
+确认对话框中的文档、分支和版本与当前展示内容一致
   ↓
-选择 latest 或 all_versions
+以 version_scope=3 和该 version_id 固定分享目标
   ↓
 选择 1 个月、3 个月、6 个月、1 年或永久，默认 3 个月
   ↓
@@ -1292,12 +1296,12 @@ Document 是 Project 下的文档管理基本单位。一个 Project 可以有�
 
 #### 描述
 
-每个 Document 下维护独立的文档分支 / 环境，用于区分 `dev`、`test`、`prod` 和可选 `feature/*` 文档版本。
+每个 Document 下维护独立的文档分支 / 环境，默认有 `dev`、`test`、`prod`，并支持安全的自定义分支名。
 
 #### 功能
 
 - 创建 Document 时自动初始化 `dev`、`test`、`prod`。
-- Project Admin 可以创建 `feature/*` 分支。
+- Project Admin 可以在文档设置的分支管理中创建或重命名自定义分支，`feature/` 前缀可选；环境分支仍遵循既有保护规则。
 - `prod` 默认受保护。
 - Document Version、Draft、Endpoint、Diff 查询必须能按 branch 过滤。
 - 同一 Document 下分支名唯一。
@@ -1689,7 +1693,7 @@ effective_permissions = token.scopes ∩ user_project_role.permission_codes
 
 #### 描述
 
-Vdoc 后台需要内置一个 AI 模块。管理员在后台配置 OpenAI-compatible 模型后，Vdoc 自动基于 OpenAPI 语义 Diff 或 Markdown 纯文件 Diff 生成版本变更总结；用户在草稿审核、版本详情和 Diff 页面可以与该 AI 进行上下文对话。
+Vdoc 后台需要内置一个 AI 模块。管理员在后台配置 OpenAI-compatible 模型后，Vdoc 自动基于 OpenAPI 语义 Diff 或 Markdown 纯文件 Diff 生成版本变更总结；用户在文档 AI 中围绕所选正式版本或草稿对话；Diff 上下文的摘要和对话保留 API 能力。
 
 该模块是后台产品能力，不是 MCP 直接发布能力。AI 可以解释、总结、提醒审核重点，但不能 approve、request changes、reject、publish，也不能修改草稿或正式版本。
 
@@ -1736,7 +1740,7 @@ Vdoc 需要在以下场景生成或刷新 AI 总结：
 - OpenAPI 或 Markdown 草稿提交后，基于 Draft Diff Preview 生成审核总结。
 - 草稿被更新并重新提交后，重新生成审核总结。
 - 草稿审核通过并发布正式版本后，基于正式 Diff 生成版本总结。
-- 用户手动在 Diff / Version 页面点击“重新生成 AI 总结”时，在权限允许且 Provider 可用的情况下重新生成。
+- 用户在文档 AI 中手动重新生成所选版本或草稿的总结时，检查权限和 Provider 状态；Diff 总结重新生成继续通过 API 提供。
 
 #### 总结内容要求
 
@@ -1759,11 +1763,7 @@ Markdown 文档总结至少包含：
 
 #### 页面内对话
 
-支持对话的页面：
-
-- Draft Review 页面。
-- Version 页面。
-- Compare / Diff 页面。
+工作区通过文档 AI 对顶部选定的正式版本或草稿提供对话；Diff 上下文的摘要与对话保留 API 能力，不提供工作区聊天入口。
 
 对话上下文必须限制在当前用户有权限访问的资源内，包括：
 
@@ -1792,9 +1792,9 @@ Markdown 文档总结至少包含：
 - 非空 Prompt 必须满足 `{{context}}` / `{{message}}` 占位符约束。
 - `base_url`、`api_mode`、`model`、`api_key` 支持 OpenAI-compatible 配置，其中 `api_mode` 至少支持 `/v1/chat/completions` 和 `/v1/responses`，`api_key` 存储和展示均符合脱敏要求。
 - 提交 OpenAPI 草稿后，审核页能展示基于 Diff Preview 生成的 AI 审核总结。
-- 发布 OpenAPI 新版本后，Version / Diff 页面能展示 AI 版本变更总结。
+- 发布 OpenAPI 新版本后，文档 AI 能展示该正式版本的 AI 变更总结；Diff 摘要 API 继续可用。
 - 提交或发布 Markdown 文档后，页面能展示基于 Markdown Diff 的 AI 文档变更总结。
-- 用户可以在 Draft Review、Version、Compare / Diff 页面围绕当前上下文与 AI 对话。
+- 用户可以在文档 AI 中围绕顶部选定的正式版本或草稿对话；Diff 对话继续通过 API 提供。
 - AI Provider 未配置或调用失败时，原始 Diff、人工审核和版本查看仍可正常使用。
 - AI 不能 approve、request changes、reject、publish 或修改草稿内容。
 
@@ -1810,9 +1810,11 @@ Vdoc 需要允许 Project Admin 或 SuperAdmin 把指定文档分支中已经人
 
 - Project Admin 和 SuperAdmin 可以为同一 Document 的同一 Branch 创建多个公开链接。
 - 创建时必须明确选择 Branch，链接创建后永久绑定该 Branch。
-- 版本范围支持 `latest` 和 `all_versions`。
+- 文档顶部分享固定当前正式版本，使用 `fixed_version`（scope 3）及其 `version_id`，草稿不可分享。
+- 旧 `latest` 和 `all_versions` 策略保持兼容。
 - `latest` 只允许访问该 Branch 当前最新的已发布版本，并在未来发布新版本后自动指向新的最新版本。
 - `all_versions` 允许访问该 Branch 的全部已发布版本，并在未来发布新版本后把新版本加入历史。
+- `fixed_version` 只允许所选版本，版本必须属于指定 Project、Document、Branch 且已发布；元信息、正文和下载都不得切换到其他版本。
 - 有效期只提供 1 个月、3 个月、6 个月、1 年和永久五种选择，默认 3 个月。
 - 创建时可以选择 unprotected，或由管理员输入密码创建 protected 链接。
 - 文档分支至少存在一个已发布版本时才能创建公开链接。
@@ -1830,6 +1832,7 @@ Vdoc 需要允许 Project Admin 或 SuperAdmin 把指定文档分支中已经人
 - protected 链接必须先输入正确密码，才能访问文档元信息、内容、版本历史或下载；unprotected 链接不要求密码。
 - `latest` 链接不展示完整版本历史，只展示当前最新已发布版本。
 - `all_versions` 链接展示该 Branch 的已发布版本历史，默认打开最新版本，并允许切换到历史版本。
+- `fixed_version` 链接只展示固定的正式版本，不提供其他版本历史；发布新版本后仍返回原内容。
 - 公开访问只能选择链接绑定 Branch 内允许范围的已发布版本，不得访问其他 Branch、草稿、审核内容或未发布版本。
 - OpenAPI 和 Markdown 的下载都必须经过 Vdoc 后端授权，不提供对象存储公开地址。
 
@@ -1850,7 +1853,7 @@ Vdoc 需要允许 Project Admin 或 SuperAdmin 把指定文档分支中已经人
 
 #### 数据与接口边界
 
-- 分享记录需要保存所属文档和 Branch、版本范围、密码保护状态、有效状态、过期时间、创建人与创建时间，以及撤销人与撤销时间。
+- 分享记录需要保存所属文档和 Branch、版本范围、可空的固定版本 ID、密码保护状态、有效状态、过期时间、创建人与创建时间，以及撤销人与撤销时间。scope 3 必须有固定版本 ID，scope 1/2 不得带固定版本 ID。
 - 系统需要同时保存用于访问校验的不可逆摘要，以及用于管理员重新显示 active 链接的加密密文；不得保存可直接读取的明文密钥。
 - protected 链接的密码只保存安全的单向校验信息，不得保存可读取或恢复的密码。
 - 管理端接口只在创建时接受可选密码，列表、重新显示和撤销均不得返回密码；每次操作都必须重新确认当前用户仍是对应 Project 的 Project Admin 或 SuperAdmin。
@@ -1869,12 +1872,13 @@ Vdoc 需要允许 Project Admin 或 SuperAdmin 把指定文档分支中已经人
 #### 验收标准
 
 - Project Admin 和 SuperAdmin 可以创建多个彼此独立的 Branch 绑定链接，Writer 和 Reader 不能创建或管理链接。
-- 创建表单提供 `latest`、`all_versions`、五种有效期以及 unprotected / protected 选择，默认有效期为 3 个月；选择 protected 时由管理员输入密码。
+- 顶部分享对话框显示当前文档、分支和正式版本并锁定目标，提供五种有效期及 unprotected / protected 选择，默认有效期为 3 个月；选择 protected 时由管理员输入密码。
 - 管理员可以查看保留的链接历史及 protected / unprotected 状态，重新显示或复制 active 链接，并立即撤销任一 active 链接；任何管理响应都不返回密码。
 - 撤销一个链接不会影响同一文档分支上的其他链接，撤销后的链接不能恢复。
 - 匿名访问者无需登录即可安全查看允许的 OpenAPI 或 Markdown 内容并下载原始文件；protected 链接必须先输入正确密码。
 - `latest` 链接始终只访问绑定 Branch 的最新已发布版本，`all_versions` 链接只能查看该 Branch 的已发布历史。
 - 手工发布新版本后，`latest` 链接指向新版本，`all_versions` 链接的历史加入新版本；草稿和未发布版本始终不可见。
+- 固定版本链接在新版本发布后保持原内容；元信息、正文和下载只允许同一个固定版本，猜测其他版本或分支 ID 不能扩大权限。
 - 密码缺失、密码错误、无效、未知、过期、已撤销、越权或上级资源失效的链接显示相同的通用不可用结果，且密码尝试受到频率限制。
 - 密码不出现在 URL、日志、浏览器存储、链接列表或重新显示结果中，也不能原地修改；更换密码必须撤销旧链接并创建新链接。
 - Markdown、OpenAPI、浏览器历史、缓存、referrer、搜索引擎索引和公开响应都满足本节的安全与隐私要求。
@@ -2759,19 +2763,16 @@ MVP Skill 应满足：
 
 ### 11.5 Document 页面
 
-展示：
+左侧文件树按团队和项目定位文档；文件夹整行切换展开状态且保留当前文档。OpenAPI、Markdown、TXT 使用不同类型图标。
 
-- 文档名称
-- 文档类型
-- 项目内相对路径
-- 文档说明
-- 最新版本
-- 版本列表
-- branch / environment
-- 创建草稿入口
-- 公开分享入口，仅 Project Admin 和 SuperAdmin 可见
-- OpenAPI 类型文档显示接口数量
-- Markdown 类型文档显示文件大小和最近 diff summary
+顶部统一显示文档名称、路径以及分支、正式版/草稿、版本或草稿记录选择。主区提供：
+
+- 文档：查看所选正文、编辑草稿和审核；正式版只读。
+- 文档工具：版本列表与差异比较，沿用顶部上下文。
+- 文档 AI：围绕顶部选定的正式版本或草稿对话。
+- 文档设置：元信息与分支管理，仅有管理权限的用户可操作。
+
+分享位于顶部，仅 Project Admin 和 SuperAdmin 可创建，并固定当前所选正式版本；选中草稿时不能创建分享。
 
 ---
 
@@ -2835,7 +2836,7 @@ MVP Skill 应满足：
   "mcpServers": {
     "vdoc": {
       "command": "npx",
-      "args": ["--yes", "github:ChnMig/Vdoc-mcp#cc304364bce07c605029ca76144446307af761f7"],
+      "args": ["--yes", "github:ChnMig/Vdoc-mcp#ea2445e4e528e4ee98b97ef35121c93975b07afa"],
       "env": {
         "VDOC_BASE_URL": "https://your-vdoc.example.com",
         "VDOC_MCP_TOKEN": "REPLACE_WITH_LOCAL_VDOC_MCP_TOKEN"
@@ -2897,15 +2898,11 @@ MVP Skill 应满足：
 
 ### 11.12 AI 总结和对话面板
 
-出现位置：
-
-- Draft Review 页面
-- Version 页面
-- Compare / Diff 页面
+文档工作区的文档 AI 区域，目标为顶部选定的正式版本或草稿。Diff 上下文的摘要与对话保留 API 能力，不在工作区差异工具中提供聊天入口。
 
 展示：
 
-- 当前上下文标题，例如 `User Service API 1.0.0 -> 1.1.0`
+- 当前上下文标题，例如 `User Service API dev 1.1.0`
 - AI-generated 标识
 - 自动生成的版本变更总结
 - 重新生成按钮（需要权限）
@@ -2913,18 +2910,17 @@ MVP Skill 应满足：
 - 用户输入框
 - Provider 未配置、调用中、失败、超时等状态
 
-对话面板必须同时保留机器 Diff 和人工审核按钮，不能让 AI 总结取代原始事实来源。
+文档中的机器 Diff 与人工审核继续可用，AI 总结不能取代原始事实或审核决定。
 
 ---
 
-### 11.13 文档公开分享管理页
+### 11.13 文档分享对话框
 
 仅 Project Admin 和 SuperAdmin 可访问。
 
 展示：
 
-- Project、Document 和 Branch 上下文
-- `latest` / `all_versions` 版本范围选择
+- 当前 Project、Document、Branch 和正式版本上下文，固定分享目标
 - 1 个月、3 个月、6 个月、1 年和永久有效期选择，默认 3 个月
 - unprotected / protected 选择；选择 protected 时由管理员输入密码
 - 创建公开链接
@@ -2992,7 +2988,7 @@ Skill 文件：代码仓库或 RustFS 对象存储
 | `api_endpoint_details` | `endpoint_id`、`parameters_json`、`request_body_json`、`responses_json`、`normalized_operation_json`。 |
 | `document_version_diffs` | `document_id`、`from_branch_id`、`to_branch_id`、`from_version_id`、`to_version_id`、`diff_type`、`diff_status`、RustFS diff object key、统计字段和摘要。 |
 | `document_diff_items` | `diff_id`、`endpoint_id`、`change_type`、`severity`、`method`、`path`、`location`、`old_value`、`new_value`、`message`、`frontend_impact`、`line_no`、`hunk_header`。OpenAPI 使用语义条目，Markdown 使用文件 diff 条目。 |
-| `document_shares` | `project_id`、`document_id`、`branch_id`、版本范围、密码保护状态、状态、过期时间、创建和撤销信息、访问校验摘要、用于 active 链接重新显示的加密密文，以及 protected 链接的安全单向密码校验信息。不得保存明文分享密钥或可读取密码。 |
+| `document_shares` | `project_id`、`document_id`、`branch_id`、版本范围、可空 `pinned_version_id`、密码保护状态、状态、过期时间、创建和撤销信息、访问校验摘要、用于 active 链接重新显示的加密密文，以及 protected 链接的安全单向密码校验信息。不得保存明文分享密钥或可读取密码。 |
 | `mcp_tokens` | `user_id`、`name`、`token_hash`、`token_ciphertext`、`cipher_kid`、`scopes`、`status`、`expires_at`、`last_used_at`、`revoked_at`。不包含 `project_id`。 |
 | `ai_provider_configs` | `scope_type`、`project_id`、`name`、`base_url`、`api_mode`、`model`、加密后的 `api_key_ciphertext`、`cipher_kid`、参数 JSON、`enabled`、`created_by`、`updated_by`。 |
 | `ai_change_summaries` | `project_id`、`document_id`、`draft_id`、`diff_id`、`from_version_id`、`to_version_id`、`provider_config_id`、`summary_markdown`、`status`、错误摘要、token usage、生成时间。 |
@@ -3436,7 +3432,7 @@ Vdoc-mcp/skills/vdoc/SKILL.md
 完成标准：
 
 ```text
-Project Admin 配置 AI Provider 后，提交或发布 OpenAPI / Markdown 文档时，后台能自动生成 AI 变更总结；审核人和 Reader 可以在有权限的页面围绕当前 Diff 与 AI 对话，但 AI 不能执行发布动作。
+Project Admin 配置 AI Provider 后，提交或发布 OpenAPI / Markdown 文档时，后台能自动生成 AI 变更总结；审核人和 Reader 可以在文档 AI 中围绕所选正式版本或草稿对话，Diff 对话保留 API 能力；AI 不能执行发布动作。
 ```
 
 ---
@@ -3515,7 +3511,7 @@ Project Admin 或 SuperAdmin 可以查看 AI 提交的草稿，批准后发布�
 目标：
 
 - 管理员创建、查看、重新显示、复制和撤销公开链接
-- `latest` / `all_versions` 范围和五种有效期
+- 固定当前正式版本的 `fixed_version` 链接，兼容旧 `latest` / `all_versions` 范围，提供五种有效期
 - unprotected / protected 选择，密码只在创建时输入且不能返回或修改
 - 匿名安全查看和原始文件下载
 - 公开访问安全与 create、reveal、revoke、view、download 审计
@@ -3664,11 +3660,11 @@ Project Admin 人工 approve 后，系统发布新版本并保存正式版本 AI
 ### Demo 9：创建并撤销文档公开链接
 
 ```text
-Project Admin 为 User Service API 的 prod Branch 创建一个默认 3 个月的 unprotected latest 链接
+Project Admin 在 User Service API 的 prod Branch 选择正式版本 1.0.0，从顶部分享创建默认 3 个月的 unprotected fixed_version 链接
 Project Admin 复制链接，并可在管理页重新显示该 active 链接
-匿名访问者无需登录即可查看 prod 最新已发布版本并下载原始 OpenAPI 文件
-Project Admin 再创建一个 protected all_versions 链接并输入密码，管理页只显示 protected 状态，不显示密码
-匿名访问者输入正确密码后可以查看 prod 的已发布历史；密码缺失或错误时只看到统一不可用状态
+prod 发布 2.0.0 后，匿名访问者仍只能查看和下载 1.0.0，不能切换到其他版本
+Project Admin 再为当前正式版本创建 protected 固定链接并输入密码，管理列表只显示 protected 状态，不显示密码
+匿名访问者输入正确密码后才能查看固定版本；密码缺失或错误时只看到统一不可用状态
 Project Admin 撤销 protected 链接
 匿名访问者再次打开被撤销链接时，即使密码正确也只看到统一不可用状态
 系统记录 create、reveal、revoke、view、download 审计事件

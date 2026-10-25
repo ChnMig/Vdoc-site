@@ -53,6 +53,8 @@ must identify the source that was built; a `-dirty` suffix is acceptable only
 for disposable local development and blocks a release/Pilot gate. Release
 Compose values must match `workspace.lock.json`.
 
+On backend startup, migrations run automatically before the service becomes ready. Beta.8 applies `010_custom_branch_names.sql` and `011_document_share_fixed_version.sql` after the existing migrations: custom branch names become available and fixed-version shares gain their nullable version reference. Existing branches, published versions, and scope 1/2 shares retain their behavior. Check startup health after upgrading the backend and Admin together.
+
 Default local URLs:
 
 - Backend health: `http://127.0.0.1:8080/api/v1/open/health`
@@ -91,14 +93,14 @@ Open Admin at `http://127.0.0.1:8081` and complete the first setup path:
 
 1. Create or identify a Team.
 2. Create a Project.
-3. Create an OpenAPI or Markdown Document.
-4. Create a Branch.
-5. Create and submit a Draft.
-6. Review and approve to publish a Version.
+3. Create an OpenAPI, Markdown, or TXT Document with a separate display name and filename. Choose or create its project folder; an optional upload creates the first `dev` draft without publishing.
+4. In Document settings, create a custom Branch such as `main` or `release/2026`; no `feature/` prefix is required. Confirm `dev`, `test`, and `prod` remain environment branches.
+5. Use the document's top selectors to choose the Branch, Draft mode, and draft record. Edit and submit the Draft.
+6. Review and approve to publish a Version, then select it in Formal mode at the top.
 7. Create an MCP Token.
 8. Reveal the active token again, copy the generated MCP config, and open the Vdoc Skill installation page.
-9. Browse endpoint details, safe Markdown preview, document content, Draft Diff Preview, and Version Diff pages.
-10. As Project Admin, create both unprotected and password-protected public links for a published Branch. In a private browser window, verify latest/history viewing and original download, then revoke the link and confirm access fails immediately.
+9. Check the four document areas: Document, Document tools (versions and diffs), Document AI, and Document settings (metadata and branch management). Confirm they use the same top selection. Expand or collapse folders by clicking the whole row without changing the open document, and distinguish all three document-type icons.
+10. Publish another Version, then select the earlier Formal version and use the top Share button to create unprotected and password-protected links. In a private browser window, confirm metadata, content, and original download stay on that exact version; publish once more and verify the links still return it. Other version IDs and the history list must remain unavailable; Draft mode must not allow creation. Revoke the link and confirm access fails immediately. Existing scope 1/2 links must still follow latest or allow branch history respectively.
 
 Private REST uses a raw JWT in `Authorization` with no `Bearer` prefix. Keep JWTs and MCP tokens inside browser state, local agent config, or secret storage. Do not copy them into docs, logs, screenshots, command arguments, or issues.
 
@@ -106,7 +108,7 @@ For public shares, confirm the browser removes the `#vdoc_share_...` fragment be
 
 ## 7. Verify MCP Adapter And Skill
 
-After creating an MCP token in Admin, configure the target agent with `npx --yes github:ChnMig/Vdoc-mcp#cc304364bce07c605029ca76144446307af761f7`, `VDOC_BASE_URL=http://127.0.0.1:8080`, and `VDOC_MCP_TOKEN` in a secret-aware environment field. The Git commit must equal the `Vdoc-mcp` entry in `workspace.lock.json`; `@vdoc/mcp` is not published to the npm registry yet. Do not put tokens in CLI arguments.
+After creating an MCP token in Admin, configure the target agent with `npx --yes github:ChnMig/Vdoc-mcp#ea2445e4e528e4ee98b97ef35121c93975b07afa`, `VDOC_BASE_URL=http://127.0.0.1:8080`, and `VDOC_MCP_TOKEN` in a secret-aware environment field. The Git commit must equal the `Vdoc-mcp` entry in `workspace.lock.json`; `@vdoc/mcp` is not published to the npm registry yet. Do not put tokens in CLI arguments.
 
 Package checks remain local and do not publish anything:
 

@@ -22,6 +22,8 @@ docker compose exec -T postgres \
 
 保留 PostgreSQL 密码、存储凭据、JWT/MCP 密钥、管理员设置、端口、项目名和数据卷。`v0.3.10` 相对 v0.3.6 不新增应用数据库迁移；从 v0.3.0 或更早版本升级时，会执行尚未应用的 `007_parser_facts_and_history_pages.sql`，新增解析版本字段、历史查询索引和 Diff 的 `must_handle` 字段。升级前完成上面的备份；本版不会自动执行数据库降级。
 
+Beta.8 启动时自动应用待执行迁移，包括 010 自定义分支名和 011 固定版本分享；备份后同步升级 Backend/Admin，旧分享范围保持不变。
+
 若旧部署的 `services.admin.environment.VDOC_ADMIN_API_BASE_URL` 指向独立后端域名或 `127.0.0.1:8080`，改为 `'same-origin'`。当前 Admin 内置 Caddy 将 `/api/*` 同源转发到 `backend:8080`，运行时配置使用 `window.location.origin`；浏览器通过工作台域名访问 API，Skill、MCP 和 CLI 仍可直接访问后端域名。删除旧的 CORS origin 配置，并保留 `VDOC_SERVER_ENABLE_CORS: 'true'`。两份单文件 Compose（内置或外部 PostgreSQL）都使用这一默认配置。
 
 ```sh

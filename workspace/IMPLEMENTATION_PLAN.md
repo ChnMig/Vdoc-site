@@ -265,6 +265,8 @@ MCP Token 创建响应返回可复制 token 值；token 所属用户可以通过
 - 分享能力由随机 secret 的 hash 校验和加密 ciphertext 重显共同支持；完整 URL 只把 secret 放在 fragment。
 - 匿名 API 使用 `VdocShare` capability header；密码保护通过 bcrypt verifier 和 15 分钟 share-bound proof 实现。
 - `latest` scope 动态跟随最新发布版本；`all_versions` scope 可读取分支发布历史。
+- 文档顶部分享使用 `version_scope=3` 与 `version_id` 固定当前正式版本，草稿禁分享；scope 3 的 DB `pinned_version_id` 非空，scope 1/2 必须为空，旧策略保持兼容。创建时校验目标属于同一 Project、Document、Branch 且已发布，密码哈希释放锁后与 PostgreSQL 创建事务内均复核。
+- 固定分享的元信息、正文和下载只允许固定版本，不提供版本列表；内存和持久化窄快照采用相同规则，公开成功审计事务最终重查目标与撤销、到期、上级资源状态。启动自动执行迁移 011，不改写旧分享或发布快照。
 - 撤销、到期或 Project / Document / Branch 停用后立即统一返回 unavailable。
 - Markdown 公共页面禁 raw HTML、远程图片和危险链接；OpenAPI 只渲染转义文本；下载必须经后端授权。
 
@@ -294,7 +296,7 @@ MCP Token 创建响应返回可复制 token 值；token 所属用户可以通过
 - OpenAPI spec 的 MCP tool enum 必须与实现保持一致。
 - 文档测试必须阻止回退到旧的项目模型、旧路径、旧 ID 字段、旧工具名和持久化路径副本字段。
 - Markdown 文档流必须覆盖草稿、提交、审核、发布、latest lookup、纯文件 Diff 和 no-change 检测。
-- 公开分享必须覆盖角色权限、无发布版本、密码 proof 隔离/过期、latest/all_versions、撤销、上级资源停用、安全响应头和无敏感审计。
+- 公开分享必须覆盖角色权限、无发布版本、密码 proof 隔离/过期、latest/all_versions 兼容、固定历史版本发布后不变、拒绝其他版本/分支与草稿、密码校验后及最终审计时的并发目标复查、撤销、到期、上级资源停用、安全响应头和无敏感审计。PostgreSQL 真实测试同时验证 010→011 连续迁移、旧记录保留及新增 FK/CHECK。
 - AI 模块测试必须覆盖 Provider 配置脱敏、OpenAI-compatible Chat Completions/Responses 请求构造、Diff 总结生成、Provider 失败降级、Chat 权限边界和 AI 不能发布。
 - 原型分层 audit 必须继续阻止 transport/domain/background runtime 直接依赖 DB 细节。
 

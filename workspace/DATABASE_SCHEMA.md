@@ -37,17 +37,17 @@
 | `projects` | `status` | `smallint` | 1 active、2 archived |
 | `project_members` | `role` | `smallint` | 1 reader、2 writer、3 admin |
 | `project_members` | `status` | `smallint` | 1 active、2 disabled |
-| `documents` | `document_type` | `smallint` | 1 openapi、2 markdown |
+| `documents` | `document_type` | `smallint` | 1 openapi、2 markdown、3 txt |
 | `documents` | `status` | `smallint` | 1 active、2 archived |
 | `document_branches` | `kind` | `smallint` | 1 environment、2 feature |
 | `document_branches` | `status` | `smallint` | 1 active、2 archived |
 | `document_drafts` | `status` | `smallint` | 1 draft、2 submitted、3 changes_requested、4 rejected、5 published |
 | `document_versions` | `status` | `smallint` | 1 published |
-| `document_drafts`、`document_versions` | `document_format` | `smallint` | 1 openapi-3.0、2 openapi-3.1、3 markdown |
+| `document_drafts`、`document_versions` | `document_format` | `smallint` | 1 openapi-3.0、2 openapi-3.1、3 markdown、4 txt |
 | `document_drafts`、`document_versions` | `source_type` | `smallint` | 1 web_upload、2 mcp_upload、3 promote、4 web_edit |
 | `document_version_diffs` | `diff_status` | `smallint` | 1 pending、2 running、3 succeeded、4 failed |
 | `document_diff_items` | `severity` | `smallint` | 1 info、2 warning、3 breaking |
-| `document_shares` | `version_scope` | `smallint` | 1 latest、2 all_versions |
+| `document_shares` | `version_scope` | `smallint` | 1 latest、2 all_versions、3 fixed_version |
 | `document_shares` | `status` | `smallint` | 1 active、2 revoked；expired 为运行时有效状态 |
 | `audit_logs` | `actor_type` | `smallint` | 1 user、2 mcp_token、3 system、4 anonymous |
 
@@ -74,7 +74,7 @@
 | `ai_summaries` | Draft、Version、Diff 的 AI 总结记录。状态使用 `pending`、`skipped`、`succeeded`、`failed`，失败摘要存 `error_message`；生成 token 防止旧请求乱序回写。 |
 | `ai_chat_sessions` / `ai_chat_messages` | 页面级 AI Chat 会话和消息，关联 draft、version 或 diff 上下文；会话生成 token 在多实例下提供 latest-request-wins 顺序。 |
 | `mcp_tokens` | MCP Token 哈希、密文和状态。 |
-| `document_shares` | 文档公开分享能力。保存 Project / Document / Branch、版本范围、到期/撤销信息、secret hash、加密 ciphertext 和可选 bcrypt password verifier；不保存明文 secret、完整 URL 或密码。 |
+| `document_shares` | 文档公开分享能力。保存 Project / Document / Branch、版本范围、可空 `pinned_version_id uuid`（引用 `document_versions.id`）、到期/撤销信息、secret hash、加密 ciphertext 和可选 bcrypt password verifier；不保存明文 secret、完整 URL 或密码。 |
 | `audit_logs` | 审计日志。 |
 | `vdoc_schema_objects` | RustFS/S3 对象引用表，记录 raw、normalized、stable 和 diff snapshot 的对象 key/hash/元数据。 |
 
@@ -97,8 +97,10 @@
 | `ai_providers_project_uidx` | 每个 Project 只能有一条项目级 Provider 覆盖。 |
 | `ai_summaries_owner_uidx` | 同一 Project、Document、owner_type、owner_id 只保存一条当前 AI 总结。 |
 | `document_shares_token_hash_uidx` | 分享能力摘要全局唯一。 |
-| `document_shares_scope_check` | `version_scope` 只能是 latest 或 all_versions。 |
-| `document_shares_revocation_check` | active/revoked 状态与 `revoked_by`、`revoked_at` 必须一致。 |
+| `document_shares_version_scope_check` | `version_scope` 只能是 1 latest、2 all_versions 或 3 fixed_version。 |
+| `document_shares_pinned_version_scope_check` | scope 3 必须有 `pinned_version_id`，scope 1/2 必须为 NULL。 |
+| `document_shares_pinned_version_fk` | 固定版本引用已存在的 `document_versions.id`；业务与创建事务还校验版本属于同一 Project、Document、Branch 且已发布。 |
+| `document_shares_revoked_fields_check` | active/revoked 状态与 `revoked_by`、`revoked_at` 必须一致。 |
 
 ## 6. 对象快照字段
 
@@ -120,7 +122,9 @@
 
 ## 8. 文档公开分享
 
-`document_shares` 只引用已经存在的 Project、Document 和 Branch。创建时业务层要求分支至少有一个 published version，但不把草稿或具体 version secret 化。`latest` 在读取时解析当前最新发布版本；`all_versions` 查询同一 Branch 的 published 历史。
+`document_shares` 引用已经存在的 Project、Document 和 Branch。`latest`（scope 1）在读取时解析当前最新发布版本；`all_versions`（scope 2）查询同一 Branch 的 published 历史，两者的 `pinned_version_id` 均为 NULL。`fixed_version`（scope 3）通过 `pinned_version_id` 固定一个已发布版本，API 字段名为 `version_id`；创建时必须同时校验 Project、Document、Branch 归属与发布状态，并在持久化事务的锁内复核。
+
+固定分享的公开元信息、正文和下载只允许该版本，不开放版本列表；后续发布不改变目标。PostgreSQL 公开读取只加载固定版本，成功返回前在审计事务内重新校验目标版本、分享状态、到期时间及上级资源状态。启动自动执行 `011_document_share_fixed_version.sql`，旧 scope 1/2 记录新增字段为 NULL，原有语义不变。
 
 `token_hash` 用于匿名请求快速校验，`token_ciphertext + cipher_kid` 仅用于管理员重新显示 active 链接。`password_verifier` 是 bcrypt 单向校验结果。公开响应和审计不得包含上述密文/摘要之外的明文 secret、完整链接或密码。匿名 view/download audit 使用 `actor_type = 4`。
 

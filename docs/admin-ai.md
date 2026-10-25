@@ -60,7 +60,7 @@ Vdoc 使用 OpenAI-compatible 提供商，支持两种 API 模式：
 
 ## 页面内对话
 
-Draft Review、Version 和 Compare / Diff 页面可以创建 page-scoped chat。会话固定到当前 Project、Document 和 Draft、Version 或 Diff，只能读取当前用户有权访问的上下文。页面内对话复用同一 Draft、Version 和 Diff 上下文构建器，不会追加其他页面数据。
+工作区的**文档 AI**跟随顶部选定的正式版本或草稿。Diff 上下文的摘要与对话仍由 API 提供，工作区差异工具不提供聊天入口。会话固定到当前 Project、Document 和 Draft、Version 或 Diff，只能读取当前用户有权访问的上下文，不会追加其他页面数据。
 
 回答必须标记为 AI-generated。页面对话不能跨 Project 读取内容，也不能把回答伪装成机器 Diff 或人工审核结论。
 

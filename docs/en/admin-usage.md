@@ -20,7 +20,7 @@ If the account is not set up, return to [initial-admin configuration](deployment
 
 Settings has Account, Appearance, AI and Version. Appearance controls theme/language; AI has system/project scopes. Category/scope changes retain unsaved input. Expand **Page guide** beside the page title.
 
-After signing in, the **document workspace** opens by default. Choose a team and project, then select a document in the folder tree. **Content, Drafts, Versions, Diffs, and Share** all stay scoped to that document. Administrators can also open document settings for metadata and branches. Switching tabs retains unsaved edits; switching the team, project, or document changes the working context.
+The **document workspace** opens after sign-in. Choose a team and project, then open a file. Click anywhere on a folder row to expand or collapse it without closing the current document; OpenAPI, Markdown, and TXT have distinct icons. The top controls select the branch, published or draft state, and revision. **Document**, **Document tools** (versions and diffs), **Document AI**, and **Document settings** (metadata and branches) share that context. Switching areas retains unsaved input.
 
 The sidebar combines document tasks into one entry and keeps separate entries for teams, projects, users, and agent access. Project selectors and date/time pickers use workbench components; selected dates and times use the device's local time and convert to UTC on submission.
 
@@ -53,13 +53,13 @@ In the **document workspace**, choose a team and project, select a location in t
 
 The document name is a display label. The separate filename follows that name or the uploaded filename until you edit it; later uploads preserve your edited filename. Select the project root or an existing folder in the tree; create subfolders at any level. Empty folders persist, with no fixed depth limit. Folders belong to one project; team isolation follows project ownership. The example becomes `docs/team-guide.md`: the folder and filename generate the relative path. Existing paths are retained.
 
-You may upload OpenAPI JSON/YAML, Markdown `.md`, or plain-text `.txt` while creating the document. Its content becomes an initial draft on `dev`, without automatic submission or publication. Leave the upload empty for this walkthrough. New documents still have `dev`, `test`, and protected `prod` branches.
+You may upload OpenAPI JSON/YAML, Markdown `.md`, or plain-text `.txt` at creation. It creates a `dev` draft without submission or publication. Leave the upload empty for this walkthrough. Default `dev`, `test`, and protected `prod` are environment branches; administrators can create safe custom names such as `main` or `release/2026` in **Document settings → Manage branches**, without a `feature/` prefix.
 
 TXT previews preserve plain text and line breaks: headings, links, and HTML are not rendered as Markdown. Comparisons use line diffs. TXT shares the Markdown draft, review, publication, and `doc:read` / `doc:draft` permission flow.
 
 ## 3. Submit Your First Draft
 
-Select this document in the folder tree, open its **Drafts** tab, and select the `dev` branch. Set the version name to `v1` and paste this sample Markdown into the content field, or upload it as an `.md` file:
+Select this document, choose `dev` and **Draft** at the top, then create a draft in **Document**. Set the version name to `v1` and paste this Markdown into the content field, or upload it as an `.md` file:
 
 ```md
 # Team Guide
@@ -73,9 +73,9 @@ This content is a trial example. Create the Draft, then submit it for review. Sa
 
 ## 4. Review and Publish
 
-In the same document's **Drafts** tab, select the submitted `v1` draft, inspect its content and Diff, then approve publication. A Project Admin or SuperAdmin performs this step.
+Select the submitted `v1` draft at the top, inspect its content and Diff in **Document**, then approve publication. A Project Admin or SuperAdmin performs this step.
 
-In the document's **Versions** tab, confirm that `dev` contains published `v1` and that its content includes the three rules above. This is an immutable Version; further changes require a new draft. **Content** shows published content first; if none exists, it clearly labels an accessible draft. The file tree also distinguishes published documents, documents with drafts, and empty documents.
+Switch to published versions at the top and select `v1`. Confirm that `dev` contains the three rules. This is an immutable Version; changes need a new draft. **Document tools → Versions** shows publication history; **Diffs** compares versions. **Document AI** uses the selected content for summaries and chat. The tree distinguishes published documents, drafts, and empty documents.
 
 **Publishing is a human action.** MCP can submit drafts but cannot publish Versions directly.
 
@@ -104,7 +104,7 @@ Choose the configuration format for your client. The MCP Token page in Admin als
       "command": "npx",
       "args": [
         "--yes",
-        "github:ChnMig/Vdoc-mcp#cc304364bce07c605029ca76144446307af761f7"
+        "github:ChnMig/Vdoc-mcp#ea2445e4e528e4ee98b97ef35121c93975b07afa"
       ],
       "env": {
         "VDOC_BASE_URL": "http://127.0.0.1:8080",
@@ -118,7 +118,7 @@ Choose the configuration format for your client. The MCP Token page in Admin als
 ```toml [Codex]
 [mcp_servers.vdoc]
 command = "npx"
-args = ["--yes", "github:ChnMig/Vdoc-mcp#cc304364bce07c605029ca76144446307af761f7"]
+args = ["--yes", "github:ChnMig/Vdoc-mcp#ea2445e4e528e4ee98b97ef35121c93975b07afa"]
 startup_timeout_sec = 60
 tool_timeout_sec = 180
 
@@ -168,7 +168,7 @@ You have now completed the first flow from human review to agent use. A successf
 | ---------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
 | MCP does not start or connect                              | Check Node.js, npx, Git, and Backend reachability on the agent's machine, then inspect the client's MCP error.                |
 | Tools appear, but the project or document is missing       | Check that the token is active, has `doc:read`, and belongs to a user with project access. Confirm the path and `dev` branch. |
-| The document exists, but no published version is available | Approve the draft in the document’s Drafts tab and confirm `v1` in Versions.                                                  |
+| The document exists, but no published version is available | Select the draft at the top, approve it, then switch to published versions and confirm `v1`.                                  |
 | The agent answers without querying                         | Enable MCP and explicitly request `get_latest_doc`; retry in a new conversation if needed.                                    |
 
 See [Troubleshooting](troubleshooting.md) for more detail.
@@ -183,4 +183,6 @@ See [Troubleshooting](troubleshooting.md) for more detail.
 
 ### Create and Manage Public Shares
 
-A Project Admin or SuperAdmin can select a document in the workspace, open **Share**, and choose a Branch with a published Version to create a public share. The default expiry is three months; one month, six months, one year, and permanent are also available. An optional password must contain 12–72 UTF-8 bytes with no leading or trailing Unicode whitespace. Copy the complete capability link after creation, reveal it again when needed, or revoke it irreversibly. The list distinguishes active, expired, and revoked links. Changing the Project or Document immediately clears any displayed capability and unsubmitted password from the Admin page.
+A Project Admin or SuperAdmin selects a published version at the top and clicks **Share**. The link stays fixed to the version on screen, even after newer publications. Drafts cannot be publicly shared. Existing latest-version and all-version links retain their original scope.
+
+Expiry defaults to three months, with one month, six months, one year, and permanent also available. An optional password needs 12–72 UTF-8 bytes without leading or trailing Unicode whitespace. Copy the complete capability link; reveal it again or revoke it irreversibly when needed. The list distinguishes active, expired, and revoked links. Changing the project or document clears the displayed capability and unsubmitted password.

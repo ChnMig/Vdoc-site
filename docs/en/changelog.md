@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.3.17-beta.8
+
+Unified document context with content, tools, AI, and settings. Share the displayed published version; use safe custom branch names. See [First Use](admin-usage.md). Migrations 010/011 apply at startup; back up and upgrade Backend/Admin together. Beta only; [manual upgrade](release-rollback.md).
+
 ## v0.3.17-beta.7
 
 - Document menus share a folder workspace, with nested and empty folders and separate document names and filenames.

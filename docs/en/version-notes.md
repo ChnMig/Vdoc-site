@@ -1,5 +1,9 @@
 # Version Notes
 
+## v0.3.17-beta.8
+
+[Document workspace and fixed-version sharing](admin-usage.md); automatic migrations 010/011. See the [changelog](changelog.md).
+
 ## v0.3.17-beta.7
 
 Folder workspace, TXT, and initial uploads. See the [changelog](changelog.md).
@@ -42,23 +46,11 @@ Session, version-link, AI audit, sharing, and MCP fixes: [changelog](changelog.m
 
 ## v0.3.10
 
-- Cancel pending draft file submissions after sign-out, account changes, or leaving the page while preserving normal saves.
-- Keep branch defaults accurate after switching the default; prevent old request completions from clearing a new project's or document's form input.
-- Distinguish loading, failed, and successfully empty share inventories with retry; clear old secrets and setup configurations when refreshed MCP tokens are revoked or expired.
-- Continue rejecting truncated AI output while retaining provider-reported token usage in failure audits.
-- Validate candidate sources before tagging and retain strict tag and asset identity checks after publication; clarify that published versions on archived branches remain comparable within active documents.
-
-No database migration is added and REST/MCP tool parameters remain compatible. Back up the database and object storage before upgrading, then update the MCP/Skill package and restart the agent.
+Fix draft sessions, branch defaults, share/token states, AI audits, and release checks. See the [changelog](changelog.md). No migrations; back up, upgrade, and restart the Agent.
 
 ## v0.3.9
 
-- Evaluate OpenAPI request property changes against `additionalProperties`, so narrowed input requires handling; refresh stored diff facts when read.
-- Recheck the parent team inside project creation transactions, preventing active projects from being created after another instance archives their team.
-- Keep MCP response reads bounded while allowing the JSON escaping overhead of documents within the default backend size limit.
-- Preserve the super administrator's All projects audit selection and the original filename and extension of public-share downloads.
-- Accept valid prerelease versions across coordinated locks, packaging, and installation; prereleases still cannot replace `latest` or deploy the stable website.
-
-No database migration is added and REST/MCP tool parameters remain compatible. Back up the database and object storage before upgrading, then update the MCP/Skill package and restart the agent.
+Fix OpenAPI compatibility, project concurrency, and large-document reads; retain share filenames and support prerelease tags. See the [changelog](changelog.md). No migrations.
 
 ## v0.3.8
 
@@ -66,12 +58,7 @@ The default global MCP/Skill installation now downloads the compiled GitHub Rele
 
 ## v0.3.7
 
-- Consolidate the optional workflow Skill into `Vdoc-mcp/skills/vdoc`; MCP and Skill now share one package, version, and release.
-- Preserve the original Skill Git history and historical tags under `skill/` in Vdoc-mcp. New installs and the four-repository workspace lock no longer require the old repository.
-- Add `vdoc-mcp skill install` to link the bundled Skill. Updates at the same global installation path update its content; existing directories are never overwritten.
-- Update the Admin installation guide and website examples to use the combined package. npm registry publication remains separate; current installs use reviewed Git commits or verified release archives.
-
-No application database migration is added. Preserve any local Skill edits before migrating, then reload the agent and restart MCP.
+Merge Skill into `Vdoc-mcp/skills/vdoc`, sharing its version and release, with `vdoc-mcp skill install`. See the [changelog](changelog.md). No migrations; preserve local Skill edits and restart the Agent.
 
 These notes describe the v0.2 boundary. Before planning a pilot, writing Agent instructions, publishing packages, or upgrading, confirm that this scope is not being overstated.
 

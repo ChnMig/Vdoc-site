@@ -45,7 +45,7 @@ Markdown 也走同样的草稿、审核、发布流程，变化用文件 Diff �
 
 查询接口时，先用 `get_endpoint_detail` 读取完整定义；比较已发布接口版本时，用 `compare_api_versions`；读取 Markdown 时，用 `get_latest_doc`。工具所需的 ID 和内容应来自实际查询结果。如果目标不存在或尚未发布，Agent 应说明缺少什么，而不是补写字段。
 
-想让 Agent 修改文档时，它应先读取当前版本，再提交新的 Draft，等待人工审核。只有版本页确实出现新的 Version，才算完成发布。
+想让 Agent 修改文档时，它应先读取当前版本，再提交新的 Draft，等待人工审核。只有**文档工具 → 版本**确实出现新的 Version，才算完成发布。
 
 ## 从哪里开始
 

@@ -116,7 +116,7 @@ BRANCH_ID=$(curl_with_jwt -sS "$API_BASE/api/v1/private/projects/$PROJECT_ID/doc
 
 ## Draft, Review, and Version
 
-OpenAPI Drafts submit OpenAPI 3.0 or 3.1 content as `schema_content`. Markdown Drafts use the same private REST draft routes and may submit Markdown text as `schema_content` or `content`. MCP Markdown draft tools use `markdown_content`. `content_kind` accepts `raw` or `normalized` for OpenAPI, and `raw` or `stable` for Markdown.
+OpenAPI Drafts submit `schema_content`. Markdown/TXT uses the same private REST draft routes with `schema_content` or `content`; MCP uses `content` and accepts legacy `markdown_content`. `content_kind` accepts `raw` or `normalized` for OpenAPI, and `raw` or `stable` for Markdown/TXT.
 
 Draft responses include an opaque `revision`. Every REST draft PATCH and MCP `update_api_version_draft` / `update_doc_draft` call requires `expected_revision` from the draft snapshot the edits were based on. A missing revision returns `INVALID_ARGUMENT`; a stale revision returns `FAILED_PRECONDITION` without changing the draft. Reload and reconcile local edits before retrying. REST draft content responses include `detail.draft` alongside `content` and `hash`, all from one snapshot; editors must use this nested draft's metadata and revision. Deploy the backend and Admin together, and update MCP clients to pass the new required field.
 
@@ -239,7 +239,9 @@ Provider payloads contain `name`, `base_url`, `model`, `api_mode`, `api_key`, `e
 
 ## Public Document Shares
 
-Project Admins and SuperAdmins can create, reveal, and revoke public links for Branches that already have published versions from the Documents page. The secret exists only in the URL fragment; the anonymous page removes it from the address and current history entry before any network request and never attaches account cookies or JWTs.
+Project Admins and SuperAdmins can create, reveal, and revoke public links. Workspace sharing uses `version_scope: 3` with `version_id` for the displayed published version. Backend verifies publication and project/document/branch ownership. Metadata, content, and downloads stay fixed to that version; the versions list is unavailable. Existing scope `1` follows latest and `2` allows all versions; both omit `version_id`. Drafts cannot be shared.
+
+The secret exists only in the URL fragment, removed from the address and history before requests. Public requests never attach account cookies or JWTs.
 
 Admin defaults to a three-month expiry and also offers one month, six months, one year, or permanent. An optional password must contain 12–72 UTF-8 bytes with no leading or trailing Unicode whitespace; multi-byte characters count by their encoded byte length.
 

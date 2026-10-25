@@ -45,7 +45,7 @@ The same document may have different published content on `dev`, `test`, and `pr
 
 Read endpoint definitions with `get_endpoint_detail`, compare published API versions with `compare_api_versions`, and read Markdown with `get_latest_doc`. IDs and content should come from actual query results. If a target is missing or unpublished, the agent should explain what is missing instead of filling in fields.
 
-To change a document, the agent first reads the current version, then submits a new Draft for human review. Publication is complete only when the versions page shows a new Version.
+To change a document, the agent first reads the current version, then submits a new Draft for human review. Publication is complete when **Document tools → Versions** shows a new Version.
 
 ## Where to Start
 

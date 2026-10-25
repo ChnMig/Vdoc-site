@@ -116,7 +116,7 @@ BRANCH_ID=$(curl_with_jwt -sS "$API_BASE/api/v1/private/projects/$PROJECT_ID/doc
 
 ## Draft、Review 和 Version
 
-OpenAPI Draft 可以提交 OpenAPI 3.0 或 3.1 内容为 `schema_content`。Markdown Draft 使用相同 private REST draft routes，可提交 Markdown 文本为 `schema_content` 或 `content`。MCP Markdown draft tools 使用 `markdown_content`。`content_kind` 对 OpenAPI 接受 `raw` 或 `normalized`，对 Markdown 接受 `raw` 或 `stable`。
+OpenAPI Draft 提交 `schema_content`。Markdown/TXT 使用相同 private REST draft routes，正文为 `schema_content` 或 `content`；MCP 使用 `content`，兼容旧 `markdown_content`。`content_kind` 对 OpenAPI 接受 `raw` 或 `normalized`，对 Markdown/TXT 接受 `raw` 或 `stable`。
 
 草稿响应包含不透明的 `revision`。REST 草稿 PATCH 和 MCP `update_api_version_draft` / `update_doc_draft` 必须携带编辑时读取的 `expected_revision`。缺失时返回 `INVALID_ARGUMENT`，版本过期时返回 `FAILED_PRECONDITION`，不会更改草稿；应重新读取并合并本地修改后再保存。REST 草稿正文响应中的 `detail.draft`、`content` 和 `hash` 来自同一快照，编辑器使用其中的元数据和版本标识。升级时需同步部署后端与 Admin，并让 MCP 客户端传递这个新增必填字段。
 
@@ -239,7 +239,9 @@ Provider payload 包含 `name`、`base_url`、`model`、`api_mode`、`api_key`�
 
 ## 文档公开分享
 
-Project Admin 或 SuperAdmin 可在 Documents 页面为已有发布版本的 Branch 创建、重新显示和撤销公开链接。链接 secret 只放在 URL fragment；匿名页面在网络请求前从地址和浏览历史中移除 fragment，且不附带账号 Cookie 或 JWT。
+Project Admin 或 SuperAdmin 可创建、重新显示和撤销公开链接。工作区顶部分享当前正式版本，使用 `version_scope: 3` 和 `version_id`；后端校验目标已发布且属于同一项目、文档、分支。元数据、正文与下载固定到该版本，不开放版本列表。旧 scope `1` 跟随最新版本，`2` 允许全部版本，二者不传 `version_id`。草稿不能分享。
+
+链接 secret 只放在 URL fragment；匿名页面在请求前从地址和浏览历史移除 fragment，不附带账号 Cookie 或 JWT。
 
 Admin 默认选择三个月有效期，也可选择一个月、六个月、一年或永久。可选密码必须为 12–72 个 UTF-8 字节，且首尾不能包含 Unicode 空白字符；中文等多字节字符按编码后的字节数计算。
 
