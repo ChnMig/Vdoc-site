@@ -26,16 +26,24 @@ Settings has Account, Appearance, AI and Version. Appearance controls theme/lang
 
 Browse folders under the project's **Documents** tab and click a document to open its own reading page:
 
-| Area                           | Purpose                                                                                                                       |
-| ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
-| Project file tree on the left  | Shows only this project's folders and documents. Return to Workspace, switch files, or create folders and documents here.     |
-| Content in the center          | Read the selected published version or draft. Controls above it select the branch, content state, and revision.               |
-| Outline and tools on the right | Jump to a content heading or open Versions, Diffs, Document AI, and permission-gated Document settings and branch management. |
-| Document header                | Use **Share** or **Edit draft** when your role permits. Sharing targets the selected published version.                       |
+| Area                           | Purpose                                                                                                                      |
+| ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
+| Project file tree on the left  | Shows only this project's folders and documents. Return to Workspace, switch files, or create folders and documents here.    |
+| Content in the center          | Read the selected published version or draft. Controls above it select the branch, content state, and revision.              |
+| Outline and tools on the right | Jump to a content heading. Versions, Diffs, and Document AI have separate entries; Document settings appears when permitted. |
+| Document header                | Use **Share** or **Edit draft** when your role permits. Sharing targets the selected published version.                      |
 
-Click anywhere on a folder row to expand or collapse it and choose a creation location without closing the current document. The open document and folder location have separate selection states. Teams, projects, people, and folders have distinct icons, as do OpenAPI, Markdown, and TXT files. Switching tools within the same document retains unsaved input.
+Click anywhere on a folder row to expand or collapse it and choose a creation location without closing the current document. The open document and folder location have separate selection states. Teams, projects, people, and folders have distinct icons, as do OpenAPI, Markdown, and TXT files.
 
-On narrow screens, **Show files** opens the project tree in a drawer that closes after you choose a document. **On this page** opens the outline in a dialog, and document tools move to the top. Document AI occupies the content area until you return to the preview. Content without headings shows an empty-outline message.
+**Versions** shows the document's publication history across its branches; selecting a historical version returns to its content on that branch. **Diffs** is a separate comparison tool, with no extra switch inside Versions. Choose a source branch and published version, then a target branch and published version from the same document. The two branches may be the same or different; drafts cannot be comparison endpoints. Changes run from source to target; after changing either branch, choose that side's version again. Stored comparisons load automatically; click **Compare** to create one when no matching record exists.
+
+**Document settings** has one entry with **Document details** and **Branches** tabs for metadata and branch management. Switching these tabs retains unsaved form input. Available actions still depend on your project role and the document's status.
+
+**Document AI** expands and collapses independently. On wide screens, it docks on the right while the content or current tool remains usable. Click its entry again, use the close button, or press `Esc` inside the panel to close it. On narrow screens, it opens as a modal panel from the right; closing it returns to the same page position without leaving reading or editing first. Summary and chat use the document version or draft selected at the top. Check the scope shown in the AI panel after changing the reading selection.
+
+On narrow screens, **Show files** opens the project tree in a drawer that closes after you choose a document. **On this page** opens the outline in a dialog, and document tools move to the top. Content without headings shows an empty-outline message.
+
+Within the same document, opening Versions, Diffs, Settings, or AI and returning to content preserves the reading position and Preview/Source choice. Visited tools also retain unsubmitted input. For the same reading target, closing and reopening AI, or changing its presentation by resizing the window, does not clear the current input. Changing the branch, version, or draft creates its corresponding AI context. Workspace folders and project tabs change locally within their current context, avoiding a full-page reload; browser Back/Forward still restores selections recorded in the address. Treat this state as temporary when changing documents, projects, or sign-in sessions.
 
 The global menu groups this browsing and management under **Workspace**; MCP, Skill, Audit, and Settings keep their own entries. Project selectors and date/time pickers use workbench components; selected dates and times use the device's local time and convert to UTC on submission.
 
@@ -68,7 +76,7 @@ In **Workspace**, open the team, project, and target folder, then click **Create
 
 The document name is a display label. The separate filename follows that name or the uploaded filename until you edit it; later uploads preserve your edited filename. Select the project root or an existing folder in the tree; create subfolders at any level. Empty folders persist, with no fixed depth limit. Folders belong to one project; team isolation follows project ownership. The example becomes `docs/team-guide.md`: the folder and filename generate the relative path. Existing paths are retained.
 
-You may upload OpenAPI JSON/YAML, Markdown `.md`, or plain-text `.txt` at creation. It creates a `dev` draft without submission or publication. Leave the upload empty for this walkthrough. Default `dev`, `test`, and protected `prod` are environment branches; administrators can create safe custom names such as `main` or `release/2026` in **Document settings → Manage branches**, without a `feature/` prefix.
+You may upload OpenAPI JSON/YAML, Markdown `.md`, or plain-text `.txt` at creation. It creates a `dev` draft without submission or publication. Leave the upload empty for this walkthrough. Default `dev`, `test`, and protected `prod` are environment branches; administrators can create safe custom names such as `main` or `release/2026` in **Document settings → Branches**, without a `feature/` prefix.
 
 TXT previews preserve plain text and line breaks: headings, links, and HTML are not rendered as Markdown. Comparisons use line diffs. TXT shares the Markdown draft, review, publication, and `doc:read` / `doc:draft` permission flow.
 
@@ -90,7 +98,7 @@ This content is a trial example. Create the Draft, then submit it for review. Sa
 
 Select the submitted `v1` draft at the top and click **Edit draft**. Inspect its content and Diff in **Editing and review**, then approve publication. A Project Admin or SuperAdmin performs this step.
 
-Choose **Published** at the top and select `v1`. Confirm that `dev` contains the three rules. This is an immutable Version; changes need a new draft. In the tools on the right, **Versions** shows publication history and **Diffs** compares versions. **Document AI** uses the selected content for summaries and chat. The tree distinguishes published documents, unpublished drafts, and empty documents.
+Choose **Published** at the top and select `v1`. Confirm that `dev` contains the three rules. This is an immutable Version; changes need a new draft. The separate **Versions** entry shows publication history; **Diffs** selects a branch and published version on each side for comparison. Expand **Document AI** whenever you need a summary or chat about the content selected at the top. The tree distinguishes published documents, unpublished drafts, and empty documents.
 
 **Publishing is a human action.** MCP can submit drafts but cannot publish Versions directly.
 
@@ -119,7 +127,7 @@ Choose the configuration format for your client. The MCP Token page in Admin als
       "command": "npx",
       "args": [
         "--yes",
-        "github:ChnMig/Vdoc-mcp#659f1c216d1cfc75008b00dabc41a9c4578efd28"
+        "github:ChnMig/Vdoc-mcp#35a60d23963aec29832b4da059081883d195bef3"
       ],
       "env": {
         "VDOC_BASE_URL": "http://127.0.0.1:8080",
@@ -133,7 +141,7 @@ Choose the configuration format for your client. The MCP Token page in Admin als
 ```toml [Codex]
 [mcp_servers.vdoc]
 command = "npx"
-args = ["--yes", "github:ChnMig/Vdoc-mcp#659f1c216d1cfc75008b00dabc41a9c4578efd28"]
+args = ["--yes", "github:ChnMig/Vdoc-mcp#35a60d23963aec29832b4da059081883d195bef3"]
 startup_timeout_sec = 60
 tool_timeout_sec = 180
 

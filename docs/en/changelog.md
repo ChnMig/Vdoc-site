@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.3.17-beta.10
+
+- Give Versions and Diffs separate tools. Choose each comparison branch and published version independently, including archived branch history within the same document. Preserve comparison direction and reuse stored results.
+- Open AI as a collapsible right sidebar while keeping the document readable on wide screens. Retain the current context's conversation and input when closing, reopening, or resizing. Narrow screens support keyboard focus cycling and yield to sharing and settings dialogs.
+- Combine document information and branches under Document settings tabs. Tool switches retain the reader node, scroll position, and visited tool inputs. Folder and project tabs update locally with short transitions, browser history support, and reduced-motion behavior.
+
+No API or database migrations are added. Beta only. See the [guide](admin-usage.md) and [manual upgrade](release-rollback.md).
+
 ## v0.3.17-beta.9
 
 - Bring team, project, people, and document browsing into **Workspace**. Each project groups Documents, Project members, and Project settings. Teams, projects, people, folders, and the three document types use distinct icons; access remains assigned per project.
