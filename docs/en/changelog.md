@@ -2,9 +2,9 @@
 
 ## v0.3.17-beta.10
 
-- Give Versions and Diffs separate tools. Choose each comparison branch and published version independently, including archived branch history within the same document. Preserve comparison direction and reuse stored results.
-- Open AI as a collapsible right sidebar while keeping the document readable on wide screens. Retain the current context's conversation and input when closing, reopening, or resizing. Narrow screens support keyboard focus cycling and yield to sharing and settings dialogs.
-- Combine document information and branches under Document settings tabs. Tool switches retain the reader node, scroll position, and visited tool inputs. Folder and project tabs update locally with short transitions, browser history support, and reduced-motion behavior.
+- Separate Versions and Diffs. Compare published versions across the same document's branches, including archived history; preserve direction and stored results.
+- Toggle AI beside readable content on wide screens or in a narrow-screen modal with keyboard focus cycling and dialog coordination. Retain the current context's chat and input across closing, reopening, and resizing.
+- Document settings has details/branches tabs. Tools retain the reader, scroll, and input; folders and project tabs update locally with short transitions, browser history, and reduced-motion support.
 
 No API or database migrations are added. Beta only. See the [guide](admin-usage.md) and [manual upgrade](release-rollback.md).
 
