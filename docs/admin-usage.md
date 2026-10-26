@@ -35,7 +35,7 @@
 
 单击文件夹行展开／收起并选择新建位置，不关闭文档。文档与文件夹位置分别标记；团队、项目、人员、文件夹及三种文档类型各用不同图标。
 
-OpenAPI 正式版本可在正文切换**源码／接口**；接口列表支持搜索、分组、分页和详情，旧接口链接仍可定位。
+正文上方的紧凑信息区标明文件路径。Markdown 用带提示的图标切换**预览／源码**。OpenAPI 正式版本可切换**源码／接口**；接口列表支持搜索、分组、分页和详情，旧接口链接仍可定位。
 
 **版本**列各分支发布历史，选中后阅读对应版本。独立**差异**工具选择两侧分支与正式版本，在同文档内进行同／跨分支比较，不接受草稿。方向为源到目标；改分支需重选该侧版本。已有结果自动加载，否则点击**比较**。
 
@@ -129,7 +129,7 @@ TXT 保留纯文本与换行，不渲染 Markdown／HTML，使用行差异；与
       "command": "npx",
       "args": [
         "--yes",
-        "github:ChnMig/Vdoc-mcp#da89235457248cc9da0a723218dd2c631844956d"
+        "github:ChnMig/Vdoc-mcp#207dacbc4c05159d5a9dec56d8f2e56ddb8b3a22"
       ],
       "env": {
         "VDOC_BASE_URL": "http://127.0.0.1:8080",
@@ -143,7 +143,7 @@ TXT 保留纯文本与换行，不渲染 Markdown／HTML，使用行差异；与
 ```toml [Codex]
 [mcp_servers.vdoc]
 command = "npx"
-args = ["--yes", "github:ChnMig/Vdoc-mcp#da89235457248cc9da0a723218dd2c631844956d"]
+args = ["--yes", "github:ChnMig/Vdoc-mcp#207dacbc4c05159d5a9dec56d8f2e56ddb8b3a22"]
 startup_timeout_sec = 60
 tool_timeout_sec = 180
 

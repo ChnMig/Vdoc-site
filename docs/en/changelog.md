@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.3.17-beta.12
+
+Separate document details and content with a compact information area and file-path label. Markdown Preview/Source uses icons with tooltips while retaining local reading state. No API or database migrations are added. Beta only.
+
 ## v0.3.17-beta.11
 
 Use consistent bordered selects for branch, content state, and version/draft in the document header, with visible labels, icons, aligned heights, and small-screen spacing. No API or database migrations are added. Beta only.

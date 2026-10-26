@@ -35,7 +35,7 @@ Under **Documents**, browse folders and click a file to open its reading page:
 
 Click a folder row to expand/collapse it and select a creation location without closing the document. File and folder selections are distinct. Teams, projects, people, folders, and OpenAPI/Markdown/TXT files have distinct icons.
 
-Published OpenAPI content has **Source / Endpoints** tabs with search, grouping, pagination, and details. Existing endpoint links still work.
+A compact information area above the content labels the file path. Markdown uses icons with tooltips for **Preview / Source**. Published OpenAPI has **Source / Endpoints** tabs with search, grouping, pagination, and details. Existing endpoint links still work.
 
 **Versions** lists the document's publication history across branches; select a revision to read it. Independent **Diffs** selects source/target branches and published versions of this document, excluding drafts. Changes run source to target. Changing a branch clears its version. Stored results load automatically; otherwise click **Compare**.
 
@@ -129,7 +129,7 @@ Choose your client format; Admin's MCP Token page generates both:
       "command": "npx",
       "args": [
         "--yes",
-        "github:ChnMig/Vdoc-mcp#da89235457248cc9da0a723218dd2c631844956d"
+        "github:ChnMig/Vdoc-mcp#207dacbc4c05159d5a9dec56d8f2e56ddb8b3a22"
       ],
       "env": {
         "VDOC_BASE_URL": "http://127.0.0.1:8080",
@@ -143,7 +143,7 @@ Choose your client format; Admin's MCP Token page generates both:
 ```toml [Codex]
 [mcp_servers.vdoc]
 command = "npx"
-args = ["--yes", "github:ChnMig/Vdoc-mcp#da89235457248cc9da0a723218dd2c631844956d"]
+args = ["--yes", "github:ChnMig/Vdoc-mcp#207dacbc4c05159d5a9dec56d8f2e56ddb8b3a22"]
 startup_timeout_sec = 60
 tool_timeout_sec = 180
 
