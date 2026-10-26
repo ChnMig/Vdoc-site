@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.3.17-beta.11
+
+Use consistent bordered selects for branch, content state, and version/draft in the document header, with visible labels, icons, aligned heights, and small-screen spacing. No API or database migrations are added. Beta only.
+
 ## v0.3.17-beta.10
 
 - Separate Versions and Diffs. Compare published versions across the same document's branches, including archived history; preserve direction and stored results. OpenAPI browsing moves into the reader with existing endpoint links preserved.
