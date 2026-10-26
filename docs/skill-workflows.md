@@ -2,7 +2,7 @@
 
 Vdoc Skill 教 Agent 先查 MCP 事实；不存数据、不计算 diff、不直接调用后端。
 
-## 让 AI 帮你安装 {#ai-install}
+## 让 AI 帮你安装或更新 {#ai-install}
 
 复制一句话给 AI。安装 Skill 无需 Token；[AI 安装说明](https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.3.17-beta.14/docs/public/skill-install.md)包含安装、校验和更新步骤。
 
@@ -18,6 +18,12 @@ Vdoc Skill 教 Agent 先查 MCP 事实；不存数据、不计算 diff、不直�
 
 ```text
 请阅读 https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.3.17-beta.14/docs/public/skill-install.md，帮我把 Vdoc Skill 安装到当前项目，使用 beta 渠道。
+```
+
+更新当前项目（保持原渠道）：
+
+```text
+请阅读 https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.3.17-beta.14/docs/public/skill-install.md，将当前项目已安装的 Vdoc MCP 和 Skill 更新到原渠道最新版本，保留现有安装位置和 MCP 配置。
 ```
 
 </div>
@@ -60,15 +66,7 @@ Vdoc Skill 教 Agent 先查 MCP 事实；不存数据、不计算 diff、不直�
 "$HOME/.local/share/vdoc/mcp/beta/node_modules/.bin/vdoc-mcp" skill install --directory .agents/skills/vdoc
 ```
 
-稳定项目从 `~/.local/share/vdoc/mcp/release/node_modules/.bin/vdoc-mcp` 链接到独立目录；Beta 使用自己的 Skill 目录、MCP 配置和 Token。重复对应渠道安装命令后 Skill 同步更新，重载 Agent。默认分支的 Skills CLI 不隔离渠道，应使用渠道包或固定提交。
-
-### 使用 Skills CLI 单独安装
-
-```sh
-npx skills add ChnMig/Vdoc-mcp --skill vdoc -g
-```
-
-此方式跟随默认分支、独立更新，不随全局 MCP 更新。固定安装可用已审核 commit 下 `skills/vdoc` 的 GitHub tree URL。不要让两种安装器管理同一目录；[MCP 连接](mcp-tools.md)另行配置。
+稳定项目从 `~/.local/share/vdoc/mcp/release/node_modules/.bin/vdoc-mcp` 链接到独立目录；Beta 使用自己的 Skill 目录、MCP 配置和 Token。更新时核对原渠道和安装位置，重复相同渠道、相同 prefix 的安装命令；Skill 随链接更新，重启 MCP 并重载 Agent。来源不明或渠道不匹配时先确认，不覆盖旧安装。[MCP 连接](mcp-tools.md)另行配置。
 
 在合并仓库验证 MCP 与 Skill：
 

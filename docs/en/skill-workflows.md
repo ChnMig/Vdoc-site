@@ -2,7 +2,7 @@
 
 Vdoc Skill teaches Agents to query MCP facts first; it neither stores data, computes diffs, nor calls Backend directly.
 
-## Let AI Install It {#ai-install}
+## Let AI Install or Update It {#ai-install}
 
 Copy a sentence to your AI. Installation needs no Token; [AI instructions](https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.3.17-beta.14/docs/public/skill-install.md) cover installation, verification, and updates.
 
@@ -18,6 +18,12 @@ Test project:
 
 ```text
 Read https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.3.17-beta.14/docs/public/skill-install.md and install the Vdoc Skill in my current project using the beta channel.
+```
+
+Update this project (keep its channel):
+
+```text
+Read https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.3.17-beta.14/docs/public/skill-install.md and update this project's installed Vdoc MCP and Skill to the latest version in its original channel, preserving the installation location and MCP configuration.
 ```
 
 </div>
@@ -60,15 +66,7 @@ Use the [MCP channel installer](mcp-tools.md#release-channels), then link beta's
 "$HOME/.local/share/vdoc/mcp/beta/node_modules/.bin/vdoc-mcp" skill install --directory .agents/skills/vdoc
 ```
 
-Stable projects link from `~/.local/share/vdoc/mcp/release/node_modules/.bin/vdoc-mcp` into a separate directory; Beta uses its own Skill directory, MCP configuration, and Token. Repeat the channel install to update its Skill, then reload the Agent. Skills CLI on the default branch lacks channel isolation: use channel packages or a reviewed commit.
-
-### Independent Skills CLI installation
-
-```sh
-npx skills add ChnMig/Vdoc-mcp --skill vdoc -g
-```
-
-This follows the default branch, updating independently of global MCP. Pin it with the reviewed commit's GitHub tree URL for `skills/vdoc`. Keep installer destinations separate. Configure [MCP Tools](mcp-tools.md) separately.
+Stable projects link from `~/.local/share/vdoc/mcp/release/node_modules/.bin/vdoc-mcp` into a separate directory; Beta uses its own Skill directory, MCP configuration, and Token. Verify the original channel and location, then repeat installation with the same channel/prefix. Its linked Skill updates; restart MCP and reload the Agent. Resolve unknown sources or channel mismatches before replacing anything. Configure [MCP Tools](mcp-tools.md) separately.
 
 Validate MCP and Skill in the combined repository:
 

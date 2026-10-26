@@ -20,10 +20,20 @@ test('AI Skill assets serve original text under the configured base', async ({
 })
 
 for (const locale of [
-  { route: '/skill-workflows', heading: '让 AI 帮你安装' },
-  { route: '/en/skill-workflows', heading: 'Let AI Install It' },
+  {
+    route: '/skill-workflows',
+    heading: '让 AI 帮你安装或更新',
+    update: '更新到原渠道最新版本',
+    preserve: '保留现有安装位置和 MCP 配置',
+  },
+  {
+    route: '/en/skill-workflows',
+    heading: 'Let AI Install or Update It',
+    update: 'latest version in its original channel',
+    preserve: 'preserving the installation location and MCP configuration',
+  },
 ]) {
-  test(`AI Skill one-sentence installation prompts: ${locale.route}`, async ({
+  test(`AI Skill one-sentence install/update prompts: ${locale.route}`, async ({
     page,
     context,
   }, testInfo) => {
@@ -36,15 +46,38 @@ for (const locale of [
       hasText:
         'https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.3.17-beta.14/docs/public/skill-install.md',
     })
-    await expect(prompts).toHaveCount(2)
+    await expect(prompts).toHaveCount(3)
     await page
       .getByRole('heading', { name: locale.heading })
       .scrollIntoViewIfNeeded()
-    await page.screenshot({ path: testInfo.outputPath('ai-skill-install.png') })
-    for (const [index, channel] of ['release', 'beta'].entries()) {
+    const promptClip = await page
+      .locator('.skill-install-prompts')
+      .evaluate((element) => {
+        const bounds = element.getBoundingClientRect()
+        return {
+          x: Math.max(0, bounds.left - 24),
+          y: bounds.top + window.scrollY,
+          width: Math.min(window.innerWidth, bounds.width + 48),
+          height: bounds.height,
+        }
+      })
+    await page.screenshot({
+      path: testInfo.outputPath('ai-skill-install-update.png'),
+      fullPage: true,
+      clip: promptClip,
+    })
+    for (const [index, channel] of ['release', 'beta', 'original'].entries()) {
       const prompt = prompts.nth(index)
       const sentence = (await prompt.locator('code').innerText()).trim()
-      expect(sentence).toContain(`${channel}`)
+      if (channel === 'original') {
+        expect(sentence).toContain(locale.update)
+        expect(sentence).toContain(locale.preserve)
+        expect(
+          sentence.replace(/https:\/\/\S+?\/skill-install\.md/, ''),
+        ).not.toMatch(/\b(?:release|beta)\b/)
+      } else {
+        expect(sentence).toContain(channel)
+      }
       expect(sentence).not.toMatch(/VDOC_MCP_TOKEN|VDOC_BASE_URL/)
       expect(
         await prompt
