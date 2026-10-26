@@ -40,11 +40,11 @@ Vdoc Skill 教 Agent 先查 MCP 事实；不存数据、不计算 diff、不直�
 - [MCP 已配置](mcp-tools.md)，Vdoc `tools/list` 调用成功。
 - 不要把原始 MCP Token、JWT、DB password、storage secret 或 `Authorization` 值写进 Skill、示例、日志或 issue。
 
-未部署时按[部署指南](deployment.md#quick-start)初始化；查询前用[首次文档查询](admin-usage.md#first-query)验证连接与权限。
+未部署时按[部署指南](deployment.md#quick-start)初始化，再用[首次查询](admin-usage.md#first-query)验证连接与权限。
 
 ## 安装
 
-自 v0.3.7 起，可选的 `Vdoc-mcp/skills/vdoc` 与 MCP 共用包及 lock 中的 `Vdoc-mcp` 版本；MCP 不依赖 Skill。按 [MCP 安装方式](mcp-tools.md#安装方式)校验、全局安装编译发行包，避免 Git 准备阶段报 `tsc: command not found`，再链接 Skill：
+可选 `Vdoc-mcp/skills/vdoc` 自 v0.3.7 起与 MCP 共包、共锁定版本；MCP 可独立使用。按 [MCP 安装方式](mcp-tools.md#安装方式)校验并全局安装编译包，避免 Git 准备时报 `tsc: command not found`，再链接：
 
 ```sh
 # Personal install; change the directory for another agent or project scope.
@@ -56,25 +56,23 @@ Vdoc Skill 教 Agent 先查 MCP 事实；不存数据、不计算 diff、不直�
 )
 ```
 
-链接含全部引用、模板和示例。Claude Code 使用 `--directory "$HOME/.claude/skills/vdoc"`，项目范围使用 `--directory .agents/skills/vdoc`。已有目标不会被覆盖；迁移前保留修改并移走旧安装。个人规则另存，不修改包内文件。
+链接含引用、模板和示例。Claude Code 用 `--directory "$HOME/.claude/skills/vdoc"`，项目用 `--directory .agents/skills/vdoc`。已有目标不覆盖；迁移前保留修改、移走旧安装。个人规则另存，不改包文件。
 
 ### 更新
 
-校验新版已审核 lock 的 MCP 发行包，重装到原 npm 全局位置，Skill 随链接更新；重启 MCP、重载 Agent。更换 Node／npm prefix 须重新链接。配置固定旧 Git commit 时，更新它或改用全局 `vdoc-mcp`。
-
-包尚未发布到 npm；完成 registry 发布并从 Git 安装迁移后才可用 `npm update --global @vdoc/mcp`。不要从临时 `npx` 缓存建立持久链接。
+校验新版已审核 lock 的 MCP 包，在原 npm 全局 prefix 重装；Skill 随链接更新，重启 MCP、重载 Agent。换 Node/npm prefix 后重链；旧 Git pin 须更新或改用全局 `vdoc-mcp`。包未上 npm；registry 发布且迁移 Git 安装后才可 `npm update --global @vdoc/mcp`。勿链接临时 `npx` 缓存。
 
 ### release / beta 隔离 {#release-channels}
 
-通过 [MCP 渠道安装入口](mcp-tools.md#release-channels)安装后，在独立测试项目链接 beta Skill：
+按 [MCP 渠道安装入口](mcp-tools.md#release-channels)安装，在独立测试项目链接 beta：
 
 ```sh
 "$HOME/.local/share/vdoc/mcp/beta/node_modules/.bin/vdoc-mcp" skill install --directory .agents/skills/vdoc
 ```
 
-稳定项目从 `~/.local/share/vdoc/mcp/release/node_modules/.bin/vdoc-mcp` 链接到独立目录；Beta 使用自己的 Skill 目录、MCP 配置和 Token。更新时核对原渠道和安装位置，重复相同渠道、相同 prefix 的安装命令；Skill 随链接更新，重启 MCP 并重载 Agent。来源不明或渠道不匹配时先确认，不覆盖旧安装。[MCP 连接](mcp-tools.md)另行配置。
+稳定项目从 `~/.local/share/vdoc/mcp/release/node_modules/.bin/vdoc-mcp` 链接独立目录；Beta 的 Skill 目录、MCP 配置与 Token 独立。按原渠道、原 prefix 重装并重启 MCP／重载 Agent；未知来源或渠道冲突须先确认，不覆盖。[MCP 连接](mcp-tools.md)另配。
 
-在合并仓库验证 MCP 与 Skill：
+合并仓库内验证 MCP 与 Skill：
 
 ```sh
 cd Vdoc-mcp
@@ -89,15 +87,15 @@ npm test
 
 ## 工作流 1：endpoint 集成
 
-1. 集成用户要求的 endpoint 时，加载 Skill，用 `list_projects`、`list_documents` 或 `list_api_versions` 定位版本。
+1. 集成 endpoint 前加载 Skill，用 `list_projects`、`list_documents` 或 `list_api_versions` 定位版本。
 2. 用 `get_endpoint_detail` 读取 method、path、parameters、request body、response body 与 auth。
-3. 按返回事实写代码／说明，标明来自 Vdoc，不猜测。
+3. 据返回事实写代码／说明，引用 Vdoc，不猜测。
 
 ## 工作流 2：迁移分析
 
-1. 用户比较 API 版本时，用 MCP 定位 `from_version_id`、`to_version_id`。
-2. 调用 `compare_api_versions` 或 `get_change_summary`，仅按结果说明 breaking change、兼容变化及迁移动作。
-3. 缺少版本时要求先在 Admin 发布，不编造结论。
+1. 用 MCP 定位待比较的 `from_version_id`、`to_version_id`。
+2. 调用 `compare_api_versions` 或 `get_change_summary`，据结果说明 breaking change、兼容变化及迁移动作。
+3. 缺版本则先在 Admin 发布，不编造结论。
 
 ## 工作流 3：Markdown / TXT 文档 Draft
 

@@ -40,11 +40,11 @@ Read https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.3.17-beta.1
 - [MCP is configured](mcp-tools.md), and Vdoc `tools/list` succeeds.
 - Do not put raw MCP Tokens, JWTs, DB passwords, storage secrets, or `Authorization` values in Skills, examples, logs, or issues.
 
-Initialize Vdoc using the [Deployment Guide](deployment.md#quick-start) if needed. Before using the Skill, verify connectivity and permissions with [your first query](admin-usage.md#first-query).
+Initialize with the [Deployment Guide](deployment.md#quick-start) if needed; verify connectivity/permissions with [your first query](admin-usage.md#first-query).
 
 ## Installation
 
-Since v0.3.7, optional `Vdoc-mcp/skills/vdoc` shares MCP's package and locked version; MCP works without it. [Verify and globally install compiled MCP](mcp-tools.md#installation-options) before linking to avoid Git's `tsc: command not found` preparation error:
+Since v0.3.7, optional `Vdoc-mcp/skills/vdoc` shares MCP's package/locked version; MCP works independently. [Verify and globally install compiled MCP](mcp-tools.md#installation-options) before linking, avoiding Git's `tsc: command not found` preparation error:
 
 ```sh
 # Personal install; change the directory for another agent or project scope.
@@ -56,25 +56,23 @@ Since v0.3.7, optional `Vdoc-mcp/skills/vdoc` shares MCP's package and locked ve
 )
 ```
 
-The link includes references, templates, and examples. Pass `--directory "$HOME/.claude/skills/vdoc"` for Claude Code or `--directory .agents/skills/vdoc` for projects. Existing destinations stay untouched; preserve edits and move old installs before migrating. Keep personal rules outside package files.
+Links include references, templates, and examples. Claude Code uses `--directory "$HOME/.claude/skills/vdoc"`; projects use `--directory .agents/skills/vdoc`. Existing targets stay untouched; preserve edits and move old installs before migration. Keep personal rules outside package files.
 
 ### Updating
 
-Verify the newer reviewed lock's MCP release; reinstall at the same global npm prefix to update its linked Skill. Restart MCP and reload the Agent. Relink after changing Node/npm prefixes. Update old Git pins, or use global `vdoc-mcp`.
-
-The package is not on npm yet. `npm update --global @vdoc/mcp` applies only after registry publication and migration from Git installation. Never link persistently from `npx` caches.
+Verify the newer reviewed lock's MCP package and reinstall at the original global npm prefix; linked Skills update. Restart MCP/reload the Agent. Relink after Node/npm prefix changes; update old Git pins or use global `vdoc-mcp`. The package is not on npm: `npm update --global @vdoc/mcp` requires registry publication and migration from Git installation. Never link `npx` caches.
 
 ### release / beta isolation {#release-channels}
 
-Use the [MCP channel installer](mcp-tools.md#release-channels), then link beta's Skill in a separate test project:
+Use the [channel installer](mcp-tools.md#release-channels); link beta in a separate test project:
 
 ```sh
 "$HOME/.local/share/vdoc/mcp/beta/node_modules/.bin/vdoc-mcp" skill install --directory .agents/skills/vdoc
 ```
 
-Stable projects link from `~/.local/share/vdoc/mcp/release/node_modules/.bin/vdoc-mcp` into a separate directory; Beta uses its own Skill directory, MCP configuration, and Token. Verify the original channel and location, then repeat installation with the same channel/prefix. Its linked Skill updates; restart MCP and reload the Agent. Resolve unknown sources or channel mismatches before replacing anything. Configure [MCP Tools](mcp-tools.md) separately.
+Stable projects link `~/.local/share/vdoc/mcp/release/node_modules/.bin/vdoc-mcp` to a separate directory. Beta keeps separate Skill directories, MCP configuration, and Tokens. Reinstall with the original channel/prefix; restart MCP/reload the Agent. Resolve unknown sources/channel mismatches before replacement. Configure [MCP](mcp-tools.md) separately.
 
-Validate MCP and Skill in the combined repository:
+Validate both in the combined repository:
 
 ```sh
 cd Vdoc-mcp
@@ -89,15 +87,15 @@ npm test
 
 ## Workflow 1: Endpoint Integration
 
-1. To integrate an endpoint, load the Skill and find its version with `list_projects`, `list_documents`, or `list_api_versions`.
-2. Read method, path, parameters, request/response bodies, and auth with `get_endpoint_detail`.
-3. Write code/explanations from the returned facts, citing Vdoc instead of guessing.
+1. Before endpoint integration, load the Skill; locate the version with `list_projects`, `list_documents`, or `list_api_versions`.
+2. Read method, path, parameters, request/response bodies, and auth via `get_endpoint_detail`.
+3. Use returned facts for code/explanations; cite Vdoc, never guess.
 
 ## Workflow 2: Migration Analysis
 
-1. Resolve `from_version_id` and `to_version_id` through MCP for the API comparison.
-2. Call `compare_api_versions` or `get_change_summary`; explain breaking/compatible changes and migration actions only from those results.
-3. If a version is missing, request publication in Admin instead of inventing conclusions.
+1. Resolve `from_version_id`/`to_version_id` via MCP.
+2. Use `compare_api_versions`/`get_change_summary` results to explain breaking/compatible changes and migration actions.
+3. Request publication of missing versions in Admin; never invent conclusions.
 
 ## Workflow 3: Markdown / TXT Document Draft
 
