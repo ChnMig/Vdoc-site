@@ -1,6 +1,72 @@
 import { expect, test } from '@playwright/test'
-import { browserRoutes, routeUrl } from './support/preview'
+import { readFileSync } from 'node:fs'
+import { browserRoutes, previewBasePath, routeUrl } from './support/preview'
 import { assertRouteQuality } from './support/quality'
+
+test('AI Skill assets serve original text under the configured base', async ({
+  request,
+}) => {
+  for (const filename of ['skill-install.md', 'llms.txt']) {
+    const response = await request.get(`${previewBasePath}${filename}`)
+    expect(response.ok()).toBe(true)
+    expect(await response.text()).toBe(
+      readFileSync(
+        new URL(`../../docs/public/${filename}`, import.meta.url),
+        'utf8',
+      ),
+    )
+    expect(response.headers()['content-type']).not.toContain('text/html')
+  }
+})
+
+for (const locale of [
+  { route: '/skill-workflows', heading: '让 AI 帮你安装' },
+  { route: '/en/skill-workflows', heading: 'Let AI Install It' },
+]) {
+  test(`AI Skill one-sentence installation prompts: ${locale.route}`, async ({
+    page,
+    context,
+  }, testInfo) => {
+    await context.grantPermissions(['clipboard-read', 'clipboard-write'])
+    await page.goto(routeUrl(locale.route), { waitUntil: 'networkidle' })
+    await expect(
+      page.getByRole('heading', { name: locale.heading }),
+    ).toBeVisible()
+    const prompts = page.locator('.vp-doc .language-text').filter({
+      hasText:
+        'https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.3.17-beta.14/docs/public/skill-install.md',
+    })
+    await expect(prompts).toHaveCount(2)
+    await page
+      .getByRole('heading', { name: locale.heading })
+      .scrollIntoViewIfNeeded()
+    await page.screenshot({ path: testInfo.outputPath('ai-skill-install.png') })
+    for (const [index, channel] of ['release', 'beta'].entries()) {
+      const prompt = prompts.nth(index)
+      const sentence = (await prompt.locator('code').innerText()).trim()
+      expect(sentence).toContain(`${channel}`)
+      expect(sentence).not.toMatch(/VDOC_MCP_TOKEN|VDOC_BASE_URL/)
+      expect(
+        await prompt
+          .locator('pre')
+          .evaluate((element) => element.scrollWidth <= element.clientWidth),
+      ).toBe(true)
+      await prompt.locator('button.copy').click()
+      await expect
+        .poll(() =>
+          page.evaluate(async () =>
+            (await navigator.clipboard.readText()).trim(),
+          ),
+        )
+        .toBe(sentence)
+    }
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= window.innerWidth,
+      ),
+    ).toBe(true)
+  })
+}
 
 test.describe('production route quality', () => {
   for (const route of browserRoutes) {

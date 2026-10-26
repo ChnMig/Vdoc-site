@@ -109,6 +109,7 @@ export { docsSlugs }
 
 export default defineConfig({
   base,
+  srcExclude: ['public/**'],
   title: 'Vdoc',
   description:
     'Reviewed OpenAPI and Markdown docs for teams and AI, with version diffs, MCP, and self-hosting.',

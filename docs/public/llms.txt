@@ -1,0 +1,7 @@
+# Vdoc
+
+> Reviewed OpenAPI, Markdown and TXT facts for teams and AI. Agents query and submit drafts; humans publish.
+
+## Installation
+
+- [Install Vdoc Skill](https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.3.17-beta.14/docs/public/skill-install.md): Agent instructions for release/beta installation, verification and updates.

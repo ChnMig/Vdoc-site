@@ -1,19 +1,38 @@
 # Skill 工作流
 
-Vdoc Skill 是安装到 Agent runtime 的工作流包。它不存数据、不计算 diff、不直接调用后端，而是教 Agent 什么时候必须通过 Vdoc MCP 查询事实。
+Vdoc Skill 教 Agent 先查 MCP 事实；不存数据、不计算 diff、不直接调用后端。
 
-## 使用前准备
+## 让 AI 帮你安装 {#ai-install}
 
-- Agent 已配置 [MCP 工具](mcp-tools.md)，并能成功调用 Vdoc `tools/list`。
-- 目标 runtime 支持安装 skill 或自定义工作流说明。
-- 你知道 runtime 要求的 skill folder 位置。
-- 不要把原始 MCP Token、JWT、DB password、storage secret 或 `Authorization` header 值写进 Skill 文件、示例、日志或 issue。
+复制一句话给 AI。安装 Skill 无需 Token；[AI 安装说明](https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.3.17-beta.14/docs/public/skill-install.md)包含安装、校验和更新步骤。
 
-尚未启动 Vdoc 时，先按 [部署指南](deployment.md#quick-start) 完成初始化。建议在安装 Skill 前先完成 [第一次已发布文档查询](admin-usage.md#first-query)，确认 MCP 连接和文档权限已经可用。
+<div class="skill-install-prompts">
+
+稳定项目：
+
+```text
+请阅读 https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.3.17-beta.14/docs/public/skill-install.md，帮我把 Vdoc Skill 安装到当前项目，使用 release 渠道。
+```
+
+测试项目：
+
+```text
+请阅读 https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.3.17-beta.14/docs/public/skill-install.md，帮我把 Vdoc Skill 安装到当前项目，使用 beta 渠道。
+```
+
+</div>
+
+## 使用 Skill 查询前
+
+- runtime 支持 Skill／自定义工作流，已确定 Skill 目录。
+- [MCP 已配置](mcp-tools.md)，Vdoc `tools/list` 调用成功。
+- 不要把原始 MCP Token、JWT、DB password、storage secret 或 `Authorization` 值写进 Skill、示例、日志或 issue。
+
+未部署时按[部署指南](deployment.md#quick-start)初始化；查询前用[首次文档查询](admin-usage.md#first-query)验证连接与权限。
 
 ## 安装
 
-从 v0.3.7 起，可选 Skill 位于 `Vdoc-mcp/skills/vdoc`，并随 MCP 包一起发布；不安装 Skill 也能使用 MCP 工具。两者统一使用发布锁中的 `Vdoc-mcp` 版本。先按 [MCP 安装方式](mcp-tools.md#安装方式) 下载、校验并全局安装编译好的发行包，避免 npm 全局 Git 安装在准备阶段报 `tsc: command not found`。安装成功后，再链接 Skill：
+自 v0.3.7 起，可选的 `Vdoc-mcp/skills/vdoc` 与 MCP 共用包及 lock 中的 `Vdoc-mcp` 版本；MCP 不依赖 Skill。按 [MCP 安装方式](mcp-tools.md#安装方式)校验、全局安装编译发行包，避免 Git 准备阶段报 `tsc: command not found`，再链接 Skill：
 
 ```sh
 # Personal install; change the directory for another agent or project scope.
@@ -25,25 +44,23 @@ Vdoc Skill 是安装到 Agent runtime 的工作流包。它不存数据、不计
 )
 ```
 
-安装器会链接完整 Skill，包括引用文件、模板和示例。Claude Code 可使用 `--directory "$HOME/.claude/skills/vdoc"`，项目范围可使用 `--directory .agents/skills/vdoc`。
-
-如果目标目录已经存在，安装器不会覆盖它。迁移前保留本地修改并移走旧安装；个人规则应独立存放，不要修改链接指向的包文件。
+链接含全部引用、模板和示例。Claude Code 使用 `--directory "$HOME/.claude/skills/vdoc"`，项目范围使用 `--directory .agents/skills/vdoc`。已有目标不会被覆盖；迁移前保留修改并移走旧安装。个人规则另存，不修改包内文件。
 
 ### 更新
 
-使用新版已审核 lock 对应的 MCP 发行包，校验后在同一个 npm 全局安装位置重新安装即可，链接的 Skill 会同步更新。之后重新加载 Agent 并重启 MCP。切换 Node 安装或 npm prefix 后需要重新链接。若 MCP 配置仍固定在另一个 Git commit，也要更新该配置，或改为启动全局 `vdoc-mcp` 命令。
+校验新版已审核 lock 的 MCP 发行包，重装到原 npm 全局位置，Skill 随链接更新；重启 MCP、重载 Agent。更换 Node／npm prefix 须重新链接。配置固定旧 Git commit 时，更新它或改用全局 `vdoc-mcp`。
 
-目前包尚未发布到 npm。发布并从 Git 固定安装迁移到 registry 安装后，才适用 `npm update --global @vdoc/mcp`。不要从临时 `npx` 缓存目录建立持久 Skill 链接。
+包尚未发布到 npm；完成 registry 发布并从 Git 安装迁移后才可用 `npm update --global @vdoc/mcp`。不要从临时 `npx` 缓存建立持久链接。
 
 ### release / beta 隔离 {#release-channels}
 
-通过 [MCP 渠道安装入口](mcp-tools.md#release-channels) 安装后，在专用测试项目中链接 beta 包附带的 Skill：
+通过 [MCP 渠道安装入口](mcp-tools.md#release-channels)安装后，在独立测试项目链接 beta Skill：
 
 ```sh
 "$HOME/.local/share/vdoc/mcp/beta/node_modules/.bin/vdoc-mcp" skill install --directory .agents/skills/vdoc
 ```
 
-稳定项目从 `~/.local/share/vdoc/mcp/release/node_modules/.bin/vdoc-mcp` 链接到它自己的 Skill 目录。不要在同一目录同时安装两套 Skill；Beta 项目使用 Beta MCP 配置和 Token。重复对应渠道的 MCP 安装命令后，链接会显示该渠道的新 Skill，重新加载 Agent 即可。通过默认分支的 Skills CLI 安装不提供这一渠道隔离，应改用渠道发行包或固定提交。
+稳定项目从 `~/.local/share/vdoc/mcp/release/node_modules/.bin/vdoc-mcp` 链接到独立目录；Beta 使用自己的 Skill 目录、MCP 配置和 Token。重复对应渠道安装命令后 Skill 同步更新，重载 Agent。默认分支的 Skills CLI 不隔离渠道，应使用渠道包或固定提交。
 
 ### 使用 Skills CLI 单独安装
 
@@ -51,9 +68,9 @@ Vdoc Skill 是安装到 Agent runtime 的工作流包。它不存数据、不计
 npx skills add ChnMig/Vdoc-mcp --skill vdoc -g
 ```
 
-该方式跟随仓库默认分支，由 Skills CLI 独立管理，更新全局 MCP 包不会替它更新。固定版本安装可使用包含已审核 commit 和 `skills/vdoc` 目录的 GitHub tree URL。不要让两种安装器管理同一个目录；[MCP 连接](mcp-tools.md)仍需单独配置。
+此方式跟随默认分支、独立更新，不随全局 MCP 更新。固定安装可用已审核 commit 下 `skills/vdoc` 的 GitHub tree URL。不要让两种安装器管理同一目录；[MCP 连接](mcp-tools.md)另行配置。
 
-在合并后的仓库中验证 MCP 与 Skill：
+在合并仓库验证 MCP 与 Skill：
 
 ```sh
 cd Vdoc-mcp
@@ -62,38 +79,27 @@ npm test
 
 ## Agent 必须先查 Vdoc 的场景
 
-- 写前端或后端 endpoint integration。
-- 判断 endpoint、field、enum、response property、auth scheme 或 server 是否存在。
-- 比较两个 API、Markdown 或 TXT Version。
-- 根据 semantic diff 准备迁移说明。
-- 引用已发布 Markdown / TXT 文档原文。
-- 创建、更新或提交 Draft。
+- 前后端 endpoint 集成，或判断 endpoint、field、enum、response property、auth scheme、server 是否存在。
+- 比较 API、Markdown、TXT Version，或按 semantic diff 准备迁移说明。
+- 引用已发布 Markdown／TXT 原文；创建、更新或提交 Draft。
 
 ## 工作流 1：endpoint 集成
 
-1. 用户提出集成某个 endpoint。
-2. Agent 加载 Vdoc Skill。
-3. Agent 通过 MCP 调用 `list_projects`、`list_documents` 或 `list_api_versions` 定位目标版本。
-4. Agent 调用 `get_endpoint_detail` 获取 method、path、parameters、request body、response body 和 auth 信息。
-5. Agent 根据查询结果写代码或说明。
-6. Agent 在回答中说明事实来自 Vdoc，而不是猜测。
+1. 集成用户要求的 endpoint 时，加载 Skill，用 `list_projects`、`list_documents` 或 `list_api_versions` 定位版本。
+2. 用 `get_endpoint_detail` 读取 method、path、parameters、request body、response body 与 auth。
+3. 按返回事实写代码／说明，标明来自 Vdoc，不猜测。
 
 ## 工作流 2：迁移分析
 
-1. 用户询问两个 API 版本的迁移影响。
-2. Agent 通过 MCP 定位 `from_version_id` 和 `to_version_id`。
-3. Agent 调用 `compare_api_versions` 或 `get_change_summary`。
-4. Agent 只基于返回结果说明 breaking change、兼容变化和迁移动作。
-5. 如果 Vdoc 没有对应版本，Agent 应要求先在 Admin 中发布版本，而不是编造结论。
+1. 用户比较 API 版本时，用 MCP 定位 `from_version_id`、`to_version_id`。
+2. 调用 `compare_api_versions` 或 `get_change_summary`，仅按结果说明 breaking change、兼容变化及迁移动作。
+3. 缺少版本时要求先在 Admin 发布，不编造结论。
 
 ## 工作流 3：Markdown / TXT 文档 Draft
 
-1. 用户要求修改已托管的 Markdown 或 TXT 文档。
-2. Agent 调用 `get_latest_doc` 读取已发布内容。
-3. Agent 基于用户要求生成修改稿。
-4. Agent 使用 `create_doc_draft` 或 `update_doc_draft` 创建 Draft。
-5. Agent 使用 `submit_doc_draft` 提交人工审核。
-6. Admin 或 SuperAdmin 在 Admin 中审核并发布。
+1. 修改托管文档前，用 `get_latest_doc` 读已发布内容，再按用户要求生成修改稿。
+2. 用 `create_doc_draft`／`update_doc_draft` 建 Draft，`submit_doc_draft` 提交人工审核。
+3. 由 Admin／SuperAdmin 在 Admin 审核并发布。
 
 ## 好提示示例
 
@@ -111,17 +117,13 @@ npm test
 
 ## 如何验证
 
-1. 让 Agent 说明某个 endpoint 的请求字段。
-2. 观察 Agent 是否先调用 Vdoc MCP。
-3. 检查回答是否引用 `get_endpoint_detail` 或相关 Vdoc tool 的结果。
-4. 要求 Agent 发布版本，确认它只提交 Draft，并提示需要 Admin 或 SuperAdmin 审核。
+让 Agent 解释 endpoint 请求字段，检查它是否先调用 MCP、引用 `get_endpoint_detail` 等结果。要求发布时，应只提交 Draft，提示由 Admin／SuperAdmin 审核。
 
 ## 失败信号
 
-- Agent 没有查询 Vdoc 就编造 endpoint fields。
-- Agent 使用显示名称替代 stable ID 或 `relative_path`。
-- Agent 说 Draft 已发布，但 Admin 中还没有新 Version。
-- Agent 把 MCP Token 放进 CLI args、日志或文档。
-- Live E2E 被指向应用数据库，而不是一次性 `VDOC_TEST_POSTGRES_DB`，默认 `vdoc_e2e`。
+- 不查 Vdoc 就编造字段，或用显示名代替 stable ID／`relative_path`。
+- Admin 尚无新 Version 却声称 Draft 已发布。
+- 将 MCP Token 放入 CLI args、日志或文档。
+- Live E2E 指向应用库，而非一次性 `VDOC_TEST_POSTGRES_DB`（默认 `vdoc_e2e`）。
 
-出现这些情况时，重新加载 Skill，确认 MCP 可用，并明确要求 Agent 先查询 Vdoc MCP。
+遇此情况，重载 Skill、确认 MCP 可用，并要求先查 Vdoc。

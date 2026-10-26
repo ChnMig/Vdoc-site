@@ -1,16 +1,22 @@
 # Changelog
 
+Beta entries below update only `:beta`, leaving stable unchanged. Keep test databases, storage, and credentials separate. See the [guide](admin-usage.md) and [manual upgrade](release-rollback.md).
+
+## v0.3.17-beta.14
+
+Add AI Skill installation instructions and complete channel prompts in Site/Admin. Beta links to tagged guide text; stable Pages stays isolated. No new API/migration.
+
 ## v0.3.17-beta.13
 
-Fix upload session mix-ups, unsaved draft loss/late-save overwrites, invalid UTF-8, default-branch conflicts, empty TXT promotion, stale endpoint IDs/team names, and concurrent migrations. Windows MCP runs npm CLI via Node (simulated only). No new API/migration. Beta only. [Upgrade](release-rollback.md).
+Fix upload session mix-ups, unsaved draft loss/late-save overwrites, invalid UTF-8, default-branch conflicts, empty TXT promotion, stale endpoint IDs/team names, and concurrent migrations. Windows MCP runs npm CLI via Node (simulated only). No new API/migration.
 
 ## v0.3.17-beta.12
 
-Separate document details and content with a compact information area and file-path label. Markdown Preview/Source uses icons with tooltips while retaining local reading state. No API or database migrations are added. Beta only.
+Separate document details and content with a compact information area and file-path label. Markdown Preview/Source uses icons with tooltips while retaining local reading state. No new API/migration.
 
 ## v0.3.17-beta.11
 
-Use consistent bordered selects for branch, content state, and version/draft in the document header, with visible labels, icons, aligned heights, and small-screen spacing. No API or database migrations are added. Beta only.
+Use consistent bordered selects for branch, content state, and version/draft in the document header, with visible labels, icons, aligned heights, and small-screen spacing. No new API/migration.
 
 ## v0.3.17-beta.10
 
@@ -18,21 +24,21 @@ Use consistent bordered selects for branch, content state, and version/draft in 
 - Toggle AI beside readable content on wide screens or in a narrow-screen modal with keyboard focus cycling and dialog coordination. Retain the current context's chat and input across closing, reopening, and resizing.
 - Document settings has details/branches tabs. Tools retain the reader, scroll, and input; folders and project tabs update locally with short transitions, browser history, and reduced-motion support.
 
-No API or database migrations are added. Beta only. See the [guide](admin-usage.md) and [manual upgrade](release-rollback.md).
+No new API/migration.
 
 ## v0.3.17-beta.9
 
-- Bring team, project, people, and document browsing into **Workspace**. Each project groups Documents, Project members, and Project settings. Teams, projects, people, folders, and the three document types use distinct icons; access remains assigned per project.
-- Open documents on an independent page: the current project's file tree on the left, content in the center, and a heading outline with version, Diff, AI, and document settings tools on the right. Folder rows toggle with one click; document selection and folder location have separate states.
-- Move Share and Edit draft to the document header. Sharing pins the selected published version, and AI follows the selected version or draft. Narrow screens use a file drawer, outline dialog, and tools at the top.
-- Upgrade Go, React, the MCP SDK, and build and test dependencies. Use Go 1.27.3 and Node.js 26.12.1, Alpine 3.24.3 for the Backend runtime, and pinned Caddy 2.11.7 for Admin's static server. Sonyflake v2 explicitly preserves the original ID epoch and format.
-- Upgrade MCP to TypeScript 7.0.2. Admin/Site retain TypeScript 6.0.3 because the current `typescript-eslint` supports `>=4.8.4 <6.1.0`. The npm/pnpm dependency audits reported no known vulnerabilities.
+- **Workspace** groups teams, projects, people, and documents. Projects manage documents, members, and settings; permissions remain per project. Teams, projects, people, folders, and three document types have distinct icons.
+- Independent document pages show the project's tree on the left, content centrally, and outline, versions, Diffs, AI, and settings on the right. Click folders to expand/collapse; document selection and folder location remain distinct.
+- Header actions share the selected published version or edit drafts; AI follows the selected version/draft. Narrow screens use a tree drawer, outline dialog, and top tools.
+- Upgrade Go, React, MCP SDK, and build/test dependencies: Go 1.27.3, Node.js 26.12.1, Backend Alpine 3.24.3, and pinned Admin static server Caddy 2.11.7. Sonyflake v2 preserves the ID epoch and format.
+- MCP uses TypeScript 7.0.2; Admin/Site retain 6.0.3 for the current `typescript-eslint` range `>=4.8.4 <6.1.0`. npm/pnpm audits found no known vulnerabilities.
 
-No database migration is added beyond beta.8. Beta only. [Guide](admin-usage.md) · [Manual upgrade](release-rollback.md). MCP uses Node.js on the Agent machine; update it there and restart MCP.
+No new database migration beyond beta.8. Update Node.js on the Agent machine and restart MCP.
 
 ## v0.3.17-beta.8
 
-Unified document context with content, tools, AI, and settings. Share the displayed published version; use safe custom branch names. See [First Use](admin-usage.md). Migrations 010/011 apply at startup; back up and upgrade Backend/Admin together. Beta only; [manual upgrade](release-rollback.md).
+Unified document context with content, tools, AI, and settings. Share the displayed published version; use safe custom branch names. Migrations 010/011 apply at startup; back up and upgrade Backend/Admin together.
 
 ## v0.3.17-beta.7
 
@@ -40,32 +46,32 @@ Unified document context with content, tools, AI, and settings. Share the displa
 - Initial uploads create unpublished `dev` drafts. TXT supports plain-text preview, review, publication, line diffs, sharing, and MCP reads and edits, preserving line endings and empty files.
 - Center table headers and cells; improve mobile layouts.
 
-Migrations 008/009 apply at startup. Back up data and upgrade Backend and Admin together. Beta only; stable stays unchanged. Keep databases, storage, and credentials separate. [Guide](admin-usage.md) · [Upgrade](release-rollback.md).
+Migrations 008/009 apply at startup. Back up data and upgrade Backend/Admin together.
 
 ## v0.3.17-beta.6
 
-Organize Drafts, Versions, Diffs and MCP into task tabs, with clear list actions and Add member dialogs. Unify selects and date/time pickers; improve command copying, password inputs, prompt cards and small screens. See [First Use](admin-usage.md).
+Organize Drafts, Versions, Diffs and MCP into task tabs, with clear list actions and Add member dialogs. Unify selects and date/time pickers; improve command copying, password inputs, prompt cards and small screens.
 
-No API or database migration changes. Only `:beta` updates; stable stays unchanged. [Manual upgrade](release-rollback.md).
+No new API/migration.
 
 ## v0.3.17-beta.5
 
-Settings categories, system/project AI scopes, simpler lists/guides and small-screen layouts. [First Use](admin-usage.md) · [Manual Beta update](release-rollback.md).
+Settings categories, system/project AI scopes, simpler lists/guides and small-screen layouts.
 
 ## v0.3.17-beta.4
 
 - Beta Admin uses a separate Beta icon. [Version and updates in Settings](admin-usage.md#version-and-updates) shows the deployed frontend and backend versions and update channel.
-- Release information is fetched only after clicking **Check for updates**. Beta backends check only Beta releases; stable backends check only stable releases. Failed checks show an error and can be retried. The page reports available versions and links to release notes; operators still update deployments manually.
-- Keep the change-password form compact and place system prompts side by side on wide screens, retaining a single column on narrow screens.
-- This release introduced the native MCP credential date-and-time picker. Enter the current device's local time; submission converts it to UTC. Leaving it blank still means no expiry.
-- Upgrade the Admin Docker build stage and CI to Node.js 24.22.1. The running Admin image continues to serve static pages. MCP uses Node.js on the Agent machine, which users must upgrade separately.
+- **Check for updates** fetches only the backend's channel: Beta or stable. Failures show retryable errors; available versions link to release notes. Operators still upgrade manually.
+- Compact password forms; side-by-side system prompts on wide screens and one column on narrow screens.
+- Introduce the native MCP expiry picker: enter device-local time, converted to UTC on submission; blank means no expiry.
+- Admin Docker builds and CI use Node.js 24.22.1; runtime still serves static pages. MCP uses the Agent machine's Node.js, upgraded separately by users.
 
 ## v0.3.17-beta.3
 
 - Teams, Projects, Users, Documents, Branches, and MCP Token pages show lists first. Create buttons and row-level Edit actions open labeled forms. Fix project-form alignment, tighten list spacing, and adapt the forms to mobile screens.
 - Both regular users and administrators can [change their own password in Settings](admin-usage.md#change-password), after verifying the current password. Success signs out the current browser. Server operators can use the [command-line reset](troubleshooting.md#reset-admin-password) when a super administrator forgets their password.
 
-beta.3 and beta.4 update Beta only, without migrations; stable stays unchanged. [Upgrade](release-rollback.md).
+beta.3 and beta.4 add no migrations.
 
 ## v0.3.16
 

@@ -1,19 +1,38 @@
 # Skill Workflows
 
-The Vdoc Skill is an Agent runtime workflow package. It does not store data, compute diffs, or call the backend directly. It teaches Agents when they must query facts through Vdoc MCP.
+Vdoc Skill teaches Agents to query MCP facts first; it neither stores data, computes diffs, nor calls Backend directly.
 
-## Before You Start
+## Let AI Install It {#ai-install}
 
-- The Agent has configured [MCP Tools](mcp-tools.md), and Vdoc `tools/list` succeeds.
-- The target runtime supports skills or custom workflow instructions.
-- You know the skill folder location required by the runtime.
-- Do not put raw MCP Tokens, JWTs, DB passwords, storage secrets, or `Authorization` header values in Skill files, examples, logs, or issues.
+Copy a sentence to your AI. Installation needs no Token; [AI instructions](https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.3.17-beta.14/docs/public/skill-install.md) cover installation, verification, and updates.
 
-If Vdoc is not running yet, follow the [Deployment Guide](deployment.md#quick-start). Complete [your first published document query](admin-usage.md#first-query) before installing the Skill, so you know the MCP connection and document permissions work.
+<div class="skill-install-prompts">
+
+Stable project:
+
+```text
+Read https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.3.17-beta.14/docs/public/skill-install.md and install the Vdoc Skill in my current project using the release channel.
+```
+
+Test project:
+
+```text
+Read https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.3.17-beta.14/docs/public/skill-install.md and install the Vdoc Skill in my current project using the beta channel.
+```
+
+</div>
+
+## Before Querying Vdoc
+
+- The runtime supports Skills/custom workflows; its Skill directory is known.
+- [MCP is configured](mcp-tools.md), and Vdoc `tools/list` succeeds.
+- Do not put raw MCP Tokens, JWTs, DB passwords, storage secrets, or `Authorization` values in Skills, examples, logs, or issues.
+
+Initialize Vdoc using the [Deployment Guide](deployment.md#quick-start) if needed. Before using the Skill, verify connectivity and permissions with [your first query](admin-usage.md#first-query).
 
 ## Installation
 
-Since v0.3.7, the optional Skill lives in `Vdoc-mcp/skills/vdoc` and is included in the MCP package. MCP works without it. Both use the `Vdoc-mcp` release pinned by the workspace lock. First [verify and globally install the compiled MCP release archive](mcp-tools.md#installation-options); this avoids npm global Git preparation failures such as `tsc: command not found`. After installation succeeds, link the Skill:
+Since v0.3.7, optional `Vdoc-mcp/skills/vdoc` shares MCP's package and locked version; MCP works without it. [Verify and globally install compiled MCP](mcp-tools.md#installation-options) before linking to avoid Git's `tsc: command not found` preparation error:
 
 ```sh
 # Personal install; change the directory for another agent or project scope.
@@ -25,25 +44,23 @@ Since v0.3.7, the optional Skill lives in `Vdoc-mcp/skills/vdoc` and is included
 )
 ```
 
-The installer links the complete bundled Skill, including references, templates, and examples. For Claude Code, pass `--directory "$HOME/.claude/skills/vdoc"`; for project scope, use `--directory .agents/skills/vdoc`.
-
-If the destination already exists, the installer leaves it untouched. Preserve local changes and move the old installation before migrating. Keep personal rules outside the linked package files.
+The link includes references, templates, and examples. Pass `--directory "$HOME/.claude/skills/vdoc"` for Claude Code or `--directory .agents/skills/vdoc` for projects. Existing destinations stay untouched; preserve edits and move old installs before migrating. Keep personal rules outside package files.
 
 ### Updating
 
-Install the verified MCP release archive from the newer reviewed lock globally at the same npm prefix; the linked Skill updates with it. Reload your agent and restart MCP. Changing the Node installation or npm prefix requires relinking. Existing MCP configurations pinned to another Git commit must also be updated, or changed to use the global `vdoc-mcp` command.
+Verify the newer reviewed lock's MCP release; reinstall at the same global npm prefix to update its linked Skill. Restart MCP and reload the Agent. Relink after changing Node/npm prefixes. Update old Git pins, or use global `vdoc-mcp`.
 
-The package is not published to npm yet. `npm update --global @vdoc/mcp` will apply only after registry publication and migration from a Git-pinned install. Do not link a persistent Skill from an `npx` cache directory.
+The package is not on npm yet. `npm update --global @vdoc/mcp` applies only after registry publication and migration from Git installation. Never link persistently from `npx` caches.
 
 ### release / beta isolation {#release-channels}
 
-After using the [MCP channel installer](mcp-tools.md#release-channels), link the beta package's Skill inside a dedicated test project:
+Use the [MCP channel installer](mcp-tools.md#release-channels), then link beta's Skill in a separate test project:
 
 ```sh
 "$HOME/.local/share/vdoc/mcp/beta/node_modules/.bin/vdoc-mcp" skill install --directory .agents/skills/vdoc
 ```
 
-Stable projects link from `~/.local/share/vdoc/mcp/release/node_modules/.bin/vdoc-mcp` into their own Skill directories. Keep the two channels in separate destinations and configure the Beta project with Beta MCP and its Token. Repeating the selected channel's MCP install command updates that channel's linked Skill; reload the Agent afterwards. Default-branch Skills CLI installations do not provide this isolation; use channel release packages or an exact reviewed commit.
+Stable projects link from `~/.local/share/vdoc/mcp/release/node_modules/.bin/vdoc-mcp` into a separate directory; Beta uses its own Skill directory, MCP configuration, and Token. Repeat the channel install to update its Skill, then reload the Agent. Skills CLI on the default branch lacks channel isolation: use channel packages or a reviewed commit.
 
 ### Independent Skills CLI installation
 
@@ -51,9 +68,9 @@ Stable projects link from `~/.local/share/vdoc/mcp/release/node_modules/.bin/vdo
 npx skills add ChnMig/Vdoc-mcp --skill vdoc -g
 ```
 
-This follows the default branch and is managed independently by Skills CLI; global MCP package updates do not update it. For a pinned installation, use the GitHub tree URL for the reviewed commit and `skills/vdoc` directory. Do not let Skills CLI and the MCP installer manage the same destination. Configure [MCP Tools](mcp-tools.md) separately.
+This follows the default branch, updating independently of global MCP. Pin it with the reviewed commit's GitHub tree URL for `skills/vdoc`. Keep installer destinations separate. Configure [MCP Tools](mcp-tools.md) separately.
 
-Validate both the Skill and MCP from the combined repository:
+Validate MCP and Skill in the combined repository:
 
 ```sh
 cd Vdoc-mcp
@@ -62,38 +79,27 @@ npm test
 
 ## When the Agent Must Query Vdoc First
 
-- Writing frontend or backend endpoint integration.
-- Checking whether an endpoint, field, enum, response property, auth scheme, or server exists.
-- Comparing two API, Markdown, or TXT Versions.
-- Preparing migration notes from semantic diff.
-- Quoting reviewed Markdown / TXT document text.
-- Creating, updating, or submitting Drafts.
+- Integrating frontend/backend endpoints or checking endpoints, fields, enums, response properties, auth schemes, and servers.
+- Comparing API/Markdown/TXT Versions or deriving migration notes from semantic diffs.
+- Quoting published Markdown/TXT; creating, updating, or submitting Drafts.
 
 ## Workflow 1: Endpoint Integration
 
-1. User asks to integrate an endpoint.
-2. Agent loads the Vdoc Skill.
-3. Agent calls `list_projects`, `list_documents`, or `list_api_versions` through MCP to locate the target version.
-4. Agent calls `get_endpoint_detail` to read method, path, parameters, request body, response body, and auth information.
-5. Agent writes code or explanation from the returned facts.
-6. Agent states that facts came from Vdoc, not guessing.
+1. To integrate an endpoint, load the Skill and find its version with `list_projects`, `list_documents`, or `list_api_versions`.
+2. Read method, path, parameters, request/response bodies, and auth with `get_endpoint_detail`.
+3. Write code/explanations from the returned facts, citing Vdoc instead of guessing.
 
 ## Workflow 2: Migration Analysis
 
-1. User asks about migration impact between two API versions.
-2. Agent resolves `from_version_id` and `to_version_id` through MCP.
-3. Agent calls `compare_api_versions` or `get_change_summary`.
-4. Agent explains breaking changes, compatible changes, and migration actions only from returned results.
-5. If Vdoc has no matching version, Agent should ask for a Version to be published in Admin instead of inventing conclusions.
+1. Resolve `from_version_id` and `to_version_id` through MCP for the API comparison.
+2. Call `compare_api_versions` or `get_change_summary`; explain breaking/compatible changes and migration actions only from those results.
+3. If a version is missing, request publication in Admin instead of inventing conclusions.
 
 ## Workflow 3: Markdown / TXT Document Draft
 
-1. User asks to change a managed Markdown or TXT document.
-2. Agent calls `get_latest_doc` to read published content.
-3. Agent prepares a revision from the user request.
-4. Agent uses `create_doc_draft` or `update_doc_draft` to create a Draft.
-5. Agent uses `submit_doc_draft` to submit it for human review.
-6. Admin or SuperAdmin reviews and publishes in Admin.
+1. Read published content with `get_latest_doc`, then revise it as requested.
+2. Create a Draft with `create_doc_draft`/`update_doc_draft`; submit it for review with `submit_doc_draft`.
+3. Admin/SuperAdmin reviews and publishes in Admin.
 
 ## Good Prompt Examples
 
@@ -111,17 +117,13 @@ Read the reviewed runbook Markdown from Vdoc, then answer the deployment questio
 
 ## Verification
 
-1. Ask the Agent to explain request fields for an endpoint.
-2. Observe that the Agent calls Vdoc MCP first.
-3. Check that the answer uses `get_endpoint_detail` or related Vdoc tool results.
-4. Ask the Agent to publish a version and confirm it only submits a Draft, then says Admin or SuperAdmin approval is required.
+Ask for request fields: the Agent must query MCP first and cite `get_endpoint_detail` or related results. To publish, it must only submit a Draft for Admin/SuperAdmin approval.
 
 ## Failure Signs
 
-- Agent invents endpoint fields without a Vdoc query.
-- Agent uses display names instead of stable IDs or `relative_path`.
-- Agent says a Draft is published before Admin has a new Version.
-- Agent puts MCP Tokens in CLI args, logs, or docs.
-- Live E2E points at the application database instead of the disposable `VDOC_TEST_POSTGRES_DB`, `vdoc_e2e` by default.
+- Inventing fields without a Vdoc query, or using display names for stable IDs/`relative_path`.
+- Claiming publication before Admin has a new Version.
+- Putting MCP Tokens in CLI args, logs, or docs.
+- Running Live E2E against the application database instead of disposable `VDOC_TEST_POSTGRES_DB` (default `vdoc_e2e`).
 
-When this happens, reload the Skill, verify MCP availability, and restate that the Agent must query Vdoc MCP first.
+If this occurs, reload the Skill, verify MCP, and require a Vdoc query first.

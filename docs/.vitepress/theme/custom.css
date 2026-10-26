@@ -26,6 +26,14 @@
   scroll-margin-top: calc(var(--vp-nav-height) + 72px);
 }
 
+.vp-doc .skill-install-prompts code {
+  width: 100%;
+  padding-right: 64px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-family: var(--vp-font-family-base);
+}
+
 /* Short token classes share frequent Shiki color pairs without changing either theme. */
 .vp-code .vc-s {
   --shiki-light: #032f62;
