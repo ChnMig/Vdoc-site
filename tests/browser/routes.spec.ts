@@ -22,18 +22,23 @@ test('AI Skill assets serve original text under the configured base', async ({
 for (const locale of [
   {
     route: '/skill-workflows',
-    heading: '让 AI 帮你安装或更新',
+    heading: '让 AI 安装、更新或卸载',
     update: '更新到原渠道最新版本',
     preserve: '保留现有安装位置和 MCP 配置',
+    uninstall: '卸载当前项目的 Vdoc MCP 和 Skill 接入',
+    retain: '保留其他项目共用的安装以及其他工具配置',
   },
   {
     route: '/en/skill-workflows',
-    heading: 'Let AI Install or Update It',
+    heading: 'Let AI Install, Update, or Uninstall',
     update: 'latest version in its original channel',
     preserve: 'preserving the installation location and MCP configuration',
+    uninstall: "remove this project's Vdoc MCP and Skill integration",
+    retain:
+      'preserving installations shared with other projects and all other tool configurations',
   },
 ]) {
-  test(`AI Skill one-sentence install/update prompts: ${locale.route}`, async ({
+  test(`AI Skill one-sentence lifecycle prompts: ${locale.route}`, async ({
     page,
     context,
   }, testInfo) => {
@@ -46,7 +51,7 @@ for (const locale of [
       hasText:
         'https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.3.17-beta.14/docs/public/skill-install.md',
     })
-    await expect(prompts).toHaveCount(3)
+    await expect(prompts).toHaveCount(4)
     await page
       .getByRole('heading', { name: locale.heading })
       .scrollIntoViewIfNeeded()
@@ -62,11 +67,16 @@ for (const locale of [
         }
       })
     await page.screenshot({
-      path: testInfo.outputPath('ai-skill-install-update.png'),
+      path: testInfo.outputPath('ai-skill-install-update-uninstall.png'),
       fullPage: true,
       clip: promptClip,
     })
-    for (const [index, channel] of ['release', 'beta', 'original'].entries()) {
+    for (const [index, channel] of [
+      'release',
+      'beta',
+      'original',
+      'uninstall',
+    ].entries()) {
       const prompt = prompts.nth(index)
       const sentence = (await prompt.locator('code').innerText()).trim()
       if (channel === 'original') {
@@ -75,6 +85,9 @@ for (const locale of [
         expect(
           sentence.replace(/https:\/\/\S+?\/skill-install\.md/, ''),
         ).not.toMatch(/\b(?:release|beta)\b/)
+      } else if (channel === 'uninstall') {
+        expect(sentence).toContain(locale.uninstall)
+        expect(sentence).toContain(locale.retain)
       } else {
         expect(sentence).toContain(channel)
       }

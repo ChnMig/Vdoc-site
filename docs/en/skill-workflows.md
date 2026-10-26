@@ -2,9 +2,9 @@
 
 Vdoc Skill teaches Agents to query MCP facts first; it neither stores data, computes diffs, nor calls Backend directly.
 
-## Let AI Install or Update It {#ai-install}
+## Let AI Install, Update, or Uninstall {#ai-install}
 
-Copy a sentence to your AI. Installation needs no Token; [AI instructions](https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.3.17-beta.14/docs/public/skill-install.md) cover installation, verification, and updates.
+Copy a sentence to your AI. Installation needs no Token; [AI instructions](https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.3.17-beta.14/docs/public/skill-install.md) cover installation, verification, updates, and removal.
 
 <div class="skill-install-prompts">
 
@@ -24,6 +24,12 @@ Update this project (keep its channel):
 
 ```text
 Read https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.3.17-beta.14/docs/public/skill-install.md and update this project's installed Vdoc MCP and Skill to the latest version in its original channel, preserving the installation location and MCP configuration.
+```
+
+Remove this project's integration:
+
+```text
+Read https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.3.17-beta.14/docs/public/skill-install.md and remove this project's Vdoc MCP and Skill integration, preserving installations shared with other projects and all other tool configurations.
 ```
 
 </div>

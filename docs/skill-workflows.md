@@ -2,9 +2,9 @@
 
 Vdoc Skill 教 Agent 先查 MCP 事实；不存数据、不计算 diff、不直接调用后端。
 
-## 让 AI 帮你安装或更新 {#ai-install}
+## 让 AI 安装、更新或卸载 {#ai-install}
 
-复制一句话给 AI。安装 Skill 无需 Token；[AI 安装说明](https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.3.17-beta.14/docs/public/skill-install.md)包含安装、校验和更新步骤。
+复制一句话给 AI。安装 Skill 无需 Token；[AI 接入说明](https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.3.17-beta.14/docs/public/skill-install.md)包含安装、校验、更新和卸载步骤。
 
 <div class="skill-install-prompts">
 
@@ -24,6 +24,12 @@ Vdoc Skill 教 Agent 先查 MCP 事实；不存数据、不计算 diff、不直�
 
 ```text
 请阅读 https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.3.17-beta.14/docs/public/skill-install.md，将当前项目已安装的 Vdoc MCP 和 Skill 更新到原渠道最新版本，保留现有安装位置和 MCP 配置。
+```
+
+卸载当前项目接入：
+
+```text
+请阅读 https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.3.17-beta.14/docs/public/skill-install.md，卸载当前项目的 Vdoc MCP 和 Skill 接入，保留其他项目共用的安装以及其他工具配置。
 ```
 
 </div>
