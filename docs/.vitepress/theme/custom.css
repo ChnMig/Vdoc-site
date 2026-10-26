@@ -35,47 +35,47 @@
 }
 
 /* Short token classes share frequent Shiki color pairs without changing either theme. */
-.vp-code .vc-s {
+.vp-code .cs {
   --shiki-light: #032f62;
   --shiki-dark: #9ecbff;
 }
 
-.vp-code .vc-v {
+.vp-code .cv {
   --shiki-light: #005cc5;
   --shiki-dark: #79b8ff;
 }
 
-.vp-code .vc-t {
+.vp-code .ct {
   --shiki-light: #24292e;
   --shiki-dark: #e1e4e8;
 }
 
-.vp-code .vc-f {
+.vp-code .cf {
   --shiki-light: #22863a;
   --shiki-dark: #85e89d;
 }
 
-.vp-code .vc-c {
+.vp-code .cc {
   --shiki-light: #6a737d;
   --shiki-dark: #6a737d;
 }
 
-.vp-code .vc-p {
+.vp-code .cp {
   --shiki-light: #6f42c1;
   --shiki-dark: #b392f0;
 }
 
-.vp-code .vc-r {
+.vp-code .cr {
   --shiki-light: #d73a49;
   --shiki-dark: #f97583;
 }
 
-html:not(.dark) .vp-code .vc-r,
+html:not(.dark) .vp-code .cr,
 html:not(.dark) .vp-code span[style*='--shiki-light:#D73A49'] {
   --shiki-light: #c12a3a !important;
 }
 
-html:not(.dark) .vp-code .vc-c,
+html:not(.dark) .vp-code .cc,
 html:not(.dark) .vp-code span[style*='--shiki-light:#6A737D'] {
   --shiki-light: #666f79 !important;
 }
@@ -84,7 +84,7 @@ html:not(.dark) .vp-code span[style*='--shiki-light:#E36209'] {
   --shiki-light: #9f4100 !important;
 }
 
-html:not(.dark) .vp-code .vc-f,
+html:not(.dark) .vp-code .cf,
 html:not(.dark) .vp-code span[style*='--shiki-light:#22863A'] {
   --shiki-light: #1f7533 !important;
 }

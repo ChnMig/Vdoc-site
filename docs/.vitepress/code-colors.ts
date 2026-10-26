@@ -1,13 +1,13 @@
 import type { MarkdownOptions } from 'vitepress'
 
 const sharedColors = new Map([
-  ['--shiki-light:#032F62;--shiki-dark:#9ECBFF', 'vc-s'],
-  ['--shiki-light:#005CC5;--shiki-dark:#79B8FF', 'vc-v'],
-  ['--shiki-light:#24292E;--shiki-dark:#E1E4E8', 'vc-t'],
-  ['--shiki-light:#22863A;--shiki-dark:#85E89D', 'vc-f'],
-  ['--shiki-light:#6A737D;--shiki-dark:#6A737D', 'vc-c'],
-  ['--shiki-light:#6F42C1;--shiki-dark:#B392F0', 'vc-p'],
-  ['--shiki-light:#D73A49;--shiki-dark:#F97583', 'vc-r'],
+  ['--shiki-light:#032F62;--shiki-dark:#9ECBFF', 'cs'],
+  ['--shiki-light:#005CC5;--shiki-dark:#79B8FF', 'cv'],
+  ['--shiki-light:#24292E;--shiki-dark:#E1E4E8', 'ct'],
+  ['--shiki-light:#22863A;--shiki-dark:#85E89D', 'cf'],
+  ['--shiki-light:#6A737D;--shiki-dark:#6A737D', 'cc'],
+  ['--shiki-light:#6F42C1;--shiki-dark:#B392F0', 'cp'],
+  ['--shiki-light:#D73A49;--shiki-dark:#F97583', 'cr'],
 ])
 
 export const sharedCodeColors: NonNullable<
