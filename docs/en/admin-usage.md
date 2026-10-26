@@ -26,16 +26,20 @@ Settings has Account, Appearance, AI, and Version. Appearance controls theme/lan
 
 Under **Documents**, browse folders and click a file to open its reading page:
 
-| Area                           | Purpose                                                                                                                      |
-| ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
-| Project file tree on the left  | Shows only this project's folders and documents. Return to Workspace, switch files, or create folders and documents here.    |
-| Content in the center          | Read the selected published version or draft. Controls above it select the branch, content state, and revision.              |
-| Outline and tools on the right | Jump to a content heading. Versions, Diffs, and Document AI have separate entries; Document settings appears when permitted. |
-| Document header                | Use **Share** or **Edit draft** when your role permits. Sharing targets the selected published version.                      |
+| Area                           | Purpose                                                                                                                                |
+| ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
+| Project file tree on the left  | Shows only this project's folders and documents. Return to Workspace, switch files, or create folders and documents here.              |
+| Content in the center          | Read the selected published version or draft. Controls above it select the branch, content state, and revision.                        |
+| Outline and tools on the right | Jump to a content heading. Versions, Diffs, Activity, and Document AI have separate entries; Document settings appears when permitted. |
+| Document header                | Use **Share** or **Edit draft** when your role permits. Sharing targets the selected published version.                                |
 
 Click a folder row to expand/collapse it and select a creation location without closing the document. File and folder selections are distinct. Teams, projects, people, folders, and OpenAPI/Markdown/TXT files have distinct icons.
 
 A compact information area above the content labels the file path. Markdown uses icons with tooltips for **Preview / Source**. Published OpenAPI has **Source / Endpoints** tabs with search, grouping, pagination, and details. Existing endpoint links still work.
+
+**Copy content** and **Download source** sit at the upper right of the reader. Copying preserves the original content without adding the title, file path, or interface text; empty TXT files are supported too. Theme and language controls are in the document header. Public shares and the workbench use the same reader so reading features stay consistent.
+
+**Activity** shows document and branch creation/changes, draft submissions, reviews, and publications, newest first. Load more for older events. It requires project read access and is absent from public shares.
 
 **Versions** lists the document's publication history across branches; select a revision to read it. Independent **Diffs** selects source/target branches and published versions of this document, excluding drafts. Changes run source to target. Changing a branch clears its version. Stored results load automatically; otherwise click **Compare**.
 
@@ -96,11 +100,15 @@ Open the document, select `dev` and **Draft**, then **Edit draft → Editing and
 
 Create the Draft, then submit it for review. Saving alone does not publish it for the agent.
 
+To start from published content, choose **Start from branch** and **Start from version**, then **Load source content**. This loads the full original into the editor for editing. Existing text or an uploaded file requires confirmation before replacement; changing the selectors alone does not replace content. The document header still selects the target branch.
+
 ## 4. Review and Publish
 
 Select submitted `v1` and **Edit draft**. A Project Admin or SuperAdmin checks content/Diff in **Editing and review**, then approves publication.
 
 Choose **Published → v1** and confirm the three rules on `dev`. This Version is immutable; edits need a new draft. Use Versions, Diffs, or AI as described above. The tree marks published, unpublished-draft, and empty documents.
+
+Approval opens the published version actually returned by the backend. Requesting changes or rejecting retains the corresponding draft. Draft history opens a published draft as a read-only snapshot and shows creation time separately from its real publication time; unpublished drafts remain marked unpublished. Review inputs appear only for submitted drafts awaiting review.
 
 **Publishing is a human action.** MCP can submit drafts but cannot publish Versions directly.
 
@@ -118,18 +126,18 @@ Reveal/copy active tokens in their details. Lists, revoked tokens, and expired t
 
 ## 6. Connect Your Agent
 
-Choose your client format; Admin's MCP Token page generates both:
+Choose your client format; Admin's MCP Token page provides Codex, Cursor, and Claude Code configurations:
 
 ::: code-group
 
-```json [Cursor]
+```json [Cursor / Claude Code]
 {
   "mcpServers": {
     "vdoc": {
       "command": "npx",
       "args": [
         "--yes",
-        "github:ChnMig/Vdoc-mcp#a9711bfc718906dee9327c95941f9afde9246dc6"
+        "github:ChnMig/Vdoc-mcp#9b377f33558f5793e73e57924869f81d3e89c845"
       ],
       "env": {
         "VDOC_BASE_URL": "http://127.0.0.1:8080",
@@ -143,7 +151,7 @@ Choose your client format; Admin's MCP Token page generates both:
 ```toml [Codex]
 [mcp_servers.vdoc]
 command = "npx"
-args = ["--yes", "github:ChnMig/Vdoc-mcp#a9711bfc718906dee9327c95941f9afde9246dc6"]
+args = ["--yes", "github:ChnMig/Vdoc-mcp#9b377f33558f5793e73e57924869f81d3e89c845"]
 startup_timeout_sec = 60
 tool_timeout_sec = 180
 
@@ -156,6 +164,7 @@ VDOC_MCP_TOKEN = "REPLACE_WITH_LOCAL_VDOC_MCP_TOKEN"
 
 - **Codex:** merge TOML into personal `~/.codex/config.toml`. Restart Vdoc MCP or open a new session; inspect with `/mcp`. The 60-second startup timeout allows the first `npx` download. See the [official guide](https://developers.openai.com/codex/mcp/).
 - **Cursor:** merge JSON into `mcpServers` in personal `~/.cursor/mcp.json`; enable/restart Vdoc in Settings → Tools & MCP. Other `mcpServers` clients reuse JSON at their own configuration path.
+- **Claude Code:** merge JSON into top-level `mcpServers` in personal `~/.claude.json` (user scope), preserving existing servers. Restart Claude Code and inspect `/mcp`. Keep token-bearing configuration out of the shared project `.mcp.json`. See the [official guide](https://code.claude.com/docs/en/mcp-quickstart).
 
 Preserve existing servers. Store tokens only in private configuration, never a project repository.
 
@@ -211,3 +220,5 @@ See [Troubleshooting](troubleshooting.md) for more detail.
 On a document page, a Project Admin or SuperAdmin selects a published version and clicks **Share**. Check document, branch, and version, then create the link. It pins that version despite later publications. Drafts cannot be shared; existing latest/all-version links keep their scope.
 
 Expiry defaults to three months; choose one month, six months, one year, or permanent. Optional passwords require 12–72 UTF-8 bytes without leading/trailing Unicode whitespace. Copy the full capability link, reveal it again, or revoke irreversibly. The list marks active/expired/revoked links. Switching project/document clears the shown capability and unsubmitted password.
+
+Recipients can use a heading outline, light/dark themes, Chinese/English, Markdown Preview/Source, and upper-right Copy content/Download source actions. On mobile, the outline opens from its button. OpenAPI and TXT show their original content. Public shares omit the private project tree, activity, AI, and management tools.

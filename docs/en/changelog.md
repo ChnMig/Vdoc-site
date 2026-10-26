@@ -2,6 +2,15 @@
 
 Beta entries below update only `:beta`, leaving stable unchanged. Keep test databases, storage, and credentials separate. See the [guide](admin-usage.md) and [manual upgrade](release-rollback.md).
 
+## v0.3.17-beta.16
+
+- Share a reader across Admin and public links: outline, theme/language, Markdown Preview/Source, exact content copy and source download. Public links omit internal tools.
+- Fix post-review navigation and published draft history; show real publication times and seed new drafts from published branch/version content.
+- Add a permission-scoped document activity timeline, show review inputs only while awaiting review, and move notifications to the top right.
+- Add Claude Code configuration and update Chinese/English guides.
+
+Adds document activity API and draft source/publication fields, with no new database migration. Update Backend and Admin together.
+
 ## v0.3.17-beta.15
 
 Site/Admin add install/update/uninstall prompts, preserving update channel/config and shared installs on project removal.
