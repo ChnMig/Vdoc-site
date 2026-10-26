@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.3.17-beta.13
+
+- Check session ownership before sending initial uploads. Retain unsaved drafts across documents within a project; clear them on project/session changes. Reject invalid UTF-8 draft uploads.
+- Fix default-branch persistence conflicts, empty TXT promotion, stale endpoint IDs after view changes, and cached team names after renaming.
+- Serialize database migrations across startup instances. Launch npm CLI through Node for Windows MCP installation (path/argument simulations passed; not tested on Windows).
+
+No new migrations or APIs. Beta only. [Manual upgrade](release-rollback.md).
+
 ## v0.3.17-beta.12
 
 Separate document details and content with a compact information area and file-path label. Markdown Preview/Source uses icons with tooltips while retaining local reading state. No API or database migrations are added. Beta only.
