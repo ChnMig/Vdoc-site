@@ -4,32 +4,32 @@ Vdoc Skill 教 Agent 先查 MCP 事实；不存数据、不计算 diff、不直�
 
 ## 让 AI 安装、更新或卸载 {#ai-install}
 
-复制一句话给 AI。安装 Skill 无需 Token；[AI 接入说明](https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.3.17-beta.14/docs/public/skill-install.md)包含安装、校验、更新和卸载步骤。
+复制一句话给 AI，安装 Skill 无需 Token；[AI 接入说明](https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.3.17-beta.15/docs/public/skill-install.md)详述操作与校验。
 
 <div class="skill-install-prompts">
 
 稳定项目：
 
 ```text
-请阅读 https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.3.17-beta.14/docs/public/skill-install.md，帮我把 Vdoc Skill 安装到当前项目，使用 release 渠道。
+请阅读 https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.3.17-beta.15/docs/public/skill-install.md，帮我把 Vdoc Skill 安装到当前项目，使用 release 渠道。
 ```
 
 测试项目：
 
 ```text
-请阅读 https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.3.17-beta.14/docs/public/skill-install.md，帮我把 Vdoc Skill 安装到当前项目，使用 beta 渠道。
+请阅读 https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.3.17-beta.15/docs/public/skill-install.md，帮我把 Vdoc Skill 安装到当前项目，使用 beta 渠道。
 ```
 
 更新当前项目（保持原渠道）：
 
 ```text
-请阅读 https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.3.17-beta.14/docs/public/skill-install.md，将当前项目已安装的 Vdoc MCP 和 Skill 更新到原渠道最新版本，保留现有安装位置和 MCP 配置。
+请阅读 https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.3.17-beta.15/docs/public/skill-install.md，将当前项目已安装的 Vdoc MCP 和 Skill 更新到原渠道最新版本，保留现有安装位置和 MCP 配置。
 ```
 
 卸载当前项目接入：
 
 ```text
-请阅读 https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.3.17-beta.14/docs/public/skill-install.md，卸载当前项目的 Vdoc MCP 和 Skill 接入，保留其他项目共用的安装以及其他工具配置。
+请阅读 https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.3.17-beta.15/docs/public/skill-install.md，卸载当前项目的 Vdoc MCP 和 Skill 接入，保留其他项目共用的安装以及其他工具配置。
 ```
 
 </div>
@@ -81,8 +81,8 @@ npm test
 
 ## Agent 必须先查 Vdoc 的场景
 
-- 前后端 endpoint 集成，或判断 endpoint、field、enum、response property、auth scheme、server 是否存在。
-- 比较 API、Markdown、TXT Version，或按 semantic diff 准备迁移说明。
+- 前后端 endpoint 集成，检查 endpoint、field、enum、response property、auth scheme、server 存在性。
+- 比较 API/Markdown/TXT Version；据 semantic diff 写迁移说明。
 - 引用已发布 Markdown／TXT 原文；创建、更新或提交 Draft。
 
 ## 工作流 1：endpoint 集成
@@ -99,9 +99,9 @@ npm test
 
 ## 工作流 3：Markdown / TXT 文档 Draft
 
-1. 修改托管文档前，用 `get_latest_doc` 读已发布内容，再按用户要求生成修改稿。
+1. 修改前用 `get_latest_doc` 读已发布内容，再按用户要求修订。
 2. 用 `create_doc_draft`／`update_doc_draft` 建 Draft，`submit_doc_draft` 提交人工审核。
-3. 由 Admin／SuperAdmin 在 Admin 审核并发布。
+3. Admin/SuperAdmin 在 Admin 审核发布。
 
 ## 好提示示例
 
@@ -119,13 +119,13 @@ npm test
 
 ## 如何验证
 
-让 Agent 解释 endpoint 请求字段，检查它是否先调用 MCP、引用 `get_endpoint_detail` 等结果。要求发布时，应只提交 Draft，提示由 Admin／SuperAdmin 审核。
+解释 endpoint 请求字段须先查 MCP、引用 `get_endpoint_detail` 等事实。发布只提交 Draft，交 Admin/SuperAdmin 审核。
 
 ## 失败信号
 
-- 不查 Vdoc 就编造字段，或用显示名代替 stable ID／`relative_path`。
-- Admin 尚无新 Version 却声称 Draft 已发布。
+- 编造未查 Vdoc 的字段，或用显示名代替 stable ID/`relative_path`。
+- 未有新 Version 却声称 Draft 已发布。
 - 将 MCP Token 放入 CLI args、日志或文档。
 - Live E2E 指向应用库，而非一次性 `VDOC_TEST_POSTGRES_DB`（默认 `vdoc_e2e`）。
 
-遇此情况，重载 Skill、确认 MCP 可用，并要求先查 Vdoc。
+重载 Skill、确认 MCP 可用，要求先查 Vdoc。

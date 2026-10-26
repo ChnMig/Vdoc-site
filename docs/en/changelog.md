@@ -2,6 +2,10 @@
 
 Beta entries below update only `:beta`, leaving stable unchanged. Keep test databases, storage, and credentials separate. See the [guide](admin-usage.md) and [manual upgrade](release-rollback.md).
 
+## v0.3.17-beta.15
+
+Site/Admin add install/update/uninstall prompts, preserving update channel/config and shared installs on project removal.
+
 ## v0.3.17-beta.14
 
 Add AI Skill installation instructions and complete channel prompts in Site/Admin. Beta links to tagged guide text; stable Pages stays isolated. No new API/migration.
