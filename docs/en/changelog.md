@@ -4,12 +4,12 @@ Beta entries below update only `:beta`, leaving stable unchanged. Keep test data
 
 ## v0.3.17-beta.16
 
-- Share a reader across Admin and public links: outline, theme/language, Markdown Preview/Source, exact content copy and source download. Public links omit internal tools.
-- Fix post-review navigation and published draft history; show real publication times and seed new drafts from published branch/version content.
-- Add a permission-scoped document activity timeline, show review inputs only while awaiting review, and move notifications to the top right.
-- Add Claude Code configuration and update Chinese/English guides.
+- Shared reader for Admin/public links: outline, theme/language, Preview/Source, content copy/download; internal tools stay private.
+- Fix review navigation and published draft history; show publication time and seed drafts from published versions.
+- Add private document activity, review inputs for submitted drafts only, and top-right notifications.
+- Add Claude Code setup and bilingual docs.
 
-Adds document activity API and draft source/publication fields, with no new database migration. Update Backend and Admin together.
+Adds activity API and draft source/publication fields. No new migration; update Backend/Admin together.
 
 ## v0.3.17-beta.15
 

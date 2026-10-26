@@ -160,6 +160,7 @@ GET  /api/v1/private/projects/:project_id/documents
 POST /api/v1/private/projects/:project_id/documents
 GET  /api/v1/private/projects/:project_id/documents/:document_id
 GET  /api/v1/private/projects/:project_id/documents/:document_id/overview
+GET  /api/v1/private/projects/:project_id/documents/:document_id/activity
 GET  /api/v1/private/projects/:project_id/documents/:document_id/mcp-readiness
 PATCH /api/v1/private/projects/:project_id/documents/:document_id
 POST /api/v1/private/projects/:project_id/documents/:document_id/archive

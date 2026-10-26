@@ -37,9 +37,9 @@ Click a folder row to expand/collapse it and select a creation location without 
 
 A compact information area above the content labels the file path. Markdown uses icons with tooltips for **Preview / Source**. Published OpenAPI has **Source / Endpoints** tabs with search, grouping, pagination, and details. Existing endpoint links still work.
 
-**Copy content** and **Download source** sit at the upper right of the reader. Copying preserves the original content without adding the title, file path, or interface text; empty TXT files are supported too. Theme and language controls are in the document header. Public shares and the workbench use the same reader so reading features stay consistent.
+Use upper-right **Copy content** / **Download source** for the original content without interface text, including empty TXT. Theme/language controls sit in the header. Public shares and the workbench share this reader.
 
-**Activity** shows document and branch creation/changes, draft submissions, reviews, and publications, newest first. Load more for older events. It requires project read access and is absent from public shares.
+**Activity** lists document/branch changes, drafts, submissions, reviews, and publications, newest first with pagination. It requires document read access; public shares omit it.
 
 **Versions** lists the document's publication history across branches; select a revision to read it. Independent **Diffs** selects source/target branches and published versions of this document, excluding drafts. Changes run source to target. Changing a branch clears its version. Stored results load automatically; otherwise click **Compare**.
 
@@ -100,7 +100,7 @@ Open the document, select `dev` and **Draft**, then **Edit draft → Editing and
 
 Create the Draft, then submit it for review. Saving alone does not publish it for the agent.
 
-To start from published content, choose **Start from branch** and **Start from version**, then **Load source content**. This loads the full original into the editor for editing. Existing text or an uploaded file requires confirmation before replacement; changing the selectors alone does not replace content. The document header still selects the target branch.
+New drafts can **Start from branch/version**, then **Load source content** to edit its full original. Existing input requires replacement confirmation; selectors alone do not overwrite it. The header selects the target branch.
 
 ## 4. Review and Publish
 
@@ -108,7 +108,7 @@ Select submitted `v1` and **Edit draft**. A Project Admin or SuperAdmin checks c
 
 Choose **Published → v1** and confirm the three rules on `dev`. This Version is immutable; edits need a new draft. Use Versions, Diffs, or AI as described above. The tree marks published, unpublished-draft, and empty documents.
 
-Approval opens the published version actually returned by the backend. Requesting changes or rejecting retains the corresponding draft. Draft history opens a published draft as a read-only snapshot and shows creation time separately from its real publication time; unpublished drafts remain marked unpublished. Review inputs appear only for submitted drafts awaiting review.
+Approval opens the actual published version; requesting changes/rejecting retains the draft. History opens published draft snapshots read-only, separating creation and real publication times. Unpublished drafts have no publication time. Review inputs appear only while awaiting review.
 
 **Publishing is a human action.** MCP can submit drafts but cannot publish Versions directly.
 
@@ -164,7 +164,7 @@ VDOC_MCP_TOKEN = "REPLACE_WITH_LOCAL_VDOC_MCP_TOKEN"
 
 - **Codex:** merge TOML into personal `~/.codex/config.toml`. Restart Vdoc MCP or open a new session; inspect with `/mcp`. The 60-second startup timeout allows the first `npx` download. See the [official guide](https://developers.openai.com/codex/mcp/).
 - **Cursor:** merge JSON into `mcpServers` in personal `~/.cursor/mcp.json`; enable/restart Vdoc in Settings → Tools & MCP. Other `mcpServers` clients reuse JSON at their own configuration path.
-- **Claude Code:** merge JSON into top-level `mcpServers` in personal `~/.claude.json` (user scope), preserving existing servers. Restart Claude Code and inspect `/mcp`. Keep token-bearing configuration out of the shared project `.mcp.json`. See the [official guide](https://code.claude.com/docs/en/mcp-quickstart).
+- **Claude Code:** merge JSON into personal `~/.claude.json` top-level `mcpServers`, preserving other servers. Restart and inspect `/mcp`. Keep tokens out of shared `.mcp.json`. See the [official guide](https://code.claude.com/docs/en/mcp-quickstart).
 
 Preserve existing servers. Store tokens only in private configuration, never a project repository.
 
@@ -221,4 +221,4 @@ On a document page, a Project Admin or SuperAdmin selects a published version an
 
 Expiry defaults to three months; choose one month, six months, one year, or permanent. Optional passwords require 12–72 UTF-8 bytes without leading/trailing Unicode whitespace. Copy the full capability link, reveal it again, or revoke irreversibly. The list marks active/expired/revoked links. Switching project/document clears the shown capability and unsubmitted password.
 
-Recipients can use a heading outline, light/dark themes, Chinese/English, Markdown Preview/Source, and upper-right Copy content/Download source actions. On mobile, the outline opens from its button. OpenAPI and TXT show their original content. Public shares omit the private project tree, activity, AI, and management tools.
+Shares retain these reading features; mobile uses an outline button. OpenAPI/TXT show original content. Private trees, activity, AI, and management tools are omitted.
