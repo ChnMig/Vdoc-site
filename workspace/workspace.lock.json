@@ -28,6 +28,6 @@
   ],
   "controlPlane": {
     "manifest": "workspace-distribution.json",
-    "sha256": "01312f78f72b1dd92dd90f6d0bf53b4288eb437605b46ce3c1f73b6d5e3e2bf8"
+    "sha256": "e136be5b8751967e46324399b919a61dfef2c29abea6f74bf6e1467274835020"
   }
 }
