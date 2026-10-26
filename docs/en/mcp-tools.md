@@ -1,8 +1,8 @@
 # MCP Setup and Tools
 
-Connect your agent to Vdoc so it can query published OpenAPI, Markdown, and TXT documents or submit drafts for human review. For a first connection, follow [Connect Your Agent](admin-usage.md#connect-agent), then [read your first document](admin-usage.md#first-query).
+Agents query published OpenAPI, Markdown, and TXT or submit drafts for review. Start with [Connect Your Agent](admin-usage.md#connect-agent), then [read a document](admin-usage.md#first-query).
 
-`@vdoc/mcp` is the stdio adapter. It forwards `tools/list` and `tools/call` to Backend `/api/v1/open/mcp`; document storage and business logic stay on the Backend.
+The stdio adapter `@vdoc/mcp` forwards `tools/list` and `tools/call` to `/api/v1/open/mcp`; Backend owns storage and business logic.
 
 ## Before You Start
 
@@ -129,7 +129,7 @@ If you already know the full MCP endpoint, use this form:
 
 ## Tool Scope
 
-The backend is the source of truth for tool definitions. The adapter calls Vdoc `tools/list` at runtime, so schemas stay aligned with the deployed backend.
+The adapter reads deployed tool definitions from Backend `tools/list` at runtime.
 
 v0.2 read tools cover:
 
@@ -173,11 +173,11 @@ v0.2 draft tools cover creating, updating, viewing, and submitting OpenAPI, Mark
 
 <!-- VDOC_MCP_TOOL_INVENTORY_END -->
 
-The current source version adds `list_document_branches` for branch IDs, names, defaults and protection status, including unpublished branches, and `list_api_endpoints` for endpoint IDs in a selected version. The endpoint list accepts optional `method` and exact OpenAPI `path` filters. Resolve these IDs before querying details or creating the first draft. Branch discovery requires the target document type's read scope. Older release deployments may not include these tools; check their runtime inventory and upgrade Backend with Skill.
+`list_document_branches` returns branch IDs, names, defaults and protection, including unpublished branches. `list_api_endpoints` lists version endpoint IDs, filterable by `method` and exact OpenAPI `path`. Resolve IDs before details or a first draft. Branch discovery requires the document type's read scope; upgrade Backend and Skill if older deployments lack these tools.
 
-The current backend's `get_endpoint_detail` includes definitions of the endpoint's active security schemes in `normalized_operation.securitySchemes`. Header, location, or type changes to the same scheme appear in version comparisons. OpenAPI 3.1 Schema `$ref` sibling constraints are preserved, and operation parameters override path parameters by `name + in`. After an upgrade, reading historical endpoints or comparisons refreshes older parsed facts from the original documents while retaining version and endpoint IDs. Upgrade older backends to receive these facts.
+`get_endpoint_detail` includes active scheme definitions in `normalized_operation.securitySchemes`; header, location, or type changes appear in diffs. OpenAPI 3.1 Schema `$ref` siblings are preserved; operation parameters override path parameters by `name + in`. After upgrading Backend, historical reads/comparisons refresh old parsed facts from original content, retaining version and endpoint IDs.
 
-Use the current backend `tools/list` response as the final tool list. v0.2 does not expose direct publish tools.
+v0.2 has no direct publish tools.
 
 ## Agent Behavior Rules
 

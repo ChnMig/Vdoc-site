@@ -2,11 +2,7 @@
 
 ## v0.3.17-beta.13
 
-- Check session ownership before sending initial uploads. Retain unsaved drafts across documents within a project; clear them on project/session changes. Reject invalid UTF-8 draft uploads.
-- Fix default-branch persistence conflicts, empty TXT promotion, stale endpoint IDs after view changes, and cached team names after renaming.
-- Serialize database migrations across startup instances. Launch npm CLI through Node for Windows MCP installation (path/argument simulations passed; not tested on Windows).
-
-No new migrations or APIs. Beta only. [Manual upgrade](release-rollback.md).
+Fix upload session mix-ups, unsaved draft loss/late-save overwrites, invalid UTF-8, default-branch conflicts, empty TXT promotion, stale endpoint IDs/team names, and concurrent migrations. Windows MCP runs npm CLI via Node (simulated only). No new API/migration. Beta only. [Upgrade](release-rollback.md).
 
 ## v0.3.17-beta.12
 

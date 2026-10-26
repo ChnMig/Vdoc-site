@@ -1,8 +1,8 @@
 # MCP 接入与工具
 
-把 Agent 连接到 Vdoc，让它查询已发布的 OpenAPI、Markdown 和 TXT 文档，或提交草稿等待人工审核。首次接入可以直接跟随 [连接 Agent](admin-usage.md#connect-agent)，再 [读取第一份文档](admin-usage.md#first-query)。
+Agent 可查询已发布的 OpenAPI、Markdown、TXT，或提交草稿供人工审核。首次接入：[连接 Agent](admin-usage.md#connect-agent) → [读取文档](admin-usage.md#first-query)。
 
-`@vdoc/mcp` 是 stdio 适配器，把 `tools/list` 和 `tools/call` 转发到后端 `/api/v1/open/mcp`；文档存储和业务逻辑由 Backend 负责。
+stdio 适配器 `@vdoc/mcp` 将 `tools/list`、`tools/call` 转发到 `/api/v1/open/mcp`；Backend 负责存储与业务逻辑。
 
 ## 使用前准备
 
@@ -129,7 +129,7 @@ stdout 保留给 MCP protocol，普通诊断看 stderr。
 
 ## 可用工具范围
 
-后端是 tool definitions 的事实来源。Adapter 每次运行时调用 Vdoc `tools/list`，所以 schemas 会跟已部署后端保持一致。
+Adapter 运行时读取后端 `tools/list`，以部署的工具定义为准。
 
 v0.2 read tools 覆盖：
 
@@ -173,11 +173,11 @@ v0.2 draft tools 覆盖 OpenAPI、Markdown 和 TXT Draft 的创建、更新、�
 
 <!-- VDOC_MCP_TOOL_INVENTORY_END -->
 
-当前源码新增 `list_document_branches`，可查询分支 ID、名称、默认及保护状态，尚未发布版本的分支也能查询；`list_api_endpoints` 查询指定版本的接口 ID，可用 `method` 和精确 OpenAPI `path` 筛选。先取得这些 ID，再查询详情或创建首份草稿。分支查询要求对应文档类型的 read scope。旧发布包可能尚无这两个工具，请检查实际工具列表，并配套升级 Backend 与 Skill。
+`list_document_branches` 查询分支 ID、名称、默认及保护状态，包含未发布分支；`list_api_endpoints` 查询版本接口 ID，支持 `method` 和精确 OpenAPI `path` 筛选。先解析 ID，再查详情或建首份草稿。分支查询须有对应类型的 read scope；旧版缺少这些工具时，配套升级 Backend 与 Skill。
 
-当前后端的 `get_endpoint_detail` 在 `normalized_operation.securitySchemes` 中返回接口实际使用的鉴权方案定义；同名方案的 Header、位置或类型变化会出现在版本差异中。OpenAPI 3.1 的 Schema `$ref` 同级约束会保留，Operation 参数按 `name + in` 覆盖 Path 参数。升级后读取历史接口或比较时会从原始文档更新旧解析结果，原版本和接口 ID 保持不变。旧部署应先升级 Backend。
+`get_endpoint_detail` 的 `normalized_operation.securitySchemes` 含接口所用鉴权方案；同名方案的 Header、位置、类型变化计入差异。保留 OpenAPI 3.1 Schema `$ref` 同级约束，Operation 参数按 `name + in` 覆盖 Path 参数。升级 Backend 后，历史读取／比较会从原文刷新旧解析结果，保留版本和接口 ID。
 
-实际工具列表以当前 backend `tools/list` 返回为准。v0.2 不暴露 direct publish tools。
+v0.2 不暴露直接发布工具。
 
 ## Agent 行为规则
 
