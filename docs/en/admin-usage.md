@@ -41,15 +41,15 @@ Use upper-right **Copy content** / **Download source** for the original content 
 
 **Activity** lists document/branch changes, drafts, submissions, reviews, and publications, newest first with pagination. It requires document read access; public shares omit it.
 
-**Versions** lists the document's publication history across branches; select a revision to read it. Independent **Diffs** selects source/target branches and published versions of this document, excluding drafts. Changes run source to target. Changing a branch clears its version. Stored results load automatically; otherwise click **Compare**.
+**Versions** lists publication history. **Diffs** selects a published version or saved draft on each side, across branches. Source changes have line numbers, unified/split views, expandable context and downloads; semantic changes remain available. Draft comparisons use saved content at comparison time, do not enter published comparison history, and need recomparison after edits. Oversized comparisons offer downloads.
 
 **Document settings** has **Document details** and **Branches** tabs. Switching retains input; project role and document status govern actions.
 
-**Document AI** toggles independently: beside usable content/tools on wide screens, in a right modal on narrow screens. Its entry, close button, or `Esc` inside closes it, restoring page position. Summary/chat use the selected version or draft.
+**Document AI** toggles beside the content on wide screens or in a narrow-screen modal; use its entry, close button or `Esc` to close. Summaries follow the selected revision. Chat searches this document’s branches, published versions and saved drafts, distinguishing sources.
 
 On narrow screens, **Show files** opens a drawer that closes on document selection; **On this page** opens the outline dialog. Tools move to the top. Content without headings has an empty outline.
 
-Returning from tools preserves reading position and Preview/Source; visited tools retain input. AI input survives closing/reopening and breakpoint changes for the same target. Changing branch/version/draft creates a new AI context. Folders/project tabs update locally; Back/Forward restores URL selections. Temporary state stays within the document, project, and session; save your work.
+Tools retain reading position, Preview/Source and input. Document chat retains its session across reading revisions, sidebar toggles and breakpoints; changing document/account clears it. Folders/project tabs update locally; Back/Forward restores URL selections. Save unsaved work.
 
 **Workspace** groups browsing and management; MCP, Skill, Audit, and Settings remain separate. Selectors and date/time pickers use workbench controls. Dates/times display in device-local time and submit as UTC.
 
@@ -137,7 +137,7 @@ Choose your client format; Admin's MCP Token page provides Codex, Cursor, and Cl
       "command": "npx",
       "args": [
         "--yes",
-        "github:ChnMig/Vdoc-mcp#9b377f33558f5793e73e57924869f81d3e89c845"
+        "github:ChnMig/Vdoc-mcp#0b85872a4f1e7fdb4176dafa51fcaa5bbb8517a7"
       ],
       "env": {
         "VDOC_BASE_URL": "http://127.0.0.1:8080",
@@ -151,7 +151,7 @@ Choose your client format; Admin's MCP Token page provides Codex, Cursor, and Cl
 ```toml [Codex]
 [mcp_servers.vdoc]
 command = "npx"
-args = ["--yes", "github:ChnMig/Vdoc-mcp#9b377f33558f5793e73e57924869f81d3e89c845"]
+args = ["--yes", "github:ChnMig/Vdoc-mcp#0b85872a4f1e7fdb4176dafa51fcaa5bbb8517a7"]
 startup_timeout_sec = 60
 tool_timeout_sec = 180
 

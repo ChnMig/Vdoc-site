@@ -2,6 +2,14 @@
 
 Beta entries below update only `:beta`, leaving stable unchanged. Keep test databases, storage, and credentials separate. See the [guide](admin-usage.md) and [manual upgrade](release-rollback.md).
 
+## v0.3.17-beta.17
+
+- Channel-aware Vdoc share branding, repository links, and complete wrapping share URLs.
+- Source diffs compare published versions/drafts across branches, with unified/split lines, context and downloads.
+- Document AI searches published versions and saved drafts across branches, labels sources and retains chat across reading revisions.
+
+Startup applies document-chat migration 012. Back up and update Backend/Admin together; stable stays unchanged.
+
 ## v0.3.17-beta.16
 
 - Shared reader for Admin/public links: outline, theme/language, Preview/Source, content copy/download; internal tools stay private.

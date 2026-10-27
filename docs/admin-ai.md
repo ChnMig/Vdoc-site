@@ -60,11 +60,11 @@ Vdoc 使用 OpenAI-compatible 提供商，支持两种 API 模式：
 
 ## 页面内对话
 
-从**工作空间**打开一份文档，先在正文上方选定分支、正式版本或草稿及具体修订，再从文档工具打开**文档 AI**。宽屏在正文右侧显示摘要与聊天，窄屏单独显示 AI 面板，可返回内容预览。AI 始终使用顶部选定的版本，不会因为打开工具就改用最新版本。Diff 上下文的摘要与对话仍由 API 提供，工作区差异工具不提供聊天入口。会话固定到当前 Project、Document 和 Draft、Version 或 Diff，只能读取当前用户有权访问的上下文。对话复用同一 Draft、Version 和 Diff 上下文构建器，不会追加其他页面数据。
+从**工作空间**打开文档，再打开**文档 AI**。摘要跟随所选版本／草稿；聊天固定当前文档，按问题检索所有分支的正式版本与已保存草稿，区分分支、版本和草稿来源。每轮最多选 16 份正文、48,000 字符，另附最多 12,000 字符目录；长文截取相关片段并注明省略。不会读取其他文档。旧 Draft／Version／Diff 对话 API 保持兼容。
 
 回答必须标记为 AI-generated。页面对话不能跨 Project 读取内容，也不能把回答伪装成机器 Diff 或人工审核结论。
 
-Project、Document 或目标 Branch 归档后，Project Admin 或 SuperAdmin 仍可只读查看 Provider/Prompt 历史配置，已有摘要和 Chat 历史也仍可读取；Provider 更新/测试、Prompt 更新、摘要重新生成、新会话和新消息都会被阻止。Reader 和 Writer 不会因为归档而获得配置读取权。Reader 在有效上下文中可以使用 Chat，但手动重新生成摘要仅限 Project Admin 或 SuperAdmin。
+Project 或 Document 归档后只能读取历史，不能新建会话或发消息；旧分支绑定会话同样受该分支状态限制。活动文档聊天可检索归档分支历史。Reader 可聊天；Provider／Prompt 配置读取、测试和手动摘要重生成仍要求管理员权限。
 
 ## API 路由
 

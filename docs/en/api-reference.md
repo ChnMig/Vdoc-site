@@ -229,7 +229,7 @@ GET  /api/v1/private/projects/{project_id}/documents/{document_id}/versions/{ver
 POST /api/v1/private/projects/{project_id}/documents/{document_id}/versions/{version_id}/ai-summary/regenerate
 GET  /api/v1/private/projects/{project_id}/documents/{document_id}/diffs/{diff_id}/ai-summary
 POST /api/v1/private/projects/{project_id}/documents/{document_id}/diffs/{diff_id}/ai-summary/regenerate
-GET  /api/v1/private/projects/{project_id}/ai/chat-sessions?document_id={document_id}&context_type={draft|version|diff}&context_id={context_id}
+GET  /api/v1/private/projects/{project_id}/ai/chat-sessions?document_id={document_id}&context_type={draft|version|diff|document}&context_id={context_id}
 POST /api/v1/private/projects/{project_id}/ai/chat-sessions
 GET  /api/v1/private/projects/{project_id}/ai/chat-sessions/{session_id}
 POST /api/v1/private/projects/{project_id}/ai/chat-sessions/{session_id}/messages

@@ -24,6 +24,8 @@ docker compose exec -T postgres \
 
 Beta.8 启动时自动应用待执行迁移，包括 010 自定义分支名和 011 固定版本分享；备份后同步升级 Backend/Admin，旧分享范围保持不变。
 
+Beta.17 自动应用 012 文档聊天迁移，先备份并配套升级 Backend/Admin；不自动降级数据库。
+
 若旧部署的 `services.admin.environment.VDOC_ADMIN_API_BASE_URL` 指向独立后端域名或 `127.0.0.1:8080`，改为 `'same-origin'`。当前 Admin 内置 Caddy 将 `/api/*` 同源转发到 `backend:8080`，运行时配置使用 `window.location.origin`；浏览器通过工作台域名访问 API，Skill、MCP 和 CLI 仍可直接访问后端域名。删除旧的 CORS origin 配置，并保留 `VDOC_SERVER_ENABLE_CORS: 'true'`。两份单文件 Compose（内置或外部 PostgreSQL）都使用这一默认配置。
 
 ```sh

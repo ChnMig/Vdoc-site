@@ -24,6 +24,8 @@ Preserve PostgreSQL and storage credentials, JWT/MCP keys, administrator setting
 
 Beta.8 applies pending migrations at startup, including 010 for custom branch names and 011 for fixed-version shares. Back up and upgrade Backend/Admin together; existing share scopes stay unchanged.
 
+Beta.17 applies document-chat migration 012. Back up and update Backend/Admin together; database downgrade remains manual.
+
 If the existing `services.admin.environment.VDOC_ADMIN_API_BASE_URL` points to a separate backend domain or `127.0.0.1:8080`, change it to `'same-origin'`. Current Admin's built-in Caddy forwards `/api/*` to `backend:8080` on the same origin, and the runtime config uses `window.location.origin`. Browsers access the API through the workbench domain; Skill, MCP and CLI clients can still use the backend domain directly. Remove the old CORS origin setting and retain `VDOC_SERVER_ENABLE_CORS: 'true'`. Both single-file Compose variants, with bundled or external PostgreSQL, use this default.
 
 ```sh

@@ -60,11 +60,11 @@ Page AI Chat includes a bounded window of the current session history. A persist
 
 ## Page Chat
 
-Open a document from **Workspace**, choose its branch, published or draft state, and revision above the content, then open **Document AI** from the document tools. Wide screens show summaries and chat beside the content; narrow screens show the AI panel until you return to the preview. AI uses the selected revision rather than switching to the latest version when a tool opens. Diff summaries and chat remain available through the API; workspace diff tools have no chat entry. A session is bound to the current Project, Document, and Draft, Version, or Diff and reads only authorized context. Chat reuses the same Draft, Version, and Diff context builder without adding other page data.
+Open **Document AI** in a document. Summaries follow the selected version/draft; chat stays bound to the document and searches its branches, published versions and saved drafts, distinguishing each source. Each request selects up to 16 bodies/48,000 characters plus a 12,000-character index. Long sources use relevant excerpts and disclose omissions. Other documents are excluded. Existing Draft/Version/Diff chat APIs remain compatible.
 
 Answers must be marked AI-generated. Page chat cannot read across Projects or present an answer as machine Diff or a human review decision.
 
-After the Project, Document, or target Branch is archived, Project Admins and SuperAdmins retain read-only access to historical provider/prompt configuration, and existing summaries and Chat history remain readable. Provider update/test, prompt update, summary regeneration, new sessions, and new messages are blocked. Readers and Writers do not gain configuration-read access from archival. Readers may use Chat in an active context, while manual summary regeneration requires Project Admin or SuperAdmin permission.
+Archived Projects/Documents allow history reads but no new sessions/messages. Legacy branch-bound sessions also respect branch archival. Active document chat may search archived branch history. Readers may chat; provider/prompt configuration, tests and manual summary regeneration still require administrator permission.
 
 ## API Routes
 
