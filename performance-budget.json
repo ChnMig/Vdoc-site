@@ -17,11 +17,12 @@
     "bilingualSelfServicePasswordGuideBytes": 32768,
     "bilingualDeploymentVersionUpdateGuideBytes": 24576,
     "bilingualAdminLayoutGuideBytes": 8192,
-    "bilingualAiModelDiscoveryAndReadingPreferencesBytes": 12288
+    "bilingualAiModelDiscoveryAndReadingPreferencesBytes": 12288,
+    "bilingualAiCredentialsAndAuditGuideBytes": 16384
   },
   "limits": {
     "totalFiles": 116,
-    "totalBytes": 3385754,
+    "totalBytes": 3402138,
     "downloadFiles": 8,
     "downloadBytes": 262144,
     "sharedJavaScriptGzipBytes": 92563,
