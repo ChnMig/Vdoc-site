@@ -4,32 +4,32 @@ Vdoc Skill teaches Agents to query MCP facts first; it neither stores data, comp
 
 ## Let AI Install, Update, or Uninstall {#ai-install}
 
-Copy a prompt to your AI; Skill installation needs no Token. [AI instructions](https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.3.17-beta.17/docs/public/skill-install.md) detail operations and verification.
+Copy a prompt to your AI; Skill installation needs no Token. [AI instructions](https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.3.17-beta.18/docs/public/skill-install.md) detail operations and verification.
 
 <div class="skill-install-prompts">
 
 Stable project:
 
 ```text
-Read https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.3.17-beta.17/docs/public/skill-install.md and install the Vdoc Skill in my current project using the release channel.
+Read https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.3.17-beta.18/docs/public/skill-install.md and install the Vdoc Skill in my current project using the release channel.
 ```
 
 Test project:
 
 ```text
-Read https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.3.17-beta.17/docs/public/skill-install.md and install the Vdoc Skill in my current project using the beta channel.
+Read https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.3.17-beta.18/docs/public/skill-install.md and install the Vdoc Skill in my current project using the beta channel.
 ```
 
 Update this project (keep its channel):
 
 ```text
-Read https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.3.17-beta.17/docs/public/skill-install.md and update this project's installed Vdoc MCP and Skill to the latest version in its original channel, preserving the installation location and MCP configuration.
+Read https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.3.17-beta.18/docs/public/skill-install.md and update this project's installed Vdoc MCP and Skill to the latest version in its original channel, preserving the installation location and MCP configuration.
 ```
 
 Remove this project's integration:
 
 ```text
-Read https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.3.17-beta.17/docs/public/skill-install.md and remove this project's Vdoc MCP and Skill integration, preserving installations shared with other projects and all other tool configurations.
+Read https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.3.17-beta.18/docs/public/skill-install.md and remove this project's Vdoc MCP and Skill integration, preserving installations shared with other projects and all other tool configurations.
 ```
 
 </div>

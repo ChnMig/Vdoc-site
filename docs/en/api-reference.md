@@ -216,9 +216,11 @@ Only SuperAdmins may read, update, or test system Provider/Prompt configuration.
 GET  /api/v1/private/ai/provider
 PUT  /api/v1/private/ai/provider
 POST /api/v1/private/ai/provider/test
+POST /api/v1/private/ai/provider/models
 GET  /api/v1/private/projects/{project_id}/ai/provider
 PUT  /api/v1/private/projects/{project_id}/ai/provider
 POST /api/v1/private/projects/{project_id}/ai/provider/test
+POST /api/v1/private/projects/{project_id}/ai/provider/models
 GET  /api/v1/private/ai/prompts
 PUT  /api/v1/private/ai/prompts/{prompt_key}
 GET  /api/v1/private/projects/{project_id}/ai/prompts

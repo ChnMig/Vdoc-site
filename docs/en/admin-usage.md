@@ -39,6 +39,8 @@ A compact information area above the content labels the file path. Markdown uses
 
 Use upper-right **Copy content** / **Download source** for the original content without interface text, including empty TXT. Theme/language controls sit in the header. Public shares and the workbench share this reader.
 
+On a first visit without a saved language choice, the interface follows browser preferences for Chinese or English. A manual choice takes precedence on later visits; unsupported languages fall back to English. Document content stays in its original language. Theme follows the system by default. Workbench, document and share headers place the GitHub repository link at the far right.
+
 **Activity** lists document/branch changes, drafts, submissions, reviews, and publications, newest first with pagination. It requires document read access; public shares omit it.
 
 **Versions** lists publication history. **Diffs** selects a published version or saved draft on each side, across branches. Source changes have line numbers, unified/split views, expandable context and downloads; semantic changes remain available. Draft comparisons use saved content at comparison time, do not enter published comparison history, and need recomparison after edits. Oversized comparisons offer downloads.
@@ -137,7 +139,7 @@ Choose your client format; Admin's MCP Token page provides Codex, Cursor, and Cl
       "command": "npx",
       "args": [
         "--yes",
-        "github:ChnMig/Vdoc-mcp#0b85872a4f1e7fdb4176dafa51fcaa5bbb8517a7"
+        "github:ChnMig/Vdoc-mcp#a3e5d3eb94dc0d4dd345ce525c8136e060dfbc97"
       ],
       "env": {
         "VDOC_BASE_URL": "http://127.0.0.1:8080",
@@ -151,7 +153,7 @@ Choose your client format; Admin's MCP Token page provides Codex, Cursor, and Cl
 ```toml [Codex]
 [mcp_servers.vdoc]
 command = "npx"
-args = ["--yes", "github:ChnMig/Vdoc-mcp#0b85872a4f1e7fdb4176dafa51fcaa5bbb8517a7"]
+args = ["--yes", "github:ChnMig/Vdoc-mcp#a3e5d3eb94dc0d4dd345ce525c8136e060dfbc97"]
 startup_timeout_sec = 60
 tool_timeout_sec = 180
 

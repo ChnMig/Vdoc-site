@@ -2,6 +2,14 @@
 
 Beta entries below update only `:beta`, leaving stable unchanged. Keep test databases, storage, and credentials separate. See the [guide](admin-usage.md) and [manual upgrade](release-rollback.md).
 
+## v0.3.17-beta.18
+
+- System/project AI settings fetch, search and select remote models using the current URL and credentials while retaining manual model entry, including when discovery fails.
+- First visits follow the browser language unless a manual choice was saved. Document content remains unchanged.
+- Workbench, document, share and sign-in headers consistently place the GitHub repository entry at the far right.
+
+Adds model-list APIs without a database migration. Upgrade Backend and Admin together; only the Beta channel changes.
+
 ## v0.3.17-beta.17
 
 - Channel-aware Vdoc share branding, repository links, and complete wrapping share URLs.

@@ -18,7 +18,7 @@ Agent 运行的机器还需安装 Node.js 20 或更新版本、npm 和 Git。尚
 当前 `@vdoc/mcp` 尚未发布到 npm registry。一次性使用可通过官方 GitHub 仓库的固定提交运行：
 
 ```sh
-npx --yes github:ChnMig/Vdoc-mcp#0b85872a4f1e7fdb4176dafa51fcaa5bbb8517a7
+npx --yes github:ChnMig/Vdoc-mcp#a3e5d3eb94dc0d4dd345ce525c8136e060dfbc97
 ```
 
 一次性使用时，推荐在 Agent MCP config 中通过固定 commit 的 `npx` 调用，不要把 token 放在 `args`。上面的 40 位 commit 必须和已审核发布包 `workspace.lock.json` 的 `Vdoc-mcp` 项一致；不要删掉 fragment 或改成可移动 branch。
@@ -28,7 +28,7 @@ npx --yes github:ChnMig/Vdoc-mcp#0b85872a4f1e7fdb4176dafa51fcaa5bbb8517a7
 ```sh
 (
   set -eu
-  VDOC_MCP_VERSION=0.3.17-beta.17
+  VDOC_MCP_VERSION=0.3.17-beta.18
   VDOC_MCP_PACKAGE_DIR="$(mktemp -d)"
   trap 'rm -rf -- "$VDOC_MCP_PACKAGE_DIR"' EXIT
   VDOC_MCP_RELEASE="https://github.com/ChnMig/Vdoc-mcp/releases/download/v$VDOC_MCP_VERSION"
@@ -47,12 +47,12 @@ npx --yes github:ChnMig/Vdoc-mcp#0b85872a4f1e7fdb4176dafa51fcaa5bbb8517a7
 
 MCP 与配套 Skill 使用同一个渠道发行包。`release` 只选择正式版，`beta` 只选择 `vMAJOR.MINOR.PATCH-beta.N` 预发布；没有对应版本时安装器会报错，不会跨渠道回退。两者分别安装在 `~/.local/share/vdoc/mcp/release` 与 `~/.local/share/vdoc/mcp/beta`，不会替换已有全局 MCP。
 
-首次从已审核、包含渠道安装器的 [MCP Release](https://github.com/ChnMig/Vdoc-mcp/releases) 下载 `install-channel.mjs` 和 `install-channel.mjs.sha256`。下面将安装器固定到 `v0.3.17-beta.17`，在独立工具目录中执行；下载或摘要校验失败会停止安装。旧版本没有这两个资产：
+首次从已审核、包含渠道安装器的 [MCP Release](https://github.com/ChnMig/Vdoc-mcp/releases) 下载 `install-channel.mjs` 和 `install-channel.mjs.sha256`。下面将安装器固定到 `v0.3.17-beta.18`，在独立工具目录中执行；下载或摘要校验失败会停止安装。旧版本没有这两个资产：
 
 ```sh
 (
   set -eu
-  VDOC_MCP_INSTALLER_TAG='v0.3.17-beta.17'
+  VDOC_MCP_INSTALLER_TAG='v0.3.17-beta.18'
   VDOC_MCP_INSTALLER_RELEASE="https://github.com/ChnMig/Vdoc-mcp/releases/download/$VDOC_MCP_INSTALLER_TAG"
   curl -fL "$VDOC_MCP_INSTALLER_RELEASE/install-channel.mjs" -o install-channel.mjs
   curl -fL "$VDOC_MCP_INSTALLER_RELEASE/install-channel.mjs.sha256" -o install-channel.mjs.sha256
@@ -104,7 +104,7 @@ stdout 保留给 MCP protocol，普通诊断看 stderr。
       "command": "npx",
       "args": [
         "--yes",
-        "github:ChnMig/Vdoc-mcp#0b85872a4f1e7fdb4176dafa51fcaa5bbb8517a7"
+        "github:ChnMig/Vdoc-mcp#a3e5d3eb94dc0d4dd345ce525c8136e060dfbc97"
       ],
       "env": {
         "VDOC_BASE_URL": "https://your-vdoc.example.test",

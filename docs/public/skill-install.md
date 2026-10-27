@@ -12,8 +12,8 @@ Reply in the user's language. Use Vdoc's channel installer, not skills.sh. Insta
 ## Verified installation and updates
 
 1. Check patched, supported Node.js/npm (installer minimum Node.js 20); do not upgrade Node. Download into a fresh temporary directory:
-   - https://github.com/ChnMig/Vdoc-mcp/releases/download/v0.3.17-beta.17/install-channel.mjs
-   - https://github.com/ChnMig/Vdoc-mcp/releases/download/v0.3.17-beta.17/install-channel.mjs.sha256
+   - https://github.com/ChnMig/Vdoc-mcp/releases/download/v0.3.17-beta.18/install-channel.mjs
+   - https://github.com/ChnMig/Vdoc-mcp/releases/download/v0.3.17-beta.18/install-channel.mjs.sha256
 2. Compare locally computed SHA-256 before execution. Stop on download/checksum failure; never pipe remote scripts to a shell.
 3. Install: `node "<downloaded-installer>" --channel release` (or `beta`). Update with **both original values**: `node "<downloaded-installer>" --channel <original-channel> --prefix "<original-absolute-prefix>"`. This verifies the channel's latest release; never fall back to main/another channel. `@vdoc/mcp` is not on npm: do not run `npm install @vdoc/mcp`. Reinstallation is nontransactional; report failures honestly.
 4. New prefixes default to `~/.local/share/vdoc/mcp/release` or `.../beta`; custom prefixes must be dedicated/absolute. Link the whole Skill, including references, templates and examples:

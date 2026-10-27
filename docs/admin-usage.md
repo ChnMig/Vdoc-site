@@ -39,6 +39,8 @@
 
 阅读区右上角可**复制内容**、**下载源文件**，保留原文，不附加界面信息；空 TXT 也支持。顶栏切换主题／语言。后台与分享页共用阅读组件。
 
+首次访问且未手动选择语言时，界面按浏览器的语言偏好选择中文或英文；手动选择后优先使用已保存的语言。不支持的语言回退为英文，文档正文保持原文。主题默认跟随系统；后台、文档和分享页的 GitHub 仓库入口统一位于顶栏最右侧。
+
 **日志**倒序记录文档／分支变更、草稿、提交、审核和发布，可加载更多；需文档读取权限，分享页不可见。
 
 **版本**列各分支发布历史。**差异**选择两侧分支的正式版本或草稿，支持任意组合。源码按行标记增删、行号，可切统一／并排、展开上下文、下载原文；原语义变更保留。草稿比较读取当时已保存内容，修改后需重新比较，不写正式差异历史；大文件超限时提示下载。
@@ -137,7 +139,7 @@ TXT 保留纯文本与换行，不渲染 Markdown／HTML，使用行差异；与
       "command": "npx",
       "args": [
         "--yes",
-        "github:ChnMig/Vdoc-mcp#0b85872a4f1e7fdb4176dafa51fcaa5bbb8517a7"
+        "github:ChnMig/Vdoc-mcp#a3e5d3eb94dc0d4dd345ce525c8136e060dfbc97"
       ],
       "env": {
         "VDOC_BASE_URL": "http://127.0.0.1:8080",
@@ -151,7 +153,7 @@ TXT 保留纯文本与换行，不渲染 Markdown／HTML，使用行差异；与
 ```toml [Codex]
 [mcp_servers.vdoc]
 command = "npx"
-args = ["--yes", "github:ChnMig/Vdoc-mcp#0b85872a4f1e7fdb4176dafa51fcaa5bbb8517a7"]
+args = ["--yes", "github:ChnMig/Vdoc-mcp#a3e5d3eb94dc0d4dd345ce525c8136e060dfbc97"]
 startup_timeout_sec = 60
 tool_timeout_sec = 180
 
