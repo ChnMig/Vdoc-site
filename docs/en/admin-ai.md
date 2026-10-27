@@ -32,7 +32,7 @@ Vdoc uses OpenAI-compatible providers and supports two API modes:
 
 `name` is an optional display name. Provider reads use `api_key_set` to report whether a key exists and expose only `api_key_last4` as masked state. You can keep the existing encrypted key while updating other fields. Never copy the key into docs, logs, or screenshots.
 
-Type a model ID directly, or open the button beside the model field to fetch and search the remote list using the current URL and credentials. Fetching never replaces your model until you select an item. Both system and project settings support discovery before saving or choosing a model. A saved key can be reused for the same URL; a changed URL requires its own key. The backend queries the OpenAI-compatible `/v1/models` endpoint without inference or configuration writes. Unsupported, empty or failed lists leave manual entry available. Changing the URL, key or timeout clears the old list; **Refresh models** retries the current connection.
+Type a model ID, or open its list to fetch and search models in either scope before saving. The backend queries `/v1/models` with the current connection; fetching changes neither the model nor saved configuration. A saved key requires the same URL; a new URL needs its own key. Connection changes clear the list. Refresh to retry; empty or failed lists still allow manual entry.
 
 Run a system or project provider test before or after saving. A test uses the current form payload or the saved effective configuration for a short connectivity call, then returns `ok` and non-secret `content`. When a project has no enabled override, an empty-form test does not submit an incomplete provider; it tests the currently enabled system fallback. Test results and failures are audited.
 

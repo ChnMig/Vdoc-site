@@ -39,7 +39,7 @@ A compact information area above the content labels the file path. Markdown uses
 
 Use upper-right **Copy content** / **Download source** for the original content without interface text, including empty TXT. Theme/language controls sit in the header. Public shares and the workbench share this reader.
 
-On a first visit without a saved language choice, the interface follows browser preferences for Chinese or English. A manual choice takes precedence on later visits; unsupported languages fall back to English. Document content stays in its original language. Theme follows the system by default. Workbench, document and share headers place the GitHub repository link at the far right.
+Interface language follows the browser (Chinese/English, otherwise English) until a manual choice is saved; content stays unchanged. Theme follows the system by default; GitHub sits at the far right of each header.
 
 **Activity** lists document/branch changes, drafts, submissions, reviews, and publications, newest first with pagination. It requires document read access; public shares omit it.
 
