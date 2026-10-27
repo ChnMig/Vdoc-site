@@ -139,7 +139,7 @@ TXT 保留纯文本与换行，不渲染 Markdown／HTML，使用行差异；与
       "command": "npx",
       "args": [
         "--yes",
-        "github:ChnMig/Vdoc-mcp#f0be40d773123e36baa824df39c60644974a9a71"
+        "github:ChnMig/Vdoc-mcp#1b68bfe607a3ed9bf5df9f5e3440d34e44b118f2"
       ],
       "env": {
         "VDOC_BASE_URL": "http://127.0.0.1:8080",
@@ -153,7 +153,7 @@ TXT 保留纯文本与换行，不渲染 Markdown／HTML，使用行差异；与
 ```toml [Codex]
 [mcp_servers.vdoc]
 command = "npx"
-args = ["--yes", "github:ChnMig/Vdoc-mcp#f0be40d773123e36baa824df39c60644974a9a71"]
+args = ["--yes", "github:ChnMig/Vdoc-mcp#1b68bfe607a3ed9bf5df9f5e3440d34e44b118f2"]
 startup_timeout_sec = 60
 tool_timeout_sec = 180
 
@@ -223,3 +223,7 @@ Project Admin／SuperAdmin 在文档顶部选正式版本，点**分享**，核�
 有效期默认三个月，可选一／六个月、一年或永久。可选密码为 12–72 个 UTF-8 字节，首尾无 Unicode 空白。复制完整能力链接，可再次显示或不可逆撤销。列表分有效、过期、撤销；换项目／文档清除已显示链接及未提交密码。
 
 分享页沿用上述阅读功能；手机点目录按钮。OpenAPI／TXT 显示原文，项目树、内部日志、AI 和管理工具隐藏。
+
+## 审计历史
+
+动作和资源使用可读枚举筛选及展示。操作者支持按邮箱模糊查询或用户 ID 精确查询，在后端分页前筛选。列表显示操作者邮箱和项目名，悬停可查看原始 ID；系统操作、匿名访客及已删除对象有明确说明。项目管理员仍只能查看自己管理的项目。

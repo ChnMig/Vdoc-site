@@ -19,18 +19,22 @@ Vdoc uses OpenAI-compatible providers and supports two API modes:
 - `chat_completions` calls the provider `/v1/chat/completions` route.
 - `responses` calls the provider `/v1/responses` route.
 
-| Field               | Rule                                                      |
-| ------------------- | --------------------------------------------------------- |
-| `base_url`          | HTTPS origin for the provider or private gateway.         |
-| `api_mode`          | `chat_completions` or `responses`.                        |
-| `model`             | Model name supported by the provider.                     |
-| `api_key`           | Required, encrypted at rest, never returned in plaintext. |
-| `enabled`           | Controls whether this configuration can be used.          |
-| `temperature`       | Default `0.2`, range `0` through `2`.                     |
-| `timeout_ms`        | Default `30000`, range `1000` through `120000`.           |
-| `max_output_tokens` | Default `1000`, range `1` through `32000`.                |
+| Field               | Rule                                                          |
+| ------------------- | ------------------------------------------------------------- |
+| `base_url`          | HTTPS root or versioned gateway URL, including `/v1`.         |
+| `api_mode`          | `responses` (new default) or `chat_completions`.              |
+| `model`             | Model name supported by the provider.                         |
+| `api_key`           | Required, encrypted at rest; ordinary responses are redacted. |
+| `enabled`           | Controls whether this configuration can be used.              |
+| `temperature`       | Slider from `0` through `2`; reset to `0.2`.                  |
+| `timeout_ms`        | Default `30000`, range `1000` through `120000`.               |
+| `max_output_tokens` | Default `1000`, range `1` through `32000`.                    |
 
 `name` is an optional display name. Provider reads use `api_key_set` to report whether a key exists and expose only `api_key_last4` as masked state. You can keep the existing encrypted key while updating other fields. Never copy the key into docs, logs, or screenshots.
+
+The API key field precedes the model. A saved key is masked; click the eye to view it, or **Replace key** to enter another one. Hiding clears the revealed value. Viewing a key does not send it as a replacement on save or model discovery. Only SuperAdmins can reveal the system key; project administrators can reveal only their own active project override. Every reveal is audited without the secret and is not cached.
+
+Base URLs such as `https://host`, `https://host/v1`, and `https://host/gateway/v1/` work for both discovery and inference without repeating `/v1`. A 404 may also mean the provider does not support the selected API mode or model; fetching models does not prove Responses support. New forms prefer Responses while saved modes remain unchanged.
 
 Type a model ID, or open its list to fetch and search models in either scope before saving. The backend queries `/v1/models` with the current connection; fetching changes neither the model nor saved configuration. A saved key requires the same URL; a new URL needs its own key. Connection changes clear the list. Refresh to retry; empty or failed lists still allow manual entry.
 

@@ -2,6 +2,14 @@
 
 Beta entries below update only `:beta`, leaving stable unchanged. Keep test databases, storage, and credentials separate. See the [guide](admin-usage.md) and [manual upgrade](release-rollback.md).
 
+## v0.3.17-beta.20
+
+- Fix duplicate `/v1` in AI provider tests and inference, including gateway prefixes.
+- AI settings show a masked saved key with audited reveal, place keys before models, default new forms to Responses, and offer a temperature slider/reset to 0.2.
+- Audit action/resource filters and rows use readable enums; actor queries run before pagination, and rows show actor email and project name with original IDs available in tooltips.
+
+Backend and Admin must be upgraded together. No new database migration; Beta only, stable channels and Pages unchanged.
+
 ## v0.3.17-beta.19
 
 Remove the duplicate account trigger from workbench headers; account settings and sign-out remain in the sidebar footer. Includes remote model discovery, browser-language defaults and aligned repository links. No new database migration.

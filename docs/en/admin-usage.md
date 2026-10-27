@@ -139,7 +139,7 @@ Choose your client format; Admin's MCP Token page provides Codex, Cursor, and Cl
       "command": "npx",
       "args": [
         "--yes",
-        "github:ChnMig/Vdoc-mcp#f0be40d773123e36baa824df39c60644974a9a71"
+        "github:ChnMig/Vdoc-mcp#1b68bfe607a3ed9bf5df9f5e3440d34e44b118f2"
       ],
       "env": {
         "VDOC_BASE_URL": "http://127.0.0.1:8080",
@@ -153,7 +153,7 @@ Choose your client format; Admin's MCP Token page provides Codex, Cursor, and Cl
 ```toml [Codex]
 [mcp_servers.vdoc]
 command = "npx"
-args = ["--yes", "github:ChnMig/Vdoc-mcp#f0be40d773123e36baa824df39c60644974a9a71"]
+args = ["--yes", "github:ChnMig/Vdoc-mcp#1b68bfe607a3ed9bf5df9f5e3440d34e44b118f2"]
 startup_timeout_sec = 60
 tool_timeout_sec = 180
 
@@ -224,3 +224,7 @@ On a document page, a Project Admin or SuperAdmin selects a published version an
 Expiry defaults to three months; choose one month, six months, one year, or permanent. Optional passwords require 12–72 UTF-8 bytes without leading/trailing Unicode whitespace. Copy the full capability link, reveal it again, or revoke irreversibly. The list marks active/expired/revoked links. Switching project/document clears the shown capability and unsubmitted password.
 
 Shares retain these reading features; mobile uses an outline button. OpenAPI/TXT show original content. Private trees, activity, AI, and management tools are omitted.
+
+## Audit history
+
+Action and resource filters use localized enums. Search actors by email substring or exact user ID; filtering happens on the backend before pagination. Rows show email and project name with original IDs in tooltips. System operations, anonymous visitors, and unavailable identities have explicit labels. Project administrators remain restricted to their own projects.

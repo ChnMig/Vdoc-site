@@ -4,32 +4,32 @@ Vdoc Skill 教 Agent 先查 MCP 事实；不存数据、不计算 diff、不直�
 
 ## 让 AI 安装、更新或卸载 {#ai-install}
 
-复制一句话给 AI，安装 Skill 无需 Token；[AI 接入说明](https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.3.17-beta.19/docs/public/skill-install.md)详述操作与校验。
+复制一句话给 AI，安装 Skill 无需 Token；[AI 接入说明](https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.3.17-beta.20/docs/public/skill-install.md)详述操作与校验。
 
 <div class="skill-install-prompts">
 
 稳定项目：
 
 ```text
-请阅读 https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.3.17-beta.19/docs/public/skill-install.md，帮我把 Vdoc Skill 安装到当前项目，使用 release 渠道。
+请阅读 https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.3.17-beta.20/docs/public/skill-install.md，帮我把 Vdoc Skill 安装到当前项目，使用 release 渠道。
 ```
 
 测试项目：
 
 ```text
-请阅读 https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.3.17-beta.19/docs/public/skill-install.md，帮我把 Vdoc Skill 安装到当前项目，使用 beta 渠道。
+请阅读 https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.3.17-beta.20/docs/public/skill-install.md，帮我把 Vdoc Skill 安装到当前项目，使用 beta 渠道。
 ```
 
 更新当前项目（保持原渠道）：
 
 ```text
-请阅读 https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.3.17-beta.19/docs/public/skill-install.md，将当前项目已安装的 Vdoc MCP 和 Skill 更新到原渠道最新版本，保留现有安装位置和 MCP 配置。
+请阅读 https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.3.17-beta.20/docs/public/skill-install.md，将当前项目已安装的 Vdoc MCP 和 Skill 更新到原渠道最新版本，保留现有安装位置和 MCP 配置。
 ```
 
 卸载当前项目接入：
 
 ```text
-请阅读 https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.3.17-beta.19/docs/public/skill-install.md，卸载当前项目的 Vdoc MCP 和 Skill 接入，保留其他项目共用的安装以及其他工具配置。
+请阅读 https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.3.17-beta.20/docs/public/skill-install.md，卸载当前项目的 Vdoc MCP 和 Skill 接入，保留其他项目共用的安装以及其他工具配置。
 ```
 
 </div>
