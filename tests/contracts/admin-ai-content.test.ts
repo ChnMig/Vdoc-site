@@ -144,7 +144,12 @@ const adminAiPages = [
     ],
     pageChatSectionPattern: /## 页面内对话[\s\S]*?(?=\n## )/,
     pageChatPatterns: [
-      /(?:复用|使用).{0,30}(?:同一|相同).{0,30}(?:Draft、Version 和 Diff|Draft、Version、Diff).{0,30}上下文构建器/is,
+      /聊天固定当前文档.{0,30}检索所有分支的正式版本与已保存草稿/is,
+      /区分分支、版本和草稿来源/is,
+      /16.{0,30}48,000.{0,45}12,000/is,
+      /长文截取相关片段并注明省略/is,
+      /不会读取其他文档/is,
+      /旧 Draft／Version／Diff 对话 API 保持兼容/is,
     ],
     forbiddenPageChatPatterns: [
       /endpoint detail|端点详情|端点明细/i,
@@ -167,7 +172,12 @@ const adminAiPages = [
     ],
     pageChatSectionPattern: /## Page Chat[\s\S]*?(?=\n## )/,
     pageChatPatterns: [
-      /reuses?.{0,30}(?:the )?same.{0,30}Draft, Version, and Diff context builder/is,
+      /chat stays bound to the document.{0,30}searches its branches, published versions and saved drafts/is,
+      /distinguishing each source/is,
+      /16.{0,30}48,000.{0,45}12,000/is,
+      /Long sources use relevant excerpts and disclose omissions/is,
+      /Other documents are excluded/is,
+      /Existing Draft\/Version\/Diff chat APIs remain compatible/is,
     ],
     forbiddenPageChatPatterns: [
       /endpoint details?/i,
@@ -226,7 +236,7 @@ describe('Admin AI documentation contract', () => {
       for (const pattern of pageChatPatterns) {
         expect(
           pageChatSection,
-          `${path} must document the shared page-chat context builder`,
+          `${path} must document bounded document chat and legacy context compatibility`,
         ).toMatch(pattern)
       }
       for (const pattern of forbiddenPageChatPatterns) {
