@@ -2,6 +2,10 @@
 
 Beta entries below update only `:beta`, leaving stable unchanged. Keep test databases, storage, and credentials separate. See the [guide](admin-usage.md) and [manual upgrade](release-rollback.md).
 
+## v0.3.17-beta.19
+
+Remove the duplicate account trigger from workbench headers; account settings and sign-out remain in the sidebar footer. Includes remote model discovery, browser-language defaults and aligned repository links. No new database migration.
+
 ## v0.3.17-beta.18
 
 - System/project AI settings fetch, search and select remote models using the current URL and credentials while retaining manual model entry, including when discovery fails.

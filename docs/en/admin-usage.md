@@ -57,7 +57,7 @@ Tools retain reading position, Preview/Source and input. Document chat retains i
 
 ### Change Your Password {#change-password}
 
-From a document, return to Workspace. In the avatar menu, open **Settings → Account → Change password**. All users, including admins, enter the current password, new password, and confirmation.
+From a document, return to Workspace. In the account menu at the bottom of the sidebar, open **Settings → Account → Change password**. All users, including admins, enter the current password, new password, and confirmation.
 
 Use a different password of 12–72 UTF-8 bytes, without leading/trailing whitespace. Success signs this browser out; sign in with the new password. Correct an incorrect current password or mismatched confirmation and retry.
 
