@@ -5,7 +5,7 @@
       "path": "Vdoc",
       "remote": "https://github.com/ChnMig/Vdoc.git",
       "ref": "refs/tags/v0.3.17-beta.21",
-      "commit": "f5bf9728d89d5871a061a4b1b7e1ee944bbc7bf4"
+      "commit": "df419077fefec0a3580084932e27ae66de63e100"
     },
     {
       "path": "Vdoc-admin",
@@ -28,6 +28,6 @@
   ],
   "controlPlane": {
     "manifest": "workspace-distribution.json",
-    "sha256": "5db442da03bd662813851bf5d4a14c18fa6c6991b5cbe076bc82e77abda6fd55"
+    "sha256": "6cdeb27b034f0000cae1fc862fc81c20767a5b72fea49ace17f81ea72ca829ba"
   }
 }
