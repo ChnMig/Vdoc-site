@@ -8,6 +8,7 @@ Beta entries below update only `:beta`, leaving stable unchanged. Keep test data
 - Streaming, non-streaming and model discovery use the provider timeouts. Stream data and heartbeats renew the idle timer; cancellation still stops requests.
 - Remove shorter generic limits along long AI request paths. Background summaries renew their leases and verify ownership when saving results.
 - Update the English and Chinese AI configuration guides.
+- Clearly label published-version and draft search counts and pagination, hiding unnecessary controls for a single page.
 
 Startup applies migration 014, raising the old 30-second default total to 10 minutes while preserving other custom values. Back up the database and upgrade Backend and Admin together. Beta only; stable channels and Pages remain unchanged. Configure your reverse-proxy timeouts for the expected request duration.
 
