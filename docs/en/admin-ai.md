@@ -19,17 +19,19 @@ Vdoc uses OpenAI-compatible providers and supports two API modes:
 - `chat_completions` calls the provider `/v1/chat/completions` route.
 - `responses` calls the provider `/v1/responses` route.
 
-| Field               | Rule                                                           |
-| ------------------- | -------------------------------------------------------------- |
-| `base_url`          | HTTPS root or versioned gateway URL, including `/v1`.          |
-| `api_mode`          | `responses` (new default) or `chat_completions`.               |
-| `model`             | Model name supported by the provider.                          |
-| `api_key`           | Required, encrypted at rest; ordinary responses are redacted.  |
-| `enabled`           | Controls whether this configuration can be used.               |
-| `stream`            | Defaults to `true` (streaming); `false` selects non-streaming. |
-| `temperature`       | Slider from `0` through `2`; reset to `0.2`.                   |
-| `timeout_ms`        | Default `30000`, range `1000` through `120000`.                |
-| `max_output_tokens` | Default `1000`, range `1` through `32000`.                     |
+| Field                       | Rule                                                                                  |
+| --------------------------- | ------------------------------------------------------------------------------------- |
+| `base_url`                  | HTTPS root or versioned gateway URL, including `/v1`.                                 |
+| `api_mode`                  | `responses` (new default) or `chat_completions`.                                      |
+| `model`                     | Model name supported by the provider.                                                 |
+| `api_key`                   | Required, encrypted at rest; ordinary responses are redacted.                         |
+| `enabled`                   | Controls whether this configuration can be used.                                      |
+| `stream`                    | Defaults to `true` (streaming); `false` selects non-streaming.                        |
+| `temperature`               | Slider from `0` through `2`; reset to `0.2`.                                          |
+| `timeout_ms`                | Total generation time, default `600000` (10 minutes).                                 |
+| `first_response_timeout_ms` | Wait for the first body data including connection time, default `180000` (3 minutes). |
+| `idle_timeout_ms`           | Maximum gap between response body data, default `120000` (2 minutes).                 |
+| `max_output_tokens`         | Default `1000`, range `1` through `32000`.                                            |
 
 `name` is an optional display name. Provider reads use `api_key_set` to report whether a key exists and expose only `api_key_last4` as masked state. You can keep the existing encrypted key while updating other fields. Never copy the key into docs, logs, or screenshots.
 
@@ -44,6 +46,8 @@ Base URLs such as `https://host`, `https://host/v1`, and `https://host/gateway/v
 Type a model ID, or open its list to fetch and search models in either scope before saving. The backend queries `/v1/models` with the current connection; fetching changes neither the model nor saved configuration. A saved key requires the same URL; a new URL needs its own key. Connection changes clear the list. Refresh to retry; empty or failed lists still allow manual entry.
 
 Run a system or project provider test before or after saving. A test uses the current form payload or the saved effective configuration for a short connectivity call, then returns `ok` and non-secret `content`. When a project has no enabled override, an empty-form test does not submit an incomplete provider; it tests the currently enabled system fallback. Test results and failures are audited.
+
+Each limit has an independent **Unlimited** switch (API value `0`); finite values accept `1000` through `2147483647` milliseconds. Response data and SSE heartbeats renew the idle timer, without resetting the total timer. Unlimited total time still follows any enabled first-response and idle limits. With all three disabled, cancellation, disconnection or upstream completion ends the call. Non-streaming responses use the same first-data and response-body idle protection. Migration **014** raises the historical `30000` total default to `600000` and preserves other custom totals. Back up the database and upgrade Backend/Admin together. Configure external reverse proxies to allow the intended request duration.
 
 ## Configure Prompts
 

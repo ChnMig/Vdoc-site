@@ -2,6 +2,15 @@
 
 Beta entries below update only `:beta`, leaving stable unchanged. Keep test databases, storage, and credentials separate. See the [guide](admin-usage.md) and [manual upgrade](release-rollback.md).
 
+## v0.3.17-beta.22
+
+- System and project AI providers have independent total, first-response and response-idle timeouts, defaulting to 10, 3 and 2 minutes. Each can be unlimited (API value `0`).
+- Streaming, non-streaming and model discovery use the provider timeouts. Stream data and heartbeats renew the idle timer; cancellation still stops requests.
+- Remove shorter generic limits along long AI request paths. Background summaries renew their leases and verify ownership when saving results.
+- Update the English and Chinese AI configuration guides.
+
+Startup applies migration 014, raising the old 30-second default total to 10 minutes while preserving other custom values. Back up the database and upgrade Backend and Admin together. Beta only; stable channels and Pages remain unchanged. Configure your reverse-proxy timeouts for the expected request duration.
+
 ## v0.3.17-beta.21
 
 - System and project AI providers can use streaming or non-streaming responses, defaulting to streaming. Responses and Chat Completions share this setting across tests, summaries and chat.

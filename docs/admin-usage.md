@@ -139,7 +139,7 @@ TXT 保留纯文本与换行，不渲染 Markdown／HTML，使用行差异；与
       "command": "npx",
       "args": [
         "--yes",
-        "github:ChnMig/Vdoc-mcp#4e8e000e08a9bd7836028a0f4e4d5a8fe6a9280d"
+        "github:ChnMig/Vdoc-mcp#7d4dd36e257ba52123c66ddf9f905b1df5cde0be"
       ],
       "env": {
         "VDOC_BASE_URL": "http://127.0.0.1:8080",
@@ -153,7 +153,7 @@ TXT 保留纯文本与换行，不渲染 Markdown／HTML，使用行差异；与
 ```toml [Codex]
 [mcp_servers.vdoc]
 command = "npx"
-args = ["--yes", "github:ChnMig/Vdoc-mcp#4e8e000e08a9bd7836028a0f4e4d5a8fe6a9280d"]
+args = ["--yes", "github:ChnMig/Vdoc-mcp#7d4dd36e257ba52123c66ddf9f905b1df5cde0be"]
 startup_timeout_sec = 60
 tool_timeout_sec = 180
 
