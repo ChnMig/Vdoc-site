@@ -18,11 +18,12 @@
     "bilingualDeploymentVersionUpdateGuideBytes": 24576,
     "bilingualAdminLayoutGuideBytes": 8192,
     "bilingualAiModelDiscoveryAndReadingPreferencesBytes": 12288,
-    "bilingualAiCredentialsAndAuditGuideBytes": 16384
+    "bilingualAiCredentialsAndAuditGuideBytes": 16384,
+    "bilingualAiStreamingGuideBytes": 8192
   },
   "limits": {
     "totalFiles": 116,
-    "totalBytes": 3402138,
+    "totalBytes": 3410330,
     "downloadFiles": 8,
     "downloadBytes": 262144,
     "sharedJavaScriptGzipBytes": 92563,
