@@ -2,6 +2,14 @@
 
 Beta entries below update only `:beta`, leaving stable unchanged. Keep test databases, storage, and credentials separate. See the [guide](admin-usage.md) and [manual upgrade](release-rollback.md).
 
+## v0.3.17-beta.21
+
+- System and project AI providers can use streaming or non-streaming responses, defaulting to streaming. Responses and Chat Completions share this setting across tests, summaries and chat.
+- Document AI answers appear progressively and are saved only after successful completion. Failures preserve the input; document or account changes cancel the request.
+- Update bilingual AI configuration guidance while preserving non-streaming JSON compatibility for older clients.
+
+Startup applies migration 013, enabling streaming by default for existing providers. Back up the database and upgrade Backend and Admin together. Beta only; stable channels and Pages remain unchanged.
+
 ## v0.3.17-beta.20
 
 - Fix duplicate `/v1` in AI provider tests and inference, including gateway prefixes.
