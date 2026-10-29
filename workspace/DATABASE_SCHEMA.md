@@ -72,7 +72,7 @@
 | `ai_prompt_overrides` | 系统级和项目级 AI Prompt 覆盖。 |
 | `ai_summary_jobs` | 提交、发布和手动生成摘要的持久化队列；按 available_at 认领，lease_token 防止其他 worker 完成当前租约。 |
 | `ai_summaries` | Draft、Version、Diff 的 AI 总结记录。状态使用 `pending`、`skipped`、`succeeded`、`failed`，失败摘要存 `error_message`；生成 token 防止旧请求乱序回写。 |
-| `ai_chat_sessions` / `ai_chat_messages` | AI Chat 会话和消息，关联 draft、version、diff 或 document；document 要求 context_id=document_id，按文档权限检索各分支正式版本与已保存草稿；生成 token 保证多实例顺序。 |
+| `ai_chat_sessions` / `ai_chat_messages` | AI Chat 会话和消息，关联 draft、version、diff 或 document；document 要求 context_id=document_id，按文档权限检索各分支正式版本与已保存草稿；生成 token 保证多实例顺序。消息的 `attachments` JSONB 数组保存已提交的图片、PDF 和 UTF-8 文本附件（名称、媒体类型、base64 内容）；失败或取消的生成不保存临时消息与附件。 |
 | `mcp_tokens` | MCP Token 哈希、密文和状态。 |
 | `document_shares` | 文档公开分享能力。保存 Project / Document / Branch、版本范围、可空 `pinned_version_id uuid`（引用 `document_versions.id`）、到期/撤销信息、secret hash、加密 ciphertext 和可选 bcrypt password verifier；不保存明文 secret、完整 URL 或密码。 |
 | `audit_logs` | 审计日志。 |

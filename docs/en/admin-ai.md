@@ -75,6 +75,12 @@ Page AI Chat includes a bounded window of the current session history. A persist
 
 ## Page Chat
 
+Summary and chat have separate tabs, opening chat by default. Expand the workspace for more room, including full-screen expansion on phones. Switching tabs, collapsing or closing the panel retains the conversation and input within the current document. User messages align right and AI replies left; Markdown lists, code and tables are formatted, with copy controls for answers and code. New output does not pull readers away from earlier content; Latest message returns to the bottom.
+
+Enter sends by default; switch to Ctrl/Command+Enter if preferred. Shift+Enter inserts a newline, and IME composition never submits. Search and switch conversations through Chat history. New conversation creates a record only on the first send, with separate unsent drafts for visited conversations. Stop and failure retain text and attachments for retry.
+
+Use the paperclip to upload, or paste/drop images and files into the composer. PNG, JPEG, WebP, GIF, PDF and UTF-8 text (Markdown, code, JSON and CSV) are supported: up to four files, 4 MB each and 6 MB combined, with text limited to 100 KB. Enlarge image previews, remove attachments or download them. Images and PDFs require a supporting model. Attachments persist with completed messages and remain available within a bounded follow-up context; failures and cancellations save no provisional messages. Upgrade Backend and Admin together; startup applies migration 015.
+
 Open **Document AI** in a document. Summaries follow the selected version/draft; chat stays bound to the document and searches its branches, published versions and saved drafts, distinguishing each source. Each request selects up to 16 bodies/48,000 characters plus a 12,000-character index. Long sources use relevant excerpts and disclose omissions. Other documents are excluded. Existing Draft/Version/Diff chat APIs remain compatible.
 
 Answers must be marked AI-generated. Page chat cannot read across Projects or present an answer as machine Diff or a human review decision.

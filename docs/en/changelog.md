@@ -2,6 +2,15 @@
 
 Beta entries below update only `:beta`, leaving stable unchanged. Keep test databases, storage, and credentials separate. See the [guide](admin-usage.md) and [manual upgrade](release-rollback.md).
 
+## v0.3.17-beta.23
+
+- Document AI separates summary and chat into tabs, with a larger workspace and full-screen expansion on phones.
+- Left/right messages render Markdown, code and tables, with copy controls and scrolling that preserves earlier reading.
+- Switch between Enter and Ctrl/Command+Enter to send; Shift+Enter inserts a newline and IME composition does not submit.
+- Upload, paste or drop images, PDFs and UTF-8 text; preview and download attachments. Search history, start conversations, retain separate drafts, stop generation and retry failures.
+
+Startup applies migration 015 to persist attachments with completed messages. Upgrade Backend and Admin together. Images and PDFs require a supporting model. Beta only; stable channels and Pages remain unchanged.
+
 ## v0.3.17-beta.22
 
 - System and project AI providers have independent total, first-response and response-idle timeouts, defaulting to 10, 3 and 2 minutes. Each can be unlimited (API value `0`).
