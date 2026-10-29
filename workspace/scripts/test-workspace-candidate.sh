@@ -219,6 +219,22 @@ with tempfile.TemporaryDirectory(prefix='vdoc-candidate-tests-') as temporary:
     probe('strict-rejects-unadvertised-release-tag', f,
           [str(SCRIPTS / 'vdoc-workspace-verify.sh')], False, 'cannot resolve locked ref')
 
+    f = fixture('tag-template-isolated-branch')
+    for row in f.lock['repositories']:
+        row['commit'] = f.commit(row['path'])
+        f.git(row['path'], 'push', '--quiet', 'origin', 'HEAD:refs/heads/release/candidate')
+    f.write_lock()
+    f.env['VDOC_WORKSPACE_CANDIDATE_SOURCE_REF'] = 'refs/heads/release/candidate'
+    probe('release-tag-template-from-isolated-branch', f, [str(CANDIDATE)], True,
+          'advertised source refs/heads/release/candidate')
+    f.env.pop('VDOC_WORKSPACE_CANDIDATE_SOURCE_REF')
+    probe('isolated-branch-still-requires-exact-advertised-source', f, [str(CANDIDATE)], False,
+          'candidate remote ref mismatch')
+    for unsafe in ('refs/tags/v0.3.10', 'refs/heads/../../main'):
+        f.env['VDOC_WORKSPACE_CANDIDATE_SOURCE_REF'] = unsafe
+        probe('reject-unsafe-source-' + str(len(checks)), f, [str(CANDIDATE)], False,
+              'candidate source override must be a safe refs/heads/ branch')
+
     f = fixture('branch')
     for row in f.lock['repositories']:
         f.git(row['path'], 'push', '--quiet', 'origin', 'HEAD:refs/heads/release/candidate')

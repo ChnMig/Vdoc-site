@@ -14,6 +14,8 @@ Usage: scripts/vdoc-workspace-candidate-verify.sh [--package-check]
 Verify clean, committed candidate source without requiring the future release
 tags. Locked branch refs must advertise the exact commit. Locked release tags
 use advertised refs/heads/main as their source proof; existing tags must match.
+VDOC_WORKSPACE_CANDIDATE_SOURCE_REF may select another safe advertised branch
+for isolated prerelease work. The branch must advertise every exact locked commit.
 This does not prove release publication or authorize deployment.
 
 --package-check  Also validate inventory using a disposable marked candidate copy.
@@ -151,7 +153,9 @@ while IFS=$'\t' read -r repo_path expected_remote expected_ref expected_commit; 
   source_ref="$expected_ref"
   if [[ "$expected_ref" == refs/tags/* ]]; then
     [[ "$expected_ref" == "$release_ref" ]] || fail "$repo_path candidate tag must match $release_ref"
-    source_ref='refs/heads/main'
+    source_ref="${VDOC_WORKSPACE_CANDIDATE_SOURCE_REF:-refs/heads/main}"
+    [[ "$source_ref" == refs/heads/* ]] && validate_ref "$source_ref" || \
+      fail 'candidate source override must be a safe refs/heads/ branch'
     # An absent future tag is expected, but an existing different tag must never
     # be treated as this candidate. Query the remote, not origin/* tracking refs.
     tag_output="$(GIT_TERMINAL_PROMPT=0 git ls-remote "$expected_remote" "$expected_ref" "${expected_ref}^{}" 2>/dev/null)" || \
