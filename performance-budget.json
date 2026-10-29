@@ -21,11 +21,12 @@
     "bilingualAiCredentialsAndAuditGuideBytes": 16384,
     "bilingualAiStreamingGuideBytes": 8192,
     "bilingualAiTimeoutsAndComparisonGuideBytes": 16384,
-    "bilingualAiChatWorkspaceAndAttachmentsGuideBytes": 16384
+    "bilingualAiChatWorkspaceAndAttachmentsGuideBytes": 16384,
+    "bilingualAiChatTitlesReasoningAndLayoutGuideBytes": 8192
   },
   "limits": {
     "totalFiles": 116,
-    "totalBytes": 3443098,
+    "totalBytes": 3451290,
     "downloadFiles": 8,
     "downloadBytes": 262144,
     "sharedJavaScriptGzipBytes": 92563,

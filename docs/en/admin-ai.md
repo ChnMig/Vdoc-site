@@ -87,6 +87,10 @@ Answers must be marked AI-generated. Page chat cannot read across Projects or pr
 
 Archived Projects/Documents allow history reads but no new sessions/messages. Legacy branch-bound sessions also respect branch archival. Active document chat may search archived branch history. Readers may chat; provider/prompt configuration, tests and manual summary regeneration still require administrator permission.
 
+After the first completed answer, AI generates a short conversation title. If that request fails, the first question remains a readable provisional title and the saved answer and attachments remain available. Expanded chat keeps history in a left rail on wide screens and shows robot/user avatars with local message times; compact mode hides avatars.
+
+The composer's **Reasoning** selector follows the model by default, or explicitly requests off, minimal, low, medium, high, extra high or maximum effort. Choices persist per conversation and seed this account's new conversations in this browser; existing conversations retain their own setting. Supported levels depend on the model. If rejected, switch to default and retry. Settings cannot change during a reply. Startup applies migration 016; upgrade Backend/Admin together.
+
 ## API Routes
 
 See [API Reference](api-reference.md#admin-ai-routes) for the complete route and auth list. The API groups cover:

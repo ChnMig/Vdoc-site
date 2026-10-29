@@ -2,6 +2,15 @@
 
 Beta entries below update only `:beta`, leaving stable unchanged. Keep test databases, storage, and credentials separate. See the [guide](admin-usage.md) and [manual upgrade](release-rollback.md).
 
+## v0.3.17-beta.24
+
+- Generate conversation titles after the first completed answer; failures retain a readable title and all messages.
+- Refine expanded chat with a persistent history rail, a compact composer, robot/user avatars and message timestamps.
+- Select default, off or an explicit reasoning effort per conversation; remember the last choice for this account's new conversations in this browser. Support depends on the model.
+- Fix bottom popup placement, clipped composer controls and duplicate outer scrolling; cover narrow and short windows.
+
+Startup applies migration 016. Back up the database and upgrade Backend/Admin together. Only Beta updates; stable aliases and Pages stay unchanged.
+
 ## v0.3.17-beta.23
 
 - Document AI separates summary and chat into tabs, with a larger workspace and full-screen expansion on phones.

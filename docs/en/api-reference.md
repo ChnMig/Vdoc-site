@@ -234,6 +234,8 @@ POST /api/v1/private/projects/{project_id}/documents/{document_id}/diffs/{diff_i
 GET  /api/v1/private/projects/{project_id}/ai/chat-sessions?document_id={document_id}&context_type={draft|version|diff|document}&context_id={context_id}
 POST /api/v1/private/projects/{project_id}/ai/chat-sessions
 GET  /api/v1/private/projects/{project_id}/ai/chat-sessions/{session_id}
+PATCH /api/v1/private/projects/{project_id}/ai/chat-sessions/{session_id}
+POST /api/v1/private/projects/{project_id}/ai/chat-sessions/{session_id}/title
 POST /api/v1/private/projects/{project_id}/ai/chat-sessions/{session_id}/messages
 ```
 

@@ -222,6 +222,8 @@ GET  /api/v1/private/projects/:project_id/documents/:document_id/diffs/:diff_id/
 GET  /api/v1/private/projects/:project_id/ai/chat-sessions
 POST /api/v1/private/projects/:project_id/ai/chat-sessions
 GET  /api/v1/private/projects/:project_id/ai/chat-sessions/:session_id
+PATCH /api/v1/private/projects/:project_id/ai/chat-sessions/:session_id
+POST /api/v1/private/projects/:project_id/ai/chat-sessions/:session_id/title
 POST /api/v1/private/projects/:project_id/ai/chat-sessions/:session_id/messages
 
 GET  /api/v1/private/mcp-tokens
