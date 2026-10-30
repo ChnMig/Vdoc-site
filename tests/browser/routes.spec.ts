@@ -49,7 +49,7 @@ for (const locale of [
     ).toBeVisible()
     const prompts = page.locator('.vp-doc .language-text').filter({
       hasText:
-        'https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.3.17-beta.24/docs/public/skill-install.md',
+        'https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.3.17-beta.25/docs/public/skill-install.md',
     })
     await expect(prompts).toHaveCount(4)
     await page

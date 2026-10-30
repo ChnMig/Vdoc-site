@@ -71,7 +71,7 @@ Backend context is target-specific and bounded: Draft includes bounded normalize
 
 Automatic outcomes include `pending` while generation is in flight, followed by `succeeded`, `skipped`, or `failed`. No usable provider or a disabled prompt produces `skipped`; provider call errors produce `failed`. Before accepting a provider response, Vdoc rechecks permissions, target content, provider configuration, and prompt configuration, so stale output cannot overwrite newer state. These outcomes are non-blocking. They do not roll back Draft submission or Version publishing, and the original Diff, Version view, and human review remain available.
 
-Page AI Chat includes a bounded window of the current session history. A persisted generation token ensures that only the latest request can append messages across multiple Vdoc instances; an older delayed response is rejected. Admin lists retained sessions for the current page context so existing conversations can be recovered and switched after refresh.
+Page AI Chat uses a rolling summary of earlier conversation plus recent original messages. A persisted generation token ensures that only the latest request can append messages across multiple Vdoc instances; an older delayed response is rejected. Admin lists retained sessions for the current page context so existing conversations can be recovered and switched after refresh.
 
 ## Page Chat
 
@@ -90,6 +90,14 @@ Archived Projects/Documents allow history reads but no new sessions/messages. Le
 After the first completed answer, AI generates a short conversation title. If that request fails, the first question remains a readable provisional title and the saved answer and attachments remain available. Expanded chat keeps history in a left rail on wide screens and shows robot/user avatars with local message times; compact mode hides avatars.
 
 The composer's **Reasoning** selector follows the model by default, or explicitly requests off, minimal, low, medium, high, extra high or maximum effort. Choices persist per conversation and seed this account's new conversations in this browser; existing conversations retain their own setting. Supported levels depend on the model. If rejected, switch to default and retry. Settings cannot change during a reply. Startup applies migration 016; upgrade Backend/Admin together.
+
+Provider-visible reasoning appears in a collapsible disclosure. Explicit enabled reasoning requests OpenAI Responses summaries; compatible Chat Completions `reasoning_content` is also supported. Encrypted/private reasoning is excluded. Providers/models may return no visible reasoning.
+
+After unsummarized history exceeds about 12,000 characters (including text attachments), older completed turns are summarized while retaining at least the newest two turns. Original records remain available. Compression status is visible; summaries may omit details, so verify important facts against the originals. These auxiliary calls incur model usage. Compression failures are shown and can be retried.
+
+Use **Regenerate answer** on the latest reply to request a replacement; the original answer remains until success and no duplicate user message is stored. Failed/stopped requests retain the original question, attachments and visibly incomplete output for explicit **Retry**. Errors distinguish timeouts, rate limits, quota, credentials and model configuration, with expandable safe diagnostics. Requests are never retried automatically.
+
+Backend startup applies migration 017 for reasoning, conversation memory and replacement references. Upgrade Backend and Admin together.
 
 ## API Routes
 

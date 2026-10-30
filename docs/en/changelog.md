@@ -2,6 +2,16 @@
 
 Beta entries below update only `:beta`, leaving stable unchanged. Keep test databases, storage, and credentials separate. See the [guide](admin-usage.md) and [manual upgrade](release-rollback.md).
 
+## v0.3.17-beta.25
+
+- Collapsible provider-visible reasoning; official OpenAI Responses summaries and compatible reasoning content.
+- Automatic rolling summaries for older conversation, keeping recent originals and all stored messages; compression failures are explicit.
+- Regenerate the latest answer and retry failed/stopped questions without overwriting the original answer or duplicating user messages.
+- Specific timeout, interruption, rate-limit, quota, credential and model errors with expandable, copyable safe diagnostics.
+- Error details stay within the transcript so the composer remains usable on short windows and phones.
+
+Startup applies migration 017. Back up the database and upgrade Backend/Admin together. Reasoning depends on model support; summaries are lossy and auxiliary calls incur model usage. Beta only; stable images and Pages remain unchanged.
+
 ## v0.3.17-beta.24
 
 - Generate conversation titles after the first completed answer; failures retain a readable title and all messages.
