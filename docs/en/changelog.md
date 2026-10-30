@@ -2,7 +2,7 @@
 
 ## v0.4.0-beta.1
 
-The project repository model enters Beta: immutable commits, project branches and release references replace the default draft workflow. The server generates revision and publication identifiers. Continuous history, exact commit comparisons, merge review and AI tied to explicit changes are described in [Commits and Branches](commit-history.md).
+The project repository model enters Beta: immutable commits, project branches and release references replace the default draft workflow. The server generates revision and publication identifiers. Continuous history, exact commit comparisons, merge review and AI tied to explicit changes are described in [Commits and Branches](admin-usage.md#commit-history).
 
 Update Backend, Admin, MCP/Skill and Site together and verify them in an isolated Beta database and object store first. Explicit initialization and compatibility mappings preserve existing content; missing overwritten draft bodies cannot be recreated. Stable release and website channels stay separate.
 

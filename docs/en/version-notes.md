@@ -1,5 +1,9 @@
 # Version Notes
 
+## v0.4.0-beta.1
+
+Project branches, immutable commits and fixed releases replace the default draft workflow. The server generates revision and publication identifiers. See [First Use](admin-usage.md) for history, comparisons, merge review, AI and event subscriptions. Upgrade applies migrations 018–020; back up the isolated Beta database and object store first. An administrator explicitly imports old projects; overwritten bodies without surviving evidence cannot be recovered. Only the Beta channel updates.
+
 ## v0.3.17-beta.9
 
 Browse teams, projects, and folders in Workspace, then open a document on its own page: the project file tree on the left, content in the center, and an outline and tools on the right. Share and Edit draft are in the header; project membership is managed within the project. See [First Use](admin-usage.md) and the [changelog](changelog.md).

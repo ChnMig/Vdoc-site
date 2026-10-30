@@ -90,7 +90,9 @@ test.describe('focused desktop interactions', () => {
         }),
       ).toBeVisible()
       await expect(page.locator('.vp-doc')).toContainText('docs/team-guide.md')
-      await expect(page.locator('.vp-doc')).toContainText('get_latest_doc')
+      await expect(page.locator('.vp-doc')).toContainText(
+        'get_document_at_commit',
+      )
     })
 
     test(`${locale.home} follows Beta channel setup from deployment to MCP and Skill`, async ({
