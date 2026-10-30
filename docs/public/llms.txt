@@ -4,4 +4,4 @@
 
 ## Installation and removal
 
-- [Vdoc MCP/Skill setup](https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.3.17/docs/public/skill-install.md): AI instructions for release/beta installation, updates and project removal.
+- [Vdoc MCP/Skill setup](https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.4.0-beta.1/docs/public/skill-install.md): AI instructions for release/beta installation, updates and project removal.

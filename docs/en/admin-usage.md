@@ -1,5 +1,11 @@
 # First Use
 
+::: tip v0.4 Beta commit workflow
+`v0.4.0-beta.1` uses project branches and immutable commits by default. Create or upload a document, then save and commit on a working branch. The server generates revision and publication identifiers, so there is no version field to fill. Open old content from Commit history, compare exact commits, review a merge candidate and publish explicitly as an administrator. Published document sharing is available from release records.
+
+For projects with existing draft or published snapshots, an administrator initializes the repository before new commits. See [Commits, branches and releases](commit-history.md) for concurrency, AI and event workflows. The remaining instructions describe legacy draft/version surfaces for existing objects and compatibility links.
+:::
+
 Publish a Markdown team guide, then have your agent query it and answer from its content.
 
 ## Before You Start
@@ -139,7 +145,7 @@ Choose your client format; Admin's MCP Token page provides Codex, Cursor, and Cl
       "command": "npx",
       "args": [
         "--yes",
-        "github:ChnMig/Vdoc-mcp#9cd2f5a6ea7edb482e0b161b1a5091661c66eb2c"
+        "github:ChnMig/Vdoc-mcp#0993a8db67d417883ce07aec2c7293e92de4e7fe"
       ],
       "env": {
         "VDOC_BASE_URL": "http://127.0.0.1:8080",
@@ -153,7 +159,7 @@ Choose your client format; Admin's MCP Token page provides Codex, Cursor, and Cl
 ```toml [Codex]
 [mcp_servers.vdoc]
 command = "npx"
-args = ["--yes", "github:ChnMig/Vdoc-mcp#9cd2f5a6ea7edb482e0b161b1a5091661c66eb2c"]
+args = ["--yes", "github:ChnMig/Vdoc-mcp#0993a8db67d417883ce07aec2c7293e92de4e7fe"]
 startup_timeout_sec = 60
 tool_timeout_sec = 180
 

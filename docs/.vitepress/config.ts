@@ -26,6 +26,7 @@ const docsSlugs = [
   'version-notes',
   'deployment',
   'admin-usage',
+  'commit-history',
   'admin-ai',
   'api-reference',
   'changelog',
@@ -49,6 +50,7 @@ const zhSidebar: DefaultTheme.SidebarItem[] = [
     items: [
       { text: '部署指南', link: '/deployment' },
       { text: '首次使用', link: '/admin-usage' },
+      { text: '提交与分支（Beta）', link: '/commit-history' },
     ],
   },
   {
@@ -84,6 +86,7 @@ const enSidebar: DefaultTheme.SidebarItem[] = [
     items: [
       { text: 'Deployment Guide', link: '/en/deployment' },
       { text: 'First Use', link: '/en/admin-usage' },
+      { text: 'Commits and Branches (Beta)', link: '/en/commit-history' },
     ],
   },
   {

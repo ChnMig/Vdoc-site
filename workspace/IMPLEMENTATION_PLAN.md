@@ -1,5 +1,7 @@
 # Vdoc v0.1 工程实现计划
 
+> v0.4 Beta（2026-10-30）：项目仓库实现位于 `domain/documentrepo`、`services/vdoc/repository_*`、私有 `repository` / `repositoryshare` API 与统一 MCP 工具。Admin 默认使用保存并提交、历史、比较、合并与发布，MCP/Skill 同步采用系统生成修订 ID。改造范围与验收见 [提交与分支模型重设计](GIT_VERSIONING_REDESIGN.md)。下文的 v0.1 计划保留为旧模型和兼容入口说明；新路由清单与 v0.4 契约优先。
+
 本文档把主 PRD 的 v0.1 MVP 拆成后端和 Web 工作台工程计划。主需求来源见 `PRD.md`。当前工程实现以 Project 下的多类型 Document 为准，不再以项目下的后端服务作为产品模型。
 
 ## 1. 范围
@@ -233,9 +235,45 @@ GET  /api/v1/private/mcp-tokens/:token_id
 POST /api/v1/private/mcp-tokens/:token_id/revoke
 ```
 
+### 项目提交仓库（v0.4 Beta）
+
+```text
+GET /api/v1/private/projects/:project_id/repository/ai/analyses
+GET /api/v1/private/projects/:project_id/repository/ai/analyses/:analysis_id
+GET /api/v1/private/projects/:project_id/repository/branches
+GET /api/v1/private/projects/:project_id/repository/commits
+GET /api/v1/private/projects/:project_id/repository/commits/:commit_id
+GET /api/v1/private/projects/:project_id/repository/commits/:commit_id/documents/:document_id/content
+GET /api/v1/private/projects/:project_id/repository/event-deliveries
+GET /api/v1/private/projects/:project_id/repository/events
+GET /api/v1/private/projects/:project_id/repository/merge-requests
+GET /api/v1/private/projects/:project_id/repository/merge-requests/:request_id/documents/:document_id/content
+GET /api/v1/private/projects/:project_id/repository/releases
+GET /api/v1/private/projects/:project_id/repository/releases/:release_id/documents/:document_id/shares
+GET /api/v1/private/projects/:project_id/repository/subscriptions
+POST /api/v1/private/projects/:project_id/repository/ai/analyses
+POST /api/v1/private/projects/:project_id/repository/bootstrap
+POST /api/v1/private/projects/:project_id/repository/branches
+POST /api/v1/private/projects/:project_id/repository/branches/:branch_id/commits
+POST /api/v1/private/projects/:project_id/repository/branches/:branch_id/reverts
+POST /api/v1/private/projects/:project_id/repository/comparisons
+POST /api/v1/private/projects/:project_id/repository/event-deliveries/:delivery_id/retry
+POST /api/v1/private/projects/:project_id/repository/merge-requests
+POST /api/v1/private/projects/:project_id/repository/merge-requests/:request_id/approve
+POST /api/v1/private/projects/:project_id/repository/merge-requests/:request_id/merge
+POST /api/v1/private/projects/:project_id/repository/merge-requests/:request_id/resolve
+POST /api/v1/private/projects/:project_id/repository/releases
+POST /api/v1/private/projects/:project_id/repository/releases/:release_id/documents/:document_id/shares
+POST /api/v1/private/projects/:project_id/repository/releases/:release_id/documents/:document_id/shares/:share_id/reveal
+POST /api/v1/private/projects/:project_id/repository/releases/:release_id/documents/:document_id/shares/:share_id/revoke
+POST /api/v1/private/projects/:project_id/repository/subscriptions
+POST /api/v1/private/projects/:project_id/repository/subscriptions/:subscription_id/pause
+POST /api/v1/private/projects/:project_id/repository/subscriptions/:subscription_id/resume
+```
+
 ## 5. MCP v0.2 工具
 
-MCP 只提供查询和草稿写入能力。正式版本发布必须由 Admin 或 SuperAdmin 通过后台审核动作触发。
+MCP 默认提供查询、项目分支、追加提交、固定比较、分析、事件读取与创建合并请求。旧草稿工具只用于尚未切换项目的兼容流程，切换后拒绝覆盖写入。正式版本发布必须由 Admin 或 SuperAdmin 在后台人工触发；MCP 不提供批准或发布工具。
 
 ```text
 VDOC_MCP_TOOL_INVENTORY_START
@@ -246,7 +284,6 @@ list_api_endpoints
 list_api_versions
 list_doc_versions
 get_latest_schema
-get_schema_version
 get_endpoint_detail
 compare_api_versions
 get_change_summary
@@ -255,12 +292,27 @@ update_api_version_draft
 submit_api_version_draft
 get_api_version_draft
 get_latest_doc
-get_doc_version
 compare_doc_versions
 create_doc_draft
 update_doc_draft
 submit_doc_draft
 get_doc_draft
+get_schema_version
+get_doc_version
+resolve_ref
+list_branches
+create_branch
+list_commits
+get_commit
+get_document_at_commit
+commit_changes
+compare_commits
+list_merge_requests
+create_merge_request
+list_releases
+get_release
+analyze_changes
+list_repository_events
 VDOC_MCP_TOOL_INVENTORY_END
 ```
 

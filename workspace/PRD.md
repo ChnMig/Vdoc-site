@@ -1,5 +1,7 @@
 # Vdoc 主 PRD
 
+> v0.4 Beta（2026-10-30）：默认文档流程改为项目级分支、不可变提交、合并请求与固定发布。修订 ID 和发布号由系统生成，每次内容保存追加历史；用户与客户端不填写版本号。正文、比较、AI 分析和分享都绑定具体提交。完整约束与本次范围见 [提交与分支模型重设计](GIT_VERSIONING_REDESIGN.md)。本文其余 v0.1 草稿/版本描述保留为旧模型和兼容入口说明，新流程以 v0.4 契约为准。
+
 > 本文件是 Vdoc 主 PRD，合并了原 `PRD.md` 的精简 MVP 目标与 `PRD_new.md` 的完整产品方案。
 > v0.1 MVP 范围以 Project 下的多类型文档管理为准：Project 可以包含多个文档，每个文档有名称、类型、项目内相对路径等通用信息。文档类型支持 OpenAPI 接口文档、Markdown 和 TXT 纯文档。OpenAPI 文档保留语义 Diff、Breaking Change、Endpoint Index 和 MCP 查询；Markdown 和 TXT 文档支持纯文件 Diff。三类文档沿用同一套分支/环境、草稿审核发布、Promote 到目标草稿和用户权限体系。MCP 不允许直接发布正式版本；发布必须在 Vdoc 后台由 Project Admin 或 SuperAdmin 人工审核触发。后台内置 AI 模块是必要能力：管理员可配置 OpenAI-compatible 模型，系统自动基于 Diff 生成版本变更总结，审核人和查看者可在文档 AI 中围绕所选草稿或正式版本对话，Diff 对话保留 API 能力。公开文档链接分享也是 v0.1 MVP 的正式能力：Project Admin 或 SuperAdmin 可以为指定文档分支创建多个独立、可撤销的公开链接，并在创建时选择无密码或密码保护；匿名访问者无需账号即可安全查看已发布内容并下载原文件。公开分享不改变草稿审核和人工发布边界，只能暴露已发布版本。
 
@@ -1922,7 +1924,6 @@ list_api_endpoints
 list_api_versions
 list_doc_versions
 get_latest_schema
-get_schema_version
 get_endpoint_detail
 compare_api_versions
 get_change_summary
@@ -1931,12 +1932,27 @@ update_api_version_draft
 submit_api_version_draft
 get_api_version_draft
 get_latest_doc
-get_doc_version
 compare_doc_versions
 create_doc_draft
 update_doc_draft
 submit_doc_draft
 get_doc_draft
+get_schema_version
+get_doc_version
+resolve_ref
+list_branches
+create_branch
+list_commits
+get_commit
+get_document_at_commit
+commit_changes
+compare_commits
+list_merge_requests
+create_merge_request
+list_releases
+get_release
+analyze_changes
+list_repository_events
 ```
 <!-- VDOC_MCP_TOOL_INVENTORY_END -->
 
@@ -2836,7 +2852,7 @@ MVP Skill 应满足：
   "mcpServers": {
     "vdoc": {
       "command": "npx",
-      "args": ["--yes", "github:ChnMig/Vdoc-mcp#9cd2f5a6ea7edb482e0b161b1a5091661c66eb2c"],
+      "args": ["--yes", "github:ChnMig/Vdoc-mcp#0993a8db67d417883ce07aec2c7293e92de4e7fe"],
       "env": {
         "VDOC_BASE_URL": "https://your-vdoc.example.com",
         "VDOC_MCP_TOKEN": "REPLACE_WITH_LOCAL_VDOC_MCP_TOKEN"

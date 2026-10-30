@@ -1,5 +1,11 @@
 # 首次使用
 
+::: tip v0.4 Beta 提交工作流
+`v0.4.0-beta.1` 默认使用项目分支和不可变提交。进入项目后，新建或上传文档，在功能分支选择“保存并提交”；修订 ID 与发布号都由系统生成，无需填写版本号。通过“提交历史”打开旧内容，“比较”选择固定提交，“合并请求”审阅候选结果，再由管理员人工发布。已发布文档的分享入口位于发布记录中。
+
+旧项目有草稿或正式快照时，由管理员先执行仓库初始化，再继续提交。具体流程与并发、AI、事件说明见[提交、分支与发布](commit-history.md)。下文保留旧版草稿/版本入口的操作说明，用于读取已有对象和兼容链接。
+:::
+
 用一份 Markdown 团队约定，完成创建、审核发布和 Agent 查询。
 
 ## 开始前确认
@@ -139,7 +145,7 @@ TXT 保留纯文本与换行，不渲染 Markdown／HTML，使用行差异；与
       "command": "npx",
       "args": [
         "--yes",
-        "github:ChnMig/Vdoc-mcp#9cd2f5a6ea7edb482e0b161b1a5091661c66eb2c"
+        "github:ChnMig/Vdoc-mcp#0993a8db67d417883ce07aec2c7293e92de4e7fe"
       ],
       "env": {
         "VDOC_BASE_URL": "http://127.0.0.1:8080",
@@ -153,7 +159,7 @@ TXT 保留纯文本与换行，不渲染 Markdown／HTML，使用行差异；与
 ```toml [Codex]
 [mcp_servers.vdoc]
 command = "npx"
-args = ["--yes", "github:ChnMig/Vdoc-mcp#9cd2f5a6ea7edb482e0b161b1a5091661c66eb2c"]
+args = ["--yes", "github:ChnMig/Vdoc-mcp#0993a8db67d417883ce07aec2c7293e92de4e7fe"]
 startup_timeout_sec = 60
 tool_timeout_sec = 180
 

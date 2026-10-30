@@ -1,4 +1,14 @@
-# Vdoc v0.1 PostgreSQL 数据库表设计
+# Vdoc PostgreSQL 数据库表设计
+
+> v0.4 Beta（2026-10-30）：新增项目提交仓库与固定发布分享；旧草稿、版本和分享表保留以兼容历史数据。提交与迁移语义见 [提交与分支模型重设计](GIT_VERSIONING_REDESIGN.md)。下文的 v0.1 表说明不代表新流程仍写入可覆盖草稿。
+
+## v0.4 新增持久化
+
+迁移 `018_repository_commits.sql` 增加 `repository_records`：以项目、记录类型和 ID 为键保存提交、完整树清单、分支、合并请求、发布、幂等结果、事件、AI 分析、订阅和投递。记录有独立 generation；项目写锁、成员/Token 复核和条件更新在同一数据库事务执行。原始正文存不可变 S3 对象，树内记录内容哈希和对象引用；历史读取不依赖当前可变文档元数据。
+
+迁移 `020_repository_shares.sql` 增加固定发布文档分享及全局 capability 定位索引。分享固定 `project_id + release_id + document_id`，复用公开读取、密码、到期、撤销及密钥轮换语义。它不创建假的旧版 Version ID，也不授予提交祖先或其他文档的读取权限。
+
+新提交记录不加入旧全量 State 快照。既有表不删除；显式 bootstrap 只导入仍可证明的原文，保留 provenance，不能恢复已被覆盖而丢失的草稿正文。初始化后旧内容写路径拒绝继续覆盖，升级客户端改用带 HEAD/generation 与幂等键的追加提交。
 
 本文档定义 Vdoc v0.1 MVP 的 Project Document 持久化设计。Project 下直接管理多类型文档，文档类型至少包括 OpenAPI 和 Markdown。PostgreSQL 保存结构化数据、索引和对象引用；RustFS 通过 S3-compatible API 保存 Raw、Normalized、Stable 快照以及大型 Diff 快照。
 
