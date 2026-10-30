@@ -1,16 +1,13 @@
 # Changelog
 
-Beta entries below update only `:beta`, leaving stable unchanged. Keep test databases, storage, and credentials separate. See the [guide](admin-usage.md) and [manual upgrade](release-rollback.md).
+Beta entries below update only `:beta`; stable images and Pages stay unchanged. Keep test databases, storage, and credentials separate. See the [guide](admin-usage.md) and [manual upgrade](release-rollback.md).
 
 ## v0.3.17-beta.25
 
-- Collapsible provider-visible reasoning; official OpenAI Responses summaries and compatible reasoning content.
-- Automatic rolling summaries for older conversation, keeping recent originals and all stored messages; compression failures are explicit.
-- Regenerate the latest answer and retry failed/stopped questions without overwriting the original answer or duplicating user messages.
-- Specific timeout, interruption, rate-limit, quota, credential and model errors with expandable, copyable safe diagnostics.
-- Error details stay within the transcript so the composer remains usable on short windows and phones.
+- Collapsible reasoning, rolling summaries, regeneration and explicit retry preserve chat history.
+- Specific errors with safe diagnostics; composer fixes for phones and short windows.
 
-Startup applies migration 017. Back up the database and upgrade Backend/Admin together. Reasoning depends on model support; summaries are lossy and auxiliary calls incur model usage. Beta only; stable images and Pages remain unchanged.
+Back up and upgrade Backend/Admin together (migration 017). Reasoning depends on the model; summaries are lossy and incur usage. See [AI Chat](admin-ai.md).
 
 ## v0.3.17-beta.24
 
@@ -19,7 +16,7 @@ Startup applies migration 017. Back up the database and upgrade Backend/Admin to
 - Select default, off or an explicit reasoning effort per conversation; remember the last choice for this account's new conversations in this browser. Support depends on the model.
 - Fix bottom popup placement, clipped composer controls and duplicate outer scrolling; cover narrow and short windows.
 
-Startup applies migration 016. Back up the database and upgrade Backend/Admin together. Only Beta updates; stable aliases and Pages stay unchanged.
+Startup applies migration 016. Back up the database and upgrade Backend/Admin together.
 
 ## v0.3.17-beta.23
 
@@ -28,7 +25,7 @@ Startup applies migration 016. Back up the database and upgrade Backend/Admin to
 - Switch between Enter and Ctrl/Command+Enter to send; Shift+Enter inserts a newline and IME composition does not submit.
 - Upload, paste or drop images, PDFs and UTF-8 text; preview and download attachments. Search history, start conversations, retain separate drafts, stop generation and retry failures.
 
-Startup applies migration 015 to persist attachments with completed messages. Upgrade Backend and Admin together. Images and PDFs require a supporting model. Beta only; stable channels and Pages remain unchanged.
+Startup applies migration 015 to persist attachments with completed messages. Upgrade Backend and Admin together. Images and PDFs require a supporting model.
 
 ## v0.3.17-beta.22
 
@@ -38,7 +35,7 @@ Startup applies migration 015 to persist attachments with completed messages. Up
 - Update the English and Chinese AI configuration guides.
 - Clearly label published-version and draft search counts and pagination, hiding unnecessary controls for a single page.
 
-Startup applies migration 014, raising the old 30-second default total to 10 minutes while preserving other custom values. Back up the database and upgrade Backend and Admin together. Beta only; stable channels and Pages remain unchanged. Configure your reverse-proxy timeouts for the expected request duration.
+Startup applies migration 014, raising the old 30-second default total to 10 minutes while preserving other custom values. Back up the database and upgrade Backend and Admin together. Configure your reverse-proxy timeouts for the expected request duration.
 
 ## v0.3.17-beta.21
 
@@ -46,7 +43,7 @@ Startup applies migration 014, raising the old 30-second default total to 10 min
 - Document AI answers appear progressively and are saved only after successful completion. Failures preserve the input; document or account changes cancel the request.
 - Update bilingual AI configuration guidance while preserving non-streaming JSON compatibility for older clients.
 
-Startup applies migration 013, enabling streaming by default for existing providers. Back up the database and upgrade Backend and Admin together. Beta only; stable channels and Pages remain unchanged.
+Startup applies migration 013, enabling streaming by default for existing providers. Back up the database and upgrade Backend and Admin together.
 
 ## v0.3.17-beta.20
 
@@ -54,7 +51,7 @@ Startup applies migration 013, enabling streaming by default for existing provid
 - AI settings show a masked saved key with audited reveal, place keys before models, default new forms to Responses, and offer a temperature slider/reset to 0.2.
 - Audit action/resource filters and rows use readable enums; actor queries run before pagination, and rows show actor email and project name with original IDs available in tooltips.
 
-Backend and Admin must be upgraded together. No new database migration; Beta only, stable channels and Pages unchanged.
+Backend and Admin must be upgraded together. No new database migration.
 
 ## v0.3.17-beta.19
 
@@ -66,7 +63,7 @@ Remove the duplicate account trigger from workbench headers; account settings an
 - First visits follow the browser language unless a manual choice was saved. Document content remains unchanged.
 - Workbench, document, share and sign-in headers consistently place the GitHub repository entry at the far right.
 
-Adds model-list APIs without a database migration. Upgrade Backend and Admin together; only the Beta channel changes.
+Adds model-list APIs without a database migration. Upgrade Backend and Admin together.
 
 ## v0.3.17-beta.17
 
@@ -74,7 +71,7 @@ Adds model-list APIs without a database migration. Upgrade Backend and Admin tog
 - Source diffs compare published versions/drafts across branches, with unified/split lines, context and downloads.
 - Document AI searches published versions and saved drafts across branches, labels sources and retains chat across reading revisions.
 
-Startup applies document-chat migration 012. Back up and update Backend/Admin together; stable stays unchanged.
+Startup applies document-chat migration 012. Back up and update Backend/Admin together.
 
 ## v0.3.17-beta.16
 

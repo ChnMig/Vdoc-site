@@ -89,15 +89,15 @@ Archived Projects/Documents allow history reads but no new sessions/messages. Le
 
 After the first completed answer, AI generates a short conversation title. If that request fails, the first question remains a readable provisional title and the saved answer and attachments remain available. Expanded chat keeps history in a left rail on wide screens and shows robot/user avatars with local message times; compact mode hides avatars.
 
-The composer's **Reasoning** selector follows the model by default, or explicitly requests off, minimal, low, medium, high, extra high or maximum effort. Choices persist per conversation and seed this account's new conversations in this browser; existing conversations retain their own setting. Supported levels depend on the model. If rejected, switch to default and retry. Settings cannot change during a reply. Startup applies migration 016; upgrade Backend/Admin together.
+The composer's **Reasoning** selector follows the model by default, or explicitly requests off, minimal, low, medium, high, extra high or maximum effort. Choices persist per conversation and seed this account's new conversations in this browser; existing conversations retain their own setting. Supported levels depend on the model. If rejected, switch to default and retry. Settings cannot change during a reply.
 
-Provider-visible reasoning appears in a collapsible disclosure. Explicit enabled reasoning requests OpenAI Responses summaries; compatible Chat Completions `reasoning_content` is also supported. Encrypted/private reasoning is excluded. Providers/models may return no visible reasoning.
+Collapsible reasoning shows only provider-visible content: OpenAI Responses summaries when enabled, or compatible Chat Completions `reasoning_content`. Private/encrypted reasoning is excluded; absent content stays hidden.
 
-After unsummarized history exceeds about 12,000 characters (including text attachments), older completed turns are summarized while retaining at least the newest two turns. Original records remain available. Compression status is visible; summaries may omit details, so verify important facts against the originals. These auxiliary calls incur model usage. Compression failures are shown and can be retried.
+Above about 12,000 unsummarized characters, including text attachments, older completed turns form a rolling summary. The newest two turns and all stored originals remain. Status is visible; failures allow retry. Summaries are lossy and incur usage: verify important facts against originals.
 
-Use **Regenerate answer** on the latest reply to request a replacement; the original answer remains until success and no duplicate user message is stored. Failed/stopped requests retain the original question, attachments and visibly incomplete output for explicit **Retry**. Errors distinguish timeouts, rate limits, quota, credentials and model configuration, with expandable safe diagnostics. Requests are never retried automatically.
+**Regenerate answer** replaces the latest reply only on success. Failed/stopped requests retain the question, attachments and marked incomplete output for **Retry**. No automatic retries or duplicate questions. Errors include specific causes and copyable safe diagnostics.
 
-Backend startup applies migration 017 for reasoning, conversation memory and replacement references. Upgrade Backend and Admin together.
+Upgrade Backend/Admin together (migration 017).
 
 ## API Routes
 
