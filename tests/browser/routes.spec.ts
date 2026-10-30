@@ -3,6 +3,11 @@ import { readFileSync } from 'node:fs'
 import { browserRoutes, previewBasePath, routeUrl } from './support/preview'
 import { assertRouteQuality } from './support/quality'
 
+const siteVersion = JSON.parse(
+  readFileSync(new URL('../../package.json', import.meta.url), 'utf8'),
+).version as string
+const skillGuideUrl = `https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v${siteVersion}/docs/public/skill-install.md`
+
 test('AI Skill assets serve original text under the configured base', async ({
   request,
 }) => {
@@ -48,8 +53,7 @@ for (const locale of [
       page.getByRole('heading', { name: locale.heading }),
     ).toBeVisible()
     const prompts = page.locator('.vp-doc .language-text').filter({
-      hasText:
-        'https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.3.17/docs/public/skill-install.md',
+      hasText: skillGuideUrl,
     })
     await expect(prompts).toHaveCount(4)
     await page
