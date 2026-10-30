@@ -139,7 +139,7 @@ Choose your client format; Admin's MCP Token page provides Codex, Cursor, and Cl
       "command": "npx",
       "args": [
         "--yes",
-        "github:ChnMig/Vdoc-mcp#e99f2898d7017cf861ae250a90e1af2a8e4de09c"
+        "github:ChnMig/Vdoc-mcp#9cd2f5a6ea7edb482e0b161b1a5091661c66eb2c"
       ],
       "env": {
         "VDOC_BASE_URL": "http://127.0.0.1:8080",
@@ -153,7 +153,7 @@ Choose your client format; Admin's MCP Token page provides Codex, Cursor, and Cl
 ```toml [Codex]
 [mcp_servers.vdoc]
 command = "npx"
-args = ["--yes", "github:ChnMig/Vdoc-mcp#e99f2898d7017cf861ae250a90e1af2a8e4de09c"]
+args = ["--yes", "github:ChnMig/Vdoc-mcp#9cd2f5a6ea7edb482e0b161b1a5091661c66eb2c"]
 startup_timeout_sec = 60
 tool_timeout_sec = 180
 

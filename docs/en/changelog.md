@@ -1,6 +1,10 @@
 # Changelog
 
-Beta entries below update only `:beta`; stable images and Pages stay unchanged. Keep test databases, storage, and credentials separate. See the [guide](admin-usage.md) and [manual upgrade](release-rollback.md).
+## v0.3.17
+
+Promote this beta cycle; details below. Back up database/storage and upgrade Backend/Admin together (migrations 008–017). Updates `:latest` and the website.
+
+Beta history below updates only `:beta` in [isolated environments](deployment.md#beta-channel). See [manual upgrade](release-rollback.md).
 
 ## v0.3.17-beta.25
 

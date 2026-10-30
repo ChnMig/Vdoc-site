@@ -108,7 +108,7 @@ For public shares, confirm the browser removes the `#vdoc_share_...` fragment be
 
 ## 7. Verify MCP Adapter And Skill
 
-After creating an MCP token in Admin, configure the target agent with `npx --yes github:ChnMig/Vdoc-mcp#e99f2898d7017cf861ae250a90e1af2a8e4de09c`, `VDOC_BASE_URL=http://127.0.0.1:8080`, and `VDOC_MCP_TOKEN` in a secret-aware environment field. The Git commit must equal the `Vdoc-mcp` entry in `workspace.lock.json`; `@vdoc/mcp` is not published to the npm registry yet. Do not put tokens in CLI arguments.
+After creating an MCP token in Admin, configure the target agent with `npx --yes github:ChnMig/Vdoc-mcp#9cd2f5a6ea7edb482e0b161b1a5091661c66eb2c`, `VDOC_BASE_URL=http://127.0.0.1:8080`, and `VDOC_MCP_TOKEN` in a secret-aware environment field. The Git commit must equal the `Vdoc-mcp` entry in `workspace.lock.json`; `@vdoc/mcp` is not published to the npm registry yet. Do not put tokens in CLI arguments.
 
 Package checks remain local and do not publish anything:
 

@@ -1,6 +1,10 @@
 # 变更记录
 
-以下 Beta 仅更新 `:beta`，稳定镜像与 Pages 不变；测试数据库、存储与凭据须独立。参见[使用指南](admin-usage.md)与[手动升级](release-rollback.md)。
+## v0.3.17
+
+本轮 Beta 功能转为正式版，详见下方。先备份数据库及存储，配套更新 Backend／Admin（008–017 迁移）；更新 `:latest` 与官网。
+
+以下为 Beta 历史，仅更新独立[测试环境](deployment.md#beta-channel)的 `:beta`。参见[手动升级](release-rollback.md)。
 
 ## v0.3.17-beta.25
 
