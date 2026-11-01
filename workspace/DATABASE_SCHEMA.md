@@ -168,3 +168,9 @@ AI summary、Provider test 和 Chat 调用写入 `audit_logs.metadata`。当 Pro
 `ai_summaries_orphan_recovery_idx` 对 pending 摘要的 `COALESCE(generation_started_at, updated_at)` 建立部分索引。worker 启动时及每分钟检查：超过 5 分钟且没有对应 `ai_summary_jobs` 的记录改为 failed，清空生成 token，允许重新生成；仍有持久化任务的记录保持原租约恢复流程。
 
 文档概览通过 SQL 统计版本、最新版本接口数、已发布的有效分支和草稿审阅状态。版本发布时将 `raw_line_count` 写入已有 `document_versions.schema_metadata`，字节数沿用 `schema_size_bytes`。旧 Markdown 版本首次请求概览时校验并读取原文，仅补齐这两项派生统计；后续概览不读取对象正文。摘要轮询只加载目标、权限上下文和单条摘要，不使用跨项目工作快照。
+
+## 文档独立仓库（v0.4.0-beta.2）
+
+迁移 `021_document_repositories.sql` 将 `repository_records` 分支名称唯一约束限定为项目、文档和名称。文档归属写入 JSON payload 的 `document_id`；增加按项目、文档、kind 和 sequence 查询的索引。原项目记录保留空文档归属，继续支持兼容读取。
+
+文档目录以 `kind=document` 保存稳定 ID、默认分支和默认分支版本。提交记录附带 `branch_id`、`revision`、`version_name`；分支 revision 在同一事务中随提交、HEAD、generation 和幂等结果推进。每份文档每个分支分别从 1 编号，失败、原样重试与无变化不消耗编号。旧正文和分享记录不重写。

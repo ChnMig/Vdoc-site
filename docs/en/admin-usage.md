@@ -1,6 +1,6 @@
 # First Use
 
-Use the `v0.4.0-beta.1` project repository model to save, review, publish and query a Markdown guide. Start with an isolated [Beta environment](deployment.md#beta-channel).
+Use the `v0.4.0-beta.2` document branch model to save, review, publish and query a Markdown guide. Start with an isolated [Beta environment](deployment.md#beta-channel).
 
 ## Before You Start
 
@@ -13,35 +13,35 @@ Open the [local workbench](http://127.0.0.1:8081) or your deployment URL. Sign i
 
 If no account exists, return to [initial-admin configuration](deployment.md#initial-admin). Changing initialization fields does not reset existing accounts.
 
-## 2. Create a Working Branch and Document
+## 2. Create a Document
 
-From the project's protected `main`, create a working branch such as `docs/setup`. Direct edits to a protected branch are refused. Create a Markdown document named **Team Guide** at `docs/team-guide.md` with:
+Open the project's **Documents** list and choose **Create document**. Select Markdown, name it **Team Guide**, and use `docs/team-guide.md`. The initial branch defaults to `main`; enter another name such as `dev` if needed. Enter or upload:
 
 ```md
 # Team Guide
 
 - The demo project codename is Northstar.
 - Run the project tests before committing code.
-- Save documentation changes as commits for administrator review and publication.
+- Save documentation versions for administrator review and publication.
 ```
 
-Uploads also accept OpenAPI JSON/YAML, Markdown and TXT. TXT preserves plain text and line endings without executing HTML. One save can include several files; the server assigns new document IDs.
+OpenAPI JSON/YAML and TXT are also supported. TXT preserves text and line endings without executing HTML. Creation produces `main.1`, or `dev.1` when the initial branch is `dev`. Every document owns separate branches and history, independent of the document you were previously viewing.
 
 ## 3. Save, Compare and Branch {#commit-history}
 
-Choose **Save and commit**. The server generates the commit ID, author, time and parents, preserving the complete file tree. **There is no draft version field**; an optional message explains the change. Successive commits retain content, line-ending and path changes. An unchanged tree does not create an empty commit.
+Use **Document branch** below the title to choose a branch, and **Version** to read earlier content. Choose **Edit**, change the content and **Save version**. The next changed save after `main.1` is `main.2`, then `main.3`. Numbers are automatic; a commit message is optional.
 
-**Commit history** opens or downloads exact old content. **Compare** selects two fixed commits, optionally one document, with OpenAPI semantic and Breaking Change checks where available. Source changes remain historical even with identical semantics. Reverting appends inverse changes and preserves unrelated later edits; it never deletes history.
+Choose **New branch** beside the title and enter `dev`. It starts from the version being viewed and retains its ancestry. Its first new save is `dev.1`, then `dev.2`. Another document's `dev.1` counts separately. Switching branches leaves the project document list and other documents unchanged.
 
-Editing captures the commit and branch generation. If another writer saves first, the conflict keeps local input. Compare, reconcile or create another branch before saving. Retrying an identical request after a lost response does not duplicate commits. Do not overwrite the latest tree with an outdated full copy.
+**Version history** opens exact old content. **Compare** selects two fixed versions of this document, with OpenAPI semantic and Breaking Change checks when available. Reverting appends a version and preserves history. Importing a file of the same type replaces only this document's content.
 
-Beta comparisons accept up to 100 changed files and 8 MiB of cumulative old/new source. Larger comparisons fail explicitly; narrow by document.
+Concurrent saves preserve local input. Compare and reconcile, or save your work on a new branch. Retrying the identical request after a lost response does not duplicate versions. Failed saves, unchanged content and retries do not consume numbers. Unsaved edits are retained per document and branch.
 
 ## 4. Review and Publish
 
-Open a **Merge request** from the working branch into `main` and inspect the real three-way candidate. Each round pins both commits and generations. Resolve conflicts explicitly and review the new round; advancing either branch invalidates old approval. An administrator approves and merges, then selects the target commit on `main` and publishes it.
+`main` is editable by default. For collaborative review, use **More → Merge requests** to select source and target branches of this document and inspect the actual merge candidate. An administrator reviews it. Advancing a branch or resolving conflicts requires a fresh review.
 
-Saving, merging and publishing are separate actions. The server generates release IDs and publication names; users do not type a version name. A release stays fixed despite later saves. MCP can commit, compare and request merges, but cannot approve, merge or bypass human publication.
+Saving, merging and publishing are separate actions. An administrator explicitly publishes the selected version through **More → Releases**. Publications retain a readable name such as `main.2` and receive a separate release ID. Later saves cannot change published content. MCP can save, compare and propose merges, but cannot approve, merge or bypass human publication.
 
 ## 5. Create a Read Token
 
@@ -62,14 +62,15 @@ Restart MCP or the agent session and refresh tool discovery. Expect `list_projec
 Send this prompt:
 
 ```text
-Use Vdoc MCP to find the latest release on main in the Vdoc Trial project.
+Use Vdoc MCP to find the Team Guide document in the Vdoc Trial project.
+Then find the latest release on this document's main branch.
 Resolve that release to its fixed commit_id and read docs/team-guide.md there.
 What is the project codename, and what should I do before committing code?
 Cite the path, branch, release ID and commit_id. If it is missing, say so;
 do not invent content.
 ```
 
-Verify `list_releases` / `get_release`, followed by `get_document_at_commit` with the release's commit ID. The answer should include **Northstar** and **run the project tests before committing code**. Tool discovery or a similar answer alone does not prove a read. An unpublished HEAD is not a publication.
+Verify `list_documents` identifies the document, then pass its `document_id` to `list_releases` / `get_release`, followed by `get_document_at_commit` with the release's commit ID. The answer should include **Northstar** and **run the project tests before committing code**. Tool discovery or a similar answer alone does not prove a read. An unpublished HEAD is not a publication.
 
 For connection failures, check the agent runtime, Backend reachability and client errors. For missing documents, check token expiry, `doc:read`, project access and release selection. See [Troubleshooting](troubleshooting.md).
 
@@ -87,7 +88,7 @@ Administrators manage durable event subscriptions, defaulting to publication eve
 
 ## Existing Projects and Compatibility Reads
 
-An administrator explicitly initializes a project with legacy publications or drafts, then checks imported files, branches and provenance. The server preserves provable publications and still-available drafts. Matching old branch names do not prove an earlier atomic project commit; the initial combined tree is marked synthetic. Overwritten bodies without surviving evidence cannot be recovered.
+Opening an existing document creates its isolated branches and history with provenance. Original project commits, publications and surviving drafts remain unchanged. Internal `legacy/...` references stay out of normal branch selection. Legacy history links and existing public shares remain readable. Overwritten bodies without surviving evidence cannot be recovered.
 
 After conversion, legacy content writes are refused; upgrade clients to commit tools. Explicit saved version/draft URLs remain read-only and resolve the original objects rather than moving HEADs. Legacy chat/comparisons keep their snapshot context. Compatibility tools such as `get_latest_doc` serve unconverted legacy data; new releases use fixed-commit reads above.
 

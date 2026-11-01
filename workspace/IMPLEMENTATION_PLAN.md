@@ -1,5 +1,7 @@
 # Vdoc v0.1 工程实现计划
 
+> 2026-11-02 更新：v0.4.0-beta.2 以 [文档独立分支与递增版本](DOCUMENT_BRANCH_REDESIGN.md) 为准。项目组织文档，每份文档独立拥有分支和历史；初始分支默认 main，可手填，版本按各分支从 .1 递增。本文旧项目级分支描述保留为历史背景。
+
 > v0.4 Beta（2026-10-30）：项目仓库实现位于 `domain/documentrepo`、`services/vdoc/repository_*`、私有 `repository` / `repositoryshare` API 与统一 MCP 工具。Admin 默认使用保存并提交、历史、比较、合并与发布，MCP/Skill 同步采用系统生成修订 ID。改造范围与验收见 [提交与分支模型重设计](GIT_VERSIONING_REDESIGN.md)。下文的 v0.1 计划保留为旧模型和兼容入口说明；新路由清单与 v0.4 契约优先。
 
 本文档把主 PRD 的 v0.1 MVP 拆成后端和 Web 工作台工程计划。主需求来源见 `PRD.md`。当前工程实现以 Project 下的多类型 Document 为准，不再以项目下的后端服务作为产品模型。
@@ -158,6 +160,36 @@ DELETE /api/v1/private/projects/:project_id/members/:user_id
 GET  /api/v1/private/projects/:project_id/folders
 POST /api/v1/private/projects/:project_id/folders
 
+GET /api/v1/private/projects/:project_id/documents/:document_id/repository/ai/analyses
+GET /api/v1/private/projects/:project_id/documents/:document_id/repository/ai/analyses/:analysis_id
+GET /api/v1/private/projects/:project_id/documents/:document_id/repository/branches
+GET /api/v1/private/projects/:project_id/documents/:document_id/repository/commits
+GET /api/v1/private/projects/:project_id/documents/:document_id/repository/commits/:commit_id
+GET /api/v1/private/projects/:project_id/documents/:document_id/repository/commits/:commit_id/documents/:file_id/content
+GET /api/v1/private/projects/:project_id/documents/:document_id/repository/event-deliveries
+GET /api/v1/private/projects/:project_id/documents/:document_id/repository/events
+GET /api/v1/private/projects/:project_id/documents/:document_id/repository/merge-requests
+GET /api/v1/private/projects/:project_id/documents/:document_id/repository/merge-requests/:request_id/documents/:file_id/content
+GET /api/v1/private/projects/:project_id/documents/:document_id/repository/releases
+GET /api/v1/private/projects/:project_id/documents/:document_id/repository/subscriptions
+GET /api/v1/private/projects/:project_id/repository/documents
+POST /api/v1/private/projects/:project_id/documents/:document_id/repository/ai/analyses
+POST /api/v1/private/projects/:project_id/documents/:document_id/repository/bootstrap
+POST /api/v1/private/projects/:project_id/documents/:document_id/repository/branches
+POST /api/v1/private/projects/:project_id/documents/:document_id/repository/branches/:branch_id/commits
+POST /api/v1/private/projects/:project_id/documents/:document_id/repository/branches/:branch_id/reverts
+POST /api/v1/private/projects/:project_id/documents/:document_id/repository/comparisons
+POST /api/v1/private/projects/:project_id/documents/:document_id/repository/event-deliveries/:delivery_id/retry
+POST /api/v1/private/projects/:project_id/documents/:document_id/repository/merge-requests
+POST /api/v1/private/projects/:project_id/documents/:document_id/repository/merge-requests/:request_id/approve
+POST /api/v1/private/projects/:project_id/documents/:document_id/repository/merge-requests/:request_id/merge
+POST /api/v1/private/projects/:project_id/documents/:document_id/repository/merge-requests/:request_id/resolve
+POST /api/v1/private/projects/:project_id/documents/:document_id/repository/releases
+POST /api/v1/private/projects/:project_id/documents/:document_id/repository/subscriptions
+POST /api/v1/private/projects/:project_id/documents/:document_id/repository/subscriptions/:subscription_id/pause
+POST /api/v1/private/projects/:project_id/documents/:document_id/repository/subscriptions/:subscription_id/resume
+POST /api/v1/private/projects/:project_id/repository/documents
+
 GET  /api/v1/private/projects/:project_id/documents
 POST /api/v1/private/projects/:project_id/documents
 GET  /api/v1/private/projects/:project_id/documents/:document_id
@@ -273,10 +305,11 @@ POST /api/v1/private/projects/:project_id/repository/subscriptions/:subscription
 
 ## 5. MCP v0.2 工具
 
-MCP 默认提供查询、项目分支、追加提交、固定比较、分析、事件读取与创建合并请求。旧草稿工具只用于尚未切换项目的兼容流程，切换后拒绝覆盖写入。正式版本发布必须由 Admin 或 SuperAdmin 在后台人工触发；MCP 不提供批准或发布工具。
+MCP 默认提供查询、文档独立分支、追加提交、固定比较、分析、事件读取与创建合并请求。旧草稿工具只用于尚未切换项目的兼容流程，切换后拒绝覆盖写入。正式版本发布必须由 Admin 或 SuperAdmin 在后台人工触发；MCP 不提供批准或发布工具。
 
 ```text
 VDOC_MCP_TOOL_INVENTORY_START
+create_document
 list_projects
 list_documents
 list_document_branches

@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.4.0-beta.2
+
+- Each document owns separate branches and history; branch switches leave the project catalog unchanged.
+- New documents default to `main`, with an optional initial branch name. Saves increment independently as `main.1`, `main.2`, `dev.1` for each document and branch.
+- Labeled branch/version selectors and direct Read, Edit and Version history actions simplify the workspace. Collaboration and publication are under More.
+- Preserve legacy content and share links; add document APIs, MCP `create_document` and document scope arguments.
+
+Upgrade Backend, Admin and MCP/Skill together. Startup applies migration 021. Back up the isolated Beta database and object store first. Updates only Beta. See [First Use](admin-usage.md).
+
 ## v0.4.0-beta.1
 
 The project repository model enters Beta: immutable commits, project branches and release references replace the default draft workflow. The server generates revision and publication identifiers. Continuous history, exact commit comparisons, merge review and AI tied to explicit changes are described in [Commits and Branches](admin-usage.md#commit-history).

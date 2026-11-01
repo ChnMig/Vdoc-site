@@ -1,5 +1,7 @@
 # Vdoc 主 PRD
 
+> 2026-11-02 更新：v0.4.0-beta.2 以 [文档独立分支与递增版本](DOCUMENT_BRANCH_REDESIGN.md) 为准。项目组织文档，每份文档独立拥有分支和历史；初始分支默认 main，可手填，版本按各分支从 .1 递增。本文旧项目级分支描述保留为历史背景。
+
 > v0.4 Beta（2026-10-30）：默认文档流程改为项目级分支、不可变提交、合并请求与固定发布。修订 ID 和发布号由系统生成，每次内容保存追加历史；用户与客户端不填写版本号。正文、比较、AI 分析和分享都绑定具体提交。完整约束与本次范围见 [提交与分支模型重设计](GIT_VERSIONING_REDESIGN.md)。本文其余 v0.1 草稿/版本描述保留为旧模型和兼容入口说明，新流程以 v0.4 契约为准。
 
 > 本文件是 Vdoc 主 PRD，合并了原 `PRD.md` 的精简 MVP 目标与 `PRD_new.md` 的完整产品方案。
@@ -1917,6 +1919,7 @@ v0.1 MVP 必做查询工具和草稿写入工具。MCP 不提供绕过后台人�
 
 <!-- VDOC_MCP_TOOL_INVENTORY_START -->
 ```text
+create_document
 list_projects
 list_documents
 list_document_branches

@@ -1,5 +1,11 @@
 # Version Notes
 
+## v0.4.0-beta.2
+
+Each document owns independent branches and versions. New documents default to `main` with an optional initial branch name. Saves generate `main.1`, `main.2` and `dev.1` automatically. Branch changes leave the project catalog unchanged. Workbench, REST and MCP/Skill use document scope while legacy versions and shares remain readable. See [First Use](admin-usage.md).
+
+Adds migration `021_document_repositories.sql` to allow identical branch names in different documents. Back up the Beta database and storage, then update Backend/Admin/MCP together. Rolling back images does not reverse migrations. Updates only Beta.
+
 ## v0.4.0-beta.1
 
 Project branches, immutable commits and fixed releases replace the default draft workflow. The server generates revision and publication identifiers. See [First Use](admin-usage.md) for history, comparisons, merge review, AI and event subscriptions. Upgrade applies migrations 018–020; back up the isolated Beta database and object store first. An administrator explicitly imports old projects; overwritten bodies without surviving evidence cannot be recovered. Only the Beta channel updates.

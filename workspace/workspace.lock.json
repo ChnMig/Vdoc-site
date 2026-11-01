@@ -4,30 +4,30 @@
     {
       "path": "Vdoc",
       "remote": "https://github.com/ChnMig/Vdoc.git",
-      "ref": "refs/tags/v0.4.0-beta.1",
-      "commit": "8b4694ab9835565383a32c7b2b353d71bb063cea"
+      "ref": "refs/tags/v0.4.0-beta.2",
+      "commit": "fc3f88010d3a18bd02ae0ab84a462df96eb90abc"
     },
     {
       "path": "Vdoc-admin",
       "remote": "https://github.com/ChnMig/Vdoc-admin.git",
-      "ref": "refs/tags/v0.4.0-beta.1",
-      "commit": "1443aded381a4fbf534876404ea9607a785f331d"
+      "ref": "refs/tags/v0.4.0-beta.2",
+      "commit": "3985101d477f49f07b71bf9ea0b6984817eaa046"
     },
     {
       "path": "Vdoc-site",
       "remote": "https://github.com/ChnMig/Vdoc-site.git",
-      "ref": "refs/tags/v0.4.0-beta.1",
+      "ref": "refs/tags/v0.4.0-beta.2",
       "commit": "@release"
     },
     {
       "path": "Vdoc-mcp",
       "remote": "https://github.com/ChnMig/Vdoc-mcp.git",
-      "ref": "refs/tags/v0.4.0-beta.1",
-      "commit": "0993a8db67d417883ce07aec2c7293e92de4e7fe"
+      "ref": "refs/tags/v0.4.0-beta.2",
+      "commit": "842caec4994365feda1038303c78d5f78b4f1fd9"
     }
   ],
   "controlPlane": {
     "manifest": "workspace-distribution.json",
-    "sha256": "93d1f21bdcf09d22d04c9c5c8f95d3c755468dd00bf8e069f60994f6842e958f"
+    "sha256": "5942ab0adae26ab875ec59ea01bdcfe77e7e77f0ea8e319e9ee80c717f23aa25"
   }
 }
