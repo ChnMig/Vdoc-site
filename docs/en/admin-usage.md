@@ -1,6 +1,6 @@
 # First Use
 
-Use `v0.4.0-beta.4` to save, review, publish and query a guide in an isolated [Beta environment](deployment.md#beta-channel).
+Use `v0.4.0-beta.5` to save, review, publish and query a guide in an isolated [Beta environment](deployment.md#beta-channel).
 
 ## Before You Start
 
@@ -53,7 +53,7 @@ Choose **Create MCP token** with `doc:read` for Markdown/TXT, access to **Vdoc T
 
 Install the Beta adapter from the [MCP channel guide](mcp-tools.md#release-channels). Copy the token page’s Codex, Cursor or Claude Code configuration, preserving other servers. Set `VDOC_MCP_TOKEN` and a `VDOC_BASE_URL` reachable from **the agent machine**; localhost requires Backend on that machine.
 
-Restart MCP or the agent and refresh tools. Expect `list_projects`, `list_releases`, `get_release` and `get_document_at_commit`. See [MCP Setup](mcp-tools.md) for configuration and commit pins. MCP and Skill share a channel and package; neither is on the npm registry.
+Restart MCP or the agent and refresh tools. Expect `list_projects`, `list_releases`, `get_release` and `get_document_at_commit`. See [MCP Setup](mcp-tools.md) for configuration and commit pins. MCP is installed by channel and is not on the npm registry.
 
 <div id="first-query"></div>
 
@@ -117,3 +117,5 @@ Updates are reported only; operators [upgrade or roll back containers manually](
 ## Audit history
 
 Localized filters and email-substring/exact-ID search run before pagination. Rows show email/project names with ID tooltips and explicit system/anonymous/unavailable actors. Project admins see only their projects.
+
+Super administrators set 0–36500 days under **Settings → Global → Audit retention**, for all users and projects. The default is 30 calendar days in Asia/Shanghai; cleanup runs daily at 01:00, at startup and after changes. A value of 1 retains logs from yesterday at midnight onward. A value of 0 stops retaining new audit logs and permanently clears existing records; increasing retention cannot recover them. Documents, versions, chats, tokens, shares and service diagnostic logs are unaffected.

@@ -240,18 +240,9 @@ Redis / Queue
   - later codegen jobs
 ```
 
-## 10. 当前 Skill 支持
+## 10. MCP 文档管理
 
-MCP 提供工具能力。Vdoc Skill 是当前可安装的 Agent 工作流包，用来告诉 AI Agent 如何正确使用这些工具。
-
-当前 Skill 工作流：
-
-- 后端或 AI 提交更新后的 OpenAPI 或 Markdown 文档草稿。
-- 审核人查看草稿 diff preview 后发布。
-- 前端比较两个 API 版本。
-- 前端请求某个 endpoint 的 TypeScript 类型和请求函数。
-- AI 识别 breaking changes 可能影响的前端文件。
-- AI 查询最新 Markdown guide，或比较两个 Markdown 文档版本。
+MCP 提供授权范围内的文档查找、确切版本读取、比较、修改和合并提议。Vdoc 管理版本身份、权限、并发保存和人工发布。代码生成、测试及其他业务任务如何使用文档，由接入方应用或 Agent 决定；项目不再交付配套工作流包。
 
 ## 当前非目标
 
@@ -271,7 +262,7 @@ MCP 提供工具能力。Vdoc Skill 是当前可安装的 Agent 工作流包，�
 3. Vdoc 能识别常见 breaking changes。
 4. 前端能通过 Web UI 或 MCP 查询接口详情、Markdown 内容和版本差异。
 5. AI Agent 能通过 MCP 提交 OpenAPI 和 Markdown 草稿，并明确等待人工审核发布。
-6. AI Agent 能基于 MCP 返回结果生成或更新前端对接代码和项目指导。
+6. Agent 无需额外安装工作流包，即可通过 MCP 读取和管理确切文档版本。
 7. 新用户能跟随 Web onboarding 和空状态指引创建第一个 Team、Project、Document、Branch、草稿、审核版本和 MCP Token。
 8. 前端开发能通过分组/搜索的 Endpoint、请求响应详情、版本切换和 breaking-change Diff 浏览 API 文档，而不必退回原始 JSON。
 9. 管理员能配置 OpenAI-compatible 模型，Vdoc 能生成 AI Diff 总结，并允许用户在草稿审核、版本和 Diff 页面内对话，同时 AI 不拥有发布权限。

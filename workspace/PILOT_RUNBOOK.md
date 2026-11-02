@@ -7,7 +7,7 @@ This runbook prepares and records a v0.1 Pilot. The automation path bootstraps `
 - Go matching `Vdoc/go.mod`
 - Node.js 26.12.1 for reproducible Admin, Site, and MCP checks; the MCP adapter's production engine minimum remains Node.js 20
 - `pnpm` 12.15.0 for `Vdoc-admin/` and `Vdoc-site/`
-- `npm` for `Vdoc-mcp/` (including its bundled Skill)
+- `npm` for `Vdoc-mcp/`
 - Docker with Compose v2
 - `git`, `jq`, and `shasum` for lock, evidence, and provenance checks
 
@@ -98,7 +98,7 @@ Open Admin at `http://127.0.0.1:8081` and complete the first setup path:
 5. Use the document's top selectors to choose the Branch, Draft mode, and draft record. Edit and submit the Draft.
 6. Review and approve to publish a Version, then select it in Formal mode at the top.
 7. Create an MCP Token.
-8. Reveal the active token again, copy the generated MCP config, and open the Vdoc Skill installation page.
+8. Reveal the active token again, copy the generated MCP config, and verify the MCP client configuration.
 9. Check the four document areas: Document, Document tools (versions and diffs), Document AI, and Document settings (metadata and branch management). Confirm they use the same top selection. Expand or collapse folders by clicking the whole row without changing the open document, and distinguish all three document-type icons.
 10. Publish another Version, then select the earlier Formal version and use the top Share button to create unprotected and password-protected links. In a private browser window, confirm metadata, content, and original download stay on that exact version; publish once more and verify the links still return it. Other version IDs and the history list must remain unavailable; Draft mode must not allow creation. Revoke the link and confirm access fails immediately. Existing scope 1/2 links must still follow latest or allow branch history respectively.
 
@@ -106,7 +106,7 @@ Private REST uses a raw JWT in `Authorization` with no `Bearer` prefix. Keep JWT
 
 For public shares, confirm the browser removes the `#vdoc_share_...` fragment before the first request, sends no account cookie/JWT, renders no raw Markdown HTML or remote images, and does not expose the capability in logs, storage, referrers, screenshots, or analytics.
 
-## 7. Verify MCP Adapter And Skill
+## 7. Verify MCP Adapter
 
 After creating an MCP token in Admin, configure the target agent with `npx --yes github:ChnMig/Vdoc-mcp#9d03c8321b8be5660a9ebbf824ae94ce4251f1b7`, `VDOC_BASE_URL=http://127.0.0.1:8080`, and `VDOC_MCP_TOKEN` in a secret-aware environment field. The Git commit must equal the `Vdoc-mcp` entry in `workspace.lock.json`; `@vdoc/mcp` is not published to the npm registry yet. Do not put tokens in CLI arguments.
 
@@ -118,7 +118,7 @@ npm ci
 npm test
 ```
 
-Install or link `skills/vdoc/` from the locked `Vdoc-mcp/` checkout as `$HOME/.agents/skills/vdoc` for personal use or `.agents/skills/vdoc` for the current repository, with `SKILL.md` at that directory root. Verify `git -C Vdoc-mcp rev-parse HEAD` equals the `Vdoc-mcp` commit in `workspace.lock.json`; do not install from an unpinned shallow clone or moving branch. Pair it with the MCP adapter. v0.1 agents can submit Drafts, but direct MCP publish is not available. Admin or SuperAdmin review publishes Versions.
+Configure the locked MCP adapter in the agent with the backend URL and a scoped token. Discover runtime tools, read an exact document revision and verify its returned IDs. Human administrators approve and publish in the workbench; business workflows belong to the consumer.
 
 ## 8. Local Release Gate
 
@@ -129,7 +129,7 @@ scripts/vdoc-release-dry-run.sh --list
 scripts/vdoc-release-dry-run.sh
 ```
 
-The release dry-run verifies the workspace lock, Compose configuration, backend formatting/vet/tests/build, Admin formatting/typecheck/lint/unit/build/entrypoint/browser checks, both Site base paths with browser and performance checks, and MCP/Skill package dry-runs. It runs local checks only. It does not publish packages, deploy services, push images, create git refs, or automate external release infrastructure. Live PostgreSQL/RustFS E2E is intentionally excluded unless you pass `--include-live` with disposable services already running.
+The release dry-run verifies the workspace lock, Compose configuration, backend formatting/vet/tests/build, Admin formatting/typecheck/lint/unit/build/entrypoint/browser checks, both Site base paths with browser and performance checks, and MCP package dry-runs. It runs local checks only. It does not publish packages, deploy services, push images, create git refs, or automate external release infrastructure. Live PostgreSQL/RustFS E2E is intentionally excluded unless you pass `--include-live` with disposable services already running.
 
 ## 9. Record Real Pilot Evidence
 

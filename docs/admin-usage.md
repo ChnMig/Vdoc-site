@@ -1,6 +1,6 @@
 # 首次使用
 
-本页使用 `v0.4.0-beta.4` 的文档独立分支模型，完成保存、审核发布和 Agent 查询。请使用独立的 [Beta 环境](deployment.md#beta-channel)。
+本页使用 `v0.4.0-beta.5` 的文档独立分支模型，完成保存、审核发布和 Agent 查询。请使用独立的 [Beta 环境](deployment.md#beta-channel)。
 
 ## 开始前确认
 
@@ -53,7 +53,7 @@
 
 按[MCP 渠道安装指引](mcp-tools.md#release-channels)安装 Beta adapter，再从令牌页复制 Codex、Cursor 或 Claude Code 对应配置。现有配置保留其他服务器条目；`VDOC_MCP_TOKEN` 填本人的令牌，`VDOC_BASE_URL` 必须从 **Agent 所在机器**可达，只有同机部署才能用 `127.0.0.1`。
 
-安装后重启 MCP／Agent 会话并刷新工具发现。应列出 `list_projects`、`list_releases`、`get_release`、`get_document_at_commit`；完整配置和固定提交安装方式见[MCP 接入与工具](mcp-tools.md)。MCP 与 Skill 必须来自同一渠道和发行包，当前不发布到 npm registry。
+安装后重启 MCP／Agent 会话并刷新工具发现。应列出 `list_projects`、`list_releases`、`get_release`、`get_document_at_commit`；完整配置和固定提交安装方式见[MCP 接入与工具](mcp-tools.md)。MCP 按环境选择对应渠道，当前不发布到 npm registry。
 
 <div id="first-query"></div>
 
@@ -114,3 +114,5 @@
 ## 审计历史
 
 动作和资源使用可读枚举筛选及展示。操作者支持按邮箱模糊查询或用户 ID 精确查询，在后端分页前筛选。列表显示操作者邮箱和项目名，悬停可查看原始 ID；系统操作、匿名访客及已删除对象有明确说明。项目管理员仍只能查看自己管理的项目。
+
+系统管理员可通过**设置 → 全局配置 → 审计日志留存**设置 0–36500 天，对所有用户与项目生效。默认保留 30 个北京时间自然日，每天 01:00 自动清理，启动及修改设置时补清；保留 1 天时，从昨天零点起的日志保留。设为 0 会停止留存新审计日志并永久清空已有记录，调大天数不能恢复。此设置不删除文档、版本、聊天、令牌或分享，也不管理服务诊断日志。

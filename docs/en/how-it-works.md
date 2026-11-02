@@ -32,11 +32,11 @@ Document changes do not automatically update your code. Vdoc provides versions, 
 
 Markdown and TXT follow the same draft, review, and publish flow, with file Diffs for changes. To try it yourself, **[deploy Vdoc](deployment.md#quick-start)** and follow **[First Use](admin-usage.md)** with a shorter Markdown example.
 
-## What People, MCP, and the Skill Each Do
+## What People, MCP, and Business Agents Each Do
 
 - **Your team manages and publishes in Admin.** Browse teams, projects, and folders in Workspace, then open a document on its own page. The project file tree is on the left, content in the center, and the outline and version, Diff, and AI tools on the right. The header provides Share and Edit draft. Project members are managed within each project. Writers can create and submit drafts; a Project Admin or SuperAdmin inspects content and Diffs, approves publication, and configures MCP Tokens.
 - **MCP provides document tools.** `@vdoc/mcp` forwards agent requests to Backend `/api/v1/open/mcp`. It queries published endpoints, Markdown, versions, and Diffs, and can create, update, or submit drafts according to token permissions. It does not store Vdoc documents locally or expose direct-publish tools.
-- **The Skill guides when to query.** Before endpoint integration, version migration, or Markdown edits, agents call MCP and use its results to answer or submit drafts. The Skill itself holds no live documents. See [Skill Workflows](skill-workflows.md).
+- **Business agents decide how to use documents.** Vdoc provides read, compare and write operations; consumers define integration, code generation, testing and migration workflows.
 - **Built-in AI helps reviewers.** Optional [Admin AI](admin-ai.md) uses an administrator-configured model for summaries, Diff explanations, and page chat. Summaries are labeled AI-generated. They cannot replace machine Diff, approve, reject, modify, or publish content. Missing providers or failed calls leave the original Diff and human review available.
 
 ## Identify the Document and Version

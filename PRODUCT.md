@@ -6,11 +6,11 @@ brand
 
 ## Users
 
-Vdoc-site serves people evaluating, installing, or operating Vdoc before they enter the authenticated workbench. Primary readers are AI-assisted product and platform teams, backend maintainers publishing OpenAPI or Markdown facts, frontend developers checking integration impact, documentation maintainers, and agent users wiring MCP plus the Vdoc Skill into their local tools. Many readers arrive from the repository or deployment runbook and need to understand where the public portal ends and Admin begins.
+Vdoc-site serves people evaluating, installing, or operating Vdoc before they enter the authenticated workbench. Primary readers are AI-assisted product and platform teams, backend maintainers publishing OpenAPI or Markdown facts, frontend developers checking integration impact, documentation maintainers, and agent users wiring MCP into their local tools. Many readers arrive from the repository or deployment runbook and need to understand where the public portal ends and Admin begins.
 
 ## Product Purpose
 
-The public site explains Vdoc as a reviewed documentation fact system shared by humans and AI agents. It should make the trust loop legible: typed documents enter as drafts, humans review and publish immutable versions, Vdoc computes diffs and endpoint facts, and agents query approved knowledge through MCP and Skill workflows. Success means a new user can understand the product model, trust boundary, and next setup step without reading the backend source.
+The public site explains Vdoc as a reviewed documentation fact system shared by humans and AI agents. It should make the trust loop legible: typed documents enter as drafts, humans review and publish immutable versions, Vdoc computes diffs and endpoint facts, and agents query approved knowledge through MCP. Business workflows belong to consuming applications and agents. Success means a new user can understand the product model, trust boundary, and next setup step without reading the backend source.
 
 ## Brand Personality
 
@@ -23,7 +23,7 @@ Avoid flashy AI SaaS landing pages, purple-gradient automation hype, glassy prom
 ## Design Principles
 
 - Make the review gate visible: every agent-facing claim should reinforce that published facts are human-approved.
-- Explain with product nouns: Team, Project, Document, Branch, Draft, Version, Diff, MCP Token, and Skill should stay concrete.
+- Explain with product nouns: Team, Project, Document, Branch, Draft, Version, Diff, and MCP Token should stay concrete.
 - Bilingual clarity is a first-class product surface, not an afterthought.
 - Prefer evidence and workflow over hype: demos, examples, and route handoffs beat slogans.
 - Distinguish public learning from authenticated work: point to Admin for management, review, and token creation.

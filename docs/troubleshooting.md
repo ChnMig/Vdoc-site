@@ -1,6 +1,6 @@
 # 故障排查
 
-本页按用户会遇到的链路排查：Compose 是否启动、backend 是否健康、Admin 是否能登录、Draft/Version 是否能发布、MCP/Skill 是否能让 Agent 查询事实。
+本页按用户会遇到的链路排查：Compose 是否启动、backend 是否健康、Admin 是否能登录、Draft/Version 是否能发布、MCP 是否能让 Agent 查询事实。
 
 ## 排查前先保护信息
 
@@ -71,7 +71,7 @@ backend 启用 database 或 storage 后，依赖不可达会启动失败，不�
 - 当前部署保留 `VDOC_ADMIN_API_BASE_URL: 'same-origin'`。浏览器访问工作台 origin 下的 `/api/v1/...`，由 Admin 内置 Caddy 转发到 `backend:8080`；本机默认 API origin 为 `http://127.0.0.1:8081`。
 - 检查 `http://127.0.0.1:8081/api/v1/open/health` 和 `/runtime-config.js`；后者应包含 `apiBaseUrl: window.location.origin`。修改 Compose 环境变量后运行 `docker compose up -d --wait --force-recreate admin`，重启旧容器不会更新配置。
 - 不要为了排障将这个值改成独立 Backend origin 或 `http://backend:8080`。内置 CORS 的请求头通配不能保证跨域 `Authorization` 在所有浏览器可用，浏览器也不能解析 Compose service name。域名部署仍保留同源配置，参阅 [Caddy 配置](deployment.md#caddy-domain)。
-- Skill、MCP 和 CLI 使用独立 Backend 地址；它们的 `VDOC_BASE_URL` 与浏览器 API origin 用途不同。
+- MCP 和 CLI 使用独立 Backend 地址；它们的 `VDOC_BASE_URL` 与浏览器 API origin 用途不同。
 - Private API 使用 raw JWT `Authorization` header，不加 `Bearer`。
 
 ## 忘记管理员密码 {#reset-admin-password}
@@ -132,16 +132,16 @@ Vdoc REST 使用 envelope。不要只看 HTTP status，要看 body：
 ## Agent 没有使用 Vdoc 事实
 
 - 确认 `@vdoc/mcp` 的 `tools/list` 成功。
-- 确认 `Vdoc-mcp/skills/vdoc/` 已安装为目标 runtime 的 `vdoc` skill folder，且 `SKILL.md` 在 skill root。
+- 确认 Token 有目标文档类型的读取权限，并固定正确的环境、文档和提交。
 - 给 Agent 明确任务，例如“先查询 Vdoc 的 `get_endpoint_detail`，再说明请求字段”。
-- 如果 Agent 仍然猜字段、枚举、响应结构或 Markdown 原文，重新加载 Skill 并要求它先查 Vdoc MCP。
+- 如果查询成功但 Agent 没有采用返回内容，检查业务项目中的任务说明和 Agent 配置。如何使用文档由接入方决定。
 
 ## 什么时候回滚
 
 - backend health 失败且短时间无法修复：先回到上一版 backend 或上一版 workspace。
 - Admin 页面失败但 backend 健康：优先回滚 Admin build 或 container。
 - MCP tools/list 失败：先检查 token 和 backend，再考虑回滚 MCP package。
-- Agent 不遵守 Vdoc facts：先检查 MCP 和 Skill 安装，再回滚 Skill package。
+- MCP 查询成功但业务结果不符合预期：检查接入方的任务和工作流，无需因此回滚文档管理服务。
 - Admin AI 失败但机器 Diff 和人工审核正常：先回滚 provider 或 prompt 配置，不要回滚已发布 Version，也不要让 AI 代替审核。
 
 回滚前先看 [升级与回滚](release-rollback.md)，不要删除 PostgreSQL 或对象存储数据。

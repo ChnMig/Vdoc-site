@@ -55,7 +55,7 @@ Use default VitePress typography, which follows system and Inter-like documentat
 
 ## Vdoc Semantics
 
-The home copy leads with the reader's outcome: teams and AI share reviewed OpenAPI and Markdown documents. Its primary action is deployment, followed by a concrete workflow example and Agent setup. Explain version history, Diff, and MCP/Skill through their use; introduce Draft, Version, MCP Token, and Admin terminology in the guides when the reader needs it. Agents query published content and may submit drafts, while publishing remains a human/Admin responsibility. The first-use guide reaches one published Markdown query before offering Admin AI, public sharing, or release checks.
+The home copy leads with the reader's outcome: teams and AI share reviewed OpenAPI and Markdown documents. Its primary action is deployment, followed by a concrete workflow example and Agent setup. Explain version history, Diff, and MCP through their use; introduce Draft, Version, MCP Token, and Admin terminology in the guides when the reader needs it. Agents query published content and may submit drafts, while publishing remains a human/Admin responsibility. The first-use guide reaches one published Markdown query before offering Admin AI, public sharing, or release checks.
 
 ## Accessibility
 

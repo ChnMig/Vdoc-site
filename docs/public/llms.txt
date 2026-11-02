@@ -1,7 +1,7 @@
 # Vdoc
 
-> Reviewed OpenAPI, Markdown and TXT facts for teams and AI. Agents query and submit drafts; humans publish.
+> Document management for OpenAPI, Markdown and TXT. Agents read, compare and save through MCP; humans approve and publish. Consumers define how documents are used in their business.
 
-## Installation and removal
+## Agent access
 
-- [Vdoc MCP/Skill setup](https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.4.0-beta.4/docs/public/skill-install.md): AI instructions for release/beta installation, updates and project removal.
+- [MCP setup and tools](https://chnmig.github.io/Vdoc-site/en/mcp-tools): adapter installation, release/beta channels, client configuration and document operations.

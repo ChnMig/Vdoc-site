@@ -26,7 +26,7 @@ features:
     link: /en/how-it-works#example
     linkText: Explore a change example
   - title: Give AI published context
-    details: MCP provides published content; Vdoc Skill guides agents to query before answering. Agents can submit drafts, while publishing requires human approval.
+    details: MCP provides document reads, comparisons and changes; your agent decides how to use them. Agents can save changes, while publishing requires human approval.
     link: /en/admin-usage
     linkText: Make your first agent query
 ---

@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.4.0-beta.5
+
+- Ship MCP on its own for Agent access, removing the companion Skill, installation command and navigation. Consumers define business workflows; Vdoc retains document versioning, comparisons, concurrency, idempotent retries and human publication rules.
+- Super administrators can set global audit retention under Settings → Global. The default is 30 calendar days in Asia/Shanghai, with cleanup daily at 01:00, at startup and after changes. A value of 0 clears existing audit logs and stops retaining new ones.
+- MCP Token permissions now group reading documents and creating/updating drafts across supported formats. Old Skill links redirect to MCP setup.
+
+Back up the isolated Beta database and object store before updating Backend/Admin (migration 023) and MCP together. For the first upgrade from a combined package, download and verify the new channel installer; remove old Vdoc Skill links as needed while preserving personal changes. Image rollback does not undo the migration or restore deleted logs. Updates only Beta. See [MCP setup](mcp-tools.md#release-channels).
+
 ## v0.4.0-beta.4
 
 - Tools share a sidebar that expands in place, preserving input and scrolling.

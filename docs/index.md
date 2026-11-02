@@ -26,7 +26,7 @@ features:
     link: /how-it-works#example
     linkText: 看一个变更示例
   - title: AI 基于文档协作
-    details: MCP 提供已发布内容，Vdoc Skill 引导 Agent 先查询再回答。Agent 可以提交草稿，发布仍由管理员审核。
+    details: MCP 提供文档读取、版本比较和修改能力，业务 Agent 决定如何使用文档。Agent 可以保存修改，发布仍由管理员审核。
     link: /admin-usage
     linkText: 完成第一次 Agent 查询
 ---

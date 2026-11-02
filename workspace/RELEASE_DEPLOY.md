@@ -12,19 +12,19 @@ Before publishing, run `python3 scripts/test-single-compose.py` with the candida
 
 ## 1. Required Checks
 
-For the 0.4.0-beta.4 release, the Compose archive is `vdoc-compose-bootstrap-v0.4.0-beta.4.tar.gz`. Update and commit the combined MCP/Skill package first, update their install pins in Admin and Site, then commit Admin. Pin Backend/Admin/MCP commits in the workspace source lock and update `.env.example` build provenance. Keep only the Site commit as `@release`, sync the workspace export, and commit Site last.
+For the 0.4.0-beta.5 release, the Compose archive is `vdoc-compose-bootstrap-v0.4.0-beta.5.tar.gz`. Update and commit the MCP package first, update its install pins in Admin and Site, then commit Admin. Pin Backend/Admin/MCP commits in the workspace source lock and update `.env.example` build provenance. Keep only the Site commit as `@release`, sync the workspace export, and commit Site last.
 
 Coordinated release versions use `MAJOR.MINOR.PATCH` or `MAJOR.MINOR.PATCH-prerelease` with valid SemVer identifiers. Build metadata (`+build`) is not supported because Docker image tags cannot contain `+`. Prereleases never replace `latest` or deploy stable Pages.
 
-The rolling test channel uses `vMAJOR.MINOR.PATCH-beta.N` tags (`N` is a non-negative integer without leading zeros). Publish the same version across Backend, MCP/Skill, Admin and Site, keeping the exact source lock and MCP install pins aligned. Push Backend/MCP/Admin tags first, then Site. Backend/Admin publish immutable version images and update only `:beta`; stable tags update only `:latest`. Numeric version ordering prevents older reruns from moving either alias backwards. Other prerelease suffixes such as `rc.1` publish exact assets without updating either rolling alias. A beta Site release retains its downloads but never replaces the stable website.
+The rolling test channel uses `vMAJOR.MINOR.PATCH-beta.N` tags (`N` is a non-negative integer without leading zeros). Publish the same version across Backend, MCP, Admin and Site, keeping the exact source lock and MCP install pins aligned. Push Backend/MCP/Admin tags first, then Site. Backend/Admin publish immutable version images and update only `:beta`; stable tags update only `:latest`. Numeric version ordering prevents older reruns from moving either alias backwards. Other prerelease suffixes such as `rc.1` publish exact assets without updating either rolling alias. A beta Site release retains its downloads but never replaces the stable website.
 
 `deploy/docker-compose.yml` follows `:latest` in project `vdoc`; `deploy/docker-compose.beta.yml` follows `:beta` in project `vdoc-beta`, using host ports 18080/18081 and independent networks, PostgreSQL and RustFS volumes. Keep separate credentials, encryption keys and MCP tokens. Never connect beta Backend to the stable database or storage bucket: startup migrations run against the configured database. Use each file on its own, not as an override for the other. The first beta deployment requires a successfully published beta release; there is no fallback to stable images.
 
-MCP and its bundled Skill share the same channel and package version. The GitHub Release includes `install-channel.mjs` and `install-channel.mjs.sha256`. Download the installer from a reviewed exact release, verify its checksum, then run `node install-channel.mjs --channel release` or `--channel beta`. Each execution resolves the newest published version in that channel, verifies its archive, and installs into a separate prefix under `~/.local/share/vdoc/mcp/<channel>`. Configure each agent with the absolute executable path printed by the installer and that environment's Backend URL/token. Link each channel's Skill into its own agent/project directory. Repeat the channel installer and restart MCP/reload the agent to update; existing global or commit-pinned MCP installations remain explicit alternatives. This does not publish to the npm registry or update a running agent automatically.
+MCP is installed and updated by channel. The GitHub Release includes `install-channel.mjs` and `install-channel.mjs.sha256`. Download the installer from a reviewed exact release, verify its checksum, then run `node install-channel.mjs --channel release` or `--channel beta`. Each execution resolves the newest published version in that channel, verifies its archive, and installs into a separate prefix under `~/.local/share/vdoc/mcp/<channel>`. Configure each agent with the absolute executable path printed by the installer and that environment's Backend URL/token. Repeat the channel installer and restart MCP/reload the agent to update; existing global or commit-pinned MCP installations remain explicit alternatives. This does not publish to the npm registry or update a running agent automatically.
 
 Backend/Admin release jobs promote `latest` only after creating a stable GitHub Release. Repository-wide serialization and numeric stable-version ordering prevent prereleases and older reruns from replacing a newer alias.
 
-Push the Backend, MCP, and Admin `v0.4.0-beta.4` tags before the Site tag. The Site tag build resolves its own tag to its checkout commit, checks all other tags against the committed lock, and includes four exact commit hashes in the archive. A missing or mismatched tag fails the release; there is no fallback to a branch or an older release. Do not move published tags.
+Push the Backend, MCP, and Admin `v0.4.0-beta.5` tags before the Site tag. The Site tag build resolves its own tag to its checkout commit, checks all other tags against the committed lock, and includes four exact commit hashes in the archive. A missing or mismatched tag fails the release; there is no fallback to a branch or an older release. Do not move published tags.
 
 Backend/Admin tag workflows also build and smoke-test native Linux amd64 and arm64 Docker images. Their compressed Docker archives and per-image SHA-256 files are retained as release assets; the release waits for both image jobs. The bootstrap image loader verifies those files, their platform, and their source-revision labels against the lock.
 
@@ -41,19 +41,19 @@ scripts/vdoc-release-dry-run.sh --candidate
 
 The complete candidate gate requires the same-version release template: all four refs must name the intended `refs/tags/vMAJOR.MINOR.PATCH` (or supported prerelease) and all four commits must be exact hashes with a matching control-plane digest. An unresolved `@release` Site commit is not accepted in the local gate lock. Each checkout must be clean and its declared origin must match the lock. Before the future tags exist, the candidate gate proves the same source commits against advertised `refs/heads/main`; an existing release tag must also match. For isolated prereleases, set `VDOC_WORKSPACE_CANDIDATE_SOURCE_REF=refs/heads/<release-branch>` when running the complete candidate gate. This requires a safe advertised branch in every repository with the exact locked commit, retains same-version tag refs in the lock, and does not change the published verifier. Local `origin/*` tracking refs cannot prove that a commit was pushed. The standalone candidate source helper also accepts safe advertised branch refs, but a branch lock is not a complete release-gate template.
 
-Candidate mode retains the full component checks and cross-repository version, MCP/Skill pin, and Compose provenance contracts. Its bootstrap inventory check uses a disposable marked candidate copy, leaves the source lock unchanged, and creates no deployable artifact. `candidate: true` locks remain rejected by the published verifier, initializer, and default package path. Candidate success certifies source checks only. The fixed Pilot `release_dry_run` attestation continues to execute the default published gate; candidate output cannot substitute for a published closure or Pilot final evidence.
+Candidate mode retains the full component checks and cross-repository version, MCP pin, and Compose provenance contracts. Its bootstrap inventory check uses a disposable marked candidate copy, leaves the source lock unchanged, and creates no deployable artifact. `candidate: true` locks remain rejected by the published verifier, initializer, and default package path. Candidate success certifies source checks only. The fixed Pilot `release_dry_run` attestation continues to execute the default published gate; candidate output cannot substitute for a published closure or Pilot final evidence.
 
 After all release tags are advertised, run the default published closure gate and the published-asset verifier. Record these stages separately; candidate success is not evidence of tag or asset publication.
 
 ```sh
 scripts/vdoc-release-dry-run.sh
 scripts/vdoc-workspace-release-assets-verify.sh \
-  --release-base-url https://github.com/ChnMig/Vdoc-site/releases/download/v0.4.0-beta.4
+  --release-base-url https://github.com/ChnMig/Vdoc-site/releases/download/v0.4.0-beta.5
 ```
 
 The four repository baselines are pinned in `workspace.lock.json` schema v2 by remote, advertised ref, and commit; the same lock binds the non-Git root control plane to its canonical distributed-file SHA-256. Use `scripts/vdoc-workspace-init.sh` only to clone missing repositories on a fresh machine, and `scripts/vdoc-workspace-verify.sh` to verify an existing workspace. Existing repositories are never fetched, reset, checked out, or cleaned by the initializer. The verifier uses `git ls-remote`, so forged or stale local `origin/*` refs cannot prove publication.
 
-After committing and pushing all four repositories, update every cross-repository MCP/Skill pin and the Compose provenance values to those commits. Then review and explicitly write the candidate lock:
+After committing and pushing all four repositories, update every cross-repository MCP pin and the Compose provenance values to those commits. Then review and explicitly write the candidate lock:
 
 ```sh
 scripts/vdoc-workspace-lock-refresh.sh
@@ -63,7 +63,7 @@ scripts/vdoc-workspace-verify.sh
 
 The default refresh never mutates the lock. `--write` is atomic and refuses dirty or unpushed HEADs. A `refs/heads/main` lock proves the current remote tip only; an immutable release claim requires reviewed release tags and a final lock generated against them.
 
-Both dry-run modes are local only and pin Go to 1.27.3 with `GOFLAGS=-mod=readonly`. They verify the workspace lock and its tests, Compose configuration, backend formatting/vet/tests/E2E/build, Admin formatting/typecheck/lint/unit/build/entrypoint/browser checks, both Site base paths with browser and performance checks, and MCP/Skill package dry-runs. It does not publish packages, deploy services, push images, create git refs, or automate external release infrastructure. Add `--include-live` only when disposable live PostgreSQL/RustFS resources are already running; without it, live persistence is explicitly not covered.
+Both dry-run modes are local only and pin Go to 1.27.3 with `GOFLAGS=-mod=readonly`. They verify the workspace lock and its tests, Compose configuration, backend formatting/vet/tests/E2E/build, Admin formatting/typecheck/lint/unit/build/entrypoint/browser checks, both Site base paths with browser and performance checks, and MCP package dry-runs. It does not publish packages, deploy services, push images, create git refs, or automate external release infrastructure. Add `--include-live` only when disposable live PostgreSQL/RustFS resources are already running; without it, live persistence is explicitly not covered.
 
 It also validates the Docker Compose bootstrap inventory, its post-publication asset verifier, and the Pilot result gate. These are structural checks: the dry-run does not fabricate a public release or approve a real Pilot result.
 
@@ -217,7 +217,7 @@ Post-deploy smoke:
 1. Register or log in.
 2. Confirm `/api/v1/private/identity/me` succeeds.
 3. Open Dashboard as SuperAdmin and as Project Admin.
-4. Create a Project and Document, save successive commits on a working branch, inspect exact historical content and Markdown/OpenAPI comparisons, review the pinned merge result, merge and publish. Confirm IDs are generated without a version field. Check legacy deep links, MCP Token and Skill instructions.
+4. Create a Project and Document, save successive commits on a working branch, inspect exact historical content and Markdown/OpenAPI comparisons, review the pinned merge result, merge and publish. Confirm IDs are generated without a version field. Check legacy deep links, MCP Token and connection instructions.
 5. Reveal an active MCP Token, verify revoked/expired tokens remain redacted, and copy the MCP config example.
 6. Create unprotected and protected public document links, verify anonymous view/history/download on desktop and mobile, then revoke them and confirm immediate uniform failure.
 
@@ -254,7 +254,7 @@ The repository workflow verifies the root `/` build and publishes its static arc
 
 For every site candidate, record the source SHA, CI workflow run ID, retained static-artifact identifier and checksum, deployment URL, selected base path, and references to the format/typecheck/lint/unit/content/build-budget/browser/performance evidence. The CI workflow retains browser/performance failure evidence for 14 days. After a `/Vdoc-site/` deployment, check `/Vdoc-site/`, `/Vdoc-site/en/`, `/Vdoc-site/admin-ai`, `/Vdoc-site/en/admin-ai`, and their local assets; links, scripts, styles, fonts, and the favicon must remain under `/Vdoc-site/`.
 
-This site delivery chain changes no backend or Admin runtime behavior. Confirm public pages still describe the same backend, Admin, MCP, Skill, and Admin AI behavior as this checklist.
+This site delivery chain changes no backend or Admin runtime behavior. Confirm public pages still describe the same backend, Admin, MCP and Admin AI behavior as this checklist.
 
 ## 6. MCP Package Release
 
@@ -269,19 +269,19 @@ npm_config_cache=/tmp/vdoc-npm-cache npm pack --dry-run
 
 Before publishing, verify:
 
-- `dist/`, `skills/vdoc/`, `examples/`, `README.md`, and `LICENSE` are included.
+- `dist/`, `examples/`, `scripts/install-channel.mjs`, `README.md`, and `LICENSE` are included. Retired workflow assets and installer modules must not appear in the archive.
 - README examples use `VDOC_BASE_URL` or `VDOC_MCP_URL` plus `VDOC_MCP_TOKEN` environment variables.
 - No docs include real tokens or Authorization headers.
 
-## 7. Bundled Skill Release
+## 7. MCP document management acceptance
 
-The Skill is maintained at `Vdoc-mcp/skills/vdoc` and ships in the same archive and version as MCP. Its validation tests run in the MCP test suite; there is no separate Skill repository, tag workflow, or package-version bump in the active release process. Even a Skill-only change needs a new MCP package version.
+The adapter ships without a companion workflow package. Verify discovery, exact-version reads, comparisons, concurrency conflicts, idempotent retries and the human publication boundary. Keep business code generation and consumer migration workflows outside Vdoc. The channel installer validates the adapter and updater, without requiring files in an agent skill directory.
 
-After a global package installation, `vdoc-mcp skill install` creates a link at the chosen agent directory. Replacing the package at the same global path updates the linked Skill. Existing installations are never overwritten: users preserve their local changes and move the old directory before migration. Keep npm prefixes stable, and reload the agent and restart MCP after an update. Independent Skills CLI installations remain managed by that CLI.
-
-Before distributing, verify that `skills/vdoc/` contains `SKILL.md`, `references/`, `templates/`, `examples/`, `README.md`, and `LICENSE`, and that no examples contain real secrets. Verify that the channel installer updates MCP and the linked Skill from the same release package while preserving the existing channel and prefix. npm registry publication remains separate from the GitHub release workflow.
+For the first upgrade from an older combined package, use the newly downloaded and checksummed standalone installer with the existing channel/prefix. Remove only identifiable old Vdoc Skill links; preserve locally maintained files and MCP credentials.
 
 ## 8. Rollback
+
+Version 0.4.0-beta.5 applies `023_audit_retention.sql`. Back up the Beta database and object store before upgrading. The global policy defaults to 30 calendar days, with cleanup at 01:00 Asia/Shanghai, at startup and after policy updates. A value of 0 stops new audit retention and clears existing audit logs. Increasing retention or rolling back an image does not restore deleted audit records or undo this migration.
 
 Backend rollback:
 
@@ -293,7 +293,7 @@ Backend rollback:
 Admin rollback:
 
 1. Repoint static hosting to the previous `dist/` artifact.
-2. Confirm login, Dashboard, Documents/public-share management, Drafts/Promote, Versions, Diffs, MCP Token, Skill, and anonymous share pages still load.
+2. Confirm login, Dashboard, Documents/public-share management, Drafts/Promote, Versions, Diffs, MCP Token and anonymous share pages still load.
 
 Site rollback:
 
@@ -302,7 +302,7 @@ Site rollback:
 3. Record the rollback deployment URL, then recheck the locale entries, Admin AI pages, release/rollback pages, and base-safe assets.
 4. If no verified artifact remains, check out the intended source SHA, run the complete release gate again, and treat the rebuilt output as a new release candidate rather than claiming an artifact rollback.
 
-MCP/Skill rollback:
+MCP rollback:
 
 1. Keep the previous package version available.
 2. Ask pilot users to pin the previous version in agent config if needed.
@@ -335,9 +335,9 @@ The default gate requires four distinct target-user roles and binds them to real
 
 An empty template, `--allow-incomplete` success, a missing/unexercised target-user role, staff-only execution, missing role feedback, missing or hash-mismatched evidence, same-person/unsigned sign-off, a post-signature edit, or automated tests alone means **Pilot not yet validated**. The signing helper is provenance, not cryptographic identity authentication; signer identity and immutable evidence storage remain human controls. Do not convert `failed`, `blocked`, or negative verbatim feedback into a passing release narrative.
 
-Ordinary deployments download `docker-compose.yml` alone, generated from `deploy/docker-compose.yml`. It contains configuration and stable `latest` GHCR application references, PostgreSQL `18`, and RustFS `1.0.0`. A versioned YAML download preserves the configuration source; its rolling image references are resolved at pull time. Record deployed image digests for rollback, or replace the two application aliases with the desired immutable release tag. The optional developer artifact is a Docker Compose bootstrap. `scripts/vdoc-workspace-package.sh` creates `vdoc-compose-bootstrap-v0.4.0-beta.4.tar.gz` with normalized order, modes, ownership, timestamps, and gzip metadata. Byte-for-byte reproducibility requires the same tar implementation: BSD tar and GNU tar can encode equivalent headers differently. Verify the official CI archive against its published SHA-256; when comparing a local build from another platform, also compare file contents and parsed metadata. The archive contains Compose/configuration files, the root MIT license, release tools, and the exact source lock; users build Backend/Admin images locally with Docker.
+Ordinary deployments download `docker-compose.yml` alone, generated from `deploy/docker-compose.yml`. It contains configuration and stable `latest` GHCR application references, PostgreSQL `18`, and RustFS `1.0.0`. A versioned YAML download preserves the configuration source; its rolling image references are resolved at pull time. Record deployed image digests for rollback, or replace the two application aliases with the desired immutable release tag. The optional developer artifact is a Docker Compose bootstrap. `scripts/vdoc-workspace-package.sh` creates `vdoc-compose-bootstrap-v0.4.0-beta.5.tar.gz` with normalized order, modes, ownership, timestamps, and gzip metadata. Byte-for-byte reproducibility requires the same tar implementation: BSD tar and GNU tar can encode equivalent headers differently. Verify the official CI archive against its published SHA-256; when comparing a local build from another platform, also compare file contents and parsed metadata. The archive contains Compose/configuration files, the root MIT license, release tools, and the exact source lock; users build Backend/Admin images locally with Docker.
 
-Vdoc-site provides the public workspace sources and website evaluation downloads; see [README.md](README.md#docker-compose-bootstrap-artifact). Those mutable website snapshots are not an immutable GitHub Release. The `v0.4.0-beta.4` tag workflow produces the versioned Compose download after verifying all four source tags.
+Vdoc-site provides the public workspace sources and website evaluation downloads; see [README.md](README.md#docker-compose-bootstrap-artifact). Those mutable website snapshots are not an immutable GitHub Release. The `v0.4.0-beta.5` tag workflow produces the versioned Compose download after verifying all four source tags.
 
 The Site tag workflow publishes both the tarball and `.sha256` file to GitHub Releases automatically. Record the exact tagged URL and checksum, together with any required release sign-off. Substitute an actually published Site tag below, then verify the public bytes instead of trusting the README link:
 
@@ -345,7 +345,7 @@ The Site tag workflow publishes both the tarball and `.sha256` file to GitHub Re
 scripts/vdoc-workspace-release-assets-verify.sh \
   --release-base-url 'https://github.com/ChnMig/Vdoc-site/releases/download/<published-release-tag>' \
   --expected-sha256 <archive-sha256> \
-  --local-artifact dist/vdoc-compose-bootstrap-v0.4.0-beta.4.tar.gz
+  --local-artifact dist/vdoc-compose-bootstrap-v0.4.0-beta.5.tar.gz
 ```
 
 The in-lock root digest detects partial control-plane drift but is not an external signature because the lock and verifier ship together. Local package creation does not prove public availability; the release is not closed until the post-publication verifier succeeds.
@@ -366,7 +366,6 @@ Site artifact ID and checksum:
 Site deployment URL and base path:
 Site QA report references:
 MCP package version:
-Skill package version:
 CI status:
 Live smoke status:
 Pilot result reference:

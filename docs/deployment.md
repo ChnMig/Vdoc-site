@@ -46,7 +46,7 @@ docker compose -f docker-compose.beta.yml up -d --wait
 
 打开 [Beta 工作台](http://127.0.0.1:18081)。不要将两份渠道 Compose 合并，不要把 Beta 的项目名改成 `vdoc`，也不要让它连接线上数据库或存储桶；启动时的自动迁移会修改实际连接的数据库。
 
-MCP 和配套 Skill 同样分渠道，使用[独立渠道安装入口](mcp-tools.md#release-channels)。测试 Agent 使用 beta MCP 的绝对路径、Beta 后端地址和测试 Token；稳定 Agent 使用 release MCP 与线上凭据。重复渠道安装命令即可更新该渠道的 MCP/Skill，然后重启 MCP 连接、重新加载 Agent。容器和客户端都需要执行更新命令才会升级。
+MCP 同样分渠道，使用[独立渠道安装入口](mcp-tools.md#release-channels)。测试 Agent 使用 beta MCP 的绝对路径、Beta 后端地址和测试 Token；稳定 Agent 使用 release MCP 与线上凭据。重复渠道安装命令即可更新该渠道的 MCP，然后重启 MCP 连接、重新加载 Agent。容器和客户端都需要执行更新命令才会升级。
 
 <div id="initial-admin"></div>
 
@@ -83,7 +83,7 @@ Compose 会先运行一次 `config-check`。如果还留有占位值或必填配
 
 打开 [Vdoc 工作台](http://127.0.0.1:8081)，使用刚填写的管理员账号登录。Backend 健康检查地址是 `http://127.0.0.1:8080/api/v1/open/health`。
 
-两份 Compose 都默认设置 `VDOC_ADMIN_API_BASE_URL: 'same-origin'`。Admin 浏览器请求当前工作台地址下的 `/api/v1/...`，由 Admin 内置 Caddy 转发到 `backend:8080`；本机访问时 API origin 是 `http://127.0.0.1:8081`。后端的独立端口仍供 Skill、MCP 和 CLI 直接访问。
+两份 Compose 都默认设置 `VDOC_ADMIN_API_BASE_URL: 'same-origin'`。Admin 浏览器请求当前工作台地址下的 `/api/v1/...`，由 Admin 内置 Caddy 转发到 `backend:8080`；本机访问时 API origin 是 `http://127.0.0.1:8081`。后端的独立端口仍供 MCP 和 CLI 直接访问。
 
 接下来：[发布第一份文档并让 Agent 查询](admin-usage.md)。
 
@@ -184,7 +184,7 @@ PostgreSQL 18 的数据卷挂载到 `/var/lib/postgresql`。Vdoc 的应用迁移
 
 ## 通过 Caddy 使用域名 {#caddy-domain}
 
-前后端保留独立端口和域名：前端 `docs.example.com` 反代到 `127.0.0.1:8081`，后端 `api.example.com` 反代到 `127.0.0.1:8080`。浏览器通过 `docs.example.com/api/v1/...` 访问 API，Skill、MCP 和 CLI 使用 `api.example.com`。以下示例假设 Caddy 运行在同一台服务器的宿主机上。
+前后端保留独立端口和域名：前端 `docs.example.com` 反代到 `127.0.0.1:8081`，后端 `api.example.com` 反代到 `127.0.0.1:8080`。浏览器通过 `docs.example.com/api/v1/...` 访问 API，MCP 和 CLI 使用 `api.example.com`。以下示例假设 Caddy 运行在同一台服务器的宿主机上。
 
 1. 将两个域名的 DNS A/AAAA 记录都指向服务器，允许外部访问 Caddy 的 80/443 端口；只保留实际可达的 IPv6 记录。Caddy 会自动申请和续期 HTTPS 证书。
 2. 保留两份 Compose 中的以下配置：
@@ -196,7 +196,7 @@ PostgreSQL 18 的数据卷挂载到 `/var/lib/postgresql`。Vdoc 的应用迁移
 
    第一项位于 `x-backend-environment`，第二项位于 `services.admin.environment`。`same-origin` 让运行时配置使用 `window.location.origin`，CSP 的 `connect-src` 允许 `'self'`，浏览器的认证请求通过 Admin 内置反代到达 Backend。
 
-   后端当前的 CORS 响应使用 `Access-Control-Allow-Headers: *`，没有显式允许 `Authorization`，因此不能依靠它支持浏览器的跨域认证请求。Skill、MCP 和 CLI 通常不受浏览器 CORS 限制，仍使用 `https://api.example.com`。从旧跨域配置升级时，将 API 地址改为 `'same-origin'` 后运行 `docker compose up -d --wait --force-recreate admin`，重新生成 Admin 的运行时配置。
+   后端当前的 CORS 响应使用 `Access-Control-Allow-Headers: *`，没有显式允许 `Authorization`，因此不能依靠它支持浏览器的跨域认证请求。MCP 和 CLI 通常不受浏览器 CORS 限制，仍使用 `https://api.example.com`。从旧跨域配置升级时，将 API 地址改为 `'same-origin'` 后运行 `docker compose up -d --wait --force-recreate admin`，重新生成 Admin 的运行时配置。
 
 3. 将以下站点配置加入外部 Caddy 的 Caddyfile，替换两个示例域名，然后执行 `caddy validate --config /etc/caddy/Caddyfile` 和 `caddy reload --config /etc/caddy/Caddyfile`：
 

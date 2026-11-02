@@ -7,7 +7,7 @@ Vdoc is a documentation hub for teams developing with AI. Keep OpenAPI contracts
 | Your situation                                                         | What to do in Vdoc                                                                                                   |
 | ---------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
 | The backend changed an API and the frontend needs to assess the impact | Compare OpenAPI versions, inspect field changes and Breaking Changes, then read the full endpoint definition.        |
-| Your agent needs team conventions, but its context is out of date      | Query published Markdown through MCP and use the Skill to guide the agent to read before answering.                  |
+| Your agent needs team conventions, but its context is out of date      | Read exact Markdown revisions through MCP; the consumer decides when to query and how to use them.                   |
 | A teammate or agent changed a document and someone needs to check it   | Submit a draft, inspect its Diff, and have an administrator approve publication. Historical versions stay immutable. |
 
 See **[how one API change moves through Vdoc](how-it-works.md#example)**, or **[deploy with Docker Compose](deployment.md#quick-start)**. Then follow [First Use](admin-usage.md) to publish a sample document and query it with your agent.
@@ -27,7 +27,7 @@ Product and platform teams developing with AI: backend maintainers publish contr
 
 In Admin's **Workspace**, browse teams, projects, and folders to find a document. Each project groups its documents, members, and permission-gated settings; access is assigned per project. Click a document to enter its own page: the current project's file tree on the left, content in the center, and an outline with version, Diff, AI, and settings tools on the right. Branch and revision controls sit above the content, while Share and Edit draft are in the document header. Narrow screens use a drawer for files and a dialog for the outline.
 
-MCP Tokens grant agents scoped read or draft permissions; Vdoc Skill provides a workflow for querying before collaborating.
+MCP Tokens grant agents scoped document read and write permissions. Vdoc manages documents; the consumer defines business tasks and workflows.
 
 ## After Your First Trial
 

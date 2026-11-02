@@ -1,6 +1,6 @@
 # Troubleshooting
 
-This page follows the path users experience: Compose startup, backend health, Admin login, Draft and Version publishing, then MCP and Skill Agent behavior.
+This page follows the path users experience: Compose startup, backend health, Admin login, Draft and Version publishing, then MCP document access.
 
 ## Protect Secrets First
 
@@ -71,7 +71,7 @@ When database or storage is enabled, unreachable dependencies stop backend start
 - Keep `VDOC_ADMIN_API_BASE_URL: 'same-origin'` for current deployments. Browsers call `/api/v1/...` on the workbench origin, and Admin's built-in Caddy forwards it to `backend:8080`. The default local API origin is `http://127.0.0.1:8081`.
 - Check `http://127.0.0.1:8081/api/v1/open/health` and `/runtime-config.js`; the latter should contain `apiBaseUrl: window.location.origin`. After changing Compose environment values, run `docker compose up -d --wait --force-recreate admin`; restarting an old container does not update its config.
 - Do not change this value to a separate Backend origin or `http://backend:8080` for troubleshooting. Built-in CORS wildcard request headers do not guarantee cross-origin `Authorization` support in every browser, and browsers cannot resolve Compose service names. Domain deployments also retain same-origin config; see [Caddy configuration](deployment.md#caddy-domain).
-- Skill, MCP, and CLI clients use the separate Backend address; their `VDOC_BASE_URL` serves a different purpose from the browser API origin.
+- MCP and CLI clients use the separate Backend address; their `VDOC_BASE_URL` serves a different purpose from the browser API origin.
 - Private API calls use raw JWT `Authorization`, no `Bearer` prefix.
 
 ## Forgotten Administrator Password {#reset-admin-password}
@@ -132,16 +132,16 @@ If `code` is not `200` or `status` is not `OK`, handle it as a business error.
 ## Agent Does Not Use Vdoc Facts
 
 - Confirm `@vdoc/mcp` `tools/list` succeeds.
-- Confirm `Vdoc-mcp/skills/vdoc/` is installed as the target runtime's `vdoc` skill folder and `SKILL.md` is at the skill root.
+- Confirm the token can read the target document type and pin the correct environment, document and commit.
 - Give explicit tasks such as: "First query Vdoc `get_endpoint_detail`, then explain request fields."
-- If the Agent still guesses fields, enums, response shapes, or Markdown text, reload the Skill and require it to query Vdoc MCP first.
+- If queries succeed but the agent ignores the results, inspect the consuming project's task instructions and agent configuration. Document usage belongs to the consumer.
 
 ## When to Roll Back
 
 - Backend health fails and cannot be fixed quickly: return to the previous backend or workspace version first.
 - Admin page fails but backend is healthy: roll back Admin build or container first.
 - MCP `tools/list` fails: check token and backend before rolling back MCP package.
-- Agent ignores Vdoc facts: check MCP and Skill installation before rolling back the Skill package.
+- MCP queries succeed but business results are unexpected: inspect the consumer's task and workflow before considering a service rollback.
 - Admin AI fails while machine Diff and human review work: roll back provider or prompt configuration first. Do not roll back a published Version or let AI replace review.
 
 Read [Upgrade and Rollback](release-rollback.md) before rolling back. Do not delete PostgreSQL or object storage data.

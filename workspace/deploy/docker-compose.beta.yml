@@ -166,7 +166,7 @@ services:
       # same-origin 使用当前工作台 origin，/api/* 经 Admin Caddy 转发到 backend:8080。
       # 本机和 HTTPS 域名部署均保留此值；MCP/CLI 可继续直连独立后端端口/域名。
       VDOC_ADMIN_API_BASE_URL: "same-origin"
-      # 工作台生成 beta 专用 MCP/Skill 安装与客户端配置。
+      # 工作台生成 beta 专用 MCP 安装与客户端配置。
       VDOC_ADMIN_RELEASE_CHANNEL: "beta"
     ports:
       # 宿主机 Caddy 将前端域名反代到 18081；容器内前端仍监听 8080。

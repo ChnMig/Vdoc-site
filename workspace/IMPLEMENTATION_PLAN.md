@@ -2,7 +2,7 @@
 
 > 2026-11-02 更新：v0.4.0-beta.3 以 [文档独立分支与递增版本](DOCUMENT_BRANCH_REDESIGN.md) 为准。项目组织文档，每份文档独立拥有分支和历史；初始分支默认 main，可手填，版本按各分支从 .1 递增。本文旧项目级分支描述保留为历史背景。
 
-> v0.4 Beta（2026-10-30）：项目仓库实现位于 `domain/documentrepo`、`services/vdoc/repository_*`、私有 `repository` / `repositoryshare` API 与统一 MCP 工具。Admin 默认使用保存并提交、历史、比较、合并与发布，MCP/Skill 同步采用系统生成修订 ID。改造范围与验收见 [提交与分支模型重设计](GIT_VERSIONING_REDESIGN.md)。下文的 v0.1 计划保留为旧模型和兼容入口说明；新路由清单与 v0.4 契约优先。
+> v0.4 Beta（2026-10-30）：项目仓库实现位于 `domain/documentrepo`、`services/vdoc/repository_*`、私有 `repository` / `repositoryshare` API 与统一 MCP 工具。Admin 默认使用保存并提交、历史、比较、合并与发布，MCP 同步采用系统生成修订 ID。改造范围与验收见 [提交与分支模型重设计](GIT_VERSIONING_REDESIGN.md)。下文的 v0.1 计划保留为旧模型和兼容入口说明；新路由清单与 v0.4 契约优先。
 
 本文档把主 PRD 的 v0.1 MVP 拆成后端和 Web 工作台工程计划。主需求来源见 `PRD.md`。当前工程实现以 Project 下的多类型 Document 为准，不再以项目下的后端服务作为产品模型。
 
@@ -24,7 +24,6 @@ v0.1 必须跑通：
   -> 后台 AI Provider 配置、自动 Diff 总结和页面内对话
   -> 产品级 Web 工作台和开发者门户式文档浏览
   -> MCP 查询 / OpenAPI 与 Markdown 草稿提交
-  -> Vdoc Skill
 ```
 
 Web v0.1 必须补齐两个前端闭环：
@@ -86,7 +85,7 @@ services/                      # 长驻 cron、worker、consumer 生命周期层
 utils/                         # token hash、schema hash、文件存储等基础工具
 ```
 
-Agent-facing distributions live outside the backend repository: `Vdoc-mcp/` contains the installable MCP stdio adapter and the companion Skill at `skills/vdoc/`, released together in one package.
+Agent-facing distributions live outside the backend repository: `Vdoc-mcp/` contains the installable document-management MCP stdio adapter. Consuming applications and agents define their own business workflows.
 
 Web-facing implementation lives outside the backend repository: `Vdoc-admin/` is the product workbench and developer portal for v0.1, while `Vdoc-site/` remains the public marketing and documentation portal.
 
@@ -134,6 +133,8 @@ GET  /api/v1/private/identity/me
 POST /api/v1/private/identity/me/password
 GET  /api/v1/private/system/version
 GET  /api/v1/private/system/updates
+GET  /api/v1/private/system/audit-retention
+PUT  /api/v1/private/system/audit-retention
 GET  /api/v1/private/system/users
 POST /api/v1/private/system/users
 PATCH /api/v1/private/system/users/:user_id
@@ -403,6 +404,6 @@ MCP Token 创建响应返回可复制 token 值；token 所属用户可以通过
 | 5 | Markdown 上传、stable snapshot、latest lookup 和文件 Diff |
 | 6 | 后台 AI Provider 配置、自动 Diff 总结和页面内 Chat |
 | 7 | Private REST routes、OpenAPI spec 和 API docs |
-| 8 | MCP tools、token scope、审计和 Vdoc Skill |
+| 8 | MCP tools、token scope、审计和操作说明 |
 | 9 | 公开分享管理、匿名安全查看与下载 |
 | 10 | 文档、schema docs、测试和最终验证 |

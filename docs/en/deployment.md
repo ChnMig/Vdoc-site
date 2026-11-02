@@ -46,7 +46,7 @@ docker compose -f docker-compose.beta.yml up -d --wait
 
 Open the [Beta workbench](http://127.0.0.1:18081). Use each channel file on its own. Keep Beta's project name `vdoc-beta`, and never point it at the stable database or bucket: startup migrations modify the configured database.
 
-MCP and its bundled Skill also have [separate channel installers](mcp-tools.md#release-channels). Configure a test Agent with the beta MCP executable's absolute path, Beta Backend URL and test Token; use release MCP and production credentials for the stable Agent. Repeat the selected channel's installation command to update MCP/Skill, then restart MCP and reload the Agent. Containers and clients upgrade when you run their update commands.
+MCP also has [separate channel installers](mcp-tools.md#release-channels). Configure a test Agent with the beta MCP executable's absolute path, Beta Backend URL and test Token; use release MCP and production credentials for the stable Agent. Repeat the selected channel's installation command to update MCP, then restart MCP and reload the Agent. Containers and clients upgrade when you run their update commands.
 
 <div id="initial-admin"></div>
 
@@ -83,7 +83,7 @@ After validation, Compose starts PostgreSQL, RustFS, Backend, and Admin. Backend
 
 Open the [Vdoc workbench](http://127.0.0.1:8081) and sign in with your configured administrator account. Backend health is available at `http://127.0.0.1:8080/api/v1/open/health`.
 
-Both Compose files default to `VDOC_ADMIN_API_BASE_URL: 'same-origin'`. Browsers request `/api/v1/...` on the current workbench origin, and Admin's built-in Caddy forwards those requests to `backend:8080`. For local access, the API origin is `http://127.0.0.1:8081`. The separate backend port remains available for direct Skill, MCP and CLI access.
+Both Compose files default to `VDOC_ADMIN_API_BASE_URL: 'same-origin'`. Browsers request `/api/v1/...` on the current workbench origin, and Admin's built-in Caddy forwards those requests to `backend:8080`. For local access, the API origin is `http://127.0.0.1:8081`. The separate backend port remains available for direct MCP and CLI access.
 
 Next: [publish your first document and query it with an agent](admin-usage.md).
 
@@ -184,7 +184,7 @@ PostgreSQL 18 mounts its data volume at `/var/lib/postgresql`. Vdoc application 
 
 ## Use a domain with Caddy {#caddy-domain}
 
-Keep frontend and backend on separate domains and ports: `docs.example.com` proxies to `127.0.0.1:8081`, while `api.example.com` proxies to `127.0.0.1:8080`. Browsers use `docs.example.com/api/v1/...`; Skill, MCP and CLI clients use `api.example.com`. This example runs Caddy on the same host as Docker.
+Keep frontend and backend on separate domains and ports: `docs.example.com` proxies to `127.0.0.1:8081`, while `api.example.com` proxies to `127.0.0.1:8080`. Browsers use `docs.example.com/api/v1/...`; MCP and CLI clients use `api.example.com`. This example runs Caddy on the same host as Docker.
 
 1. Point both domains' DNS A/AAAA records at the server and allow inbound ports 80/443 to Caddy. Keep only reachable IPv6 records. Caddy obtains and renews HTTPS certificates automatically.
 2. Retain these settings from either Compose file:
@@ -196,7 +196,7 @@ Keep frontend and backend on separate domains and ports: `docs.example.com` prox
 
    The first is under `x-backend-environment`; the second is under `services.admin.environment`. `same-origin` makes the runtime config use `window.location.origin`, with `'self'` allowed in CSP `connect-src`. Browser authentication requests reach Backend through Admin's built-in proxy.
 
-   Backend currently returns `Access-Control-Allow-Headers: *` without explicitly allowing `Authorization`, so this response cannot be relied on for authenticated cross-origin browser requests. Skill, MCP and CLI clients normally are not subject to browser CORS and continue to use `https://api.example.com`. When upgrading from a cross-origin configuration, change the API setting to `'same-origin'` and run `docker compose up -d --wait --force-recreate admin` to regenerate Admin's runtime config.
+   Backend currently returns `Access-Control-Allow-Headers: *` without explicitly allowing `Authorization`, so this response cannot be relied on for authenticated cross-origin browser requests. MCP and CLI clients normally are not subject to browser CORS and continue to use `https://api.example.com`. When upgrading from a cross-origin configuration, change the API setting to `'same-origin'` and run `docker compose up -d --wait --force-recreate admin` to regenerate Admin's runtime config.
 
 3. Add this block to the external Caddyfile, replace both domains, then run `caddy validate --config /etc/caddy/Caddyfile` and `caddy reload --config /etc/caddy/Caddyfile`:
 

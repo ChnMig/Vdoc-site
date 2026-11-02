@@ -25,11 +25,6 @@ export const requiredRoutePairs = [
   { slug: 'changelog', zh: '/changelog', en: '/en/changelog' },
   { slug: 'mcp-tools', zh: '/mcp-tools', en: '/en/mcp-tools' },
   {
-    slug: 'skill-workflows',
-    zh: '/skill-workflows',
-    en: '/en/skill-workflows',
-  },
-  {
     slug: 'release-rollback',
     zh: '/release-rollback',
     en: '/en/release-rollback',

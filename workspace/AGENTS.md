@@ -1,12 +1,12 @@
 # Vdoc Workspace Notes
 
-This workspace groups the Vdoc product repositories and distributable agent assets.
+This workspace groups the Vdoc product repositories and MCP adapter.
 
 ## Repository Boundaries
 
 - `Vdoc/` is the backend service. Backend MCP API implementation, token lifecycle, persistence, config, tests, and backend runtime code belong here.
-- `Vdoc-mcp/` contains the installable MCP adapter and its companion Skill at `skills/vdoc/`. They share one package, version, test suite, and release. Backend service implementation stays in `Vdoc/`.
-- `Vdoc-skill/`, if present in an older local workspace, is a legacy checkout. Its history has been imported into `Vdoc-mcp/`; do not use it as an active source or release dependency.
+- `Vdoc-mcp/` contains the installable MCP adapter for document management. It does not ship a companion Skill or prescribe consumer business workflows. Backend service implementation stays in `Vdoc/`.
+- `Vdoc-skill/`, if present in an older local workspace, is a legacy checkout. It is retired; do not use it as an active source or release dependency.
 - `Vdoc-site/` is the public website for project introduction and marketing/docs pages.
 - `Vdoc-admin/` is the authenticated product workbench and developer portal.
 

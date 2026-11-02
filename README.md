@@ -23,7 +23,7 @@ Local browser checks use the installed Microsoft Edge Beta channel. CI installs 
 - `/en/`: English documentation landing page.
 - Topic pages use matching slugs in both locales, for example `/deployment` and `/en/deployment`.
 
-Required topic slugs are `product-overview`, `how-it-works`, `version-notes`, `deployment`, `admin-usage`, `admin-ai`, `api-reference`, `changelog`, `mcp-tools`, `skill-workflows`, `release-rollback`, and `troubleshooting`. Every topic is authored at both `/<slug>` and `/en/<slug>`.
+Required topic slugs are `product-overview`, `how-it-works`, `version-notes`, `deployment`, `admin-usage`, `admin-ai`, `api-reference`, `changelog`, `mcp-tools`, `release-rollback`, and `troubleshooting`. Every topic is authored at both `/<slug>` and `/en/<slug>`.
 
 ## Local Development
 
@@ -66,7 +66,6 @@ The workspace root is not a Git repository. Public copies of its product documen
 - [Compose deployment](workspace/COMPOSE_DEPLOY.md), [docker-compose.yml](workspace/docker-compose.yml), and [.env.example](workspace/.env.example)
 - [Backend README](https://github.com/ChnMig/Vdoc/blob/main/README.md) and [API reference](https://github.com/ChnMig/Vdoc/blob/main/docs/api/API.md)
 - [MCP README](https://github.com/ChnMig/Vdoc-mcp/blob/main/README.md)
-- [Skill README](https://github.com/ChnMig/Vdoc-mcp/blob/main/skills/vdoc/README.md) and [SKILL.md](https://github.com/ChnMig/Vdoc-mcp/blob/main/skills/vdoc/SKILL.md)
 
 ## Public Workspace Resources
 

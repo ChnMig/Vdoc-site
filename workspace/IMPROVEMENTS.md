@@ -240,18 +240,9 @@ Redis / Queue
   - later codegen jobs
 ```
 
-## 10. Current Skill Support
+## 10. MCP Document Management
 
-MCP provides tool capabilities. Vdoc Skill is the current installable agent workflow package that teaches AI agents the preferred workflow.
-
-Current Skill workflows:
-
-- Backend or AI submits an updated OpenAPI or Markdown document draft.
-- Reviewers publish after checking the draft diff preview.
-- Frontend compares two API versions.
-- Frontend asks for endpoint-specific TypeScript types and request functions.
-- AI identifies frontend files likely affected by breaking changes.
-- AI fetches the latest Markdown guide or compares two Markdown document versions.
+MCP exposes authorized document discovery, exact revision reads, comparisons, document changes and merge proposals. Vdoc owns version identity, permissions, concurrent saves and human publication. Consuming applications and agents decide how to use documents for code, testing or other business tasks; no companion workflow package is shipped.
 
 ## Non-Goals for Now
 
@@ -271,7 +262,7 @@ The MVP is useful if:
 3. Vdoc can identify common breaking changes.
 4. Frontend developers can query endpoint details, Markdown content, and version diffs through Web UI or MCP.
 5. AI agents can submit OpenAPI and Markdown drafts through MCP and clearly wait for human approval.
-6. AI agents can use MCP responses to generate or update frontend integration code and project guidance.
+6. Agents can read and manage exact document revisions through MCP without a separate workflow installation.
 7. First-time users can follow Web onboarding and empty-state guidance to create the first team, project, document, branch, draft, reviewed version, and MCP token.
 8. Frontend developers can browse API documentation through grouped/searchable endpoints, inspect request and response details, switch versions, and review breaking-change diffs without falling back to raw JSON.
 9. Admin users can configure an OpenAI-compatible model, receive AI-generated diff summaries, and chat with the AI inside draft review, version, and diff pages without giving AI publish authority.

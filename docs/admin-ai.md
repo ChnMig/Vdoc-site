@@ -1,6 +1,6 @@
 # Admin AI
 
-Admin AI 是 Vdoc 后台内置的审核辅助能力。它读取 Vdoc 已生成的 Draft、Version 和 Diff 上下文，生成 AI 摘要并支持页面内对话。它与外部 MCP adapter 和 Vdoc Skill 不同，不向 Agent 提供发布捷径，也不替代机器 Diff 或人工审核。
+Admin AI 是 Vdoc 后台内置的审核辅助能力。它读取 Vdoc 已生成的 Draft、Version 和 Diff 上下文，生成 AI 摘要并支持页面内对话。它与外部 MCP adapter 不同，不向 Agent 提供发布捷径，也不替代机器 Diff 或人工审核。
 
 ## 权限和优先级
 
@@ -126,4 +126,4 @@ Project 或 Document 归档后只能读取历史，不能新建会话或发消�
 6. 确认失败或禁用场景显示 `skipped` 或 `failed`，同时 Diff 和人工审核仍可用。
 7. 检查审计中有状态和 token usage，但没有原始凭据、credential header 或提示词中嵌入的秘密；prompt override、summary 和 chat 记录仍按产品定义可用。
 
-外部 Agent 接入请读 [MCP 工具](mcp-tools.md) 和 [Skill 工作流](skill-workflows.md)。它们可以查询事实或提交 Draft，但同样不能替代人类审核和发布。
+外部 Agent 接入请读 [MCP 工具](mcp-tools.md)。它们可以查询事实或提交 Draft，但同样不能替代人类审核和发布。

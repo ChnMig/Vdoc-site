@@ -1,6 +1,6 @@
 # Admin AI
 
-Admin AI is the review assistant built into the Vdoc backend. It reads Draft, Version, and Diff context already produced by Vdoc, generates AI summaries, and supports page chat. It is separate from the external MCP adapter and Vdoc Skill. It provides no Agent publishing shortcut and never replaces machine Diff or human review.
+Admin AI is the review assistant built into the Vdoc backend. It reads Draft, Version, and Diff context already produced by Vdoc, generates AI summaries, and supports page chat. It is separate from the external MCP adapter. It provides no Agent publishing shortcut and never replaces machine Diff or human review.
 
 ## Permissions and Precedence
 
@@ -126,4 +126,4 @@ See [API Reference](api-reference.md#admin-ai-routes) for the complete route and
 6. Confirm disabled or failed cases show `skipped` or `failed` while Diff and human review still work.
 7. Check that audit data has status and token usage, but no raw credentials, credential headers, or secrets embedded in prompts; prompt override, summary, and chat records remain available as defined by the product.
 
-For external Agent access, read [MCP Tools](mcp-tools.md) and [Skill Workflows](skill-workflows.md). They can query facts or submit Drafts, but they also cannot replace human review and publishing.
+For external Agent access, read [MCP Tools](mcp-tools.md). They can query facts or submit Drafts, but they also cannot replace human review and publishing.

@@ -122,10 +122,6 @@ mcp_marked_markdown_inventory() {
     sort -u
 }
 
-mcp_skill_test_tools() {
-  jq -r '.tools[].name' "$ROOT_DIR/Vdoc-mcp/skills/vdoc/references/mcp-tools.json" | sort -u
-}
-
 assert_mcp_inventory_matches() {
   local label="$1"
   shift
@@ -188,7 +184,7 @@ backend_lock_commit="$(jq -r '.repositories[] | select(.path == "Vdoc") | .commi
 admin_lock_commit="$(jq -r '.repositories[] | select(.path == "Vdoc-admin") | .commit' "$ROOT_DIR/workspace.lock.json")"
 release_version_pattern='^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-(0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*)(\.(0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*))*)?$'
 [[ "$mcp_lock_commit" =~ ^[0-9a-f]{40}$ && "$mcp_lock_version" =~ $release_version_pattern ]] || \
-  fail 'workspace lock is missing MCP or Skill commit provenance'
+  fail 'workspace lock is missing MCP commit provenance'
 
 if rg -n --pcre2 --hidden \
   -g '!**/.git/**' \
@@ -234,16 +230,9 @@ for file in \
   assert_file_contains "$file" 'shasum -a 256 -c SHA256SUMS'
   assert_file_contains "$file" 'npm install --global "$VDOC_MCP_PACKAGE_DIR/vdoc-mcp-$VDOC_MCP_VERSION.tgz"'
 done
-# Skill 使用同一个已校验安装入口，避免两页重复维护下载和校验命令。
-assert_file_contains "$ROOT_DIR/Vdoc-site/docs/skill-workflows.md" 'mcp-tools.md#安装方式'
-assert_file_contains "$ROOT_DIR/Vdoc-site/docs/en/skill-workflows.md" 'mcp-tools.md#installation-options'
-for file in \
-  "$ROOT_DIR/Vdoc-site/docs/skill-workflows.md" \
-  "$ROOT_DIR/Vdoc-site/docs/en/skill-workflows.md"; do
-  assert_file_contains "$file" 'vdoc-mcp skill install --directory "$VDOC_SKILL_DIR"'
-  assert_file_contains "$file" 'test -f "$VDOC_SKILL_DIR/SKILL.md"'
-done
-assert_file_contains "$ROOT_DIR/Vdoc-mcp/skills/vdoc/README.md" 'https://github.com/ChnMig/Vdoc-mcp#optional-skill-and-linked-updates'
+[[ ! -e "$ROOT_DIR/Vdoc-mcp/skills/vdoc" ]] || fail 'MCP must not distribute a companion workflow package'
+jq -e '.files | index("skills/vdoc") == null' "$ROOT_DIR/Vdoc-mcp/package.json" >/dev/null || \
+  fail 'MCP package still includes retired workflow assets'
 assert_file_contains "$ROOT_DIR/Vdoc-mcp/README.md" 'VDOC_MCP_COMMIT="$(jq -er'
 assert_file_contains "$ROOT_DIR/Vdoc-mcp/README.md" 'select(.path == "Vdoc-mcp")'
 for file in \
@@ -253,14 +242,7 @@ for file in \
   "$ROOT_DIR/Vdoc-mcp/examples/opencode.jsonc"; do
   assert_file_contains "$file" 'github:ChnMig/Vdoc-mcp#<VDOC_MCP_COMMIT_FROM_WORKSPACE_LOCK>'
 done
-admin_skill_source="$ROOT_DIR/Vdoc-admin/src/features/vdoc-admin/skill-page.tsx"
 admin_mcp_source="$ROOT_DIR/Vdoc-admin/src/features/vdoc-admin/page-utils.ts"
-# Released Admin refs may predate page splitting; verify their existing barrel.
-[[ -f "$admin_skill_source" ]] || admin_skill_source="$ROOT_DIR/Vdoc-admin/src/features/vdoc-admin/pages.tsx"
-[[ -f "$admin_mcp_source" ]] || admin_mcp_source="$ROOT_DIR/Vdoc-admin/src/features/vdoc-admin/pages.tsx"
-assert_file_contains "$admin_skill_source" 'VDOC_MCP_VERSION=${vdocMcpReleaseVersion}'
-assert_file_contains "$admin_skill_source" 'shasum -a 256 -c SHA256SUMS'
-assert_file_contains "$admin_mcp_source" "export const vdocMcpReleaseVersion = '$mcp_lock_version'"
 assert_file_contains "$admin_mcp_source" "github:ChnMig/Vdoc-mcp#$mcp_lock_commit"
 assert_backend_root_docs_are_distributed
 
@@ -322,12 +304,6 @@ assert_mcp_inventory_matches 'PRD.md' mcp_marked_plain_inventory "$ROOT_DIR/PRD.
 assert_mcp_inventory_matches 'IMPLEMENTATION_PLAN.md' mcp_marked_plain_inventory "$ROOT_DIR/IMPLEMENTATION_PLAN.md"
 assert_mcp_inventory_matches 'Chinese site docs' mcp_marked_markdown_inventory "$ROOT_DIR/Vdoc-site/docs/mcp-tools.md"
 assert_mcp_inventory_matches 'English site docs' mcp_marked_markdown_inventory "$ROOT_DIR/Vdoc-site/docs/en/mcp-tools.md"
-assert_mcp_inventory_matches 'Vdoc Skill' mcp_marked_plain_inventory "$ROOT_DIR/Vdoc-mcp/skills/vdoc/SKILL.md"
-assert_mcp_inventory_matches 'Vdoc Skill validation' mcp_skill_test_tools
-
-if ! diff -u <(jq -S . "$ROOT_DIR/contracts/mcp-tools-v0.2.json") <(jq -S . "$ROOT_DIR/Vdoc-mcp/skills/vdoc/references/mcp-tools.json"); then
-  fail 'Skill argument contract must match the workspace MCP manifest'
-fi
 
 (
   cd "$ROOT_DIR/Vdoc"

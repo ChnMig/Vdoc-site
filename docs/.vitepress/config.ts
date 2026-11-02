@@ -30,7 +30,6 @@ const docsSlugs = [
   'api-reference',
   'changelog',
   'mcp-tools',
-  'skill-workflows',
   'release-rollback',
   'troubleshooting',
 ] as const
@@ -54,10 +53,7 @@ const zhSidebar: DefaultTheme.SidebarItem[] = [
   },
   {
     text: '接入 Agent',
-    items: [
-      { text: 'MCP 接入与工具', link: '/mcp-tools' },
-      { text: 'Skill 工作流', link: '/skill-workflows' },
-    ],
+    items: [{ text: 'MCP 接入与工具', link: '/mcp-tools' }],
   },
   {
     text: '查阅与运维',
@@ -93,10 +89,7 @@ const enSidebar: DefaultTheme.SidebarItem[] = [
   },
   {
     text: 'Connect Your Agent',
-    items: [
-      { text: 'MCP Setup and Tools', link: '/en/mcp-tools' },
-      { text: 'Skill Workflows', link: '/en/skill-workflows' },
-    ],
+    items: [{ text: 'MCP Setup and Tools', link: '/en/mcp-tools' }],
   },
   {
     text: 'Reference and Operations',

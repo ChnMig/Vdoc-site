@@ -153,21 +153,12 @@ describe.each(locales)('$label operator guidance', ({ prefix }) => {
     expect(source).toContain('tsc: command not found')
   })
 
-  it('links Skill installation to the verified global MCP installation first', () => {
-    const source = readProjectText(`${prefix}skill-workflows.md`)
-    const anchor = prefix === 'docs/' ? '安装方式' : 'installation-options'
-    const prerequisite = `mcp-tools.md#${anchor}`
-    const examples = shellBlocks(source).filter((block) =>
-      block.includes('vdoc-mcp skill install'),
-    )
-    expect(examples).toHaveLength(1)
-    expect(source).toContain(prerequisite)
-    expect(source.indexOf(prerequisite)).toBeLessThan(
-      source.indexOf('vdoc-mcp skill install'),
-    )
-    expect(examples[0]).toContain('set -eu')
-    expect(examples[0]).toContain('test -f "$VDOC_SKILL_DIR/SKILL.md"')
-    expect(examples[0]).not.toContain('npm install')
+  it('provides MCP setup without a separate workflow installation', () => {
+    const source = readProjectText(`${prefix}mcp-tools.md`)
+    expect(source).not.toContain('vdoc-mcp skill install')
+    expect(source).not.toContain('skill-workflows.md')
+    expect(source).toContain('commit_changes')
+    expect(source).toContain('resolve_ref')
   })
 
   for (const failure of ['none', 'checksum', 'download'] as const) {

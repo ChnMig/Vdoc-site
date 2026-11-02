@@ -1,5 +1,9 @@
 # Version Notes
 
+## v0.4.0-beta.5
+
+Agents need only MCP; consumers define how documents support their business. Global audit retention defaults to 30 calendar days in Asia/Shanghai, with daily cleanup at 01:00. A value of 0 clears history and stops retention. Startup applies migration 023. Back up Beta data first; image rollback or a longer retention period cannot recover deleted logs. The first upgrade from a combined package needs the new standalone channel installer. See [MCP setup](mcp-tools.md#release-channels) and the [changelog](changelog.md).
+
 ## v0.4.0-beta.4
 
 See the [changelog](changelog.md) for sidebars and AI chat. Migration 022 retains chats and audit references for legacy and new documents. Back up Beta data before updating components together; image rollback does not undo migrations.

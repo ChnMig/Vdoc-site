@@ -1,6 +1,6 @@
 # MCP 接入与工具
 
-Agent 可查询已发布的 OpenAPI、Markdown、TXT，或提交草稿供人工审核。首次接入：[连接 Agent](admin-usage.md#connect-agent) → [读取文档](admin-usage.md#first-query)。
+Agent 通过 MCP 在授权范围内读取和管理 OpenAPI、Markdown、TXT 文档；具体业务如何使用这些文档，由接入方决定。首次接入：[连接 Agent](admin-usage.md#connect-agent) → [读取文档](admin-usage.md#first-query)。
 
 stdio 适配器 `@vdoc/mcp` 将 `tools/list`、`tools/call` 转发到 `/api/v1/open/mcp`；Backend 负责存储与业务逻辑。
 
@@ -18,7 +18,7 @@ Agent 运行的机器还需安装 Node.js 20 或更新版本、npm 和 Git。尚
 当前 `@vdoc/mcp` 尚未发布到 npm registry。一次性使用可通过官方 GitHub 仓库的固定提交运行：
 
 ```sh
-npx --yes github:ChnMig/Vdoc-mcp#9d03c8321b8be5660a9ebbf824ae94ce4251f1b7
+npx --yes github:ChnMig/Vdoc-mcp#84705b299ee260a445302043294c03d38e2b8f7d
 ```
 
 一次性使用时，推荐在 Agent MCP config 中通过固定 commit 的 `npx` 调用，不要把 token 放在 `args`。上面的 40 位 commit 必须和已审核发布包 `workspace.lock.json` 的 `Vdoc-mcp` 项一致；不要删掉 fragment 或改成可移动 branch。
@@ -28,7 +28,7 @@ npx --yes github:ChnMig/Vdoc-mcp#9d03c8321b8be5660a9ebbf824ae94ce4251f1b7
 ```sh
 (
   set -eu
-  VDOC_MCP_VERSION=0.4.0-beta.4
+  VDOC_MCP_VERSION=0.4.0-beta.5
   VDOC_MCP_PACKAGE_DIR="$(mktemp -d)"
   trap 'rm -rf -- "$VDOC_MCP_PACKAGE_DIR"' EXIT
   VDOC_MCP_RELEASE="https://github.com/ChnMig/Vdoc-mcp/releases/download/v$VDOC_MCP_VERSION"
@@ -39,20 +39,20 @@ npx --yes github:ChnMig/Vdoc-mcp#9d03c8321b8be5660a9ebbf824ae94ce4251f1b7
 )
 ```
 
-使用与部署包 `workspace.lock.json` 一致的 MCP 版本。要让 Agent 使用全局安装，将配置的 `command` 改为 `vdoc-mcp` 并移除 `npx` 的 `args`，保留私密 `env`。更新后重启 MCP 连接。可选 Skill 的安装和更新见 [Skill 工作流](skill-workflows.md#安装)。
+使用与部署包 `workspace.lock.json` 一致的 MCP 版本。要让 Agent 使用全局安装，将配置的 `command` 改为 `vdoc-mcp` 并移除 `npx` 的 `args`，保留私密 `env`。更新后重启 MCP 连接。
 
 `VDOC_MCP_TOKEN` 是 shell 或 Agent 配置中的环境变量，不是 package CLI argument。不要把原始 token 放进 `npx`、`npm` 或 adapter 的 `args`。手工排查前运行 `set +x` 关闭 xtrace，并确保凭据不进入 shell history、日志或截图。
 
 ## 持续跟随 release / beta {#release-channels}
 
-MCP 与配套 Skill 使用同一个渠道发行包。`release` 只选择正式版，`beta` 只选择 `vMAJOR.MINOR.PATCH-beta.N` 预发布；没有对应版本时安装器会报错，不会跨渠道回退。两者分别安装在 `~/.local/share/vdoc/mcp/release` 与 `~/.local/share/vdoc/mcp/beta`，不会替换已有全局 MCP。
+MCP 按渠道安装适配器发行包。`release` 只选择正式版，`beta` 只选择 `vMAJOR.MINOR.PATCH-beta.N` 预发布；没有对应版本时安装器会报错，不会跨渠道回退。两者分别安装在 `~/.local/share/vdoc/mcp/release` 与 `~/.local/share/vdoc/mcp/beta`，不会替换已有全局 MCP。
 
-首次从已审核、包含渠道安装器的 [MCP Release](https://github.com/ChnMig/Vdoc-mcp/releases) 下载 `install-channel.mjs` 和 `install-channel.mjs.sha256`。下面将安装器固定到 `v0.4.0-beta.4`，在独立工具目录中执行；下载或摘要校验失败会停止安装。旧版本没有这两个资产：
+首次从已审核、包含渠道安装器的 [MCP Release](https://github.com/ChnMig/Vdoc-mcp/releases) 下载 `install-channel.mjs` 和 `install-channel.mjs.sha256`。以下命令固定安装器版本为 `v0.4.0-beta.5`，在独立工具目录中执行；下载或摘要校验失败会停止安装。旧版本没有这两个资产：
 
 ```sh
 (
   set -eu
-  VDOC_MCP_INSTALLER_TAG='v0.4.0-beta.4'
+  VDOC_MCP_INSTALLER_TAG='v0.4.0-beta.5'
   VDOC_MCP_INSTALLER_RELEASE="https://github.com/ChnMig/Vdoc-mcp/releases/download/$VDOC_MCP_INSTALLER_TAG"
   curl -fL "$VDOC_MCP_INSTALLER_RELEASE/install-channel.mjs" -o install-channel.mjs
   curl -fL "$VDOC_MCP_INSTALLER_RELEASE/install-channel.mjs.sha256" -o install-channel.mjs.sha256
@@ -64,13 +64,13 @@ MCP 与配套 Skill 使用同一个渠道发行包。`release` 只选择正式�
 
 每次执行都会解析该渠道最新已发布版本，校验其发行包再安装。安装器会打印 MCP 可执行文件的绝对路径。将它填入 Agent 配置的 `command`，移除 `npx` 的 `args`：稳定连接命名为 `vdoc`，测试连接命名为 `vdoc_beta`。Beta 使用 `VDOC_BASE_URL=http://127.0.0.1:18080`（或测试域名）及 Beta 工作台创建的 Token；线上 Token 不在测试连接中使用。客户端连接两个环境时，必须由用户明确选择查询对象。
 
-安装后，重复以下命令即可更新 beta MCP 和配套 Skill；稳定更新将两处 `beta` 改成 `release`：
+安装后，重复以下命令即可更新 beta MCP；稳定更新将两处 `beta` 改成 `release`：
 
 ```sh
 node "$HOME/.local/share/vdoc/mcp/beta/node_modules/@vdoc/mcp/scripts/install-channel.mjs" --channel beta
 ```
 
-更新后重启 MCP 连接并重新加载 Agent。Skill 应链接到各自 Agent 或项目的独立目录，见 [Skill 渠道隔离](skill-workflows.md#release-channels)。渠道安装器需要 Node.js 20+ 和 npm，无需 npm registry 发布。
+更新后重启 MCP 连接并重新加载 Agent。渠道安装器需要 Node.js 20+ 和 npm，无需 npm registry 发布。
 
 本地开发或 package smoke：
 
@@ -104,7 +104,7 @@ stdout 保留给 MCP protocol，普通诊断看 stderr。
       "command": "npx",
       "args": [
         "--yes",
-        "github:ChnMig/Vdoc-mcp#9d03c8321b8be5660a9ebbf824ae94ce4251f1b7"
+        "github:ChnMig/Vdoc-mcp#84705b299ee260a445302043294c03d38e2b8f7d"
       ],
       "env": {
         "VDOC_BASE_URL": "https://your-vdoc.example.test",
@@ -126,6 +126,18 @@ stdout 保留给 MCP protocol，普通诊断看 stderr。
   }
 }
 ```
+
+## 文档管理
+
+先选择环境、项目和文档，再用 `list_branches`、`resolve_ref` 固定确切提交。使用 `get_document_at_commit` 读取原文，使用 `compare_commits` 比较固定提交。分支最新提交可能尚未发布，只有确切 release 能证明发布状态。
+
+通过 `commit_changes` 保存时，提供读取时的 head/generation 和稳定的幂等键。冲突后先重新读取、比较并协调；超时且结果未知时，使用相同请求体和幂等键重试。提交 ID 和版本编号由后端生成，批准和发布仍在工作台完成。
+
+Vdoc 提供文档操作和事实。代码生成、消费方升级和其他业务工作流由接入方 Agent 或应用定义。
+
+## 从旧组合安装升级
+
+首次升级到仅 MCP 的版本时，请重新下载并校验包含此次变更的渠道安装器，保留原渠道和安装目录。早期随包安装器强制检查现已移除的 Skill 文件。移除对应 Agent／项目中的旧 Vdoc Skill 链接，保留自行维护的本地文件，再重启 MCP 并重新加载 Agent。安装器不会修改 Agent 目录或已有 MCP 凭据。
 
 ## 可用工具范围
 
@@ -188,13 +200,13 @@ v0.2 draft tools 覆盖 OpenAPI、Markdown 和 TXT Draft 的创建、更新、�
 
 <!-- VDOC_MCP_TOOL_INVENTORY_END -->
 
-`list_document_branches` 查询分支 ID、名称、默认及保护状态，包含未发布分支；`list_api_endpoints` 查询版本接口 ID，支持 `method` 和精确 OpenAPI `path` 筛选。先解析 ID，再查详情或建首份草稿。分支查询须有对应类型的 read scope；旧版缺少这些工具时，配套升级 Backend 与 Skill。
+`list_document_branches` 查询分支 ID、名称、默认及保护状态，包含未发布分支；`list_api_endpoints` 查询版本接口 ID，支持 `method` 和精确 OpenAPI `path` 筛选。先解析 ID，再查详情或建首份草稿。分支查询须有对应类型的 read scope；旧版缺少这些工具时，升级 Backend。
 
 `get_endpoint_detail` 的 `normalized_operation.securitySchemes` 含接口所用鉴权方案；同名方案的 Header、位置、类型变化计入差异。保留 OpenAPI 3.1 Schema `$ref` 同级约束，Operation 参数按 `name + in` 覆盖 Path 参数。升级 Backend 后，历史读取／比较会从原文刷新旧解析结果，保留版本和接口 ID。
 
 v0.2 不暴露直接发布工具。
 
-## Agent 行为规则
+## 文档操作规则
 
 - 回答 endpoint fields、response properties、enum values、auth schemes 或 Markdown / TXT 原文前，先查 Vdoc。
 - 优先使用 stable ID 和 `relative_path`，不要依赖显示名称。

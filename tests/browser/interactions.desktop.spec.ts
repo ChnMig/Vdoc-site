@@ -34,9 +34,7 @@ test.describe('focused desktop interactions', () => {
       home: '/',
       deployment: '/deployment',
       mcp: '/mcp-tools',
-      skill: '/skill-workflows',
       mcpChannelLink: '独立渠道安装入口',
-      skillChannelLink: 'Skill 渠道隔离',
       firstUse: '/admin-usage',
       nextAction: '发布第一份文档并让 Agent 查询',
       initialAdminHeading: '2. 填写配置和登录账号',
@@ -46,9 +44,7 @@ test.describe('focused desktop interactions', () => {
       home: '/en/',
       deployment: '/en/deployment',
       mcp: '/en/mcp-tools',
-      skill: '/en/skill-workflows',
       mcpChannelLink: 'separate channel installers',
-      skillChannelLink: 'Skill channel isolation',
       firstUse: '/en/admin-usage',
       nextAction: 'publish your first document and query it with an agent',
       initialAdminHeading: '2. Fill In Settings and Your Login',
@@ -95,7 +91,7 @@ test.describe('focused desktop interactions', () => {
       )
     })
 
-    test(`${locale.home} follows Beta channel setup from deployment to MCP and Skill`, async ({
+    test(`${locale.home} follows Beta channel setup from deployment to MCP`, async ({
       page,
     }) => {
       await page.goto(`${routeUrl(locale.deployment)}#beta-channel`, {
@@ -126,14 +122,12 @@ test.describe('focused desktop interactions', () => {
       await expect(installer).toContainText(
         'node install-channel.mjs --channel beta',
       )
-      await page
-        .getByRole('link', { name: locale.skillChannelLink, exact: true })
-        .click()
-      await expect(page).toHaveURL(`${routeUrl(locale.skill)}#release-channels`)
-      await expect(page.locator('#release-channels')).toBeVisible()
       await expect(page.locator('.vp-doc')).toContainText(
-        'mcp/beta/node_modules/.bin/vdoc-mcp" skill install --directory .agents/skills/vdoc',
+        'mcp/beta/node_modules/@vdoc/mcp/scripts/install-channel.mjs',
       )
+      await expect(
+        page.locator('.VPSidebar a[href*="skill-workflows"]'),
+      ).toHaveCount(0)
     })
   }
 
