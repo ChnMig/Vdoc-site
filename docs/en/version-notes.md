@@ -1,5 +1,11 @@
 # Version Notes
 
+## v0.4.0-beta.4
+
+Document tools now share a sidebar that expands and collapses in place. Full AI conversations return alongside version analysis, with corrected outline nesting and clearer event subscriptions. Branches, history, editing, comparison, merge review, publication, sharing and subscription management remain available. See the [changelog](changelog.md).
+
+Migration `022_document_chat_identity.sql` provides a stable conversation identity for both legacy and repository documents while retaining existing chats and audit references. Back up the isolated Beta database and storage, and update Backend/Admin together. Rolling back an image does not reverse the migration. Only the Beta channel changes.
+
 ## v0.4.0-beta.3
 
 Restore the document layout without changing branches or schema. See the [changelog](changelog.md).

@@ -174,3 +174,7 @@ AI summary、Provider test 和 Chat 调用写入 `audit_logs.metadata`。当 Pro
 迁移 `021_document_repositories.sql` 将 `repository_records` 分支名称唯一约束限定为项目、文档和名称。文档归属写入 JSON payload 的 `document_id`；增加按项目、文档、kind 和 sequence 查询的索引。原项目记录保留空文档归属，继续支持兼容读取。
 
 文档目录以 `kind=document` 保存稳定 ID、默认分支和默认分支版本。提交记录附带 `branch_id`、`revision`、`version_name`；分支 revision 在同一事务中随提交、HEAD、generation 和幂等结果推进。每份文档每个分支分别从 1 编号，失败、原样重试与无变化不消耗编号。旧正文和分享记录不重写。
+
+## 文档聊天身份（0.4.0-beta.4）
+
+迁移 `022_document_chat_identity.sql` 新增 `document_identity_index`，为旧 `documents` 与新文档提交仓库保留统一的稳定文档 ID。聊天会话与审计记录通过此索引保留文档外键；迁移回填既有身份，不重写或删除原会话、消息、文档内容。新文档与旧文档继续使用 `document` 对话范围。应用在生成与保存回答时检查项目权限、文档状态及旧草稿/版本和新提交来源修订。

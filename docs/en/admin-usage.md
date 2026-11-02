@@ -1,6 +1,6 @@
 # First Use
 
-Use the `v0.4.0-beta.3` document branch model to save, review, publish and query a Markdown guide. Start with an isolated [Beta environment](deployment.md#beta-channel).
+Use the `v0.4.0-beta.4` document branch model to save, review, publish and query a Markdown guide. Start with an isolated [Beta environment](deployment.md#beta-channel).
 
 ## Before You Start
 
@@ -76,9 +76,11 @@ For connection failures, check the agent runtime, Backend reachability and clien
 
 ## Reading, AI, Sharing and Events
 
-The document page retains the project directory on the left, content in the center, and an outline with a vertical tool rail on the right. On phones, open the Document tools menu. AI opens beside the current reader or tool and becomes a modal on narrow screens.
+The document page retains the project directory on the left, content in the center, and tools on the right. Outline, AI, history, comparisons, merges, releases and events open in the same sidebar. On phones, open the Document tools menu. Expand the sidebar to grow it leftward over the document; collapse it to restore its width. Input, scrolling and conversations stay in place.
 
 Copy or download exact content from the reader; Markdown offers Preview/Source. Legacy OpenAPI endpoint lists and saved version links remain readable.
+
+Use **AI chat** to ask about this document, including a branch or version such as `dev` or `main.2`. Existing conversations, attachments, reasoning, stop/retry and send shortcuts remain available. Switch to **Version analysis** to inspect fixed-version results.
 
 Request **AI analysis** for a fixed commit or pair. C3 arriving during C1→C2 analysis does not change its input. Results retain the fingerprint, model and status. Evidence is limited to 32 documents and 128 KiB with a truncation flag. Failures do not discard commits. AI cannot generate/apply patches or approve publication. Configure providers in [Admin AI](admin-ai.md).
 
@@ -86,7 +88,7 @@ Request **AI analysis** for a fixed commit or pair. C3 arriving during C1→C2 a
 
 Use **Share** in the document header for the current published version. Unpublished versions prompt you to review and publish first. You can also share from **Release records**, with password, expiry, reveal and revocation. Optional passwords require 12–72 UTF-8 bytes without leading/trailing Unicode whitespace. Later commits cannot rewrite its content. Anonymous readers do not see private trees, activity or AI. Existing public links retain their scope and access rules.
 
-Administrators manage durable event subscriptions, defaulting to publication events and optionally including internal commits. In-app subscriptions appear in the delivery ledger. Webhook consumers verify signatures, deduplicate event IDs and handle ordering. Pause/retry deliveries without undoing commits. Git-style means commit graphs, branches and merges, not native `git clone` / `git push` protocol support.
+Administrators choose events in **Event subscriptions**, grouped into Versions and branches, Review and merge, Publication, and AI analysis, with descriptions of when each event occurs. Subscriptions created from a document apply to that document. Publication events are selected by default; internal commits are optional. In-app subscriptions appear in the delivery ledger. Webhook consumers verify signatures, deduplicate event IDs and handle ordering. Pause/retry deliveries without undoing commits. Git-style means commit graphs, branches and merges, not native `git clone` / `git push` protocol support.
 
 ## Existing Projects and Compatibility Reads
 
