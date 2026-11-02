@@ -1,5 +1,9 @@
 # 版本说明
 
+## v0.4.0-beta.6
+
+MCP 可通过 npm 的 `@chnmig/vdoc-mcp@beta` 使用，工作台恢复安装、更新、卸载的一句话提示词。客户端和后端版本不一致时通过 MCP 日志和 stderr 提醒。一起更新 Backend、Admin、MCP，无新增迁移。首次 npm 发布仅提供 beta，`@latest` 随后续正式 npm 发布提供。见 [MCP 接入](mcp-tools.md)和[变更记录](changelog.md)。
+
 ## v0.4.0-beta.5
 
 Agent 仅需 MCP；业务如何使用文档由接入方决定。新增全局审计留存设置，默认 30 个北京时间自然日，每天 01:00 清理；设为 0 会清空历史并停止留存。023 迁移启动时应用，先备份 Beta 数据库和存储；回退镜像或调大天数不能恢复已清理日志。首次从组合包升级须重新下载新渠道安装器，见 [MCP 接入](mcp-tools.md#release-channels)及[变更记录](changelog.md)。

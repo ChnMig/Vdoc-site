@@ -131,7 +131,7 @@ If `code` is not `200` or `status` is not `OK`, handle it as a business error.
 
 ## Agent Does Not Use Vdoc Facts
 
-- Confirm `@vdoc/mcp` `tools/list` succeeds.
+- Confirm `@chnmig/vdoc-mcp` `tools/list` succeeds.
 - Confirm the token can read the target document type and pin the correct environment, document and commit.
 - Give explicit tasks such as: "First query Vdoc `get_endpoint_detail`, then explain request fields."
 - If queries succeed but the agent ignores the results, inspect the consuming project's task instructions and agent configuration. Document usage belongs to the consumer.

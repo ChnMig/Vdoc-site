@@ -123,7 +123,7 @@ test.describe('focused desktop interactions', () => {
         'node install-channel.mjs --channel beta',
       )
       await expect(page.locator('.vp-doc')).toContainText(
-        'mcp/beta/node_modules/@vdoc/mcp/scripts/install-channel.mjs',
+        'mcp/beta/node_modules/@chnmig/vdoc-mcp/scripts/install-channel.mjs',
       )
       await expect(
         page.locator('.VPSidebar a[href*="skill-workflows"]'),

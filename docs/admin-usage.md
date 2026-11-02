@@ -1,6 +1,6 @@
 # 首次使用
 
-本页使用 `v0.4.0-beta.5` 的文档独立分支模型，完成保存、审核发布和 Agent 查询。请使用独立的 [Beta 环境](deployment.md#beta-channel)。
+本页使用 `v0.4.0-beta.6` 的文档独立分支模型，完成保存、审核发布和 Agent 查询。请使用独立的 [Beta 环境](deployment.md#beta-channel)。
 
 ## 开始前确认
 
@@ -51,9 +51,9 @@
 
 ## 6. 连接 Agent
 
-按[MCP 渠道安装指引](mcp-tools.md#release-channels)安装 Beta adapter，再从令牌页复制 Codex、Cursor 或 Claude Code 对应配置。现有配置保留其他服务器条目；`VDOC_MCP_TOKEN` 填本人的令牌，`VDOC_BASE_URL` 必须从 **Agent 所在机器**可达，只有同机部署才能用 `127.0.0.1`。
+在令牌页的 **MCP 客户端配置** 复制一句话安装提示词发给 AI，或直接复制 Codex、Cursor、Claude Code 的 npx 配置，使用 `@chnmig/vdoc-mcp@beta`。现有配置保留其他服务器条目；`VDOC_MCP_TOKEN` 填本人的令牌，`VDOC_BASE_URL` 必须从 **Agent 所在机器**可达，只有同机部署才能用 `127.0.0.1`。
 
-安装后重启 MCP／Agent 会话并刷新工具发现。应列出 `list_projects`、`list_releases`、`get_release`、`get_document_at_commit`；完整配置和固定提交安装方式见[MCP 接入与工具](mcp-tools.md)。MCP 按环境选择对应渠道，当前不发布到 npm registry。
+安装后重启 MCP／Agent 会话并刷新工具发现。应列出 `list_projects`、`list_releases`、`get_release`、`get_document_at_commit`；完整配置、npm 渠道和确切版本安装方式见[MCP 接入与工具](mcp-tools.md)。若提示客户端与服务端版本不同，请对齐后再使用。
 
 <div id="first-query"></div>
 

@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.4.0-beta.6
+
+- Publish the MCP adapter as `@chnmig/vdoc-mcp` on npm. Beta uses `@beta`; `@latest` is reserved for a stable npm release. Keep exact workspace locks and GitHub archives available.
+- Restore one-sentence MCP install, update and uninstall prompts, with channel-aware npx configuration for Codex, Cursor and Claude Code.
+- Compare the adapter package version with the actual connected backend version. Mismatches and unavailable versions produce warnings without blocking document tools.
+- Keep existing GitHub channel prefixes upgradeable across the npm package rename and fix installer invocation through symlinked temporary paths.
+
+Update Backend, Admin and MCP together to get the version check. No new database migration beyond beta.5. Existing audit retention and document permissions are retained. See [MCP setup](mcp-tools.md).
+
 ## v0.4.0-beta.5
 
 - Ship MCP on its own for Agent access, removing the companion Skill, installation command and navigation. Consumers define business workflows; Vdoc retains document versioning, comparisons, concurrency, idempotent retries and human publication rules.

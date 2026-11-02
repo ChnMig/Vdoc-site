@@ -199,6 +199,7 @@ if rg -n --pcre2 --hidden \
   -g '!Vdoc-skill/**' \
   -g '!scripts/vdoc-workspace-contracts.sh' \
   -g '!Vdoc-mcp/README.md' \
+  -g '!Vdoc-mcp/package.json' \
   -g '!Vdoc-mcp/skills/vdoc/README.md' \
   -g '!Vdoc-mcp/examples/**' \
   "github:ChnMig/Vdoc-mcp(?!#${mcp_lock_commit})|git\\+https://github\\.com/ChnMig/Vdoc-mcp\\.git(?!#${mcp_lock_commit})" \
@@ -240,10 +241,12 @@ for file in \
   "$ROOT_DIR/Vdoc-mcp/examples/cursor_mcp.json" \
   "$ROOT_DIR/Vdoc-mcp/examples/codex-config.toml" \
   "$ROOT_DIR/Vdoc-mcp/examples/opencode.jsonc"; do
-  assert_file_contains "$file" 'github:ChnMig/Vdoc-mcp#<VDOC_MCP_COMMIT_FROM_WORKSPACE_LOCK>'
+  assert_file_contains "$file" '@chnmig/vdoc-mcp@beta'
 done
 admin_mcp_source="$ROOT_DIR/Vdoc-admin/src/features/vdoc-admin/page-utils.ts"
-assert_file_contains "$admin_mcp_source" "github:ChnMig/Vdoc-mcp#$mcp_lock_commit"
+assert_file_contains "$admin_mcp_source" '@chnmig/vdoc-mcp@latest'
+assert_file_contains "$admin_mcp_source" '@chnmig/vdoc-mcp@beta'
+assert_file_contains "$ROOT_DIR/Vdoc-site/docs/public/mcp-install.md" 'X-Vdoc-Server-Version'
 assert_backend_root_docs_are_distributed
 
 [[ -f "$ROOT_DIR/LICENSE" && ! -L "$ROOT_DIR/LICENSE" ]] || fail 'workspace root MIT license is missing'

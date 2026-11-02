@@ -1,5 +1,9 @@
 # Version Notes
 
+## v0.4.0-beta.6
+
+MCP is available from npm as `@chnmig/vdoc-mcp@beta`. The workbench restores one-sentence installation, update and removal. Client/backend version differences are reported through MCP logging and stderr. Update Backend, Admin and MCP together; no new migration. The first npm publication is beta only; `@latest` follows a future stable npm release. See [MCP setup](mcp-tools.md) and the [changelog](changelog.md).
+
 ## v0.4.0-beta.5
 
 Agents need only MCP; consumers define how documents support their business. Global audit retention defaults to 30 calendar days in Asia/Shanghai, with daily cleanup at 01:00. A value of 0 clears history and stops retention. Startup applies migration 023. Back up Beta data first; image rollback or a longer retention period cannot recover deleted logs. The first upgrade from a combined package needs the new standalone channel installer. See [MCP setup](mcp-tools.md#release-channels) and the [changelog](changelog.md).

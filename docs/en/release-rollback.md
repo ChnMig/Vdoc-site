@@ -20,7 +20,7 @@ Also back up the RustFS `rustfs-data` volume or storage bucket. External databas
 
 Keep Backend/Admin on `latest` to follow stable application releases. Read [Site Releases](https://github.com/ChnMig/Vdoc-site/releases) and merge any new settings without overwriting the private YAML. To pin or roll back, change both application aliases to the intended release tags or previously recorded digests. Rolling tags alone do not identify the prior running image.
 
-`v0.4.0-beta.5` applies `023_audit_retention.sql`. Audit retention defaults to 30 calendar days in Asia/Shanghai, with expired records cleaned at startup. Super administrators can change it under Settings → Global. A value of 0 permanently clears existing audit logs and stops retention. Back up before upgrading; image rollback or a longer retention period cannot recover deleted logs.
+`v0.4.0-beta.6` applies `023_audit_retention.sql`. Audit retention defaults to 30 calendar days in Asia/Shanghai, with expired records cleaned at startup. Super administrators can change it under Settings → Global. A value of 0 permanently clears existing audit logs and stops retention. Back up before upgrading; image rollback or a longer retention period cannot recover deleted logs.
 
 Preserve PostgreSQL and storage credentials, JWT/MCP keys, administrator settings, ports, project name, and volumes. `v0.3.10` adds no application database migration beyond v0.3.6. Upgrades from v0.3.0 or earlier apply the pending `007_parser_facts_and_history_pages.sql`, adding parser metadata, history query indexes, and the Diff `must_handle` field. Complete the backup above before upgrading; this release does not automatically downgrade the database.
 

@@ -20,7 +20,7 @@ docker compose exec -T postgres \
 
 默认保持 `x-backend-image` 和 `x-admin-image` 的 `latest`，无需逐次修改 tag。查看 [Site Release](https://github.com/ChnMig/Vdoc-site/releases)，按版本说明合并新增配置；不要覆盖已填写的私密 YAML。若要固定或回退应用版本，将两处应用镜像都改为目标版本 tag 或已保存的 digest。
 
-`v0.4.0-beta.5` 自动应用 `023_audit_retention.sql`。审计日志默认保留 30 个北京时间自然日，启动时会清理已过期记录；系统管理员可在「设置 → 全局配置」调整。设为 0 会永久清空已有审计日志并停止留存。升级前先备份；回退镜像或调大天数均不会恢复已清理日志。
+`v0.4.0-beta.6` 自动应用 `023_audit_retention.sql`。审计日志默认保留 30 个北京时间自然日，启动时会清理已过期记录；系统管理员可在「设置 → 全局配置」调整。设为 0 会永久清空已有审计日志并停止留存。升级前先备份；回退镜像或调大天数均不会恢复已清理日志。
 
 保留 PostgreSQL 密码、存储凭据、JWT/MCP 密钥、管理员设置、端口、项目名和数据卷。`v0.3.10` 相对 v0.3.6 不新增应用数据库迁移；从 v0.3.0 或更早版本升级时，会执行尚未应用的 `007_parser_facts_and_history_pages.sql`，新增解析版本字段、历史查询索引和 Diff 的 `must_handle` 字段。升级前完成上面的备份；本版不会自动执行数据库降级。
 

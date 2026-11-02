@@ -138,19 +138,19 @@ describe.each(locales)('$label operator guidance', ({ prefix }) => {
     expect(developer).toContain('VDOC_TEST_POSTGRES_DB')
   })
 
-  it('retains pinned one-off npx and offers a compiled global install', () => {
+  it('offers npm channels and retains a verified archive install', () => {
     const source = readProjectText(`${prefix}mcp-tools.md`)
     const blocks = shellBlocks(source)
-    expect(blocks.join('\n')).toMatch(
-      /npx --yes github:ChnMig\/Vdoc-mcp#[a-f\d]{40}/,
-    )
+    expect(blocks.join('\n')).toMatch(/npx --yes @chnmig\/vdoc-mcp@beta/)
     expect(blocks.join('\n')).not.toMatch(
       /npm\s+install\s+(?:-g|--global)\s+(?:git\+|github:)/,
     )
     expect(
       blocks.filter((block) => block.includes('npm install --global')),
     ).toHaveLength(1)
-    expect(source).toContain('tsc: command not found')
+    expect(source).toContain('@latest')
+    expect(source).toContain('X-Vdoc-Server-Version')
+    expect(source).toContain('public/mcp-install.md')
   })
 
   it('provides MCP setup without a separate workflow installation', () => {
