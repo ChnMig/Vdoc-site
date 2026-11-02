@@ -2485,7 +2485,7 @@ Vdoc 管理 OpenAPI、Markdown 和 TXT 文档及其独立分支、不可变版�
   "mcpServers": {
     "vdoc": {
       "command": "npx",
-      "args": ["--yes", "github:ChnMig/Vdoc-mcp#84705b299ee260a445302043294c03d38e2b8f7d"],
+      "args": ["--yes", "@chnmig/vdoc-mcp@beta"],
       "env": {
         "VDOC_BASE_URL": "https://your-vdoc.example.com",
         "VDOC_MCP_TOKEN": "REPLACE_WITH_LOCAL_VDOC_MCP_TOKEN"
