@@ -1,5 +1,14 @@
 # Version Notes
 
+## v0.4.0-beta.3
+
+- Restore the document page: project directory on the left, content in the center, and outline with a vertical tool rail on the right. Remove the horizontal task row.
+- Open AI independently beside the reader; retain reading position, edits and unsent input across tool changes, expansion and resizing. Phones use a compact tool menu.
+- Restore header Edit and Share actions. Sharing pins the current published version and guides unpublished versions through review first.
+- Keep independent document branches, default `main`, and incrementing versions such as `dev.1` and `dev.2`.
+
+No new backend behavior or database migration. Update Backend, Admin and MCP/Skill together in the isolated Beta environment after retaining backups. See [First use](admin-usage.md).
+
 ## v0.4.0-beta.2
 
 Each document owns independent branches and versions. New documents default to `main` with an optional initial branch name. Saves generate `main.1`, `main.2` and `dev.1` automatically. Branch changes leave the project catalog unchanged. Workbench, REST and MCP/Skill use document scope while legacy versions and shares remain readable. See [First Use](admin-usage.md).

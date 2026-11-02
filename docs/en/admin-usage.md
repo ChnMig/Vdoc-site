@@ -1,6 +1,6 @@
 # First Use
 
-Use the `v0.4.0-beta.2` document branch model to save, review, publish and query a Markdown guide. Start with an isolated [Beta environment](deployment.md#beta-channel).
+Use the `v0.4.0-beta.3` document branch model to save, review, publish and query a Markdown guide. Start with an isolated [Beta environment](deployment.md#beta-channel).
 
 ## Before You Start
 
@@ -31,7 +31,7 @@ OpenAPI JSON/YAML and TXT are also supported. TXT preserves text and line ending
 
 Use **Document branch** below the title to choose a branch, and **Version** to read earlier content. Choose **Edit**, change the content and **Save version**. The next changed save after `main.1` is `main.2`, then `main.3`. Numbers are automatic; a commit message is optional.
 
-Choose **New branch** beside the title and enter `dev`. It starts from the version being viewed and retains its ancestry. Its first new save is `dev.1`, then `dev.2`. Another document's `dev.1` counts separately. Switching branches leaves the project document list and other documents unchanged.
+Choose **New branch** beside the branch selector and enter `dev`. It starts from the version being viewed and retains its ancestry. Its first new save is `dev.1`, then `dev.2`. Another document's `dev.1` counts separately. Switching branches leaves the project document list and other documents unchanged.
 
 **Version history** opens exact old content. **Compare** selects two fixed versions of this document, with OpenAPI semantic and Breaking Change checks when available. Reverting appends a version and preserves history. Importing a file of the same type replaces only this document's content.
 
@@ -39,9 +39,9 @@ Concurrent saves preserve local input. Compare and reconcile, or save your work 
 
 ## 4. Review and Publish
 
-`main` is editable by default. For collaborative review, use **More → Merge requests** to select source and target branches of this document and inspect the actual merge candidate. An administrator reviews it. Advancing a branch or resolving conflicts requires a fresh review.
+`main` is editable by default. For collaborative review, use **Merge requests** in the right tool rail to select source and target branches of this document and inspect the actual merge candidate. An administrator reviews it. Advancing a branch or resolving conflicts requires a fresh review.
 
-Saving, merging and publishing are separate actions. An administrator explicitly publishes the selected version through **More → Releases**. Publications retain a readable name such as `main.2` and receive a separate release ID. Later saves cannot change published content. MCP can save, compare and propose merges, but cannot approve, merge or bypass human publication.
+Saving, merging and publishing are separate actions. An administrator explicitly publishes the selected version through **Releases** in the right tool rail. Publications retain a readable name such as `main.2` and receive a separate release ID. Later saves cannot change published content. MCP can save, compare and propose merges, but cannot approve, merge or bypass human publication.
 
 ## 5. Create a Read Token
 
@@ -76,13 +76,15 @@ For connection failures, check the agent runtime, Backend reachability and clien
 
 ## Reading, AI, Sharing and Events
 
+The document page retains the project directory on the left, content in the center, and an outline with a vertical tool rail on the right. On phones, open the Document tools menu. AI opens beside the current reader or tool and becomes a modal on narrow screens.
+
 Copy or download exact content from the reader; Markdown offers Preview/Source. Narrow screens use file and outline drawers. Legacy OpenAPI endpoint lists and saved version links remain readable.
 
 Request **AI analysis** for a fixed commit or pair. C3 arriving during C1→C2 analysis does not change its input. Results retain the fingerprint, model and status. Evidence is limited to 32 documents and 128 KiB with a truncation flag. Failures do not discard commits. AI cannot generate/apply patches or approve publication. Configure providers in [Admin AI](admin-ai.md).
 
 ### Create and Manage Public Shares
 
-Create a fixed document share from **Release records**, with password, expiry, reveal and revocation. Optional passwords require 12–72 UTF-8 bytes without leading/trailing Unicode whitespace. Later commits cannot rewrite its content. Anonymous readers do not see private trees, activity or AI. Existing public links retain their scope and access rules.
+Use **Share** in the document header for the current published version. Unpublished versions prompt you to review and publish first. You can also share from **Release records**, with password, expiry, reveal and revocation. Optional passwords require 12–72 UTF-8 bytes without leading/trailing Unicode whitespace. Later commits cannot rewrite its content. Anonymous readers do not see private trees, activity or AI. Existing public links retain their scope and access rules.
 
 Administrators manage durable event subscriptions, defaulting to publication events and optionally including internal commits. In-app subscriptions appear in the delivery ledger. Webhook consumers verify signatures, deduplicate event IDs and handle ordering. Pause/retry deliveries without undoing commits. Git-style means commit graphs, branches and merges, not native `git clone` / `git push` protocol support.
 

@@ -1,6 +1,6 @@
 # Vdoc v0.1 工程实现计划
 
-> 2026-11-02 更新：v0.4.0-beta.2 以 [文档独立分支与递增版本](DOCUMENT_BRANCH_REDESIGN.md) 为准。项目组织文档，每份文档独立拥有分支和历史；初始分支默认 main，可手填，版本按各分支从 .1 递增。本文旧项目级分支描述保留为历史背景。
+> 2026-11-02 更新：v0.4.0-beta.3 以 [文档独立分支与递增版本](DOCUMENT_BRANCH_REDESIGN.md) 为准。项目组织文档，每份文档独立拥有分支和历史；初始分支默认 main，可手填，版本按各分支从 .1 递增。本文旧项目级分支描述保留为历史背景。
 
 > v0.4 Beta（2026-10-30）：项目仓库实现位于 `domain/documentrepo`、`services/vdoc/repository_*`、私有 `repository` / `repositoryshare` API 与统一 MCP 工具。Admin 默认使用保存并提交、历史、比较、合并与发布，MCP/Skill 同步采用系统生成修订 ID。改造范围与验收见 [提交与分支模型重设计](GIT_VERSIONING_REDESIGN.md)。下文的 v0.1 计划保留为旧模型和兼容入口说明；新路由清单与 v0.4 契约优先。
 

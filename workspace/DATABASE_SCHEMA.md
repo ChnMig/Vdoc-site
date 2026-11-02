@@ -169,7 +169,7 @@ AI summary、Provider test 和 Chat 调用写入 `audit_logs.metadata`。当 Pro
 
 文档概览通过 SQL 统计版本、最新版本接口数、已发布的有效分支和草稿审阅状态。版本发布时将 `raw_line_count` 写入已有 `document_versions.schema_metadata`，字节数沿用 `schema_size_bytes`。旧 Markdown 版本首次请求概览时校验并读取原文，仅补齐这两项派生统计；后续概览不读取对象正文。摘要轮询只加载目标、权限上下文和单条摘要，不使用跨项目工作快照。
 
-## 文档独立仓库（v0.4.0-beta.2）
+## 文档独立仓库（v0.4.0-beta.3）
 
 迁移 `021_document_repositories.sql` 将 `repository_records` 分支名称唯一约束限定为项目、文档和名称。文档归属写入 JSON payload 的 `document_id`；增加按项目、文档、kind 和 sequence 查询的索引。原项目记录保留空文档归属，继续支持兼容读取。
 
