@@ -10,21 +10,21 @@
 
 ## v0.4.0-beta.2
 
-每份文档独立分支与版本。新文档默认 `main`，允许手填初始分支；保存自动生成 `main.1`、`main.2`、`dev.1`。切换分支不改变项目目录。工作台、REST、MCP/Skill 同步文档范围，原版本和分享保持可读。详见[首次使用](admin-usage.md)。
+每份文档独立分支，初始分支默认 `main`、可手填，版本自动递增为 `main.1`、`main.2`、`dev.1`。切换分支保留项目目录；工作台、REST、MCP/Skill 使用文档范围，旧版本与分享可读。见[首次使用](admin-usage.md)。
 
-新增迁移 `021_document_repositories.sql`，允许不同文档使用同名分支。先备份 Beta 数据库和存储，配套更新 Backend/Admin/MCP；回退镜像不会撤销迁移，仅更新 Beta 渠道。
+`021_document_repositories.sql` 允许不同文档使用同名分支。备份 Beta 数据库及存储后配套更新 Backend/Admin/MCP；镜像回退不撤销迁移，仅更新 Beta。
 
 ## v0.4.0-beta.1
 
-项目分支、不可变提交和固定发布替换默认草稿工作流，修订 ID 与发布号由系统生成。历史、比较、合并审核、AI 和事件订阅见[首次使用](admin-usage.md)。升级应用 018–020 迁移；先备份独立 Beta 数据库和对象存储，旧项目由管理员显式导入，已覆盖且无存留正文的历史无法恢复。仅更新 Beta 渠道。
+项目分支、不可变提交和固定发布替代默认草稿流程，修订号与发布号自动生成。历史、比较、合并审核、AI、事件见[首次使用](admin-usage.md)。018–020 迁移仅用于 Beta，先备份数据库及存储；旧项目由管理员导入，缺失的旧正文无法恢复。
 
 ## v0.3.17-beta.9
 
-工作空间按团队、项目和文件夹浏览；点击文档进入独立页面，左侧为项目文件树，中间为正文，右侧为目录与工具。顶栏提供分享和草稿编辑，项目成员在项目内管理。详见[首次使用](admin-usage.md)与[变更记录](changelog.md)。
+工作空间按团队／项目／文件夹浏览，文档页采用左目录、中正文、右大纲与工具，顶栏提供分享／草稿编辑，项目内管理成员。见[首次使用](admin-usage.md)及[变更记录](changelog.md)。
 
-更新四个项目的依赖和构建工具链：Go 1.27.3、Node.js 26.12.1，Admin 使用 Caddy 2.11.7。Admin/Site 因 lint 工具兼容范围继续固定 TypeScript 6.0.3，MCP 升至 TypeScript 7.0.2。本次 npm/pnpm 依赖审计未报告已知漏洞；这不代表对整个运行环境的安全保证。
+四仓库工具链更新为 Go 1.27.3、Node.js 26.12.1；Admin 使用 Caddy 2.11.7。Admin/Site 为兼容 lint 固定 TypeScript 6.0.3，MCP 使用 7.0.2。npm/pnpm 审计未发现已知漏洞，不构成运行环境安全保证。
 
-相对 beta.8 不新增数据库迁移。仅更新 Beta 渠道；备份后按[升级说明](release-rollback.md)手动更新。MCP 运行在 Agent 所在机器，请同步更新该机器的 Node.js 并重启 MCP。
+相对 beta.8 无新增迁移。仅更新 Beta，备份后[手动升级](release-rollback.md)；Agent 机器须更新 Node.js 并重启 MCP。
 
 ## v0.3.17-beta.8
 

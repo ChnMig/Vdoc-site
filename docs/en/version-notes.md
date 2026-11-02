@@ -10,21 +10,21 @@ Restore the document layout without changing branches or schema. See the [change
 
 ## v0.4.0-beta.2
 
-Each document owns independent branches and versions. New documents default to `main` with an optional initial branch name. Saves generate `main.1`, `main.2` and `dev.1` automatically. Branch changes leave the project catalog unchanged. Workbench, REST and MCP/Skill use document scope while legacy versions and shares remain readable. See [First Use](admin-usage.md).
+Documents own separate branches: default `main` or a custom initial name, with automatic `main.1`, `main.2`, `dev.1` versions. Branch switches preserve the catalog. Workbench, REST and MCP/Skill use document scope; legacy versions/shares remain readable. See [First Use](admin-usage.md).
 
-Adds migration `021_document_repositories.sql` to allow identical branch names in different documents. Back up the Beta database and storage, then update Backend/Admin/MCP together. Rolling back images does not reverse migrations. Updates only Beta.
+`021_document_repositories.sql` permits same-name branches across documents. Back up Beta data/storage, then update Backend/Admin/MCP together. Image rollback cannot undo migrations; only Beta updates.
 
 ## v0.4.0-beta.1
 
-Project branches, immutable commits and fixed releases replace the default draft workflow. The server generates revision and publication identifiers. See [First Use](admin-usage.md) for history, comparisons, merge review, AI and event subscriptions. Upgrade applies migrations 018–020; back up the isolated Beta database and object store first. An administrator explicitly imports old projects; overwritten bodies without surviving evidence cannot be recovered. Only the Beta channel updates.
+Project branches, immutable commits and fixed releases replace drafts, with automatic revision/release IDs. [First Use](admin-usage.md) covers history, comparison, review, AI and events. Beta migrations 018–020 require a database/storage backup. Administrators import legacy projects; missing overwritten content is unrecoverable.
 
 ## v0.3.17-beta.9
 
-Browse teams, projects, and folders in Workspace, then open a document on its own page: the project file tree on the left, content in the center, and an outline and tools on the right. Share and Edit draft are in the header; project membership is managed within the project. See [First Use](admin-usage.md) and the [changelog](changelog.md).
+Workspace groups teams, projects and folders. Documents have a left tree, central content and right outline/tools, header Share/Edit draft, and project membership controls. See [First Use](admin-usage.md) and the [changelog](changelog.md).
 
-Update dependencies and build tooling across all four repositories: Go 1.27.3, Node.js 26.12.1, and Caddy 2.11.7 for Admin. Admin/Site retain TypeScript 6.0.3 to match the lint tooling's supported range; MCP moves to TypeScript 7.0.2. The npm/pnpm dependency audits reported no known vulnerabilities, which is not a security guarantee for the entire running environment.
+Four repositories adopt Go 1.27.3 and Node.js 26.12.1; Admin uses Caddy 2.11.7. Admin/Site retain TypeScript 6.0.3 for lint compatibility; MCP uses 7.0.2. npm/pnpm audits found no known vulnerabilities, without guaranteeing environment security.
 
-No database migration is added beyond beta.8. This updates the Beta channel; back up and [upgrade manually](release-rollback.md). MCP runs on the Agent machine, so update Node.js there and restart MCP as well.
+No migration beyond beta.8. Back up Beta and [upgrade manually](release-rollback.md); update Node.js on the Agent machine and restart MCP.
 
 ## v0.3.17-beta.8
 
