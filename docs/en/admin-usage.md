@@ -78,7 +78,7 @@ For connection failures, check the agent runtime, Backend reachability and clien
 
 The document page retains the project directory on the left, content in the center, and an outline with a vertical tool rail on the right. On phones, open the Document tools menu. AI opens beside the current reader or tool and becomes a modal on narrow screens.
 
-Copy or download exact content from the reader; Markdown offers Preview/Source. Narrow screens use file and outline drawers. Legacy OpenAPI endpoint lists and saved version links remain readable.
+Copy or download exact content from the reader; Markdown offers Preview/Source. Legacy OpenAPI endpoint lists and saved version links remain readable.
 
 Request **AI analysis** for a fixed commit or pair. C3 arriving during C1→C2 analysis does not change its input. Results retain the fingerprint, model and status. Evidence is limited to 32 documents and 128 KiB with a truncation flag. Failures do not discard commits. AI cannot generate/apply patches or approve publication. Configure providers in [Admin AI](admin-ai.md).
 
