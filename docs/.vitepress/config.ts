@@ -115,6 +115,30 @@ export default defineConfig({
   cleanUrls: true,
   appearance: false,
   lastUpdated: true,
+  transformHtml(html, _id, { pageData }) {
+    if (
+      pageData.relativePath !== 'skill-workflows.md' &&
+      pageData.relativePath !== 'en/skill-workflows.md'
+    ) {
+      return html
+    }
+    const english = pageData.relativePath.startsWith('en/')
+    const lang = english ? 'en' : 'zh-CN'
+    const title = english ? 'MCP Setup' : 'MCP 接入'
+    const target = `${base}${english ? 'en/' : ''}mcp-tools`
+    // Retired entry points redirect before loading the documentation app.
+    return `<!DOCTYPE html>
+<html lang="${lang}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta http-equiv="refresh" content="0;url=${target}">
+  <link rel="canonical" href="${target}">
+  <title>${title} | Vdoc</title>
+</head>
+<body><a href="${target}">${title}</a></body>
+</html>`
+  },
   markdown: { codeTransformers: [sharedCodeColors] },
   head: [
     [
