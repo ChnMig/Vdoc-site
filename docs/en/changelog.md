@@ -2,12 +2,11 @@
 
 ## v0.4.0-beta.4
 
-- Outline, AI, history, comparisons, merges, releases and events share a right sidebar. Expansion animates leftward over the document while preserving input, reading position and tool state.
-- Restore document AI conversations with history, attachments, reasoning, stop and retry; fixed-version analysis remains available.
-- Align branch controls, correct outline nesting, and group subscription events with clear descriptions.
-- AI reads the current document's branches and numbered versions; existing conversations remain available.
+- Tools share a sidebar that expands in place, preserving input and scrolling.
+- Restore full AI chat with existing sessions and document commits; retain version analysis.
+- Fix branch alignment and outline nesting; clarify subscription groups.
 
-Back up the isolated Beta database and storage, then update Backend/Admin together (migration 022) and MCP/Skill. Only the Beta channel changes. See [First use](admin-usage.md).
+Back up Beta data, then update Backend/Admin (migration 022) and MCP/Skill together. See [First use](admin-usage.md).
 
 ## v0.4.0-beta.3
 
