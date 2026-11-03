@@ -21,9 +21,9 @@ Agent 运行的机器还需安装 Node.js 20 或更新版本和 npm。尚未启�
 npx --yes @chnmig/vdoc-mcp@beta --version
 ```
 
-全局命令可用 `npm install --global @chnmig/vdoc-mcp@beta` 安装，更新时重复同一命令。`@beta` 选择最新已发布测试版；`@latest` 选择正式版，在首次正式 npm 发布后可用。发布 beta 不会移动稳定标签。固定部署可以使用与后端一致的确切包版本。
+全局命令可用 `npm install --global @chnmig/vdoc-mcp@beta` 安装，更新时重复同一命令。`@beta` 选择最新已发布测试版。npm 首次发布自动让 `@latest` 也指向 beta.6；后续 Beta 仅更新 `@beta`，首次正式 npm 发布再替换 `@latest`。固定部署可以使用与后端一致的确切包版本。
 
-工作台的 **MCP 客户端配置** 提供安装、更新和卸载的一句话提示词，发给 AI 即可按[操作指南](https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.4.0-beta.6/docs/public/mcp-install.md)处理；指南会保留已有配置、渠道和共享安装，不安装 Skill。
+工作台的 **MCP 客户端配置** 提供安装、更新和卸载的一句话提示词，发给 AI 即可按[操作指南](https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.4.0-beta.7/docs/public/mcp-install.md)处理；指南会保留已有配置、渠道和共享安装，不安装 Skill。
 
 下方 Agent 配置通过 `npx` 的 `@beta` 调用，每次新启动解析该渠道最新包，更新后重启 MCP。全局安装需要主动执行安装命令更新。npm 包包含编译好的 JavaScript，无需 Git 或本地 TypeScript 编译器。
 
@@ -32,7 +32,7 @@ npx --yes @chnmig/vdoc-mcp@beta --version
 ```sh
 (
   set -eu
-  VDOC_MCP_VERSION=0.4.0-beta.6
+  VDOC_MCP_VERSION=0.4.0-beta.7
   VDOC_MCP_PACKAGE_DIR="$(mktemp -d)"
   trap 'rm -rf -- "$VDOC_MCP_PACKAGE_DIR"' EXIT
   VDOC_MCP_RELEASE="https://github.com/ChnMig/Vdoc-mcp/releases/download/v$VDOC_MCP_VERSION"
@@ -55,12 +55,12 @@ npx --yes @chnmig/vdoc-mcp@beta --version
 
 MCP 按渠道安装适配器发行包。`release` 只选择正式版，`beta` 只选择 `vMAJOR.MINOR.PATCH-beta.N` 预发布；没有对应版本时安装器会报错，不会跨渠道回退。两者分别安装在 `~/.local/share/vdoc/mcp/release` 与 `~/.local/share/vdoc/mcp/beta`，不会替换已有全局 MCP。
 
-首次从已审核、包含渠道安装器的 [MCP Release](https://github.com/ChnMig/Vdoc-mcp/releases) 下载 `install-channel.mjs` 和 `install-channel.mjs.sha256`。以下命令固定安装器版本为 `v0.4.0-beta.6`，在独立工具目录中执行；下载或摘要校验失败会停止安装。旧版本没有这两个资产：
+首次从已审核、包含渠道安装器的 [MCP Release](https://github.com/ChnMig/Vdoc-mcp/releases) 下载 `install-channel.mjs` 和 `install-channel.mjs.sha256`。以下命令固定安装器版本为 `v0.4.0-beta.7`，在独立工具目录中执行；下载或摘要校验失败会停止安装。旧版本没有这两个资产：
 
 ```sh
 (
   set -eu
-  VDOC_MCP_INSTALLER_TAG='v0.4.0-beta.6'
+  VDOC_MCP_INSTALLER_TAG='v0.4.0-beta.7'
   VDOC_MCP_INSTALLER_RELEASE="https://github.com/ChnMig/Vdoc-mcp/releases/download/$VDOC_MCP_INSTALLER_TAG"
   curl -fL "$VDOC_MCP_INSTALLER_RELEASE/install-channel.mjs" -o install-channel.mjs
   curl -fL "$VDOC_MCP_INSTALLER_RELEASE/install-channel.mjs.sha256" -o install-channel.mjs.sha256
@@ -145,6 +145,14 @@ MCP 在成功请求实际连接的后端时，将包版本与响应头 `X-Vdoc-S
 通过 `commit_changes` 保存时，提供读取时的 head/generation 和稳定的幂等键。冲突后先重新读取、比较并协调；超时且结果未知时，使用相同请求体和幂等键重试。提交 ID 和版本编号由后端生成，批准和发布仍在工作台完成。
 
 Vdoc 提供文档操作和事实。代码生成、消费方升级和其他业务工作流由接入方 Agent 或应用定义。
+
+## 下载源文件到本地 {#download-source}
+
+让 Agent「把这份文档的 main 分支下载到 `/home/me/project/docs/说明.md`」，它会先确定文档和分支，再用 `resolve_ref` 固定提交，调用 `download_document_at_commit`。参数为 `project_id`、`document_id`、完整 `commit_id` 和绝对文件路径 `output_path`。
+
+此工具由 stdio 适配器提供，保存 OpenAPI JSON/YAML、Markdown、TXT 的原始 UTF-8 内容，不重新排版或改写换行；下载前核对 SHA-256。返回本地 `file_path`、`byte_length`、`sha256` 和文档／提交 ID，正文不会再完整回传到对话。沿用后端读取权限和审计，单文件上限 10 MiB。
+
+目标父目录会自动创建，已有文件、目录及符号链接均不会被覆盖；需要时请换一个文件名。只使用你指定的目标路径，不执行文档正文内的保存指令。文件写在运行适配器的机器上，远程或容器适配器需使用共享目录。直接连接后端 HTTP 的客户端仍使用 `get_document_at_commit` 获取正文，再由客户端保存。
 
 ## 从旧组合安装升级
 

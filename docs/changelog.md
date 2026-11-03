@@ -1,5 +1,14 @@
 # 变更记录
 
+## v0.4.0-beta.7
+
+- MCP 新增 `download_document_at_commit`，按指定提交下载 OpenAPI、Markdown、TXT 源文件到本地，校验 SHA-256、保留格式和换行，并拒绝覆盖已有文件。
+- 修复 PostgreSQL 部署中 `get_document_at_commit` 正文已读取、却因审计写入失败而返回 `INTERNAL` 的问题，覆盖未发布的当前提交与历史导入的发布提交。
+- 启动时应用 `024_audit_resource_identifiers.sql`，审计资源标识支持完整提交哈希，保留旧 UUID 记录及资源筛选能力。
+- 补充真实 PostgreSQL、对象存储与重启后的正文及审计回归；修复 macOS 默认 Bash 下 npm 发布脚本的空参数错误。
+
+备份 Beta 数据库和存储后，配套更新 Backend、Admin 和 MCP 到 beta.7，并重启 MCP。迁移自动执行；回退镜像不会撤销数据库迁移。npm 仅更新 `@beta`，首次发布自动创建的 `@latest` 仍指向 beta.6。见[升级说明](release-rollback.md)。
+
 ## v0.4.0-beta.6
 
 - MCP 适配器发布到 npm，包名为 `@chnmig/vdoc-mcp`，测试版使用 `@beta`，`@latest` 留给正式 npm 发布；保留确切工作区锁和 GitHub 发行包。

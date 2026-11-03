@@ -1,8 +1,12 @@
 # Version Notes
 
+## v0.4.0-beta.7
+
+Add `download_document_at_commit` to save original files locally with hash verification, preserved formatting and no overwrites. Fix commit content reads returning `INTERNAL` in PostgreSQL deployments for unpublished commits and imported historical releases. Startup applies migration 024, allowing audit resource identifiers to store UUIDs and complete commit hashes while preserving existing records. Back up Beta data and storage, update Backend, Admin and MCP together, then restart MCP. Image rollback does not undo the migration. Use `@chnmig/vdoc-mcp@beta` on npm. See the [changelog](changelog.md) and [upgrade instructions](release-rollback.md).
+
 ## v0.4.0-beta.6
 
-MCP is available from npm as `@chnmig/vdoc-mcp@beta`. The workbench restores one-sentence installation, update and removal. Client/backend version differences are reported through MCP logging and stderr. Update Backend, Admin and MCP together; no new migration. The first npm publication is beta only; `@latest` follows a future stable npm release. See [MCP setup](mcp-tools.md) and the [changelog](changelog.md).
+MCP is available from npm as `@chnmig/vdoc-mcp@beta`. The workbench restores one-sentence installation, update and removal. Client/backend version differences are reported through MCP logging and stderr. Update Backend, Admin and MCP together; no new migration. npm initialized `@latest` to beta.6 on first publication. Subsequent betas update only `@beta`; the first stable npm publication will replace `@latest`. See [MCP setup](mcp-tools.md) and the [changelog](changelog.md).
 
 ## v0.4.0-beta.5
 

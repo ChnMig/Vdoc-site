@@ -21,9 +21,9 @@ The current npm release is beta. Use a readable package spec instead of a Git co
 npx --yes @chnmig/vdoc-mcp@beta --version
 ```
 
-To install a global command, run `npm install --global @chnmig/vdoc-mcp@beta`; repeat the same command to update. `@beta` selects the latest published beta. `@latest` selects stable and becomes available with the first stable npm publication; publishing beta never moves stable. For a fixed deployment, use an exact package version matching its backend.
+To install a global command, run `npm install --global @chnmig/vdoc-mcp@beta`; repeat the same command to update. `@beta` selects the latest published beta. npm initialized `@latest` to beta.6 on first publication; later betas update only `@beta`, and the first stable npm publication will replace `@latest`. For a fixed deployment, use an exact package version matching its backend.
 
-The workbench's **MCP client configuration** includes one-sentence prompts to install, update or uninstall MCP. Send the sentence to your AI; the [installation guide](https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.4.0-beta.6/docs/public/mcp-install.md) preserves settings, channels and shared installations. No Skill is installed.
+The workbench's **MCP client configuration** includes one-sentence prompts to install, update or uninstall MCP. Send the sentence to your AI; the [installation guide](https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.4.0-beta.7/docs/public/mcp-install.md) preserves settings, channels and shared installations. No Skill is installed.
 
 Use `npx` with `@beta` in the agent configuration below. Each new process resolves the latest package in that channel; restart MCP after an update. Global installs need an explicit install command to update. npm ships compiled JavaScript and requires no Git or local TypeScript compiler.
 
@@ -32,7 +32,7 @@ For a deployment locked to the reviewed workspace release, the verified prebuilt
 ```sh
 (
   set -eu
-  VDOC_MCP_VERSION=0.4.0-beta.6
+  VDOC_MCP_VERSION=0.4.0-beta.7
   VDOC_MCP_PACKAGE_DIR="$(mktemp -d)"
   trap 'rm -rf -- "$VDOC_MCP_PACKAGE_DIR"' EXIT
   VDOC_MCP_RELEASE="https://github.com/ChnMig/Vdoc-mcp/releases/download/v$VDOC_MCP_VERSION"
@@ -55,12 +55,12 @@ Use `@chnmig/vdoc-mcp@beta` for testing and `@chnmig/vdoc-mcp@latest` for stable
 
 MCP uses one adapter package per channel. `release` selects only stable releases; `beta` selects only `vMAJOR.MINOR.PATCH-beta.N` prereleases. A missing channel fails without falling back to another channel. Separate prefixes at `~/.local/share/vdoc/mcp/release` and `~/.local/share/vdoc/mcp/beta` preserve any existing global MCP installation.
 
-First download `install-channel.mjs` and `install-channel.mjs.sha256` from a reviewed [MCP Release](https://github.com/ChnMig/Vdoc-mcp/releases) that includes them. These commands pin the MCP-only installer to `v0.4.0-beta.6`; run them in a dedicated tools directory. A failed download or checksum stops installation. Older releases do not contain these assets:
+First download `install-channel.mjs` and `install-channel.mjs.sha256` from a reviewed [MCP Release](https://github.com/ChnMig/Vdoc-mcp/releases) that includes them. These commands pin the MCP-only installer to `v0.4.0-beta.7`; run them in a dedicated tools directory. A failed download or checksum stops installation. Older releases do not contain these assets:
 
 ```sh
 (
   set -eu
-  VDOC_MCP_INSTALLER_TAG='v0.4.0-beta.6'
+  VDOC_MCP_INSTALLER_TAG='v0.4.0-beta.7'
   VDOC_MCP_INSTALLER_RELEASE="https://github.com/ChnMig/Vdoc-mcp/releases/download/$VDOC_MCP_INSTALLER_TAG"
   curl -fL "$VDOC_MCP_INSTALLER_RELEASE/install-channel.mjs" -o install-channel.mjs
   curl -fL "$VDOC_MCP_INSTALLER_RELEASE/install-channel.mjs.sha256" -o install-channel.mjs.sha256
@@ -145,6 +145,14 @@ Select the server/environment, project and document, then call `list_branches` a
 Save with `commit_changes` using the observed head/generation and a stable idempotency key. On conflict, reread and compare before reconciling. After an unknown outcome, retry the identical payload and key. The backend generates commit IDs and numbered versions. Approval and publication remain workbench actions.
 
 Vdoc supplies document operations and facts. Code generation, consumer migrations and other business workflows belong to the consuming agent or application.
+
+## Download a source file locally {#download-source}
+
+Ask the agent to download a document's main branch to `/home/me/project/docs/guide.md`. It identifies the document and branch, pins an exact commit through `resolve_ref`, then calls `download_document_at_commit` with `project_id`, `document_id`, the full `commit_id` and absolute file path `output_path`.
+
+The stdio adapter saves original UTF-8 OpenAPI JSON/YAML, Markdown and TXT content without reformatting or changing line endings, and verifies SHA-256 before saving. It returns `file_path`, `byte_length`, `sha256` and document/commit IDs without echoing the entire body into the conversation. Existing backend read permissions and audits apply, with a 10 MiB source-file limit.
+
+Missing parent directories are created. Existing files, directories and symlinks are never overwritten; choose another filename when needed. Only the explicit destination path is used; document bodies cannot choose it. Files are saved on the adapter's machine, so remote/containerized adapters need a shared mount. Direct backend HTTP clients still read content using `get_document_at_commit` and save it themselves.
 
 ## Upgrading an older combined installation
 

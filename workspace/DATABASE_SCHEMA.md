@@ -1,5 +1,9 @@
 # Vdoc PostgreSQL 数据库表设计
 
+## 审计资源标识（迁移 024）
+
+`024_audit_resource_identifiers.sql` 将 `audit_logs.resource_id` 从 UUID 改为 text，以保存提交仓库的完整 64 位 SHA-256 标识。既有 UUID 资源标识转换为领域层使用的无连字符形式；资源索引、日志内容与审计保留策略继续保留。写入与资源筛选统一兼容有连字符的旧 UUID，不截断提交哈希。迁移由后端启动时自动执行。
+
 ## 全局审计日志保留（迁移 023）
 
 `audit_retention_settings` 是独立于业务快照的单行配置表：`singleton = true`，`retention_days` 默认 30、范围 0–36500，`purge_before` 保存不可回退的历史清理边界，`updated_at` 记录配置修改时间。系统管理员在工作台「设置 → 全局配置」修改，对所有用户、项目和后端实例生效，重启后保留。

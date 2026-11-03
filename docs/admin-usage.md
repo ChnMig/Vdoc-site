@@ -1,6 +1,6 @@
 # 首次使用
 
-本页使用 `v0.4.0-beta.6` 的文档独立分支模型，完成保存、审核发布和 Agent 查询。请使用独立的 [Beta 环境](deployment.md#beta-channel)。
+本页使用 `v0.4.0-beta.7` 的文档独立分支模型，完成保存、审核发布和 Agent 查询。请使用独立的 [Beta 环境](deployment.md#beta-channel)。
 
 ## 开始前确认
 

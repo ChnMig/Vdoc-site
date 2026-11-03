@@ -1,8 +1,12 @@
 # 版本说明
 
+## v0.4.0-beta.7
+
+新增 `download_document_at_commit`，校验哈希后将原始文档保存到本地，保留格式和换行、拒绝覆盖。修复 PostgreSQL 环境中按提交读取正文返回 `INTERNAL` 的问题，支持未发布提交与历史导入的发布内容。启动自动应用 024 迁移，让审计资源标识同时保存 UUID 与完整提交哈希，并保留旧记录。先备份 Beta 数据库及存储，再一起升级 Backend、Admin、MCP 并重启 MCP；回退镜像不撤销迁移。npm 使用 `@chnmig/vdoc-mcp@beta`。见[变更记录](changelog.md)和[升级说明](release-rollback.md)。
+
 ## v0.4.0-beta.6
 
-MCP 可通过 npm 的 `@chnmig/vdoc-mcp@beta` 使用，工作台恢复安装、更新、卸载的一句话提示词。客户端和后端版本不一致时通过 MCP 日志和 stderr 提醒。一起更新 Backend、Admin、MCP，无新增迁移。首次 npm 发布仅提供 beta，`@latest` 随后续正式 npm 发布提供。见 [MCP 接入](mcp-tools.md)和[变更记录](changelog.md)。
+MCP 可通过 npm 的 `@chnmig/vdoc-mcp@beta` 使用，工作台恢复安装、更新、卸载的一句话提示词。客户端和后端版本不一致时通过 MCP 日志和 stderr 提醒。一起更新 Backend、Admin、MCP，无新增迁移。npm 首次发布自动让 `@latest` 也指向 beta.6，后续 Beta 仅更新 `@beta`，首次正式 npm 发布再替换 `@latest`。见 [MCP 接入](mcp-tools.md)和[变更记录](changelog.md)。
 
 ## v0.4.0-beta.5
 

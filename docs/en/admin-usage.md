@@ -1,6 +1,6 @@
 # First Use
 
-Use `v0.4.0-beta.6` to save, review, publish and query a guide in an isolated [Beta environment](deployment.md#beta-channel).
+Use `v0.4.0-beta.7` to save, review, publish and query a guide in an isolated [Beta environment](deployment.md#beta-channel).
 
 ## Before You Start
 

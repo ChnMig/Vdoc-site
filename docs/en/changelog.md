@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.4.0-beta.7
+
+- Add MCP `download_document_at_commit` to save original OpenAPI, Markdown and TXT files locally from an exact commit, preserving formatting and line endings, verifying SHA-256 and refusing to overwrite existing files.
+- Fix `get_document_at_commit` returning `INTERNAL` in PostgreSQL deployments after reading content successfully but failing to record its audit. Covers current unpublished commits and imported historical releases.
+- Apply `024_audit_resource_identifiers.sql` at startup so audit resource identifiers accept complete commit hashes while preserving legacy UUID records and resource filters.
+- Add PostgreSQL, object-storage and restart regression coverage for exact content and commit audits. Fix the npm publication script's empty-argument failure under macOS's default Bash.
+
+Back up Beta data and storage, update Backend, Admin and MCP to beta.7 together, then restart MCP. The migration runs automatically; image rollback does not undo it. npm updates only `@beta`; the `@latest` alias initialized on first publication remains at beta.6. See [upgrade instructions](release-rollback.md).
+
 ## v0.4.0-beta.6
 
 - Publish the MCP adapter as `@chnmig/vdoc-mcp` on npm. Beta uses `@beta`; `@latest` is reserved for a stable npm release. Keep exact workspace locks and GitHub archives available.

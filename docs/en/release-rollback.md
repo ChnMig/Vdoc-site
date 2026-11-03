@@ -18,6 +18,8 @@ Also back up the RustFS `rustfs-data` volume or storage bucket. External databas
 
 ## 2. Pull updates and recreate containers
 
+`v0.4.0-beta.7` automatically applies `024_audit_resource_identifiers.sql`, changing audit resource identifiers to text so complete commit hashes and legacy UUID records are supported. This fixes MCP commit-content reads returning `INTERNAL` in PostgreSQL deployments. Back up Beta data and storage, then update Backend, Admin and MCP to beta.7 together. The startup migration briefly locks the audit table. Image rollback does not undo migration 024; identifiers containing commit hashes cannot be cast back to a UUID column directly.
+
 Keep Backend/Admin on `latest` to follow stable application releases. Read [Site Releases](https://github.com/ChnMig/Vdoc-site/releases) and merge any new settings without overwriting the private YAML. To pin or roll back, change both application aliases to the intended release tags or previously recorded digests. Rolling tags alone do not identify the prior running image.
 
 `v0.4.0-beta.6` applies `023_audit_retention.sql`. Audit retention defaults to 30 calendar days in Asia/Shanghai, with expired records cleaned at startup. Super administrators can change it under Settings → Global. A value of 0 permanently clears existing audit logs and stops retention. Back up before upgrading; image rollback or a longer retention period cannot recover deleted logs.
