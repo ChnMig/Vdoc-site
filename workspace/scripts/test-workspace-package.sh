@@ -111,7 +111,15 @@ grep -Eq ' root([[:space:]]+|/)root[[:space:]]' "$tmp/archive-verbose.txt" || \
   fail 'archive owner/group are not normalized to root/root'
 assert_not_contains "$tmp/archive-verbose.txt" 'chenming'
 assert_not_contains "$tmp/archive-verbose.txt" 'staff'
-assert_not_contains "$tmp/archive-verbose.txt" '2026'
+python3 - "$artifact_one" <<'PY'
+import sys
+import tarfile
+
+with tarfile.open(sys.argv[1]) as archive:
+    for entry in archive:
+        if entry.mtime != 0:
+            raise SystemExit(f"FAIL: archive timestamp is not normalized: {entry.name}: {entry.mtime}")
+PY
 
 mkdir -p "$tmp/extracted"
 tar -xzf "$artifact_one" -C "$tmp/extracted"
