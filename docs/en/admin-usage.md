@@ -1,6 +1,6 @@
 # First Use
 
-Use `v0.4.0-beta.7` to save, review, publish and query a guide in an isolated [Beta environment](deployment.md#beta-channel).
+Use `v0.4.0` to save, review, publish and query a guide after completing [deployment](deployment.md#quick-start).
 
 ## Before You Start
 
@@ -51,7 +51,7 @@ Choose **Create MCP token** with `doc:read` for Markdown/TXT, access to **Vdoc T
 
 ## 6. Connect Your Agent
 
-In the token page’s **MCP client configuration**, send the one-sentence install prompt to your AI, or copy the Codex, Cursor or Claude Code npx configuration using `@chnmig/vdoc-mcp@beta`. Preserve other servers. Set `VDOC_MCP_TOKEN` and a `VDOC_BASE_URL` reachable from **the agent machine**; localhost requires Backend on that machine.
+In the token page’s **MCP client configuration**, send the one-sentence install prompt to your AI, or copy the Codex, Cursor or Claude Code npx configuration using `@chnmig/vdoc-mcp@latest`. Preserve other servers. Set `VDOC_MCP_TOKEN` and a `VDOC_BASE_URL` reachable from **the agent machine**; localhost requires Backend on that machine.
 
 Restart MCP or the agent and refresh tools. Expect `list_projects`, `list_releases`, `get_release` and `get_document_at_commit`. See [MCP Setup](mcp-tools.md) for npm channels and exact versions. Align the client and backend if a version warning appears.
 

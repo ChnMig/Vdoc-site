@@ -236,12 +236,16 @@ jq -e '.files | index("skills/vdoc") == null' "$ROOT_DIR/Vdoc-mcp/package.json" 
   fail 'MCP package still includes retired workflow assets'
 assert_file_contains "$ROOT_DIR/Vdoc-mcp/README.md" 'VDOC_MCP_COMMIT="$(jq -er'
 assert_file_contains "$ROOT_DIR/Vdoc-mcp/README.md" 'select(.path == "Vdoc-mcp")'
+primary_mcp_channel=latest
+if [[ "$mcp_lock_version" == *-* ]]; then
+  primary_mcp_channel=beta
+fi
 for file in \
   "$ROOT_DIR/Vdoc-mcp/examples/claude_desktop_config.json" \
   "$ROOT_DIR/Vdoc-mcp/examples/cursor_mcp.json" \
   "$ROOT_DIR/Vdoc-mcp/examples/codex-config.toml" \
   "$ROOT_DIR/Vdoc-mcp/examples/opencode.jsonc"; do
-  assert_file_contains "$file" '@chnmig/vdoc-mcp@beta'
+  assert_file_contains "$file" "@chnmig/vdoc-mcp@$primary_mcp_channel"
 done
 admin_mcp_source="$ROOT_DIR/Vdoc-admin/src/features/vdoc-admin/page-utils.ts"
 assert_file_contains "$admin_mcp_source" '@chnmig/vdoc-mcp@latest'

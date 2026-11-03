@@ -1,5 +1,9 @@
 # 版本说明
 
+## v0.4.0
+
+文档独立分支、自动版本、审核发布与 MCP 接入转为正式版。MCP 通过 npm `@latest` 安装，支持版本提醒与源文件下载。v0.3.17 升级执行 018–024 迁移，beta.7 无新增迁移；备份后一起升级 Backend／Admin／MCP。审计留存及兼容说明见[升级说明](release-rollback.md)，完整功能见[变更记录](changelog.md)。
+
 ## v0.4.0-beta.7
 
 新增 `download_document_at_commit`，校验哈希后将原始文档保存到本地，保留格式和换行、拒绝覆盖。修复 PostgreSQL 环境中按提交读取正文返回 `INTERNAL` 的问题，支持未发布提交与历史导入的发布内容。启动自动应用 024 迁移，让审计资源标识同时保存 UUID 与完整提交哈希，并保留旧记录。先备份 Beta 数据库及存储，再一起升级 Backend、Admin、MCP 并重启 MCP；回退镜像不撤销迁移。npm 使用 `@chnmig/vdoc-mcp@beta`。见[变更记录](changelog.md)和[升级说明](release-rollback.md)。

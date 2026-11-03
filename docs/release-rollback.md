@@ -18,7 +18,7 @@ docker compose exec -T postgres \
 
 ## 2. 拉取更新并重建容器
 
-`v0.4.0-beta.7` 自动应用 `024_audit_resource_identifiers.sql`，将审计资源标识改为文本，兼容完整提交哈希并保留旧 UUID 记录。它修复 PostgreSQL 环境中 MCP 按提交读取正文返回 `INTERNAL` 的问题。先备份 Beta 数据库与存储，再将 Backend、Admin 和 MCP 一起升级到 beta.7；启动迁移会短暂锁定审计表。回退镜像不会撤销 024，含提交哈希的标识也不能直接转回 UUID 列。
+`v0.4.0` 将 beta.7 转为正式版。由 v0.3.17 升级会依次执行 018–024 迁移；由 beta.7 升级无新增迁移。先备份数据库和存储，再一起更新 Backend、Admin 和 MCP（npm `@latest`），并重启 MCP。旧项目需要管理员明确导入新文档分支模型；旧版本和分享保留兼容读取，缺失的旧草稿正文无法恢复。迁移 023 默认保留 30 个北京时间自然日的审计，启动会清理过期记录；设为 0 会清空历史并停止留存。迁移 024 将审计资源标识改为文本，支持完整提交哈希并保留旧 UUID 记录，执行时短暂锁定审计表。回退镜像不会撤销迁移或恢复已清理审计；含提交哈希的标识不能直接转回 UUID。
 
 默认保持 `x-backend-image` 和 `x-admin-image` 的 `latest`，无需逐次修改 tag。查看 [Site Release](https://github.com/ChnMig/Vdoc-site/releases)，按版本说明合并新增配置；不要覆盖已填写的私密 YAML。若要固定或回退应用版本，将两处应用镜像都改为目标版本 tag 或已保存的 digest。
 

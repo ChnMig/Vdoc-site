@@ -15,24 +15,24 @@ The agent machine also needs Node.js 20 or later and npm. If Vdoc is not running
 
 ## Installation Options
 
-The current npm release is beta. Use a readable package spec instead of a Git commit:
+Use npm `@latest` for a stable backend, without a Git commit:
 
 ```sh
-npx --yes @chnmig/vdoc-mcp@beta --version
+npx --yes @chnmig/vdoc-mcp@latest --version
 ```
 
-To install a global command, run `npm install --global @chnmig/vdoc-mcp@beta`; repeat the same command to update. `@beta` selects the latest published beta. npm initialized `@latest` to beta.6 on first publication; later betas update only `@beta`, and the first stable npm publication will replace `@latest`. For a fixed deployment, use an exact package version matching its backend.
+To install a global command, run `npm install --global @chnmig/vdoc-mcp@latest`; repeat it to update. `@latest` selects stable releases and `@beta` selects betas; the tags update independently. For a fixed deployment, use an exact package version matching its backend.
 
-The workbench's **MCP client configuration** includes one-sentence prompts to install, update or uninstall MCP. Send the sentence to your AI; the [installation guide](https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.4.0-beta.7/docs/public/mcp-install.md) preserves settings, channels and shared installations. No Skill is installed.
+The workbench's **MCP client configuration** includes one-sentence prompts to install, update or uninstall MCP. Send the sentence to your AI; the [installation guide](https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.4.0/docs/public/mcp-install.md) preserves settings, channels and shared installations. No Skill is installed.
 
-Use `npx` with `@beta` in the agent configuration below. Each new process resolves the latest package in that channel; restart MCP after an update. Global installs need an explicit install command to update. npm ships compiled JavaScript and requires no Git or local TypeScript compiler.
+Use `npx` with `@latest` in the agent configuration below. Each new process resolves the latest package in that channel; restart MCP after an update. Global installs need an explicit install command to update. npm ships compiled JavaScript and requires no Git or local TypeScript compiler.
 
 For a deployment locked to the reviewed workspace release, the verified prebuilt archive remains available:
 
 ```sh
 (
   set -eu
-  VDOC_MCP_VERSION=0.4.0-beta.7
+  VDOC_MCP_VERSION=0.4.0
   VDOC_MCP_PACKAGE_DIR="$(mktemp -d)"
   trap 'rm -rf -- "$VDOC_MCP_PACKAGE_DIR"' EXIT
   VDOC_MCP_RELEASE="https://github.com/ChnMig/Vdoc-mcp/releases/download/v$VDOC_MCP_VERSION"
@@ -49,24 +49,24 @@ Use the MCP version selected by your deployment package's `workspace.lock.json`.
 
 ## Follow release / beta updates {#release-channels}
 
-Use `@chnmig/vdoc-mcp@beta` for testing and `@chnmig/vdoc-mcp@latest` for stable after its first npm publication. With npx, each MCP restart resolves the latest published version in the selected channel. With a global installation, rerun the same `npm install --global` command. Keep each environment's server name, URL and token separate; no Git commit or installer path is needed in npm configurations.
+Use `@chnmig/vdoc-mcp@beta` for testing and `@chnmig/vdoc-mcp@latest` for stable. With npx, each MCP restart resolves the latest published version in the selected channel. With a global installation, rerun the same `npm install --global` command. Keep each environment's server name, URL and token separate; no Git commit or installer path is needed in npm configurations.
 
 ### Existing GitHub channel installations
 
 MCP uses one adapter package per channel. `release` selects only stable releases; `beta` selects only `vMAJOR.MINOR.PATCH-beta.N` prereleases. A missing channel fails without falling back to another channel. Separate prefixes at `~/.local/share/vdoc/mcp/release` and `~/.local/share/vdoc/mcp/beta` preserve any existing global MCP installation.
 
-First download `install-channel.mjs` and `install-channel.mjs.sha256` from a reviewed [MCP Release](https://github.com/ChnMig/Vdoc-mcp/releases) that includes them. These commands pin the MCP-only installer to `v0.4.0-beta.7`; run them in a dedicated tools directory. A failed download or checksum stops installation. Older releases do not contain these assets:
+First download `install-channel.mjs` and `install-channel.mjs.sha256` from a reviewed [MCP Release](https://github.com/ChnMig/Vdoc-mcp/releases) that includes them. These commands pin the MCP-only installer to `v0.4.0`; run them in a dedicated tools directory. A failed download or checksum stops installation. Older releases do not contain these assets:
 
 ```sh
 (
   set -eu
-  VDOC_MCP_INSTALLER_TAG='v0.4.0-beta.7'
+  VDOC_MCP_INSTALLER_TAG='v0.4.0'
   VDOC_MCP_INSTALLER_RELEASE="https://github.com/ChnMig/Vdoc-mcp/releases/download/$VDOC_MCP_INSTALLER_TAG"
   curl -fL "$VDOC_MCP_INSTALLER_RELEASE/install-channel.mjs" -o install-channel.mjs
   curl -fL "$VDOC_MCP_INSTALLER_RELEASE/install-channel.mjs.sha256" -o install-channel.mjs.sha256
   shasum -a 256 -c install-channel.mjs.sha256
-  node install-channel.mjs --channel beta
-  # For stable: node install-channel.mjs --channel release
+  node install-channel.mjs --channel release
+  # For beta: node install-channel.mjs --channel beta
 )
 ```
 
@@ -116,7 +116,7 @@ For local full Compose, `VDOC_BASE_URL` is usually `http://127.0.0.1:8080`. For 
   "mcpServers": {
     "vdoc": {
       "command": "npx",
-      "args": ["--yes", "@chnmig/vdoc-mcp@beta"],
+      "args": ["--yes", "@chnmig/vdoc-mcp@latest"],
       "env": {
         "VDOC_BASE_URL": "https://your-vdoc.example.test",
         "VDOC_MCP_TOKEN": "REPLACE_WITH_LOCAL_VDOC_MCP_TOKEN"

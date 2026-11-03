@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.4.0
+
+- Release independent document branches, immutable commits, automatic numbered versions and merge review, retaining the reading layout and full AI chat.
+- Ship MCP without a companion Skill, with npm `@latest`, one-sentence install/update/remove prompts, client/server version warnings and exact-commit source downloads.
+- Add global audit retention and fix commit-read audit failures in PostgreSQL deployments.
+
+Upgrading from v0.3.17 applies migrations 018–024; beta.7 has no additional migration. Back up the database and object store, then update Backend, Admin and MCP together. Audit retention defaults to 30 days; 0 clears history and stops retention. Image rollback does not undo migrations. Update stable images, npm `@latest` and the website; preserve the separate beta channel. See [upgrade instructions](release-rollback.md).
+
 ## v0.4.0-beta.7
 
 - Add MCP `download_document_at_commit` to save original OpenAPI, Markdown and TXT files locally from an exact commit, preserving formatting and line endings, verifying SHA-256 and refusing to overwrite existing files.

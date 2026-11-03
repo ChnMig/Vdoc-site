@@ -1,5 +1,9 @@
 # Version Notes
 
+## v0.4.0
+
+Document branches, automatic versions, reviewed publication and MCP access are stable. Install MCP with npm `@latest`, including version warnings and source downloads. Upgrades from v0.3.17 apply migrations 018–024; beta.7 has none to add. Back up data, then update Backend/Admin/MCP together. See [upgrade instructions](release-rollback.md) for audit retention and compatibility, and the [changelog](changelog.md) for features.
+
 ## v0.4.0-beta.7
 
 Add `download_document_at_commit` to save original files locally with hash verification, preserved formatting and no overwrites. Fix commit content reads returning `INTERNAL` in PostgreSQL deployments for unpublished commits and imported historical releases. Startup applies migration 024, allowing audit resource identifiers to store UUIDs and complete commit hashes while preserving existing records. Back up Beta data and storage, update Backend, Admin and MCP together, then restart MCP. Image rollback does not undo the migration. Use `@chnmig/vdoc-mcp@beta` on npm. See the [changelog](changelog.md) and [upgrade instructions](release-rollback.md).

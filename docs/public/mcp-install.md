@@ -5,25 +5,25 @@ This guide configures the `@chnmig/vdoc-mcp` stdio adapter. Vdoc supplies docume
 ## Choose the channel and configuration scope
 
 - `beta`: `@chnmig/vdoc-mcp@beta`, connected to the user's beta Vdoc backend.
-- `release`: `@chnmig/vdoc-mcp@latest`, connected to the stable backend after a stable npm release. npm initialized `latest` to beta.6 on the first publication; subsequent betas update only `beta`. Check the resolved version before configuring a stable connection. An unavailable tag must fail; do not silently change channels.
-- An exact version such as `@chnmig/vdoc-mcp@0.4.0-beta.7` keeps a deployment on the backend's release.
+- `release`: `@chnmig/vdoc-mcp@latest`, connected to the stable backend. Stable publications update only `latest`; beta publications update only `beta`. Check the resolved version before configuring a stable connection. An unavailable tag must fail; do not silently change channels.
+- An exact version such as `@chnmig/vdoc-mcp@0.4.0` keeps a deployment on the backend's release.
 
-Requires Node.js 20+ and npm. Verify the requested tag with `npm view @chnmig/vdoc-mcp@beta version` (or `@latest`). These are Vdoc package tags; do not upgrade unrelated client software or dependencies.
+Requires Node.js 20+ and npm. Verify the requested tag with `npm view @chnmig/vdoc-mcp@latest version` (or `@beta`). These are Vdoc package tags; do not upgrade unrelated client software or dependencies.
 
 Inspect the current project's MCP settings and existing Vdoc entries first. Preserve other servers and settings. Use project-local private configuration or a user configuration entry associated with this project; keep credentials out of tracked project files. For Codex, merge a server section into personal `~/.codex/config.toml`; Cursor uses personal `~/.cursor/mcp.json`; Claude Code uses top-level `mcpServers` in private `~/.claude.json`, with the project's existing scope where applicable. Preserve the client's configuration format.
 
 ## Install
 
-Use `vdoc_beta` for a beta connection and `vdoc` for stable. With npx, no global package or separate installation directory is needed. Example for beta:
+Use `vdoc_beta` for a beta connection and `vdoc` for stable. With npx, no global package or separate installation directory is needed. Example for stable:
 
 ```json
 {
   "mcpServers": {
-    "vdoc_beta": {
+    "vdoc": {
       "command": "npx",
-      "args": ["--yes", "@chnmig/vdoc-mcp@beta"],
+      "args": ["--yes", "@chnmig/vdoc-mcp@latest"],
       "env": {
-        "VDOC_BASE_URL": "https://your-beta-vdoc.example.test",
+        "VDOC_BASE_URL": "https://your-vdoc.example.test",
         "VDOC_MCP_TOKEN": "REPLACE_WITH_LOCAL_VDOC_MCP_TOKEN"
       }
     }
@@ -34,20 +34,20 @@ Use `vdoc_beta` for a beta connection and `vdoc` for stable. With npx, no global
 Equivalent Codex configuration:
 
 ```toml
-[mcp_servers.vdoc_beta]
+[mcp_servers.vdoc]
 command = "npx"
-args = ["--yes", "@chnmig/vdoc-mcp@beta"]
+args = ["--yes", "@chnmig/vdoc-mcp@latest"]
 startup_timeout_sec = 60
 tool_timeout_sec = 180
 
-[mcp_servers.vdoc_beta.env]
-VDOC_BASE_URL = "https://your-beta-vdoc.example.test"
+[mcp_servers.vdoc.env]
+VDOC_BASE_URL = "https://your-vdoc.example.test"
 VDOC_MCP_TOKEN = "REPLACE_WITH_LOCAL_VDOC_MCP_TOKEN"
 ```
 
 Use the URL/token already configured for the requested environment. If either is missing, leave an explicit placeholder and explain the remaining local configuration step. Do not infer a production or beta URL, copy a token to another environment, or ask users to paste credentials into public chat. The workbench creates and reveals MCP tokens. Pass credentials only through private environment/secret settings, never CLI arguments or logs.
 
-Verify the executable with `npx --yes @chnmig/vdoc-mcp@beta --version`. Restart or reload the MCP connection, run `tools/list`, then read an authorized document selected by the user. Report whether the executable, connection and actual document access were checked; do not claim a connection is verified from `--version` alone.
+Verify the executable with `npx --yes @chnmig/vdoc-mcp@latest --version`. Restart or reload the MCP connection, run `tools/list`, then read an authorized document selected by the user. Report whether the executable, connection and actual document access were checked; do not claim a connection is verified from `--version` alone.
 
 ## Update
 
@@ -55,7 +55,7 @@ Preserve the existing channel, backend URL, token, server name, configuration sc
 
 - For `npx ...@beta` or `...@latest`, restart MCP: a new process resolves the current registry tag; a running process does not update in place. Do not clear unrelated npm caches.
 - For an explicitly pinned npm version, align with the actual backend release before changing that pin; do not silently migrate a reproducible deployment to a moving tag.
-- For a global npm installation, run `npm install --global @chnmig/vdoc-mcp@beta` (or the original `@latest` channel), then restart. A shared global installation affects all its users.
+- For a global npm installation, run `npm install --global @chnmig/vdoc-mcp@latest` (or the original `@beta` channel), then restart. A shared global installation affects all its users.
 - For a project-local npm installation, update within the same prefix and existing dependency convention. Do not replace a shared installation with a global one.
 - Existing GitHub channel installations remain valid. Reuse their channel and dedicated prefix with the reviewed standalone `install-channel.mjs`; its output provides the update command. Old packages may reside at `node_modules/@vdoc/mcp`, new ones at `node_modules/@chnmig/vdoc-mcp`. Older bundled updaters that require a Skill must be replaced by the current standalone installer before the first upgrade. Preserve the install location and agent credentials.
 
