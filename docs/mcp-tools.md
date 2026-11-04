@@ -25,9 +25,9 @@ npx --yes @chnmig/vdoc-mcp@latest --version
 
 全局命令可用 `npm install --global @chnmig/vdoc-mcp@latest` 安装，更新时重复同一命令。`@latest` 选择最新正式版，`@beta` 选择最新测试版，两者分别更新。固定部署可使用与后端一致的确切包版本。
 
-工作台的 **MCP 客户端配置** 提供安装、更新和卸载的一句话提示词，默认全局安装并写入用户级 MCP 配置，供所有项目共用；发给 AI 即可按[操作指南](https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.4.2/docs/public/mcp-install.md)处理；指南会保留已有配置、渠道和共享安装，不安装 Skill。
+工作台的 **MCP 客户端配置** 提供全局安装、更新和卸载的一句话提示词，用户级配置供所有项目共用。[操作指南](https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.4.2/docs/public/mcp-install.md)会保留配置、渠道和共享安装，不安装 Skill。
 
-下方 Agent 配置通过 `npx` 的 `@latest` 调用，每次新启动解析该渠道最新包，更新后重启 MCP。全局安装需要主动执行安装命令更新。npm 包包含编译好的 JavaScript，无需 Git 或本地 TypeScript 编译器。
+下方配置使用 `npx`，每次启动解析渠道最新包；全局安装需主动更新。更新后重启 MCP。npm 包已编译，无需 Git 或 TypeScript 编译器。
 
 固定部署仍可安装与审核过的工作区锁一致的已编译发行包，先校验再安装：
 
@@ -83,17 +83,7 @@ node "$HOME/.local/share/vdoc/mcp/beta/node_modules/@chnmig/vdoc-mcp/scripts/ins
 
 更新后重启 MCP 连接并重新加载 Agent。渠道安装器需要 Node.js 20+ 和 npm，可继续用于已有 GitHub 渠道安装。
 
-本地开发或 package smoke：
-
-```sh
-cd Vdoc-mcp
-npm ci
-npm test
-# 先通过私密 shell 环境或 Agent secret env 设置 VDOC_MCP_TOKEN。
-VDOC_BASE_URL="http://127.0.0.1:8080" npm start
-```
-
-stdout 保留给 MCP protocol，普通诊断看 stderr。
+本地开发与包验证见 [MCP README](https://github.com/ChnMig/Vdoc-mcp/blob/v0.4.2/README.md)。stdout 保留给 MCP protocol，诊断看 stderr。
 
 ## 客户端与服务端版本核对
 

@@ -25,9 +25,9 @@ npx --yes @chnmig/vdoc-mcp@latest --version
 
 To install a global command, run `npm install --global @chnmig/vdoc-mcp@latest`; repeat it to update. `@latest` selects stable releases and `@beta` selects betas; the tags update independently. For a fixed deployment, use an exact package version matching its backend.
 
-The workbench's **MCP client configuration** includes one-sentence prompts for a user-wide global MCP installation and configuration shared by all projects, with matching update and uninstall actions. Send the sentence to your AI; the [installation guide](https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.4.2/docs/public/mcp-install.md) preserves settings, channels and shared installations. No Skill is installed.
+The workbench's **MCP client configuration** offers global install, update and uninstall prompts with user-wide configuration shared by projects. The [installation guide](https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.4.2/docs/public/mcp-install.md) preserves settings, channels and shared installations. No Skill is installed.
 
-Use `npx` with `@latest` in the agent configuration below. Each new process resolves the latest package in that channel; restart MCP after an update. Global installs need an explicit install command to update. npm ships compiled JavaScript and requires no Git or local TypeScript compiler.
+The configuration below uses `npx`, resolving the channel's latest package at startup. Global installs require an explicit update. Restart MCP after updating. npm ships compiled JavaScript; no Git or TypeScript compiler is needed.
 
 For a deployment locked to the reviewed workspace release, the verified prebuilt archive remains available:
 
@@ -83,17 +83,7 @@ node "$HOME/.local/share/vdoc/mcp/beta/node_modules/@chnmig/vdoc-mcp/scripts/ins
 
 Restart MCP and reload the Agent after updating. The installer requires Node.js 20+ and npm, and remains available for existing GitHub channel installations.
 
-Local development or package smoke:
-
-```sh
-cd Vdoc-mcp
-npm ci
-npm test
-# Set VDOC_MCP_TOKEN through a private shell environment or Agent secret env first.
-VDOC_BASE_URL="http://127.0.0.1:8080" npm start
-```
-
-stdout is reserved for MCP protocol frames. Read stderr for diagnostics.
+For development and package checks, see the [MCP README](https://github.com/ChnMig/Vdoc-mcp/blob/v0.4.2/README.md). stdout carries MCP frames; diagnostics use stderr.
 
 ## Client and server version check
 
