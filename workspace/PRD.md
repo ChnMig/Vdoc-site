@@ -1805,7 +1805,7 @@ AI 通过 MCP 可以：
 
 ### 9.2 MCP Tools
 
-以 2026-11-02 后的文档独立分支和不可变提交模型为准。当前开发版发现清单为 21 个后端工具；stdio 适配器另外提供 `download_document_at_commit`。旧版本／草稿工具不再向新 Agent 展示，历史数据与后端内部兼容处理保留。工具参数契约以 `contracts/mcp-tools-v0.2.json` 和实际 `tools/list` 为准。
+以 2026-11-02 后的文档独立分支和不可变提交模型为准。当前开发版发现清单为 27 个后端工具；stdio 适配器另外提供 `download_document_at_commit`。旧版本／草稿工具不再向新 Agent 展示，历史数据与后端内部兼容处理保留。工具参数契约以 `contracts/mcp-tools-v0.2.json` 和实际 `tools/list` 为准。
 
 <!-- VDOC_MCP_TOOL_INVENTORY_START -->
 ```text
@@ -1830,8 +1830,16 @@ list_documents
 search_documents
 get_document_section
 apply_document_patch
+list_folders
+create_folder
+update_folder
+delete_folder
+update_document
+delete_document
 ```
 <!-- VDOC_MCP_TOOL_INVENTORY_END -->
+
+`list_folders` / `create_folder` 提供目录列表和创建；`update_folder` 通过 `name` / `parent_path` 改名或同项目移动，空父路径表示根目录；`delete_folder` 只删空目录。`update_document` 通过 `name` / `relative_path` / `description` 改名、移动或更新说明，保持文档 ID、分支及历史；`delete_document` 从活动目录移除并停用旧分享及直接历史访问，存储历史与审计保留，重复删除幂等。管理要求项目 Admin 和匹配文档类型的写入 scope，文件夹移动在事务内检查所有受影响活动文档类型。
 
 `list_teams(query?)` 列出当前用户有可访问项目的团队及可访问项目数；`list_projects(query?, team_id?, team_name?)` 按项目名子串、团队 ID 或精确团队名筛选，名称忽略大小写，各筛选条件取交集。项目结果包含 `team_name`，重名候选保留供选择。两者至少需要一项文档读取权限；不返回无访问权限的团队或项目。一个用户密钥和客户端配置可跨其有权限的团队与项目使用，权限仍受当前成员角色限制。
 

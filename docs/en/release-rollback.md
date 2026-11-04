@@ -24,13 +24,7 @@ Also back up the RustFS `rustfs-data` volume or storage bucket. External databas
 
 Keep Backend/Admin on `latest` to follow stable application releases. Read [Site Releases](https://github.com/ChnMig/Vdoc-site/releases) and merge any new settings without overwriting the private YAML. To pin or roll back, change both application aliases to the intended release tags or previously recorded digests. Rolling tags alone do not identify the prior running image.
 
-`v0.4.0-beta.6` applies `023_audit_retention.sql`. Audit retention defaults to 30 calendar days in Asia/Shanghai, with expired records cleaned at startup. Super administrators can change it under Settings → Global. A value of 0 permanently clears existing audit logs and stops retention. Back up before upgrading; image rollback or a longer retention period cannot recover deleted logs.
-
-Preserve PostgreSQL and storage credentials, JWT/MCP keys, administrator settings, ports, project name, and volumes. `v0.3.10` adds no application database migration beyond v0.3.6. Upgrades from v0.3.0 or earlier apply the pending `007_parser_facts_and_history_pages.sql`, adding parser metadata, history query indexes, and the Diff `must_handle` field. Complete the backup above before upgrading; this release does not automatically downgrade the database.
-
-Beta.8 applies pending migrations at startup, including 010 for custom branch names and 011 for fixed-version shares. Back up and upgrade Backend/Admin together; existing share scopes stay unchanged.
-
-Beta.17 applies document-chat migration 012. Back up and update Backend/Admin together; database downgrade remains manual.
+Preserve database/storage credentials, JWT/MCP keys, settings, ports, project name and volumes. Older upgrades apply pending migrations in order: 007 parser/history/Diff metadata, 010 branch names, 011 fixed-version shares and 012 document chats. The backend never automatically downgrades the database. Super administrators manage audit retention under Settings → Global. See the [changelog](changelog.md) for historical release details.
 
 If the existing `services.admin.environment.VDOC_ADMIN_API_BASE_URL` points to a separate backend domain or `127.0.0.1:8080`, change it to `'same-origin'`. Current Admin's built-in Caddy forwards `/api/*` to `backend:8080` on the same origin, and the runtime config uses `window.location.origin`. Browsers access the API through the workbench domain; MCP and CLI clients can still use the backend domain directly. Remove the old CORS origin setting and retain `VDOC_SERVER_ENABLE_CORS: 'true'`. Both single-file Compose variants, with bundled or external PostgreSQL, use this default.
 

@@ -484,6 +484,105 @@
           }
         }
       }
+    },
+    {
+      "name": "list_folders",
+      "scopes_any": [
+        "api:read",
+        "doc:read"
+      ],
+      "required": [
+        "project_id"
+      ],
+      "optional": []
+    },
+    {
+      "name": "create_folder",
+      "scopes_any": [
+        "api:draft",
+        "doc:draft"
+      ],
+      "required": [
+        "project_id",
+        "name"
+      ],
+      "optional": [
+        "parent_path"
+      ]
+    },
+    {
+      "name": "update_folder",
+      "scopes_any": [
+        "api:draft",
+        "doc:draft"
+      ],
+      "required": [
+        "project_id",
+        "path"
+      ],
+      "optional": [
+        "name",
+        "parent_path"
+      ],
+      "required_any_of": [
+        [
+          "name"
+        ],
+        [
+          "parent_path"
+        ]
+      ]
+    },
+    {
+      "name": "delete_folder",
+      "scopes_any": [
+        "api:draft",
+        "doc:draft"
+      ],
+      "required": [
+        "project_id",
+        "path"
+      ],
+      "optional": []
+    },
+    {
+      "name": "update_document",
+      "scopes_any": [
+        "api:draft",
+        "doc:draft"
+      ],
+      "required": [
+        "project_id",
+        "document_id"
+      ],
+      "optional": [
+        "name",
+        "relative_path",
+        "description"
+      ],
+      "required_any_of": [
+        [
+          "name"
+        ],
+        [
+          "relative_path"
+        ],
+        [
+          "description"
+        ]
+      ]
+    },
+    {
+      "name": "delete_document",
+      "scopes_any": [
+        "api:draft",
+        "doc:draft"
+      ],
+      "required": [
+        "project_id",
+        "document_id"
+      ],
+      "optional": []
     }
   ]
 }

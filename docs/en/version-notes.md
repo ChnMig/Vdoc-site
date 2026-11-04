@@ -2,7 +2,7 @@
 
 ## v0.4.2
 
-- Discover teams/projects by name: 22 MCP tools, retaining full source reads, writes and downloads.
+- Folder/document CRUD and moves; team/project discovery. 28 MCP tools retain full source reads, writes and downloads.
 - Install, update and uninstall MCP globally; projects share user-wide configuration.
 - Rename/move folders within a project, updating document paths; delete empty folders.
 - Show key capabilities/access boundaries, remove draft wording and enlarge collapsed sidebar targets.

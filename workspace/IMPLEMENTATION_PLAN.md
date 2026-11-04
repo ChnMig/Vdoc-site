@@ -176,6 +176,9 @@ GET /api/v1/private/projects/:project_id/documents/:document_id/repository/merge
 GET /api/v1/private/projects/:project_id/documents/:document_id/repository/releases
 GET /api/v1/private/projects/:project_id/documents/:document_id/repository/subscriptions
 GET /api/v1/private/projects/:project_id/repository/documents
+GET /api/v1/private/projects/:project_id/repository/documents/:document_id
+PATCH /api/v1/private/projects/:project_id/repository/documents/:document_id
+DELETE /api/v1/private/projects/:project_id/repository/documents/:document_id
 POST /api/v1/private/projects/:project_id/documents/:document_id/repository/ai/analyses
 POST /api/v1/private/projects/:project_id/documents/:document_id/repository/bootstrap
 POST /api/v1/private/projects/:project_id/documents/:document_id/repository/branches
@@ -333,8 +336,16 @@ list_documents
 search_documents
 get_document_section
 apply_document_patch
+list_folders
+create_folder
+update_folder
+delete_folder
+update_document
+delete_document
 VDOC_MCP_TOOL_INVENTORY_END
 ```
+
+`list_folders` / `create_folder` 提供目录列表和创建；`update_folder` 通过 `name` / `parent_path` 改名或同项目移动，空父路径表示根目录；`delete_folder` 只删空目录。`update_document` 通过 `name` / `relative_path` / `description` 改名、移动或更新说明，保持文档 ID、分支及历史；`delete_document` 从活动目录移除并停用旧分享及直接历史访问，存储历史与审计保留，重复删除幂等。管理要求项目 Admin 和匹配文档类型的写入 scope，文件夹移动在事务内检查所有受影响活动文档类型。
 
 `list_teams(query?)` 列出有可访问项目的团队及项目数；`list_projects(query?, team_id?, team_name?)` 支持按名字发现并返回团队名，避免要求用户提供内部 ID。过滤相交、忽略大小写，重名保留候选；只读 scope 即可查询，用户成员权限仍是访问边界。
 

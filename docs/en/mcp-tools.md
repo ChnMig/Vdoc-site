@@ -87,9 +87,7 @@ For development and package checks, see the [MCP README](https://github.com/ChnM
 
 ## Client and server version check
 
-On a successful backend request, MCP compares its package version with `X-Vdoc-Server-Version` from the actual connected backend, including beta labels. A mismatch warns through MCP logging and stderr, reporting both versions and suggesting alignment. Tools remain available; repeated warnings for the same state are suppressed. If a backend or proxy does not report a recognizable version, MCP says it cannot verify the version. A successful connection does not prove compatibility.
-
-Align the client and backend to the same release and channel, or pin the client to that server's exact version, then restart MCP. The check uses the normal request response and needs no extra API, probe or permission.
+MCP compares its version with the connected backend’s `X-Vdoc-Server-Version`, including beta labels. A mismatch reports both versions through MCP logging and stderr; missing/invalid headers mean the version cannot be verified. Repeated warnings are suppressed and tools stay available. Align releases/channels, then restart MCP; connection success alone does not establish compatibility.
 
 ## Environment Variables
 
@@ -133,11 +131,9 @@ If you already know the full MCP endpoint, use this form:
 
 ## Document management
 
-Select the server/environment, project and document, then call `list_branches` and `resolve_ref` to pin an immutable commit. Read with `get_document_at_commit` and compare fixed IDs with `compare_commits`. A branch head can be unpublished; verify an exact release before describing content as published.
+Select the environment, project and document. Use `list_branches` and `resolve_ref` to pin a commit and head/generation, then read with `get_document_at_commit` or compare exact IDs with `compare_commits`. Save through `commit_changes` with the observed head/generation and a stable idempotency key. After conflicts, reread and reconcile; after unknown outcomes, retry identical arguments/key. The server generates commit IDs and version numbers. Only an exact release proves publication; humans approve and publish in the workbench.
 
-Save with `commit_changes` using the observed head/generation and a stable idempotency key. On conflict, reread and compare before reconciling. After an unknown outcome, retry the identical payload and key. The backend generates commit IDs and numbered versions. Approval and publication remain workbench actions.
-
-Vdoc supplies document operations and facts. Code generation, consumer migrations and other business workflows belong to the consuming agent or application.
+`list_folders` / `create_folder` list and create folders. `update_folder(path, name?, parent_path?)` renames or moves a folder; an empty parent selects root. `delete_folder` deletes empty folders only. `update_document(document_id, name?, relative_path?, description?)` renames or moves a document while preserving identity/history. `delete_document` removes it from the catalog and disables direct access and old shares, retaining stored history/audits. All take `project_id`; management requires Admin and matching write scopes. Moves stay within a project, reject conflicts/cycles and check all affected document types.
 
 ## Download a source file locally {#download-source}
 
@@ -149,11 +145,11 @@ Missing parent directories are created. Existing files, directories and symlinks
 
 ## Upgrading an older combined installation
 
-For the first MCP-only upgrade, download and verify the standalone installer from a reviewed release containing this change and keep the existing channel/prefix. Earlier bundled installers require a Skill asset that is no longer shipped. Remove the obsolete Vdoc Skill link from its agent/project scope while preserving any locally maintained files, then restart MCP and reload the agent. The installer does not modify agent directories or existing MCP credentials.
+For a combined installation, use a newly downloaded, checksummed standalone installer with the same channel/prefix. Remove identifiable old Vdoc Skill links while preserving local files and MCP credentials, then restart MCP and the agent. Earlier bundled installers require retired assets; the new installer does not modify agent directories.
 
 ## Tool Scope
 
-The adapter reads deployed backend `tools/list` schemas at runtime. v0.4.2 uses independent document branches and immutable commits: 21 backend tools plus the stdio-only `download_document_at_commit`, for 22 tools in total. Update Backend and MCP together to use the team/project discovery below. Legacy version and draft tools are no longer advertised.
+The adapter reads deployed backend `tools/list` schemas at runtime. v0.4.2 uses independent document branches and immutable commits: 27 backend tools plus the stdio-only `download_document_at_commit`, for 28 tools in total. Update Backend and MCP together to use the team/project discovery below. Legacy version and draft tools are no longer advertised.
 
 Document lists and search respect type scopes: `api:read` reads OpenAPI and `doc:read` reads Markdown/TXT. Patches require both the corresponding read and write scopes (`api:draft` / `doc:draft` remain the protocol scope identifiers) and project Writer permission. Human administrators approve and publish.
 
@@ -180,6 +176,12 @@ Document lists and search respect type scopes: `api:read` reads OpenAPI and `doc
 - `search_documents`
 - `get_document_section`
 - `apply_document_patch`
+- `list_folders`
+- `create_folder`
+- `update_folder`
+- `delete_folder`
+- `update_document`
+- `delete_document`
 
 <!-- VDOC_MCP_TOOL_INVENTORY_END -->
 

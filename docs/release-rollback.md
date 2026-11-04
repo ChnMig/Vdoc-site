@@ -24,13 +24,7 @@ docker compose exec -T postgres \
 
 默认保持 `x-backend-image` 和 `x-admin-image` 的 `latest`，无需逐次修改 tag。查看 [Site Release](https://github.com/ChnMig/Vdoc-site/releases)，按版本说明合并新增配置；不要覆盖已填写的私密 YAML。若要固定或回退应用版本，将两处应用镜像都改为目标版本 tag 或已保存的 digest。
 
-`v0.4.0-beta.6` 自动应用 `023_audit_retention.sql`。审计日志默认保留 30 个北京时间自然日，启动时会清理已过期记录；系统管理员可在「设置 → 全局配置」调整。设为 0 会永久清空已有审计日志并停止留存。升级前先备份；回退镜像或调大天数均不会恢复已清理日志。
-
-保留 PostgreSQL 密码、存储凭据、JWT/MCP 密钥、管理员设置、端口、项目名和数据卷。`v0.3.10` 相对 v0.3.6 不新增应用数据库迁移；从 v0.3.0 或更早版本升级时，会执行尚未应用的 `007_parser_facts_and_history_pages.sql`，新增解析版本字段、历史查询索引和 Diff 的 `must_handle` 字段。升级前完成上面的备份；本版不会自动执行数据库降级。
-
-Beta.8 启动时自动应用待执行迁移，包括 010 自定义分支名和 011 固定版本分享；备份后同步升级 Backend/Admin，旧分享范围保持不变。
-
-Beta.17 自动应用 012 文档聊天迁移，先备份并配套升级 Backend/Admin；不自动降级数据库。
+保留数据库／存储凭据、JWT/MCP 密钥、设置、端口、项目名和数据卷。旧版升级依次执行待应用迁移：007 解析与历史／Diff 元数据、010 分支名、011 固定版本分享、012 文档对话；后端不会自动降级数据库。审计留存由系统管理员在「设置 → 全局配置」调整。历史版本详情见[变更记录](changelog.md)。
 
 若旧部署的 `services.admin.environment.VDOC_ADMIN_API_BASE_URL` 指向独立后端域名或 `127.0.0.1:8080`，改为 `'same-origin'`。当前 Admin 内置 Caddy 将 `/api/*` 同源转发到 `backend:8080`，运行时配置使用 `window.location.origin`；浏览器通过工作台域名访问 API，MCP 和 CLI 仍可直接访问后端域名。删除旧的 CORS origin 配置，并保留 `VDOC_SERVER_ENABLE_CORS: 'true'`。两份单文件 Compose（内置或外部 PostgreSQL）都使用这一默认配置。
 

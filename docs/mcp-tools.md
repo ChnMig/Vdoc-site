@@ -87,9 +87,7 @@ node "$HOME/.local/share/vdoc/mcp/beta/node_modules/@chnmig/vdoc-mcp/scripts/ins
 
 ## 客户端与服务端版本核对
 
-MCP 在成功请求实际连接的后端时，将包版本与响应头 `X-Vdoc-Server-Version` 比较，包括 beta 编号。不一致时通过 MCP 日志和 stderr 提醒，列出两端版本并建议对齐；文档工具仍可用，同一状态不会重复刷屏。旧后端或代理没有返回可识别版本时，会提示无法核对，连接成功不代表版本兼容。
-
-将客户端与后端更新到相同版本及渠道，或将客户端固定到服务端的确切版本，然后重启 MCP。核对复用正常请求响应，不需要额外接口、探测或权限。
+MCP 比较自身版本与实际后端的 `X-Vdoc-Server-Version`（含 beta 编号）。不一致时通过 MCP 日志和 stderr 报告两端版本，缺少有效响应头时提示无法核对；重复警告会抑制，工具保持可用。对齐版本与渠道后重启 MCP，连接成功本身不能证明版本兼容。
 
 ## 环境变量
 
@@ -133,11 +131,9 @@ MCP 在成功请求实际连接的后端时，将包版本与响应头 `X-Vdoc-S
 
 ## 文档管理
 
-先选择环境、项目和文档，再用 `list_branches`、`resolve_ref` 固定确切提交。使用 `get_document_at_commit` 读取原文，使用 `compare_commits` 比较固定提交。分支最新提交可能尚未发布，只有确切 release 能证明发布状态。
+选择环境、项目和文档，通过 `list_branches`、`resolve_ref` 固定提交及 head/generation，再用 `get_document_at_commit` 读原文或 `compare_commits` 比较。`commit_changes` 需提供观察到的 head/generation 和稳定幂等键；冲突后重读并协调，结果未知时以相同参数和 key 重试。后端生成提交 ID 和版本编号；只有确切 release 能证明发布，审批与发布由工作台中的人类管理员完成。
 
-通过 `commit_changes` 保存时，提供读取时的 head/generation 和稳定的幂等键。冲突后先重新读取、比较并协调；超时且结果未知时，使用相同请求体和幂等键重试。提交 ID 和版本编号由后端生成，批准和发布仍在工作台完成。
-
-Vdoc 提供文档操作和事实。代码生成、消费方升级和其他业务工作流由接入方 Agent 或应用定义。
+`list_folders`／`create_folder` 列出及创建目录；`update_folder(path, name?, parent_path?)` 改名或移动，空父路径表示根目录；`delete_folder` 只删空目录。`update_document(document_id, name?, relative_path?, description?)` 改名或移动并保留身份及历史；`delete_document` 移出目录、停用直接访问及旧分享，保留存储历史和审计。均需 `project_id`；管理需项目 Admin 及对应写入 scope。移动限同项目，拒绝冲突、环路，并检查所有受影响文档类型。
 
 ## 下载源文件到本地 {#download-source}
 
@@ -149,11 +145,11 @@ Vdoc 提供文档操作和事实。代码生成、消费方升级和其他业务
 
 ## 从旧组合安装升级
 
-首次升级到仅 MCP 的版本时，请重新下载并校验包含此次变更的渠道安装器，保留原渠道和安装目录。早期随包安装器强制检查现已移除的 Skill 文件。移除对应 Agent／项目中的旧 Vdoc Skill 链接，保留自行维护的本地文件，再重启 MCP 并重新加载 Agent。安装器不会修改 Agent 目录或已有 MCP 凭据。
+旧组合安装须重新下载并校验独立安装器，保留渠道和安装目录；移除可识别的旧 Vdoc Skill 链接，保留本地维护文件及 MCP 凭据，再重启 MCP 和 Agent。早期安装器要求现已退役的资产；新安装器不修改 Agent 目录。
 
 ## 可用工具范围
 
-Adapter 运行时读取后端 `tools/list`，以部署的工具定义为准。v0.4.2 使用文档独立分支与不可变提交模型，共 21 个后端工具；stdio 适配器另提供 `download_document_at_commit`，合计 22 个工具。配套升级 Backend 和 MCP 后可使用下列团队／项目发现功能。旧版本和旧草稿工具退出发现清单。
+Adapter 运行时读取后端 `tools/list`，以部署的工具定义为准。v0.4.2 使用文档独立分支与不可变提交模型，共 27 个后端工具；stdio 适配器另提供 `download_document_at_commit`，合计 28 个工具。配套升级 Backend 和 MCP 后可使用下列团队／项目发现功能。旧版本和旧草稿工具退出发现清单。
 
 `list_documents` 和搜索按 token 的文档类型权限过滤：`api:read` 读取 OpenAPI，`doc:read` 读取 Markdown 与 TXT。局部修改需要同一文档类型的读取与写入权限（协议 scope 标识仍为 `api:draft` / `doc:draft`），并且用户拥有项目 Writer 权限；审批与发布由人类管理员完成。
 
@@ -180,6 +176,12 @@ Adapter 运行时读取后端 `tools/list`，以部署的工具定义为准。v0
 - `search_documents`
 - `get_document_section`
 - `apply_document_patch`
+- `list_folders`
+- `create_folder`
+- `update_folder`
+- `delete_folder`
+- `update_document`
+- `delete_document`
 
 <!-- VDOC_MCP_TOOL_INVENTORY_END -->
 
