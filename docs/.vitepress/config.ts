@@ -48,7 +48,7 @@ const zhSidebar: DefaultTheme.SidebarItem[] = [
     items: [
       { text: '部署指南', link: '/deployment' },
       { text: '首次使用', link: '/admin-usage' },
-      { text: '提交与分支（Beta）', link: '/admin-usage#commit-history' },
+      { text: '提交与分支', link: '/admin-usage#commit-history' },
     ],
   },
   {
@@ -82,7 +82,7 @@ const enSidebar: DefaultTheme.SidebarItem[] = [
       { text: 'Deployment Guide', link: '/en/deployment' },
       { text: 'First Use', link: '/en/admin-usage' },
       {
-        text: 'Commits and Branches (Beta)',
+        text: 'Commits and Branches',
         link: '/en/admin-usage#commit-history',
       },
     ],
