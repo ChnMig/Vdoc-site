@@ -3,6 +3,7 @@
 ## v0.4.2
 
 - Add MCP team listing and team/project name discovery. One user token and configuration can access multiple authorized teams and projects, with 22 tools in total. Full source reads, file replacement and original downloads remain available.
+- One-sentence setup installs MCP globally with a user-wide configuration shared by projects; update and uninstall prompts use the same global scope.
 - Rename and move folders within a project with synchronized document paths; delete empty folders only.
 - Show MCP key capabilities and access boundaries, replace legacy draft wording in permissions and AI suggestions, and improve collapsed sidebar button targets.
 - Add Unlimited for AI output tokens while retaining custom limits when toggled; fix intermittent duplicate document activity during cursor pagination.

@@ -25,7 +25,7 @@ npx --yes @chnmig/vdoc-mcp@latest --version
 
 全局命令可用 `npm install --global @chnmig/vdoc-mcp@latest` 安装，更新时重复同一命令。`@latest` 选择最新正式版，`@beta` 选择最新测试版，两者分别更新。固定部署可使用与后端一致的确切包版本。
 
-工作台的 **MCP 客户端配置** 提供安装、更新和卸载的一句话提示词，发给 AI 即可按[操作指南](https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.4.2/docs/public/mcp-install.md)处理；指南会保留已有配置、渠道和共享安装，不安装 Skill。
+工作台的 **MCP 客户端配置** 提供安装、更新和卸载的一句话提示词，默认全局安装并写入用户级 MCP 配置，供所有项目共用；发给 AI 即可按[操作指南](https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.4.2/docs/public/mcp-install.md)处理；指南会保留已有配置、渠道和共享安装，不安装 Skill。
 
 下方 Agent 配置通过 `npx` 的 `@latest` 调用，每次新启动解析该渠道最新包，更新后重启 MCP。全局安装需要主动执行安装命令更新。npm 包包含编译好的 JavaScript，无需 Git 或本地 TypeScript 编译器。
 

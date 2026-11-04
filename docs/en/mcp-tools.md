@@ -25,7 +25,7 @@ npx --yes @chnmig/vdoc-mcp@latest --version
 
 To install a global command, run `npm install --global @chnmig/vdoc-mcp@latest`; repeat it to update. `@latest` selects stable releases and `@beta` selects betas; the tags update independently. For a fixed deployment, use an exact package version matching its backend.
 
-The workbench's **MCP client configuration** includes one-sentence prompts to install, update or uninstall MCP. Send the sentence to your AI; the [installation guide](https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.4.2/docs/public/mcp-install.md) preserves settings, channels and shared installations. No Skill is installed.
+The workbench's **MCP client configuration** includes one-sentence prompts for a user-wide global MCP installation and configuration shared by all projects, with matching update and uninstall actions. Send the sentence to your AI; the [installation guide](https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.4.2/docs/public/mcp-install.md) preserves settings, channels and shared installations. No Skill is installed.
 
 Use `npx` with `@latest` in the agent configuration below. Each new process resolves the latest package in that channel; restart MCP after an update. Global installs need an explicit install command to update. npm ships compiled JavaScript and requires no Git or local TypeScript compiler.
 
