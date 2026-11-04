@@ -141,7 +141,13 @@ describe.each(locales)('$label operator guidance', ({ prefix }) => {
   it('offers npm channels and retains a verified archive install', () => {
     const source = readProjectText(`${prefix}mcp-tools.md`)
     const blocks = shellBlocks(source)
-    expect(blocks.join('\n')).toMatch(/npx --yes @chnmig\/vdoc-mcp@beta/)
+    const { version } = JSON.parse(readProjectText('package.json')) as {
+      version: string
+    }
+    const primaryChannel = version.includes('-') ? 'beta' : 'latest'
+    expect(blocks[0]).toBe(
+      `npx --yes @chnmig/vdoc-mcp@${primaryChannel} --version`,
+    )
     expect(blocks.join('\n')).not.toMatch(
       /npm\s+install\s+(?:-g|--global)\s+(?:git\+|github:)/,
     )
@@ -149,6 +155,7 @@ describe.each(locales)('$label operator guidance', ({ prefix }) => {
       blocks.filter((block) => block.includes('npm install --global')),
     ).toHaveLength(1)
     expect(source).toContain('@latest')
+    expect(source).toContain('@chnmig/vdoc-mcp@beta')
     expect(source).toContain('X-Vdoc-Server-Version')
     expect(source).toContain('public/mcp-install.md')
   })
