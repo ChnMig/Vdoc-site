@@ -4,7 +4,7 @@ Agents use MCP to read and manage authorized OpenAPI, Markdown and TXT documents
 
 The stdio adapter `@chnmig/vdoc-mcp` forwards `tools/list` and `tools/call` to `/api/v1/open/mcp`; Backend owns storage and business logic.
 
-The tool inventory on this page describes `v0.4.1` (npm `@latest`). Stable deployments should use the MCP version matching their backend.
+The tool inventory on this page describes `v0.4.2` (npm `@latest`). Stable deployments should use the MCP version matching their backend.
 
 ## Before You Start
 
@@ -25,7 +25,7 @@ npx --yes @chnmig/vdoc-mcp@latest --version
 
 To install a global command, run `npm install --global @chnmig/vdoc-mcp@latest`; repeat it to update. `@latest` selects stable releases and `@beta` selects betas; the tags update independently. For a fixed deployment, use an exact package version matching its backend.
 
-The workbench's **MCP client configuration** includes one-sentence prompts to install, update or uninstall MCP. Send the sentence to your AI; the [installation guide](https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.4.1/docs/public/mcp-install.md) preserves settings, channels and shared installations. No Skill is installed.
+The workbench's **MCP client configuration** includes one-sentence prompts to install, update or uninstall MCP. Send the sentence to your AI; the [installation guide](https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.4.2/docs/public/mcp-install.md) preserves settings, channels and shared installations. No Skill is installed.
 
 Use `npx` with `@latest` in the agent configuration below. Each new process resolves the latest package in that channel; restart MCP after an update. Global installs need an explicit install command to update. npm ships compiled JavaScript and requires no Git or local TypeScript compiler.
 
@@ -34,7 +34,7 @@ For a deployment locked to the reviewed workspace release, the verified prebuilt
 ```sh
 (
   set -eu
-  VDOC_MCP_VERSION=0.4.1
+  VDOC_MCP_VERSION=0.4.2
   VDOC_MCP_PACKAGE_DIR="$(mktemp -d)"
   trap 'rm -rf -- "$VDOC_MCP_PACKAGE_DIR"' EXIT
   VDOC_MCP_RELEASE="https://github.com/ChnMig/Vdoc-mcp/releases/download/v$VDOC_MCP_VERSION"
@@ -57,12 +57,12 @@ Use `@chnmig/vdoc-mcp@beta` for testing and `@chnmig/vdoc-mcp@latest` for stable
 
 MCP uses one adapter package per channel. `release` selects only stable releases; `beta` selects only `vMAJOR.MINOR.PATCH-beta.N` prereleases. A missing channel fails without falling back to another channel. Separate prefixes at `~/.local/share/vdoc/mcp/release` and `~/.local/share/vdoc/mcp/beta` preserve any existing global MCP installation.
 
-First download `install-channel.mjs` and `install-channel.mjs.sha256` from a reviewed [MCP Release](https://github.com/ChnMig/Vdoc-mcp/releases) that includes them. These commands pin the MCP-only installer to `v0.4.1`; run them in a dedicated tools directory. A failed download or checksum stops installation. Older releases do not contain these assets:
+First download `install-channel.mjs` and `install-channel.mjs.sha256` from a reviewed [MCP Release](https://github.com/ChnMig/Vdoc-mcp/releases) that includes them. These commands pin the MCP-only installer to `v0.4.2`; run them in a dedicated tools directory. A failed download or checksum stops installation. Older releases do not contain these assets:
 
 ```sh
 (
   set -eu
-  VDOC_MCP_INSTALLER_TAG='v0.4.1'
+  VDOC_MCP_INSTALLER_TAG='v0.4.2'
   VDOC_MCP_INSTALLER_RELEASE="https://github.com/ChnMig/Vdoc-mcp/releases/download/$VDOC_MCP_INSTALLER_TAG"
   curl -fL "$VDOC_MCP_INSTALLER_RELEASE/install-channel.mjs" -o install-channel.mjs
   curl -fL "$VDOC_MCP_INSTALLER_RELEASE/install-channel.mjs.sha256" -o install-channel.mjs.sha256
@@ -163,9 +163,9 @@ For the first MCP-only upgrade, download and verify the standalone installer fro
 
 ## Tool Scope
 
-The adapter reads deployed backend `tools/list` schemas at runtime. The default inventory uses independent document branches and immutable commits: 20 backend tools plus the stdio-only `download_document_at_commit`. Legacy version and draft tools are no longer advertised.
+The adapter reads deployed backend `tools/list` schemas at runtime. v0.4.2 uses independent document branches and immutable commits: 21 backend tools plus the stdio-only `download_document_at_commit`, for 22 tools in total. Update Backend and MCP together to use the team/project discovery below. Legacy version and draft tools are no longer advertised.
 
-Document lists and search respect type scopes: `api:read` reads OpenAPI and `doc:read` reads Markdown/TXT. Patches require both the corresponding read and draft scopes and project Writer permission. Human administrators approve and publish.
+Document lists and search respect type scopes: `api:read` reads OpenAPI and `doc:read` reads Markdown/TXT. Patches require both the corresponding read and write scopes (`api:draft` / `doc:draft` remain the protocol scope identifiers) and project Writer permission. Human administrators approve and publish.
 
 <!-- VDOC_MCP_TOOL_INVENTORY_START -->
 
@@ -184,6 +184,7 @@ Document lists and search respect type scopes: `api:read` reads OpenAPI and `doc
 - `get_release`
 - `analyze_changes`
 - `list_repository_events`
+- `list_teams`
 - `list_projects`
 - `list_documents`
 - `search_documents`
@@ -191,6 +192,10 @@ Document lists and search respect type scopes: `api:read` reads OpenAPI and `doc
 - `apply_document_patch`
 
 <!-- VDOC_MCP_TOOL_INVENTORY_END -->
+
+### Discover teams and projects by name
+
+One MCP configuration and user token work across the teams/projects the owner can access. Start with `list_teams(query?)` for team IDs, names, and accessible project counts. Teams with no accessible projects are omitted. Use `list_projects(query?, team_id?, team_name?)` to find projects by a case-insensitive name substring, exact team ID, or exact case-insensitive team name. Filters intersect; results include team names and preserve duplicate-name candidates. Omit filters to list all accessible projects. Both tools require at least one document read scope, and current membership remains the access boundary.
 
 ### Full source and optional structured views
 

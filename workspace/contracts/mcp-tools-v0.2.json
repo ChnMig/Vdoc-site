@@ -330,13 +330,28 @@
       }
     },
     {
+      "name": "list_teams",
+      "scopes_any": [
+        "api:read",
+        "doc:read"
+      ],
+      "required": [],
+      "optional": [
+        "query"
+      ]
+    },
+    {
       "name": "list_projects",
       "scopes_any": [
         "api:read",
         "doc:read"
       ],
       "required": [],
-      "optional": []
+      "optional": [
+        "query",
+        "team_id",
+        "team_name"
+      ]
     },
     {
       "name": "list_documents",

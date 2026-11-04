@@ -160,6 +160,8 @@ DELETE /api/v1/private/projects/:project_id/members/:user_id
 
 GET  /api/v1/private/projects/:project_id/folders
 POST /api/v1/private/projects/:project_id/folders
+PATCH /api/v1/private/projects/:project_id/folders
+DELETE /api/v1/private/projects/:project_id/folders
 
 GET /api/v1/private/projects/:project_id/documents/:document_id/repository/ai/analyses
 GET /api/v1/private/projects/:project_id/documents/:document_id/repository/ai/analyses/:analysis_id
@@ -325,6 +327,7 @@ list_releases
 get_release
 analyze_changes
 list_repository_events
+list_teams
 list_projects
 list_documents
 search_documents
@@ -332,6 +335,10 @@ get_document_section
 apply_document_patch
 VDOC_MCP_TOOL_INVENTORY_END
 ```
+
+`list_teams(query?)` 列出有可访问项目的团队及项目数；`list_projects(query?, team_id?, team_name?)` 支持按名字发现并返回团队名，避免要求用户提供内部 ID。过滤相交、忽略大小写，重名保留候选；只读 scope 即可查询，用户成员权限仍是访问边界。
+
+文件夹 PATCH 接收 `path` 和可选 `name` / `parent_path`（至少一项），更新当前目录及子目录/文档路径，保留 ID 和历史提交；移动限同项目，禁止循环或合并已有目录。DELETE 接收 `path`，仅允许删除无文档、无子目录的空文件夹。两者要求活跃项目的 Admin 或 SuperAdmin，并与目录、仓库目录记录和审计一同提交。POST 可使用 `parent_path` 为推导目录创建空子目录；不能与 `parent_id` 同传。Admin 列表及文档树均显示持久空目录并提供相同操作。
 
 `search_documents` 搜索标题、路径与原文并返回固定提交；`get_document_section` 提供可选的行、ATX 标题、OpenAPI operation 或 outline；`apply_document_patch` 使用原文唯一且不重叠的锚点并复用并发控制和幂等提交。完整读取、完整替换及原始下载始终保留，不以解析成功为前提。当前内容存储仍为 UTF-8 文本。
 
@@ -356,6 +363,7 @@ MCP Token 创建响应返回可复制 token 值；token 所属用户可以通过
 
 - SuperAdmin 可配置系统默认 Provider；Project Admin 可配置项目级 Provider。
 - 系统 Provider/Prompt 的读取、更新和测试仅限 SuperAdmin；项目 Provider/Prompt 的读取、更新和测试仅限对应 Project Admin 或 SuperAdmin。Reader/Writer 不读取配置，但在资源权限允许时可使用页面 Summary/Chat。
+- `max_output_tokens` 默认 1000，0 表示不限制并在上游请求中省略输出上限；自定义 1–32000，省略更新保留原设置。Responses、Chat Completions 与推理模式语义一致，模型自身限制仍生效。迁移 025 放宽数据库约束，已有自定义值保持不变。后台标题/记忆摘要保留各自任务上限。
 - Provider 字段至少包含 `base_url`、`api_mode`、`model`、加密保存的 `api_key`，可选 `temperature`、`timeout_ms`、`max_output_tokens`、`enabled`。
 - `api_mode` 必须至少支持 `chat_completions` 和 `responses`：前者调用 `/v1/chat/completions`，后者调用 `/v1/responses`。
 - 项目 Provider test 省略 request body 时测试有效配置；没有启用的项目覆盖时测试系统回退 Provider，不构造空配置。

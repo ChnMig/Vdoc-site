@@ -1,6 +1,6 @@
 # Upgrade and Rollback
 
-`v0.4.1` promotes the verified v0.4.1-beta.1 to stable with MCP search, section views, text patches and the consolidated tool inventory. No additional migration from v0.4.0. Stable deployments use `docker-compose.yml` and npm `@latest`; the isolated Beta channel remains available. Full reads/writes/downloads remain independent of parsing; storage still accepts UTF-8 text. Update Backend, Admin and MCP together, then restart MCP.
+`v0.4.2` adds MCP team/project name discovery, folder rename/move and empty-folder deletion, key capability details, and Unlimited AI output tokens. Startup applies `025_ai_output_token_limit.sql`, accepting 0 for provider-default limits while preserving existing positive settings. Back up PostgreSQL and object storage, update Backend, Admin and MCP together, then restart MCP. Image rollback does not undo this migration; restore positive output limits before running an older backend. Stable deployments use `docker-compose.yml` and npm `@latest`; Beta remains separate. Full source reads/writes/downloads remain available, with UTF-8 text storage.
 
 For a single-file deployment, Backend/Admin follow stable `latest` images. You run `docker compose pull` and `docker compose up -d --wait` to update containers, and the backend runs migrations included in the new release at startup. Upgrades retain existing accounts, keys, and data volumes.
 

@@ -1805,7 +1805,7 @@ AI 通过 MCP 可以：
 
 ### 9.2 MCP Tools
 
-以 2026-11-02 后的文档独立分支和不可变提交模型为准。默认发现清单为 20 个后端工具；stdio 适配器另外提供 `download_document_at_commit`。旧版本／草稿工具不再向新 Agent 展示，历史数据与后端内部兼容处理保留。工具参数契约以 `contracts/mcp-tools-v0.2.json` 和实际 `tools/list` 为准。
+以 2026-11-02 后的文档独立分支和不可变提交模型为准。当前开发版发现清单为 21 个后端工具；stdio 适配器另外提供 `download_document_at_commit`。旧版本／草稿工具不再向新 Agent 展示，历史数据与后端内部兼容处理保留。工具参数契约以 `contracts/mcp-tools-v0.2.json` 和实际 `tools/list` 为准。
 
 <!-- VDOC_MCP_TOOL_INVENTORY_START -->
 ```text
@@ -1824,6 +1824,7 @@ list_releases
 get_release
 analyze_changes
 list_repository_events
+list_teams
 list_projects
 list_documents
 search_documents
@@ -1831,6 +1832,8 @@ get_document_section
 apply_document_patch
 ```
 <!-- VDOC_MCP_TOOL_INVENTORY_END -->
+
+`list_teams(query?)` 列出当前用户有可访问项目的团队及可访问项目数；`list_projects(query?, team_id?, team_name?)` 按项目名子串、团队 ID 或精确团队名筛选，名称忽略大小写，各筛选条件取交集。项目结果包含 `team_name`，重名候选保留供选择。两者至少需要一项文档读取权限；不返回无访问权限的团队或项目。一个用户密钥和客户端配置可跨其有权限的团队与项目使用，权限仍受当前成员角色限制。
 
 先选择项目与文档，再列分支并通过 `resolve_ref` 固定 commit、HEAD 和 generation。`get_document_at_commit` 保留完整原文读取，`commit_changes` 保留完整文件替换，适配器保留原始文件下载。完整存取与格式解析解耦，解析失败或没有解析器不能阻断全文。BOM、CRLF、末尾换行、空正文均保持。当前存储支持 UTF-8 文本，二进制文件需另行扩展。
 

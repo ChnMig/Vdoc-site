@@ -4,7 +4,7 @@ Agent 通过 MCP 在授权范围内读取和管理 OpenAPI、Markdown、TXT 文�
 
 stdio 适配器 `@chnmig/vdoc-mcp` 将 `tools/list`、`tools/call` 转发到 `/api/v1/open/mcp`；Backend 负责存储与业务逻辑。
 
-本页工具清单对应 `v0.4.1`（npm `@latest`）。稳定版部署应使用与其后端一致的 MCP 版本。
+本页工具清单对应 `v0.4.2`（npm `@latest`）。稳定版部署应使用与其后端一致的 MCP 版本。
 
 ## 使用前准备
 
@@ -25,7 +25,7 @@ npx --yes @chnmig/vdoc-mcp@latest --version
 
 全局命令可用 `npm install --global @chnmig/vdoc-mcp@latest` 安装，更新时重复同一命令。`@latest` 选择最新正式版，`@beta` 选择最新测试版，两者分别更新。固定部署可使用与后端一致的确切包版本。
 
-工作台的 **MCP 客户端配置** 提供安装、更新和卸载的一句话提示词，发给 AI 即可按[操作指南](https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.4.1/docs/public/mcp-install.md)处理；指南会保留已有配置、渠道和共享安装，不安装 Skill。
+工作台的 **MCP 客户端配置** 提供安装、更新和卸载的一句话提示词，发给 AI 即可按[操作指南](https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.4.2/docs/public/mcp-install.md)处理；指南会保留已有配置、渠道和共享安装，不安装 Skill。
 
 下方 Agent 配置通过 `npx` 的 `@latest` 调用，每次新启动解析该渠道最新包，更新后重启 MCP。全局安装需要主动执行安装命令更新。npm 包包含编译好的 JavaScript，无需 Git 或本地 TypeScript 编译器。
 
@@ -34,7 +34,7 @@ npx --yes @chnmig/vdoc-mcp@latest --version
 ```sh
 (
   set -eu
-  VDOC_MCP_VERSION=0.4.1
+  VDOC_MCP_VERSION=0.4.2
   VDOC_MCP_PACKAGE_DIR="$(mktemp -d)"
   trap 'rm -rf -- "$VDOC_MCP_PACKAGE_DIR"' EXIT
   VDOC_MCP_RELEASE="https://github.com/ChnMig/Vdoc-mcp/releases/download/v$VDOC_MCP_VERSION"
@@ -57,12 +57,12 @@ npx --yes @chnmig/vdoc-mcp@latest --version
 
 MCP 按渠道安装适配器发行包。`release` 只选择正式版，`beta` 只选择 `vMAJOR.MINOR.PATCH-beta.N` 预发布；没有对应版本时安装器会报错，不会跨渠道回退。两者分别安装在 `~/.local/share/vdoc/mcp/release` 与 `~/.local/share/vdoc/mcp/beta`，不会替换已有全局 MCP。
 
-首次从已审核、包含渠道安装器的 [MCP Release](https://github.com/ChnMig/Vdoc-mcp/releases) 下载 `install-channel.mjs` 和 `install-channel.mjs.sha256`。以下命令固定安装器版本为 `v0.4.1`，在独立工具目录中执行；下载或摘要校验失败会停止安装。旧版本没有这两个资产：
+首次从已审核、包含渠道安装器的 [MCP Release](https://github.com/ChnMig/Vdoc-mcp/releases) 下载 `install-channel.mjs` 和 `install-channel.mjs.sha256`。以下命令固定安装器版本为 `v0.4.2`，在独立工具目录中执行；下载或摘要校验失败会停止安装。旧版本没有这两个资产：
 
 ```sh
 (
   set -eu
-  VDOC_MCP_INSTALLER_TAG='v0.4.1'
+  VDOC_MCP_INSTALLER_TAG='v0.4.2'
   VDOC_MCP_INSTALLER_RELEASE="https://github.com/ChnMig/Vdoc-mcp/releases/download/$VDOC_MCP_INSTALLER_TAG"
   curl -fL "$VDOC_MCP_INSTALLER_RELEASE/install-channel.mjs" -o install-channel.mjs
   curl -fL "$VDOC_MCP_INSTALLER_RELEASE/install-channel.mjs.sha256" -o install-channel.mjs.sha256
@@ -163,9 +163,9 @@ Vdoc 提供文档操作和事实。代码生成、消费方升级和其他业务
 
 ## 可用工具范围
 
-Adapter 运行时读取后端 `tools/list`，以部署的工具定义为准。默认清单使用文档独立分支与不可变提交模型，共 20 个后端工具；stdio 适配器另提供 `download_document_at_commit`。旧版本和旧草稿工具退出发现清单。
+Adapter 运行时读取后端 `tools/list`，以部署的工具定义为准。v0.4.2 使用文档独立分支与不可变提交模型，共 21 个后端工具；stdio 适配器另提供 `download_document_at_commit`，合计 22 个工具。配套升级 Backend 和 MCP 后可使用下列团队／项目发现功能。旧版本和旧草稿工具退出发现清单。
 
-`list_documents` 和搜索按 token 的文档类型权限过滤：`api:read` 读取 OpenAPI，`doc:read` 读取 Markdown 与 TXT。局部修改需要同一文档类型的 read 与 draft scope，并且用户拥有项目 Writer 权限；审批与发布由人类管理员完成。
+`list_documents` 和搜索按 token 的文档类型权限过滤：`api:read` 读取 OpenAPI，`doc:read` 读取 Markdown 与 TXT。局部修改需要同一文档类型的读取与写入权限（协议 scope 标识仍为 `api:draft` / `doc:draft`），并且用户拥有项目 Writer 权限；审批与发布由人类管理员完成。
 
 <!-- VDOC_MCP_TOOL_INVENTORY_START -->
 
@@ -184,6 +184,7 @@ Adapter 运行时读取后端 `tools/list`，以部署的工具定义为准。�
 - `get_release`
 - `analyze_changes`
 - `list_repository_events`
+- `list_teams`
 - `list_projects`
 - `list_documents`
 - `search_documents`
@@ -191,6 +192,10 @@ Adapter 运行时读取后端 `tools/list`，以部署的工具定义为准。�
 - `apply_document_patch`
 
 <!-- VDOC_MCP_TOOL_INVENTORY_END -->
+
+### 按名称发现团队和项目
+
+一个用户密钥和 MCP 配置可跨其有访问权限的团队、项目复用。先用 `list_teams(query?)` 获取团队 ID、名称和可访问项目数，没有可访问项目的团队不会出现。`list_projects(query?, team_id?, team_name?)` 按项目名子串、精确团队 ID 或精确团队名筛选，名称均忽略大小写，多个条件取交集。结果包含团队名，重名保留候选；不传筛选即拉取全部可访问项目。两者至少需要一项文档读取权限，仍受用户当前成员身份限制。
 
 ### 完整原文与可选解析视图
 

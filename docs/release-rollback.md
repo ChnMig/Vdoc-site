@@ -1,6 +1,6 @@
 # 升级与回滚
 
-`v0.4.1` 将已验证的 v0.4.1-beta.1 转为正式版，新增 MCP 搜索、局部读取和文本 patch，并整理默认工具清单。相较 v0.4.0 无新增迁移。稳定部署使用 `docker-compose.yml` 和 npm `@latest`；独立 Beta 渠道继续保留。完整原文读取／替换／下载保留，当前仍限 UTF-8 文本。配套更新 Backend、Admin、MCP 后重启 MCP。
+`v0.4.2` 新增 MCP 团队／项目名称发现、文件夹重命名与移动、空目录删除、密钥能力展示，以及 AI 输出 Token“不限制”。启动自动执行迁移 `025_ai_output_token_limit.sql`，允许 0 表示由模型服务决定上限，保留已有正数配置。先备份数据库和对象存储，再配套升级 Backend、Admin、MCP 并重启 MCP。回退镜像不会撤销迁移；使用旧后端前先将“不限制”改回正数。稳定部署使用 `docker-compose.yml` 和 npm `@latest`，独立 Beta 渠道继续保留。完整原文读取／替换／下载保留，当前仍限 UTF-8 文本。
 
 单文件部署默认用 `latest` 跟随稳定应用版本，由你执行 `docker compose pull` 和 `docker compose up -d --wait` 更新容器，后端在启动时自动执行新版本附带的数据库迁移。升级沿用原账号、密钥和数据卷。
 

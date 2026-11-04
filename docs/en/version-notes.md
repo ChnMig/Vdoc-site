@@ -1,5 +1,14 @@
 # Version Notes
 
+## v0.4.2
+
+- Add MCP team listing and team/project name discovery. One user token and configuration can access multiple authorized teams and projects, with 22 tools in total. Full source reads, file replacement and original downloads remain available.
+- Rename and move folders within a project with synchronized document paths; delete empty folders only.
+- Show MCP key capabilities and access boundaries, replace legacy draft wording in permissions and AI suggestions, and improve collapsed sidebar button targets.
+- Add Unlimited for AI output tokens while retaining custom limits when toggled; fix intermittent duplicate document activity during cursor pagination.
+
+Startup applies `025_ai_output_token_limit.sql`, accepting 0 for provider-default output limits and preserving existing positive settings. Back up the database and object store, update Backend, Admin and MCP together, then restart MCP. Stable images `:latest`, npm `@latest` and the public website update together; Beta remains separate. See [Upgrade and Rollback](release-rollback.md).
+
 ## v0.4.1
 
 Promote the verified v0.4.1-beta.1 to stable. MCP exposes 21 tools, adding raw keyword search, exact-commit section reads and optimistic, idempotent text patches. Full source reads, complete file replacements and original downloads remain independent of parsing. Storage still accepts UTF-8 text.
