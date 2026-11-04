@@ -56,7 +56,7 @@ Packaging normalizes file order, mode, owner, group, timestamp, and gzip metadat
 Public copies of these workspace files live in [Vdoc-site/workspace](https://github.com/ChnMig/Vdoc-site/tree/main/workspace). Beta archives and checksums are retained in the matching GitHub Release; stable website downloads remain separate. Download, verify, and extract the bootstrap with:
 
 ```sh
-VDOC_BOOTSTRAP_BASE=https://github.com/ChnMig/Vdoc-site/releases/download/v0.4.1
+VDOC_BOOTSTRAP_BASE=https://chnmig.github.io/Vdoc-site/downloads
 curl -fLO "$VDOC_BOOTSTRAP_BASE/vdoc-compose-bootstrap-v0.4.1.tar.gz"
 curl -fLO "$VDOC_BOOTSTRAP_BASE/vdoc-compose-bootstrap-v0.4.1.tar.gz.sha256"
 shasum -a 256 -c vdoc-compose-bootstrap-v0.4.1.tar.gz.sha256
@@ -64,7 +64,7 @@ tar -xzf vdoc-compose-bootstrap-v0.4.1.tar.gz
 cd vdoc-workspace
 ```
 
-Direct assets: [Compose bootstrap archive](https://github.com/ChnMig/Vdoc-site/releases/download/v0.4.1/vdoc-compose-bootstrap-v0.4.1.tar.gz) and [SHA-256 file](https://github.com/ChnMig/Vdoc-site/releases/download/v0.4.1/vdoc-compose-bootstrap-v0.4.1.tar.gz.sha256). See the [deployment guide](https://chnmig.github.io/Vdoc-site/en/deployment) for configuration and first login. The archive and all four source tags use `v0.4.1`. The source lock uses `@release` only for the Site commit: a Git commit cannot contain its own hash. The Site tag build resolves this entry, verifies all four public tags against their pinned commits, and ships a fully resolved lock with four exact commit hashes. Stable Site releases deploy the verified website to GitHub Pages; Beta retains its separate downloads. Separate website downloads are evaluation snapshots and may be replaced; retain the downloaded archive and checksum when reproducing an environment. The checksum checks the bytes against the accompanying file; it does not authenticate a release or prove production readiness or a completed Pilot.
+Direct assets: [Compose bootstrap archive](https://chnmig.github.io/Vdoc-site/downloads/vdoc-compose-bootstrap-v0.4.1.tar.gz) and [SHA-256 file](https://chnmig.github.io/Vdoc-site/downloads/vdoc-compose-bootstrap-v0.4.1.tar.gz.sha256). See the [deployment guide](https://chnmig.github.io/Vdoc-site/en/deployment) for configuration and first login. The archive and all four source tags use `v0.4.1`. The source lock uses `@release` only for the Site commit: a Git commit cannot contain its own hash. The Site tag build resolves this entry, verifies all four public tags against their pinned commits, and ships a fully resolved lock with four exact commit hashes. Stable Site releases deploy the verified website to GitHub Pages; Beta retains its separate downloads. Separate website downloads are evaluation snapshots and may be replaced; retain the downloaded archive and checksum when reproducing an environment. The checksum checks the bytes against the accompanying file; it does not authenticate a release or prove production readiness or a completed Pilot.
 
 ## Existing workspace
 
