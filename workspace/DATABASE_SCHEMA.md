@@ -156,7 +156,7 @@
 |---|---|---|---|
 | `temperature` | `double precision` | 默认 `0.2`，范围 `0` 到 `2` | 发送给 Chat Completions 或 Responses Provider 的采样温度。 |
 | `timeout_ms` | `integer` | 默认 `30000`，范围 `1000` 到 `120000` | Provider HTTP 调用超时时间，单位毫秒。 |
-| `max_output_tokens` | `integer` | 默认 `1000`，范围 `1` 到 `32000` | Provider 最大输出 token 数。 |
+| `max_output_tokens` | `integer` | 默认 `1000`，允许 `0` 到 `32000` | `0` 为不限制应用输出上限，由 Provider／模型决定；正数为最大输出 token 数。迁移 025 保留已有配置。 |
 | `api_key_ciphertext`、`cipher_kid`、`api_key_last4` | `bytea` / `text` | 必填 / 可空 | API Key 只加密保存和显示末四位，明文不写入响应或审计。 |
 
 `ai_summaries` 以 `owner_type` 和 `owner_id` 绑定 draft、version 或 diff。提交 Draft 后自动尝试生成 draft summary，审计 trigger 记录为 `draft_submit`。Approve 发布 Version 后自动尝试生成 version summary，审计 trigger 记录为 `version_publish`。摘要 pending 状态、后台任务与提交/发布状态在同一事务中保存。Provider 调用由独立后台 worker 执行，接口立即返回，AI 失败不会回滚 submit 或 publish。

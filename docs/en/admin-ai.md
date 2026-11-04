@@ -31,7 +31,7 @@ Vdoc uses OpenAI-compatible providers and supports two API modes:
 | `timeout_ms`                | Total generation time, default `600000` (10 minutes).                                 |
 | `first_response_timeout_ms` | Wait for the first body data including connection time, default `180000` (3 minutes). |
 | `idle_timeout_ms`           | Maximum gap between response body data, default `120000` (2 minutes).                 |
-| `max_output_tokens`         | Default `1000`, range `1` through `32000`.                                            |
+| `max_output_tokens`         | Default `1000`; `0` is Unlimited, custom limits accept `1` through `32000`.           |
 
 `name` is an optional display name. Provider reads use `api_key_set` to report whether a key exists and expose only `api_key_last4` as masked state. You can keep the existing encrypted key while updating other fields. Never copy the key into docs, logs, or screenshots.
 
@@ -48,6 +48,8 @@ Type a model ID, or open its list to fetch and search models in either scope bef
 Run a system or project provider test before or after saving. A test uses the current form payload or the saved effective configuration for a short connectivity call, then returns `ok` and non-secret `content`. When a project has no enabled override, an empty-form test does not submit an incomplete provider; it tests the currently enabled system fallback. Test results and failures are audited.
 
 Each limit has an independent **Unlimited** switch (API value `0`); finite values accept `1000` through `2147483647` milliseconds. Response data and SSE heartbeats renew the idle timer, without resetting the total timer. Unlimited total time still follows any enabled first-response and idle limits. With all three disabled, cancellation, disconnection or upstream completion ends the call. Non-streaming responses use the same first-data and response-body idle protection. Migration **014** raises the historical `30000` total default to `600000` and preserves other custom totals. Back up the database and upgrade Backend/Admin together. Configure external reverse proxies to allow the intended request duration.
+
+**Maximum output tokens** supports **Unlimited** (API value `0`); turning it off restores the custom value entered before toggling. The provider/model then determines the output limit; its own limits still apply. Background titles and conversation memory retain their task-specific caps. Both system and project configurations persist the choice after saving and reloading; migration **025** preserves existing positive limits.
 
 ## Configure Prompts
 
