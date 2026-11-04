@@ -163,7 +163,10 @@ def scenario(legacy=False):
             revealed = request('/api/v1/private/mcp-tokens/' + mcp['id'], token=token)
             assert revealed['token'] == mcp['token']
             tools = request('/api/v1/open/mcp', {'jsonrpc': '2.0', 'id': 1, 'method': 'tools/list'}, mcp['token'], rpc=True)
-            assert any(tool['name'] == 'get_latest_doc' for tool in tools['tools'])
+            tool_names = {tool['name'] for tool in tools['tools']}
+            assert {'get_document_at_commit', 'search_documents', 'get_document_section',
+                    'apply_document_patch'}.issubset(tool_names), 'repository MCP tools missing after recreation'
+            assert 'get_latest_doc' not in tool_names, 'legacy tool still advertised'
             with urlopen(f'http://127.0.0.1:{admin_port}/', timeout=10) as response:
                 assert response.status == 200
             assert sorted(p.name for p in folder.iterdir()) == ['docker-compose.yml']
