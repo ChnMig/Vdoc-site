@@ -1,5 +1,14 @@
 # Version Notes
 
+## v0.4.1-beta.1
+
+- Move MCP discovery to document repositories; legacy version and draft tools are no longer advertised.
+- Add raw keyword search, exact-commit section views (lines, Markdown ATX headings and OpenAPI operations/outlines), and optimistic, idempotent anchored text patches.
+- Preserve complete raw reads, full-file writes and original downloads independently of parsing, including BOM, CRLF, trailing newlines and empty files.
+- Update bilingual MCP documentation and argument contracts. Storage still accepts UTF-8 text; binary files require a separate extension.
+
+No additional database migration compared with v0.4.0. Upgrade Backend, Admin and MCP together, then restart MCP for new schemas. Beta image aliases and npm `@beta` only; stable `latest` and Pages remain unchanged.
+
 ## v0.4.0
 
 Document branches, automatic versions, reviewed publication and MCP access are stable. Install MCP with npm `@latest`, including version warnings and source downloads. Upgrades from v0.3.17 apply migrations 018–024; beta.7 has none to add. Back up data, then update Backend/Admin/MCP together. See [upgrade instructions](release-rollback.md) for audit retention and compatibility, and the [changelog](changelog.md) for features.

@@ -1,5 +1,7 @@
 # 升级与回滚
 
+`v0.4.1-beta.1` 新增 MCP 搜索、局部读取和文本 patch，并整理默认工具清单。相较 v0.4.0 无新增迁移。Beta 使用独立的 `docker-compose.beta.yml` 与 npm `@beta`；完整原文读取／替换／下载保留，当前仍限 UTF-8 文本。配套更新 Backend、Admin、MCP 后重启 MCP。
+
 单文件部署默认用 `latest` 跟随稳定应用版本，由你执行 `docker compose pull` 和 `docker compose up -d --wait` 更新容器，后端在启动时自动执行新版本附带的数据库迁移。升级沿用原账号、密钥和数据卷。
 
 ## 1. 备份当前配置和数据

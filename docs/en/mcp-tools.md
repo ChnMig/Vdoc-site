@@ -4,6 +4,8 @@ Agents use MCP to read and manage authorized OpenAPI, Markdown and TXT documents
 
 The stdio adapter `@chnmig/vdoc-mcp` forwards `tools/list` and `tools/call` to `/api/v1/open/mcp`; Backend owns storage and business logic.
 
+The tool inventory on this page describes `v0.4.1-beta.1` (npm `@beta`). Stable deployments should use the MCP version matching their backend.
+
 ## Before You Start
 
 - Vdoc backend is deployed and `/api/v1/open/health` succeeds.
@@ -23,7 +25,7 @@ npx --yes @chnmig/vdoc-mcp@latest --version
 
 To install a global command, run `npm install --global @chnmig/vdoc-mcp@latest`; repeat it to update. `@latest` selects stable releases and `@beta` selects betas; the tags update independently. For a fixed deployment, use an exact package version matching its backend.
 
-The workbench's **MCP client configuration** includes one-sentence prompts to install, update or uninstall MCP. Send the sentence to your AI; the [installation guide](https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.4.0/docs/public/mcp-install.md) preserves settings, channels and shared installations. No Skill is installed.
+The workbench's **MCP client configuration** includes one-sentence prompts to install, update or uninstall MCP. Send the sentence to your AI; the [installation guide](https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.4.1-beta.1/docs/public/mcp-install.md) preserves settings, channels and shared installations. No Skill is installed.
 
 Use `npx` with `@latest` in the agent configuration below. Each new process resolves the latest package in that channel; restart MCP after an update. Global installs need an explicit install command to update. npm ships compiled JavaScript and requires no Git or local TypeScript compiler.
 
@@ -32,7 +34,7 @@ For a deployment locked to the reviewed workspace release, the verified prebuilt
 ```sh
 (
   set -eu
-  VDOC_MCP_VERSION=0.4.0
+  VDOC_MCP_VERSION=0.4.1-beta.1
   VDOC_MCP_PACKAGE_DIR="$(mktemp -d)"
   trap 'rm -rf -- "$VDOC_MCP_PACKAGE_DIR"' EXIT
   VDOC_MCP_RELEASE="https://github.com/ChnMig/Vdoc-mcp/releases/download/v$VDOC_MCP_VERSION"
@@ -55,12 +57,12 @@ Use `@chnmig/vdoc-mcp@beta` for testing and `@chnmig/vdoc-mcp@latest` for stable
 
 MCP uses one adapter package per channel. `release` selects only stable releases; `beta` selects only `vMAJOR.MINOR.PATCH-beta.N` prereleases. A missing channel fails without falling back to another channel. Separate prefixes at `~/.local/share/vdoc/mcp/release` and `~/.local/share/vdoc/mcp/beta` preserve any existing global MCP installation.
 
-First download `install-channel.mjs` and `install-channel.mjs.sha256` from a reviewed [MCP Release](https://github.com/ChnMig/Vdoc-mcp/releases) that includes them. These commands pin the MCP-only installer to `v0.4.0`; run them in a dedicated tools directory. A failed download or checksum stops installation. Older releases do not contain these assets:
+First download `install-channel.mjs` and `install-channel.mjs.sha256` from a reviewed [MCP Release](https://github.com/ChnMig/Vdoc-mcp/releases) that includes them. These commands pin the MCP-only installer to `v0.4.1-beta.1`; run them in a dedicated tools directory. A failed download or checksum stops installation. Older releases do not contain these assets:
 
 ```sh
 (
   set -eu
-  VDOC_MCP_INSTALLER_TAG='v0.4.0'
+  VDOC_MCP_INSTALLER_TAG='v0.4.1-beta.1'
   VDOC_MCP_INSTALLER_RELEASE="https://github.com/ChnMig/Vdoc-mcp/releases/download/$VDOC_MCP_INSTALLER_TAG"
   curl -fL "$VDOC_MCP_INSTALLER_RELEASE/install-channel.mjs" -o install-channel.mjs
   curl -fL "$VDOC_MCP_INSTALLER_RELEASE/install-channel.mjs.sha256" -o install-channel.mjs.sha256
@@ -160,48 +162,13 @@ For the first MCP-only upgrade, download and verify the standalone installer fro
 
 ## Tool Scope
 
-The adapter reads deployed tool definitions from Backend `tools/list` at runtime.
+The adapter reads deployed backend `tools/list` schemas at runtime. The default inventory uses independent document branches and immutable commits: 20 backend tools plus the stdio-only `download_document_at_commit`. Legacy version and draft tools are no longer advertised.
 
-v0.2 read tools cover:
-
-- projects
-- documents
-- API versions
-- Markdown / TXT versions
-- endpoint detail
-- API diffs
-- Markdown / TXT docs
-- change summaries
-
-`list_documents` filters results by token scope: `api:read` alone sees only OpenAPI documents, `doc:read` sees Markdown and TXT documents, and a token with both sees all document types. API read tools require an OpenAPI target; `doc_*` read tools accept Markdown and TXT. One read scope cannot bypass the other.
-
-v0.2 draft tools cover creating, updating, viewing, and submitting OpenAPI, Markdown, and TXT Drafts. The normative inventory is (and must match backend `tools/list`):
+Document lists and search respect type scopes: `api:read` reads OpenAPI and `doc:read` reads Markdown/TXT. Patches require both the corresponding read and draft scopes and project Writer permission. Human administrators approve and publish.
 
 <!-- VDOC_MCP_TOOL_INVENTORY_START -->
 
 - `create_document`
-- `list_projects`
-- `list_documents`
-- `list_document_branches`
-- `list_api_endpoints`
-- `list_api_versions`
-- `list_doc_versions`
-- `get_latest_schema`
-- `get_endpoint_detail`
-- `compare_api_versions`
-- `get_change_summary`
-- `create_api_version_draft`
-- `update_api_version_draft`
-- `submit_api_version_draft`
-- `get_api_version_draft`
-- `get_latest_doc`
-- `compare_doc_versions`
-- `create_doc_draft`
-- `update_doc_draft`
-- `submit_doc_draft`
-- `get_doc_draft`
-- `get_schema_version`
-- `get_doc_version`
 - `resolve_ref`
 - `list_branches`
 - `create_branch`
@@ -216,38 +183,31 @@ v0.2 draft tools cover creating, updating, viewing, and submitting OpenAPI, Mark
 - `get_release`
 - `analyze_changes`
 - `list_repository_events`
+- `list_projects`
+- `list_documents`
+- `search_documents`
+- `get_document_section`
+- `apply_document_patch`
 
 <!-- VDOC_MCP_TOOL_INVENTORY_END -->
 
-`list_document_branches` returns branch IDs, names, defaults and protection, including unpublished branches. `list_api_endpoints` lists version endpoint IDs, filterable by `method` and exact OpenAPI `path`. Resolve IDs before details or a first draft. Branch discovery requires the document type's read scope; upgrade Backend if older deployments lack these tools.
+### Full source and optional structured views
 
-`get_endpoint_detail` includes active scheme definitions in `normalized_operation.securitySchemes`; header, location, or type changes appear in diffs. OpenAPI 3.1 Schema `$ref` siblings are preserved; operation parameters override path parameters by `name + in`. After upgrading Backend, historical reads/comparisons refresh old parsed facts from original content, retaining version and endpoint IDs.
+`get_document_at_commit(project_id, document_id, commit_id)` always returns the complete original source. `commit_changes` retains full-file replacement and `download_document_at_commit` downloads original files. These paths do not require Markdown or OpenAPI parsing and never truncate, reorder or format content to save context. BOM, CRLF, trailing newlines and empty files are preserved. Storage currently accepts UTF-8 text; arbitrary binary uploads require a separate future extension.
 
-v0.2 has no direct publish tools.
+`get_document_section` offers optional views at an exact `commit_id`:
 
-## Document Operation Rules
+- `kind=lines` (default): any stored text, using 1-based inclusive `start_line` / `end_line`. Defaults to up to 200 lines; at most 500 lines and 256 KiB. Continue with `next_line`. Oversized selections fail explicitly; choose a smaller range or read full source.
+- `kind=markdown_heading`: a unique ATX `heading`, including its child sections, ignoring headings in fenced code blocks. Duplicate headings require line selection.
+- `kind=openapi_operation`: an HTTP `method` and exact `path`. `content_kind=derived_json` identifies parsed output; do not use it as replacement source.
+- `kind=outline`: Markdown ATX headings or OpenAPI operations, at most 500 entries and 256 KiB. Parsing failure leaves line views, full reads and original downloads available.
 
-- Query Vdoc before answering endpoint fields, response properties, enum values, auth schemes, or Markdown / TXT text.
-- Prefer stable IDs and `relative_path` over display names.
-- Treat published Versions as immutable facts.
-- Do not say a Draft is published unless Admin approval has created a Version.
-- If a tool call fails, report envelope `code`, `status`, `message`, and `trace_id` after masking secrets.
-- Do not put raw MCP Tokens, JWTs, DB passwords, storage secrets, or `Authorization` header values in repos, screenshots, logs, README files, or issues.
+### Search and partial edits
 
-## Verification
+`search_documents(project_id, query)` performs a case-insensitive literal search over names, paths and raw source. Optionally use `path_prefix`, or select `document_id` with `branch_id` or `commit_id` (not both). Defaults to each document's default branch. Results include the exact commit, matched fields, a bounded snippet and a content line number. `limit` defaults to 20, maximum 50. Each page scans at most 100 documents or stops after cumulative reads reach 16 MiB, finishing the current file first. Continue `next_cursor` even through empty pages. Cursors bind the search criteria; default heads may change between pages, while each returned result remains pinned to its actual commit.
 
-- Agent MCP server `vdoc` starts.
-- `tools/list` returns Vdoc tool schemas.
-- At least one read-only tool call succeeds.
-- Token is not present in process args, logs, docs, or screenshots.
-- Agent answers mention Vdoc query results when the task depends on API or document facts.
+`apply_document_patch` accepts `document_id`, `branch_id`, observed `expected_head_commit_id`, `expected_generation`, a stable `idempotency_key` and 1–100 `edits` with `old_text` / `new_text`. All anchors refer to the same original source and must be unique and non-overlapping. Empty `old_text` is permitted only for a single insertion into an empty document; empty `new_text` deletes an anchor. Other bytes and metadata remain unchanged. Success creates a normal numbered commit without publication.
 
-## v0.2: Explicit Branches and Historical Versions
+Reload, compare and reconcile after a head/generation conflict. Missing or repeated anchors fail explicitly. After an unknown outcome, retry identical arguments and key; retries return the original commit even after later saves. A key cannot be reused for a different patch.
 
-- `get_latest_doc` and `get_latest_schema` require `branch_id`; they never select across branches. Resolve branch names with `list_document_branches` first.
-- For complete historical content, use `get_doc_version` for Markdown / TXT or `get_schema_version` for OpenAPI, with `project_id`, `document_id`, and `version_id`. Verify and cite the returned `version` and `content`.
-- `get_api_version_draft` preserves its metadata and adds the raw body in `content.content`. Its `revision` and content come from one snapshot; use that revision as `expected_revision` when editing.
-- Markdown / TXT draft writes use `content`. Legacy `markdown_content` remains accepted; supply at least one body field, with identical values if both are present. TXT retains literal content and line endings, may be empty, and is not parsed as Markdown or OpenAPI. Check the deployed backend schema first.
-- Undeclared arguments return `INVALID_ARGUMENT`. Existing callers must supply a branch to latest-content tools and use the dedicated version tools for historical reads.
-
-Start with the [Codex/Cursor/Claude Code configuration steps](admin-usage.md#connect-agent).
+For initial setup, use the [Codex / Cursor / Claude Code guide](admin-usage.md#connect-agent).

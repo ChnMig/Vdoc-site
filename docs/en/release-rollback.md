@@ -1,5 +1,7 @@
 # Upgrade and Rollback
 
+`v0.4.1-beta.1` adds MCP search, section views and text patches and updates the default tool inventory. No additional migration from v0.4.0. Beta uses its isolated `docker-compose.beta.yml` and npm `@beta`. Full reads/writes/downloads remain available; content is still UTF-8 text. Update Backend, Admin and MCP together, then restart MCP.
+
 For a single-file deployment, Backend/Admin follow stable `latest` images. You run `docker compose pull` and `docker compose up -d --wait` to update containers, and the backend runs migrations included in the new release at startup. Upgrades retain existing accounts, keys, and data volumes.
 
 ## 1. Back Up Configuration and Data

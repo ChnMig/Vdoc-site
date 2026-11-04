@@ -304,35 +304,13 @@ POST /api/v1/private/projects/:project_id/repository/subscriptions/:subscription
 POST /api/v1/private/projects/:project_id/repository/subscriptions/:subscription_id/resume
 ```
 
-## 5. MCP v0.2 工具
+## 5. MCP 文档仓库工具
 
-MCP 默认提供查询、文档独立分支、追加提交、固定比较、分析、事件读取与创建合并请求。旧草稿工具只用于尚未切换项目的兼容流程，切换后拒绝覆盖写入。正式版本发布必须由 Admin 或 SuperAdmin 在后台人工触发；MCP 不提供批准或发布工具。
+MCP 默认提供查询、文档独立分支、追加提交、固定比较、分析、事件读取与创建合并请求。默认工具清单只包含新版文档仓库能力。旧版本／草稿工具退出发现清单，后端内部兼容处理不作为新 Agent 接口。正式版本发布必须由 Admin 或 SuperAdmin 在后台人工触发；MCP 不提供批准或发布工具。
 
 ```text
 VDOC_MCP_TOOL_INVENTORY_START
 create_document
-list_projects
-list_documents
-list_document_branches
-list_api_endpoints
-list_api_versions
-list_doc_versions
-get_latest_schema
-get_endpoint_detail
-compare_api_versions
-get_change_summary
-create_api_version_draft
-update_api_version_draft
-submit_api_version_draft
-get_api_version_draft
-get_latest_doc
-compare_doc_versions
-create_doc_draft
-update_doc_draft
-submit_doc_draft
-get_doc_draft
-get_schema_version
-get_doc_version
 resolve_ref
 list_branches
 create_branch
@@ -347,8 +325,15 @@ list_releases
 get_release
 analyze_changes
 list_repository_events
+list_projects
+list_documents
+search_documents
+get_document_section
+apply_document_patch
 VDOC_MCP_TOOL_INVENTORY_END
 ```
+
+`search_documents` 搜索标题、路径与原文并返回固定提交；`get_document_section` 提供可选的行、ATX 标题、OpenAPI operation 或 outline；`apply_document_patch` 使用原文唯一且不重叠的锚点并复用并发控制和幂等提交。完整读取、完整替换及原始下载始终保留，不以解析成功为前提。当前内容存储仍为 UTF-8 文本。
 
 MCP Token 创建响应返回可复制 token 值；token 所属用户可以通过详情接口重复查看 active token 明文，列表、已撤销和已过期响应必须脱敏。后端同时保存不可逆 `token_hash` 和加密 `token_ciphertext`。MCP tools 绝不能返回 JWT、MCP token 或 Authorization header。`mcp-usage` 只返回 owner（或指定 token 时的 SuperAdmin）可见的脱敏工具调用证据，成功读取已发布内容时记录精确实体 ID，不记录请求参数、schema/Markdown 内容、IP 或 User-Agent。
 

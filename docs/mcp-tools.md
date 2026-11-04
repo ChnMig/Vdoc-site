@@ -4,6 +4,8 @@ Agent 通过 MCP 在授权范围内读取和管理 OpenAPI、Markdown、TXT 文�
 
 stdio 适配器 `@chnmig/vdoc-mcp` 将 `tools/list`、`tools/call` 转发到 `/api/v1/open/mcp`；Backend 负责存储与业务逻辑。
 
+本页工具清单对应 `v0.4.1-beta.1`（npm `@beta`）。稳定版部署应使用与其后端一致的 MCP 版本。
+
 ## 使用前准备
 
 - Vdoc backend 已部署，`/api/v1/open/health` 成功。
@@ -23,7 +25,7 @@ npx --yes @chnmig/vdoc-mcp@latest --version
 
 全局命令可用 `npm install --global @chnmig/vdoc-mcp@latest` 安装，更新时重复同一命令。`@latest` 选择最新正式版，`@beta` 选择最新测试版，两者分别更新。固定部署可使用与后端一致的确切包版本。
 
-工作台的 **MCP 客户端配置** 提供安装、更新和卸载的一句话提示词，发给 AI 即可按[操作指南](https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.4.0/docs/public/mcp-install.md)处理；指南会保留已有配置、渠道和共享安装，不安装 Skill。
+工作台的 **MCP 客户端配置** 提供安装、更新和卸载的一句话提示词，发给 AI 即可按[操作指南](https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.4.1-beta.1/docs/public/mcp-install.md)处理；指南会保留已有配置、渠道和共享安装，不安装 Skill。
 
 下方 Agent 配置通过 `npx` 的 `@latest` 调用，每次新启动解析该渠道最新包，更新后重启 MCP。全局安装需要主动执行安装命令更新。npm 包包含编译好的 JavaScript，无需 Git 或本地 TypeScript 编译器。
 
@@ -32,7 +34,7 @@ npx --yes @chnmig/vdoc-mcp@latest --version
 ```sh
 (
   set -eu
-  VDOC_MCP_VERSION=0.4.0
+  VDOC_MCP_VERSION=0.4.1-beta.1
   VDOC_MCP_PACKAGE_DIR="$(mktemp -d)"
   trap 'rm -rf -- "$VDOC_MCP_PACKAGE_DIR"' EXIT
   VDOC_MCP_RELEASE="https://github.com/ChnMig/Vdoc-mcp/releases/download/v$VDOC_MCP_VERSION"
@@ -55,12 +57,12 @@ npx --yes @chnmig/vdoc-mcp@latest --version
 
 MCP 按渠道安装适配器发行包。`release` 只选择正式版，`beta` 只选择 `vMAJOR.MINOR.PATCH-beta.N` 预发布；没有对应版本时安装器会报错，不会跨渠道回退。两者分别安装在 `~/.local/share/vdoc/mcp/release` 与 `~/.local/share/vdoc/mcp/beta`，不会替换已有全局 MCP。
 
-首次从已审核、包含渠道安装器的 [MCP Release](https://github.com/ChnMig/Vdoc-mcp/releases) 下载 `install-channel.mjs` 和 `install-channel.mjs.sha256`。以下命令固定安装器版本为 `v0.4.0`，在独立工具目录中执行；下载或摘要校验失败会停止安装。旧版本没有这两个资产：
+首次从已审核、包含渠道安装器的 [MCP Release](https://github.com/ChnMig/Vdoc-mcp/releases) 下载 `install-channel.mjs` 和 `install-channel.mjs.sha256`。以下命令固定安装器版本为 `v0.4.1-beta.1`，在独立工具目录中执行；下载或摘要校验失败会停止安装。旧版本没有这两个资产：
 
 ```sh
 (
   set -eu
-  VDOC_MCP_INSTALLER_TAG='v0.4.0'
+  VDOC_MCP_INSTALLER_TAG='v0.4.1-beta.1'
   VDOC_MCP_INSTALLER_RELEASE="https://github.com/ChnMig/Vdoc-mcp/releases/download/$VDOC_MCP_INSTALLER_TAG"
   curl -fL "$VDOC_MCP_INSTALLER_RELEASE/install-channel.mjs" -o install-channel.mjs
   curl -fL "$VDOC_MCP_INSTALLER_RELEASE/install-channel.mjs.sha256" -o install-channel.mjs.sha256
@@ -160,48 +162,13 @@ Vdoc 提供文档操作和事实。代码生成、消费方升级和其他业务
 
 ## 可用工具范围
 
-Adapter 运行时读取后端 `tools/list`，以部署的工具定义为准。
+Adapter 运行时读取后端 `tools/list`，以部署的工具定义为准。默认清单使用文档独立分支与不可变提交模型，共 20 个后端工具；stdio 适配器另提供 `download_document_at_commit`。旧版本和旧草稿工具退出发现清单。
 
-v0.2 read tools 覆盖：
-
-- projects
-- documents
-- API versions
-- Markdown / TXT versions
-- endpoint detail
-- API diffs
-- Markdown / TXT docs
-- change summaries
-
-`list_documents` 会按 token scope 过滤结果：只有 `api:read` 时仅返回 OpenAPI，只有 `doc:read` 时返回 Markdown 和 TXT，同时具备两者时返回全部文档类型。API read tools 只接受 OpenAPI，`doc_*` read tools 接受 Markdown 和 TXT，不能用一种 read scope 绕过另一种。
-
-v0.2 draft tools 覆盖 OpenAPI、Markdown 和 TXT Draft 的创建、更新、查看和提交。规范工具清单如下（必须与后端 `tools/list` 一致）：
+`list_documents` 和搜索按 token 的文档类型权限过滤：`api:read` 读取 OpenAPI，`doc:read` 读取 Markdown 与 TXT。局部修改需要同一文档类型的 read 与 draft scope，并且用户拥有项目 Writer 权限；审批与发布由人类管理员完成。
 
 <!-- VDOC_MCP_TOOL_INVENTORY_START -->
 
 - `create_document`
-- `list_projects`
-- `list_documents`
-- `list_document_branches`
-- `list_api_endpoints`
-- `list_api_versions`
-- `list_doc_versions`
-- `get_latest_schema`
-- `get_endpoint_detail`
-- `compare_api_versions`
-- `get_change_summary`
-- `create_api_version_draft`
-- `update_api_version_draft`
-- `submit_api_version_draft`
-- `get_api_version_draft`
-- `get_latest_doc`
-- `compare_doc_versions`
-- `create_doc_draft`
-- `update_doc_draft`
-- `submit_doc_draft`
-- `get_doc_draft`
-- `get_schema_version`
-- `get_doc_version`
 - `resolve_ref`
 - `list_branches`
 - `create_branch`
@@ -216,38 +183,31 @@ v0.2 draft tools 覆盖 OpenAPI、Markdown 和 TXT Draft 的创建、更新、�
 - `get_release`
 - `analyze_changes`
 - `list_repository_events`
+- `list_projects`
+- `list_documents`
+- `search_documents`
+- `get_document_section`
+- `apply_document_patch`
 
 <!-- VDOC_MCP_TOOL_INVENTORY_END -->
 
-`list_document_branches` 查询分支 ID、名称、默认及保护状态，包含未发布分支；`list_api_endpoints` 查询版本接口 ID，支持 `method` 和精确 OpenAPI `path` 筛选。先解析 ID，再查详情或建首份草稿。分支查询须有对应类型的 read scope；旧版缺少这些工具时，升级 Backend。
+### 完整原文与可选解析视图
 
-`get_endpoint_detail` 的 `normalized_operation.securitySchemes` 含接口所用鉴权方案；同名方案的 Header、位置、类型变化计入差异。保留 OpenAPI 3.1 Schema `$ref` 同级约束，Operation 参数按 `name + in` 覆盖 Path 参数。升级 Backend 后，历史读取／比较会从原文刷新旧解析结果，保留版本和接口 ID。
+`get_document_at_commit(project_id, document_id, commit_id)` 始终返回完整原文；`commit_changes` 仍支持完整文件替换；`download_document_at_commit` 下载原始文件。完整存取不依赖 Markdown 或 OpenAPI 解析成功，不会为节省上下文截断、重排或格式化文件。BOM、CRLF、末尾换行和空正文均保留。当前存储支持 UTF-8 文本；任意二进制上传需要后续单独扩展。
 
-v0.2 不暴露直接发布工具。
+`get_document_section` 以确切 `commit_id` 提供可选视图：
 
-## 文档操作规则
+- `kind=lines`（默认）：任意已存储文本按 1-based、含首尾的 `start_line` / `end_line` 读取，默认最多 200 行，单次最多 500 行和 256 KiB。使用 `next_line` 继续读取。超限明确报错，可缩小范围或读取全文。
+- `kind=markdown_heading`：按唯一 `heading` 读取 ATX 标题及子章节，忽略围栏代码块里的标题。重名标题要求改用行号。
+- `kind=openapi_operation`：按 `method` 和精确 `path` 读取解析后的接口；`content_kind=derived_json` 明确表示派生 JSON，不能当作原始文件替换。
+- `kind=outline`：列出 Markdown ATX 标题或 OpenAPI 接口，最多 500 项和 256 KiB。解析失败仍可按行读取、读取全文或下载原文件。
 
-- 回答 endpoint fields、response properties、enum values、auth schemes 或 Markdown / TXT 原文前，先查 Vdoc。
-- 优先使用 stable ID 和 `relative_path`，不要依赖显示名称。
-- 把 published Version 视为不可变事实。
-- 不要说 Draft 已发布，除非 Admin 审核后已经生成 Version。
-- tool call 失败时，遮盖 secret 后报告 envelope `code`、`status`、`message` 和 `trace_id`。
-- 不要把原始 MCP Token、JWT、DB password、storage secret 或 `Authorization` header 值写进仓库、截图、日志、README 或 issue。
+### 搜索与局部修改
 
-## 如何验证
+`search_documents(project_id, query)` 按不区分大小写的字面关键词搜索标题、路径与原文。可指定 `path_prefix`，或指定 `document_id` 配合 `branch_id` / `commit_id`；两种引用不能同时提供。默认检索各文档默认分支。每条结果包含确切提交、匹配字段、片段和正文行号。`limit` 默认 20，最大 50；扫描预算为每页 100 份文档或累计读取达到 16 MiB（当前文件读取完成后停止）。即使本页没有匹配，存在 `next_cursor` 时也必须继续。游标绑定搜索条件；默认分支可在翻页期间前进，各条结果仍固定到实际检索的提交。
 
-- Agent MCP server `vdoc` 能启动。
-- `tools/list` 成功返回 Vdoc tool schemas。
-- 至少一个 read-only tool call 成功。
-- token 没有出现在 process args、日志、文档或截图中。
-- Agent 在依赖接口或文档事实的回答中说明事实来自 Vdoc 查询结果。
+`apply_document_patch` 提交 `document_id`、`branch_id`、已观察的 `expected_head_commit_id`、`expected_generation`、稳定的 `idempotency_key` 和 1–100 项 `edits`。每项包含 `old_text` 与 `new_text`；所有锚点针对同一份原文，必须唯一且互不重叠。空 `old_text` 只允许用于空文件的单项插入，空 `new_text` 表示删除。其余字节及元数据不变；成功生成正常的编号提交，不发布。
 
-## v0.2：明确分支和历史版本
-
-- `get_latest_doc`、`get_latest_schema` 必须传入 `branch_id`，不会跨分支自动选择。先用 `list_document_branches` 解析分支名称。
-- 读取指定历史版本全文：Markdown / TXT 使用 `get_doc_version`，OpenAPI 使用 `get_schema_version`，参数均为 `project_id`、`document_id`、`version_id`。返回 `version` 与 `content`，请核对并引用实际版本。
-- `get_api_version_draft` 保留原有元数据并增加 `content.content` 原始正文，`revision` 与正文来自同一快照，可用于后续 `expected_revision` 更新。
-- Markdown / TXT 的 `create_doc_draft`、`update_doc_draft` 使用 `content` 正文字段；旧 `markdown_content` 仍兼容，至少提供一个，两个同时提供时必须相同。TXT 保留原文及换行，允许空正文，不经过 Markdown 或 OpenAPI 解析。先检查部署后端的实际 schema。
-- 未声明的参数会返回 `INVALID_ARGUMENT`。旧客户端调用最新内容工具时需补上分支，不能传 `version_id` 期待读取历史内容。
+HEAD 或 generation 变化时重新读取、比较并协调；锚点缺失或重复时明确报错。结果未知时使用完全相同的参数和 key 重试，分支已前进也返回原提交。相同 key 不能用于另一份 patch。
 
 首次接入可使用 [Codex／Cursor／Claude Code 配置步骤](admin-usage.md#connect-agent)。

@@ -2,308 +2,33 @@
   "version": "0.2.0",
   "tools": [
     {
-      "name": "list_projects",
+      "name": "create_document",
       "scopes_any": [
-        "api:read",
-        "doc:read"
-      ],
-      "required": [],
-      "optional": []
-    },
-    {
-      "name": "list_documents",
-      "scopes_any": [
-        "api:read",
-        "doc:read"
-      ],
-      "required": [
-        "project_id"
-      ],
-      "optional": []
-    },
-    {
-      "name": "list_document_branches",
-      "scopes_any": [
-        "api:read",
-        "doc:read"
-      ],
-      "required": [
-        "project_id",
-        "document_id"
-      ],
-      "optional": []
-    },
-    {
-      "name": "list_api_endpoints",
-      "scopes_any": [
-        "api:read"
-      ],
-      "required": [
-        "project_id",
-        "document_id",
-        "version_id"
-      ],
-      "optional": [
-        "method",
-        "path"
-      ]
-    },
-    {
-      "name": "list_api_versions",
-      "scopes_any": [
-        "api:read"
-      ],
-      "required": [
-        "project_id",
-        "document_id"
-      ],
-      "optional": []
-    },
-    {
-      "name": "list_doc_versions",
-      "scopes_any": [
-        "doc:read"
-      ],
-      "required": [
-        "project_id",
-        "document_id"
-      ],
-      "optional": []
-    },
-    {
-      "name": "get_latest_schema",
-      "scopes_any": [
-        "api:read"
-      ],
-      "required": [
-        "project_id",
-        "document_id",
-        "branch_id"
-      ],
-      "optional": []
-    },
-    {
-      "name": "get_endpoint_detail",
-      "scopes_any": [
-        "api:read"
-      ],
-      "required": [
-        "project_id",
-        "document_id",
-        "version_id",
-        "endpoint_id"
-      ],
-      "optional": []
-    },
-    {
-      "name": "compare_api_versions",
-      "scopes_any": [
-        "api:read"
-      ],
-      "required": [
-        "project_id",
-        "document_id",
-        "from_version_id",
-        "to_version_id"
-      ],
-      "optional": []
-    },
-    {
-      "name": "get_change_summary",
-      "scopes_any": [
-        "api:read"
-      ],
-      "required": [
-        "project_id",
-        "document_id",
-        "diff_id"
-      ],
-      "optional": []
-    },
-    {
-      "name": "create_api_version_draft",
-      "scopes_any": [
-        "api:draft"
-      ],
-      "required": [
-        "project_id",
-        "document_id",
-        "branch_id",
-        "version_name",
-        "schema_content"
-      ],
-      "optional": [
-        "changelog",
-        "source_git_commit_id"
-      ]
-    },
-    {
-      "name": "update_api_version_draft",
-      "scopes_any": [
-        "api:draft"
-      ],
-      "required": [
-        "project_id",
-        "document_id",
-        "draft_id",
-        "schema_content",
-        "expected_revision"
-      ],
-      "optional": [
-        "version_name",
-        "changelog",
-        "source_git_commit_id"
-      ]
-    },
-    {
-      "name": "submit_api_version_draft",
-      "scopes_any": [
-        "api:draft"
-      ],
-      "required": [
-        "project_id",
-        "document_id",
-        "draft_id"
-      ],
-      "optional": []
-    },
-    {
-      "name": "get_api_version_draft",
-      "scopes_any": [
-        "api:read"
-      ],
-      "required": [
-        "project_id",
-        "document_id",
-        "draft_id"
-      ],
-      "optional": []
-    },
-    {
-      "name": "get_latest_doc",
-      "scopes_any": [
-        "doc:read"
-      ],
-      "required": [
-        "project_id",
-        "document_id",
-        "branch_id"
-      ],
-      "optional": []
-    },
-    {
-      "name": "compare_doc_versions",
-      "scopes_any": [
-        "doc:read"
-      ],
-      "required": [
-        "project_id",
-        "document_id",
-        "from_version_id",
-        "to_version_id"
-      ],
-      "optional": []
-    },
-    {
-      "name": "create_doc_draft",
-      "scopes_any": [
+        "api:draft",
         "doc:draft"
       ],
       "required": [
         "project_id",
-        "document_id",
-        "branch_id",
-        "version_name"
-      ],
-      "optional": [
-        "changelog",
-        "source_git_commit_id",
+        "name",
+        "relative_path",
+        "document_type",
         "content",
-        "markdown_content"
-      ],
-      "required_any_of": [
-        [
-          "content"
-        ],
-        [
-          "markdown_content"
-        ]
-      ]
-    },
-    {
-      "name": "update_doc_draft",
-      "scopes_any": [
-        "doc:draft"
-      ],
-      "required": [
-        "project_id",
-        "document_id",
-        "draft_id",
-        "expected_revision"
+        "idempotency_key"
       ],
       "optional": [
-        "version_name",
-        "changelog",
-        "source_git_commit_id",
-        "content",
-        "markdown_content"
+        "description",
+        "initial_branch"
       ],
-      "required_any_of": [
-        [
-          "content"
-        ],
-        [
-          "markdown_content"
-        ]
-      ]
-    },
-    {
-      "name": "submit_doc_draft",
-      "scopes_any": [
-        "doc:draft"
-      ],
-      "required": [
-        "project_id",
-        "document_id",
-        "draft_id"
-      ],
-      "optional": []
-    },
-    {
-      "name": "get_doc_draft",
-      "scopes_any": [
-        "doc:read"
-      ],
-      "required": [
-        "project_id",
-        "document_id",
-        "draft_id"
-      ],
-      "optional": []
-    },
-    {
-      "name": "get_schema_version",
-      "scopes_any": [
-        "api:read"
-      ],
-      "required": [
-        "project_id",
-        "document_id",
-        "version_id"
-      ],
-      "optional": []
-    },
-    {
-      "name": "get_doc_version",
-      "scopes_any": [
-        "doc:read"
-      ],
-      "required": [
-        "project_id",
-        "document_id",
-        "version_id"
-      ],
-      "optional": []
+      "argument_schemas": {
+        "document_type": {
+          "type": "integer",
+          "enum": [
+            1,
+            2,
+            3
+          ]
+        }
+      }
     },
     {
       "name": "resolve_ref",
@@ -605,31 +330,143 @@
       }
     },
     {
-      "name": "create_document",
+      "name": "list_projects",
+      "scopes_any": [
+        "api:read",
+        "doc:read"
+      ],
+      "required": [],
+      "optional": []
+    },
+    {
+      "name": "list_documents",
+      "scopes_any": [
+        "api:read",
+        "doc:read"
+      ],
+      "required": [
+        "project_id"
+      ],
+      "optional": []
+    },
+    {
+      "name": "search_documents",
+      "scopes_any": [
+        "api:read",
+        "doc:read"
+      ],
+      "required": [
+        "project_id",
+        "query"
+      ],
+      "optional": [
+        "document_id",
+        "branch_id",
+        "commit_id",
+        "path_prefix",
+        "cursor",
+        "limit"
+      ],
+      "argument_schemas": {
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 50
+        }
+      }
+    },
+    {
+      "name": "get_document_section",
+      "scopes_any": [
+        "api:read",
+        "doc:read"
+      ],
+      "required": [
+        "project_id",
+        "document_id",
+        "commit_id"
+      ],
+      "optional": [
+        "kind",
+        "start_line",
+        "end_line",
+        "heading",
+        "method",
+        "path"
+      ],
+      "argument_schemas": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "lines",
+            "markdown_heading",
+            "openapi_operation",
+            "outline"
+          ]
+        },
+        "start_line": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "end_line": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    {
+      "name": "apply_document_patch",
       "scopes_any": [
         "api:draft",
         "doc:draft"
       ],
+      "scopes_all_any": [
+        [
+          "api:read",
+          "api:draft"
+        ],
+        [
+          "doc:read",
+          "doc:draft"
+        ]
+      ],
       "required": [
         "project_id",
-        "name",
-        "relative_path",
-        "document_type",
-        "content",
-        "idempotency_key"
+        "document_id",
+        "branch_id",
+        "expected_head_commit_id",
+        "expected_generation",
+        "idempotency_key",
+        "edits"
       ],
       "optional": [
-        "description",
-        "initial_branch"
+        "message"
       ],
       "argument_schemas": {
-        "document_type": {
+        "expected_generation": {
           "type": "integer",
-          "enum": [
-            1,
-            2,
-            3
-          ]
+          "minimum": 1
+        },
+        "edits": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 100,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "old_text",
+              "new_text"
+            ],
+            "properties": {
+              "old_text": {
+                "type": "string"
+              },
+              "new_text": {
+                "type": "string"
+              }
+            }
+          }
         }
       }
     }

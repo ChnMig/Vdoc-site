@@ -303,8 +303,8 @@ mcp_tool_count="$(jq -r '.tools | length' "$ROOT_DIR/contracts/mcp-tools-v0.2.js
 [[ "$mcp_tool_count" -gt 0 ]] || fail 'MCP tool manifest must not be empty'
 [[ "$(jq -r '[.tools[].name] | unique | length' "$ROOT_DIR/contracts/mcp-tools-v0.2.json")" == "$mcp_tool_count" ]] || \
   fail 'MCP manifest contains duplicate tool names'
-[[ "$(jq -r '.tools[] | select(.name == "get_doc_draft") | .scopes_any | join(",")' "$ROOT_DIR/contracts/mcp-tools-v0.2.json")" == 'doc:read' ]] || \
-  fail 'get_doc_draft must require doc:read in the MCP manifest'
+[[ "$(jq -r '.tools[] | select(.name == "get_document_at_commit") | .scopes_any | join(",")' "$ROOT_DIR/contracts/mcp-tools-v0.2.json")" == 'api:read,doc:read' ]] || \
+  fail 'get_document_at_commit must retain API/document read scopes in the MCP manifest'
 
 assert_mcp_inventory_matches 'backend runtime' mcp_backend_tools
 assert_mcp_inventory_matches 'PRD.md' mcp_marked_plain_inventory "$ROOT_DIR/PRD.md"
