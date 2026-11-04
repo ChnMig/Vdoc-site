@@ -17,7 +17,7 @@ The agent machine also needs Node.js 20 or later and npm. If Vdoc is not running
 
 ## Installation Options
 
-This development release uses npm `@beta` with the matching beta backend, without a Git commit:
+Stable environments use npm `@latest` with the matching stable backend, without a Git commit:
 
 ```sh
 npx --yes @chnmig/vdoc-mcp@latest --version
@@ -27,7 +27,7 @@ To install a global command, run `npm install --global @chnmig/vdoc-mcp@latest`;
 
 The workbench's **MCP client configuration** includes one-sentence prompts to install, update or uninstall MCP. Send the sentence to your AI; the [installation guide](https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.4.1/docs/public/mcp-install.md) preserves settings, channels and shared installations. No Skill is installed.
 
-Use `npx` with `@beta` in the agent configuration below. Each new process resolves the latest package in that channel; restart MCP after an update. Global installs need an explicit install command to update. npm ships compiled JavaScript and requires no Git or local TypeScript compiler.
+Use `npx` with `@latest` in the agent configuration below. Each new process resolves the latest package in that channel; restart MCP after an update. Global installs need an explicit install command to update. npm ships compiled JavaScript and requires no Git or local TypeScript compiler.
 
 For a deployment locked to the reviewed workspace release, the verified prebuilt archive remains available:
 
@@ -74,10 +74,11 @@ First download `install-channel.mjs` and `install-channel.mjs.sha256` from a rev
 
 Each execution resolves the channel's newest published version, verifies its archive, then installs it. Put the printed absolute executable path in your Agent's `command`, removing `npx` arguments. Name the stable connection `vdoc` and the test connection `vdoc_beta`. Beta uses `VDOC_BASE_URL=http://127.0.0.1:18080` (or your test domain) and a Token created in Beta Admin. Keep production Tokens out of the test connection. When both environments are configured, explicitly select which connection to query.
 
-After installation, repeat this command to update beta MCP; replace both `beta` values with `release` for stable updates:
+After installation, repeat the command for your chosen channel. Stable environments use `release`; test environments use `beta`:
 
 ```sh
 node "$HOME/.local/share/vdoc/mcp/release/node_modules/@chnmig/vdoc-mcp/scripts/install-channel.mjs" --channel release
+node "$HOME/.local/share/vdoc/mcp/beta/node_modules/@chnmig/vdoc-mcp/scripts/install-channel.mjs" --channel beta
 ```
 
 Restart MCP and reload the Agent after updating. The installer requires Node.js 20+ and npm, and remains available for existing GitHub channel installations.

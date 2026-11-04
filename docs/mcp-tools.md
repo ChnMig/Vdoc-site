@@ -17,7 +17,7 @@ Agent 运行的机器还需安装 Node.js 20 或更新版本和 npm。尚未启�
 
 ## 安装方式
 
-本开发版使用 npm 的 `@beta`，连接配套 Beta 后端，无需填写 Git 提交：
+正式环境使用 npm 的 `@latest`，连接配套正式版后端，无需填写 Git 提交：
 
 ```sh
 npx --yes @chnmig/vdoc-mcp@latest --version
@@ -27,7 +27,7 @@ npx --yes @chnmig/vdoc-mcp@latest --version
 
 工作台的 **MCP 客户端配置** 提供安装、更新和卸载的一句话提示词，发给 AI 即可按[操作指南](https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.4.1/docs/public/mcp-install.md)处理；指南会保留已有配置、渠道和共享安装，不安装 Skill。
 
-下方 Agent 配置通过 `npx` 的 `@beta` 调用，每次新启动解析该渠道最新包，更新后重启 MCP。全局安装需要主动执行安装命令更新。npm 包包含编译好的 JavaScript，无需 Git 或本地 TypeScript 编译器。
+下方 Agent 配置通过 `npx` 的 `@latest` 调用，每次新启动解析该渠道最新包，更新后重启 MCP。全局安装需要主动执行安装命令更新。npm 包包含编译好的 JavaScript，无需 Git 或本地 TypeScript 编译器。
 
 固定部署仍可安装与审核过的工作区锁一致的已编译发行包，先校验再安装：
 
@@ -74,10 +74,11 @@ MCP 按渠道安装适配器发行包。`release` 只选择正式版，`beta` �
 
 每次执行都会解析该渠道最新已发布版本，校验其发行包再安装。安装器会打印 MCP 可执行文件的绝对路径。将它填入 Agent 配置的 `command`，移除 `npx` 的 `args`：稳定连接命名为 `vdoc`，测试连接命名为 `vdoc_beta`。Beta 使用 `VDOC_BASE_URL=http://127.0.0.1:18080`（或测试域名）及 Beta 工作台创建的 Token；线上 Token 不在测试连接中使用。客户端连接两个环境时，必须由用户明确选择查询对象。
 
-安装后，重复以下命令即可更新 beta MCP；稳定更新将两处 `beta` 改成 `release`：
+安装后，重复所选渠道的命令更新 MCP。正式环境使用 `release`，测试环境使用 `beta`：
 
 ```sh
 node "$HOME/.local/share/vdoc/mcp/release/node_modules/@chnmig/vdoc-mcp/scripts/install-channel.mjs" --channel release
+node "$HOME/.local/share/vdoc/mcp/beta/node_modules/@chnmig/vdoc-mcp/scripts/install-channel.mjs" --channel beta
 ```
 
 更新后重启 MCP 连接并重新加载 Agent。渠道安装器需要 Node.js 20+ 和 npm，可继续用于已有 GitHub 渠道安装。
