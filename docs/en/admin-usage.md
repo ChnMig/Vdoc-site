@@ -1,6 +1,6 @@
 # First Use
 
-Use `v0.4.2` to save, review, publish and query a guide after completing [deployment](deployment.md#quick-start).
+Use `v0.4.3` to save, review, publish and query a guide after completing [deployment](deployment.md#quick-start).
 
 ## Before You Start
 
@@ -45,7 +45,7 @@ Saving, merging and publishing are separate. Administrators publish through **Re
 
 ## 5. Create a Read Token
 
-Choose **Create MCP token** with `doc:read` for Markdown/TXT, access to **Vdoc Trial**, and a future expiry. Store it in private agent configuration or a secret manager; exclude repositories, CLI arguments, screenshots and logs. Active tokens support reveal/copy; lists and expired/revoked tokens stay masked.
+Choose **Create MCP token** with **Read documents** (`read`), access to **Vdoc Trial**, and a future expiry. Store it in private agent configuration or a secret manager; exclude repositories, CLI arguments, screenshots and logs. Active tokens support reveal/copy; lists and expired/revoked tokens stay masked. Tokens and their private activity are owner-only, even for administrators.
 
 <div id="connect-agent"></div>
 
@@ -72,9 +72,11 @@ do not invent content.
 
 Verify `list_documents` identifies the document; pass its `document_id` to `list_releases` / `get_release`, then read the release’s commit with `get_document_at_commit`. Expect **Northstar** and **run the project tests before committing code**. Tool discovery or a similar answer does not prove a read; unpublished HEAD is not a publication.
 
-Check runtime, Backend reachability and client errors; for missing documents check expiry, `doc:read`, project access and release selection. See [Troubleshooting](troubleshooting.md).
+Check runtime, Backend reachability and client errors; for missing documents check expiry, `read`, project access and release selection. See [Troubleshooting](troubleshooting.md).
 
 ## Reading, AI, Sharing and Events
+
+Use each folder’s trailing menu to rename, move or delete it when empty; select move destinations in the tree. Click a parent in the path to return, or refresh the current level. Removing the last document preserves its folder. Reading-page creation and management actions are in the upper-right overflow menu.
 
 The project directory stays left, content center, and tools right. Outline, AI, history, comparison, merge, release and event sidebars expand leftward over content and collapse in place, retaining input and scrolling. Phones use the Document tools menu.
 

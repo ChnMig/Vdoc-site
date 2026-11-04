@@ -132,7 +132,7 @@ Vdoc REST 使用 envelope。不要只看 HTTP status，要看 body：
 ## Agent 没有使用 Vdoc 事实
 
 - 确认 `@chnmig/vdoc-mcp` 的 `tools/list` 成功。
-- 确认 Token 有目标文档类型的读取权限，并固定正确的环境、文档和提交。
+- 确认 Token 有 `read` 能力和项目访问权；旧 Token 仍保留原类型限制。固定正确的环境、文档和提交。
 - 给 Agent 明确任务，例如“先查询 Vdoc 的 `get_endpoint_detail`，再说明请求字段”。
 - 如果查询成功但 Agent 没有采用返回内容，检查业务项目中的任务说明和 Agent 配置。如何使用文档由接入方决定。
 

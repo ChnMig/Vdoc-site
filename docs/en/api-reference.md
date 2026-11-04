@@ -174,12 +174,12 @@ curl_with_jwt -sS "$API_BASE/api/v1/private/projects/$PROJECT_ID/documents/$DOCU
 
 ## MCP Token and MCP JSON-RPC
 
-Create an MCP Token. `.detail.token` is copyable, and its owner can reveal an active token again through the detail endpoint. List, revoked, and expired responses are masked.
+Create an MCP Token with 5=`read` and 6=`write`; writing does not grant reading. Only its owner can list, reveal, inspect activity or revoke it, including for super administrators. Active details are copyable; lists and expired/revoked responses are masked. Legacy scopes 1–4 keep their type limits; new capabilities apply across file types.
 
 ```sh
 MCP_TOKEN_RESPONSE=$(curl_with_jwt -sS "$API_BASE/api/v1/private/mcp-tokens" \
   -H 'Content-Type: application/json' \
-  -d '{"name":"docs-agent","scopes":[1,2]}')
+  -d '{"name":"docs-agent","scopes":[5,6]}')
 MCP_TOKEN=$(printf '%s' "$MCP_TOKEN_RESPONSE" | jq -r '.detail.token')
 
 curl_with_mcp_token() {
@@ -268,7 +268,7 @@ Public requests use `Authorization: VdocShare {secret}`. Password-protected link
 | --------------- | ------------------------------------------------------------------- |
 | Open            | Health, login, opt-in register, OpenAPI YAML, and MCP JSON-RPC.     |
 | Identity        | Current JWT user identity.                                          |
-| System Users    | SuperAdmin user lifecycle and user MCP token oversight.             |
+| System Users    | SuperAdmin user lifecycle; private MCP tokens remain owner-only.    |
 | Teams           | Team lifecycle.                                                     |
 | Projects        | Project lifecycle and membership.                                   |
 | Documents       | Project document lifecycle.                                         |
@@ -304,7 +304,7 @@ Paged draft lists contain metadata only, without content, `diff_preview`, `revis
 
 OpenAPI supports local Path Item references and exact decimal numbers. 3.1 type unions are compared as sets: narrowing requests, widening responses, removing a required response guarantee and expanding response enums are breaking changes. Adding an optional request body does not require existing callers to supply its nested required fields. Bounds and supported alternative sets are also compared. Constraints that cannot be classified precisely emit “Schema compatibility requires manual review” with `must_handle=true`; this is not proof of compatibility.
 
-Parsing has cumulative node, depth and expansion budgets and observes cancellation. Backend upgrades apply migration `007_parser_facts_and_history_pages`; historical derived indexes and Diffs refresh when details are read, preserving published source content and existing endpoint IDs. MCP tool names, arguments and scopes are unchanged.
+Parsing has cumulative node, depth and expansion budgets and observes cancellation. Backend upgrades apply migration `007_parser_facts_and_history_pages`; historical derived indexes and Diffs refresh when details are read, preserving published source content and existing endpoint IDs. That parser migration does not change MCP tool names, arguments or authorization.
 
 Local JSON Pointers support array indices, percent decoding and `~0` / `~1` escapes. Parameter `content`, `required` names without matching `properties`, and new schemas on existing media types participate in comparisons. Property names and literal-object keys such as `description`, `title` and `x-*` remain significant.
 

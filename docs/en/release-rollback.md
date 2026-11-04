@@ -1,6 +1,6 @@
 # Upgrade and Rollback
 
-`v0.4.2` migration **025_ai_output_token_limit.sql** allows 0 for provider-default output limits, preserving existing values. Back up, upgrade Backend/Admin/MCP together and restart MCP. Image rollback retains the migration; restore positive limits before using an older backend. Stable uses `latest`; Beta stays separate.
+`v0.4.3` migration **026_mcp_capability_scopes.sql** adds read/write codes 5/6 without changing legacy grants. Back up and upgrade components together; npm is deferred, so use the [GitHub MCP installer](mcp-tools.md#github-channel-installer). Before rollback, revoke new capability tokens and reissue supported grants; restore positive output limits from migration 025. Migrations persist. Beta stays separate.
 
 For a single-file deployment, Backend/Admin follow stable `latest` images. You run `docker compose pull` and `docker compose up -d --wait` to update containers, and the backend runs migrations included in the new release at startup. Upgrades retain existing accounts, keys, and data volumes.
 

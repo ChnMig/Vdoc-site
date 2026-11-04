@@ -6,7 +6,7 @@ This guide configures the `@chnmig/vdoc-mcp` stdio adapter. Vdoc supplies docume
 
 - `beta`: `@chnmig/vdoc-mcp@beta`, connected to the user's beta Vdoc backend.
 - `release`: `@chnmig/vdoc-mcp@latest`, connected to the stable backend. Stable publications update only `latest`; beta publications update only `beta`. Check the resolved version before configuring a stable connection. An unavailable tag must fail; do not silently change channels.
-- An exact version such as `@chnmig/vdoc-mcp@0.4.2` keeps a deployment on the backend's release.
+- An exact version such as `@chnmig/vdoc-mcp@0.4.3` keeps a deployment on the backend's release.
 
 Requires Node.js 20+ and npm. Verify the requested tag with `npm view @chnmig/vdoc-mcp@latest version` (or `@beta`). These are Vdoc package tags; do not upgrade unrelated client software or dependencies.
 

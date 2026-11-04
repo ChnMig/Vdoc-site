@@ -345,15 +345,15 @@ delete_document
 VDOC_MCP_TOOL_INVENTORY_END
 ```
 
-`list_folders` / `create_folder` 提供目录列表和创建；`update_folder` 通过 `name` / `parent_path` 改名或同项目移动，空父路径表示根目录；`delete_folder` 只删空目录。`update_document` 通过 `name` / `relative_path` / `description` 改名、移动或更新说明，保持文档 ID、分支及历史；`delete_document` 从活动目录移除并停用旧分享及直接历史访问，存储历史与审计保留，重复删除幂等。管理要求项目 Admin 和匹配文档类型的写入 scope，文件夹移动在事务内检查所有受影响活动文档类型。
+`list_folders` / `create_folder` 提供目录列表和创建；`update_folder` 通过 `name` / `parent_path` 改名或同项目移动，空父路径表示根目录；`delete_folder` 只删空目录。`update_document` 通过 `name` / `relative_path` / `description` 改名、移动或更新说明，保持文档 ID、分支及历史；`delete_document` 从活动目录移除并停用旧分享及直接历史访问，存储历史与审计保留，重复删除幂等。管理要求项目 Admin 和 `write` 能力；旧令牌仍在事务内按原类型授权复核。
 
 `list_teams(query?)` 列出有可访问项目的团队及项目数；`list_projects(query?, team_id?, team_name?)` 支持按名字发现并返回团队名，避免要求用户提供内部 ID。过滤相交、忽略大小写，重名保留候选；只读 scope 即可查询，用户成员权限仍是访问边界。
 
-文件夹 PATCH 接收 `path` 和可选 `name` / `parent_path`（至少一项），更新当前目录及子目录/文档路径，保留 ID 和历史提交；移动限同项目，禁止循环或合并已有目录。DELETE 接收 `path`，仅允许删除无文档、无子目录的空文件夹。两者要求活跃项目的 Admin 或 SuperAdmin，并与目录、仓库目录记录和审计一同提交。POST 可使用 `parent_path` 为推导目录创建空子目录；不能与 `parent_id` 同传。Admin 列表及文档树均显示持久空目录并提供相同操作。
+文件夹 PATCH 接收 `path` 和可选 `name` / `parent_path`（至少一项），更新当前目录及子目录/文档路径，保留 ID 和历史提交；移动限同项目，禁止循环或合并已有目录。DELETE 接收 `path`，仅允许删除无文档、无子目录的空文件夹。两者要求活跃项目的 Admin 或 SuperAdmin，并与目录、仓库目录记录和审计一同提交。POST 可使用 `parent_path` 为推导目录创建空子目录；不能与 `parent_id` 同传。Admin 列表及文档树均显示持久空目录；删除或移走最后一篇文档仍保留目录与父链。文件夹行末菜单提供改名、移动、空目录删除，移动用层级树选择目标，目录路径可点击返回并支持当前层级刷新。阅读页管理入口收进右上菜单。
 
 `search_documents` 搜索标题、路径与原文并返回固定提交；`get_document_section` 提供可选的行、ATX 标题、OpenAPI operation 或 outline；`apply_document_patch` 使用原文唯一且不重叠的锚点并复用并发控制和幂等提交。完整读取、完整替换及原始下载始终保留，不以解析成功为前提。当前内容存储仍为 UTF-8 文本。
 
-MCP Token 创建响应返回可复制 token 值；token 所属用户可以通过详情接口重复查看 active token 明文，列表、已撤销和已过期响应必须脱敏。后端同时保存不可逆 `token_hash` 和加密 `token_ciphertext`。MCP tools 绝不能返回 JWT、MCP token 或 Authorization header。`mcp-usage` 只返回 owner（或指定 token 时的 SuperAdmin）可见的脱敏工具调用证据，成功读取已发布内容时记录精确实体 ID，不记录请求参数、schema/Markdown 内容、IP 或 User-Agent。
+MCP Token 使用能力 scope 5=`read`、6=`write`，读写独立且不按文件类型划分，与项目角色取交集；保存需 Writer，目录及文档管理需 Admin，MCP 不能审批或发布。旧 1–4 保持原类型授权，不迁移扩权；API 返回 `scope_names` / `scope_model`，新界面仅创建 5/6。私人 Token 的列表、详情、明文、活动、撤销均仅限 owner，SuperAdmin 也无跨用户权限。创建和有效详情可复制，列表及过期、撤销响应脱敏。后端保存 `token_hash` 与加密 `token_ciphertext`；MCP tools 不返回凭据。使用活动只记录精确实体 ID 和脱敏调用证据，不记录参数、正文、IP 或 User-Agent。
 
 ## 5.2 文档公开分享
 
@@ -399,15 +399,15 @@ MCP Token 创建响应返回可复制 token 值；token 所属用户可以通过
 
 ## 7. 里程碑
 
-| 阶段 | 目标 |
-|---|---|
-| 1 | 清理旧模型残留，建立共享语义和错误码 |
-| 2 | PostgreSQL schema、migration、repository 和对象快照 |
-| 3 | Project Document、Branch、Draft、Version 领域流 |
-| 4 | OpenAPI 上传、normalize、hash、Endpoint Index 和语义 Diff |
-| 5 | Markdown 上传、stable snapshot、latest lookup 和文件 Diff |
-| 6 | 后台 AI Provider 配置、自动 Diff 总结和页面内 Chat |
-| 7 | Private REST routes、OpenAPI spec 和 API docs |
-| 8 | MCP tools、token scope、审计和操作说明 |
-| 9 | 公开分享管理、匿名安全查看与下载 |
-| 10 | 文档、schema docs、测试和最终验证 |
+| 阶段 | 目标                                                      |
+| ---- | --------------------------------------------------------- |
+| 1    | 清理旧模型残留，建立共享语义和错误码                      |
+| 2    | PostgreSQL schema、migration、repository 和对象快照       |
+| 3    | Project Document、Branch、Draft、Version 领域流           |
+| 4    | OpenAPI 上传、normalize、hash、Endpoint Index 和语义 Diff |
+| 5    | Markdown 上传、stable snapshot、latest lookup 和文件 Diff |
+| 6    | 后台 AI Provider 配置、自动 Diff 总结和页面内 Chat        |
+| 7    | Private REST routes、OpenAPI spec 和 API docs             |
+| 8    | MCP tools、token scope、审计和操作说明                    |
+| 9    | 公开分享管理、匿名安全查看与下载                          |
+| 10   | 文档、schema docs、测试和最终验证                         |

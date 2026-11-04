@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.4.3
+
+See [version notes](version-notes.md) for folder, token isolation and shared component fixes. v0.4.2 management features remain available.
+
 ## v0.4.1
 
 Promote the verified v0.4.1-beta.1 to stable. MCP exposes 21 tools, adding raw keyword search, exact-commit section reads and optimistic, idempotent text patches. Full source reads, complete file replacements and original downloads remain independent of parsing. Storage still accepts UTF-8 text.

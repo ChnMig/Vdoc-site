@@ -174,12 +174,12 @@ curl_with_jwt -sS "$API_BASE/api/v1/private/projects/$PROJECT_ID/documents/$DOCU
 
 ## MCP Token 和 MCP JSON-RPC
 
-创建 MCP Token。`.detail.token` 可复制；所属用户可以通过详情接口再次查看 active Token。列表、已撤销和已过期响应会脱敏。
+创建 MCP Token，使用能力 5=`read`、6=`write`，写入不隐含读取。`.detail.token` 可复制；有效详情仅本人可重显，列表及过期、撤销响应脱敏。列表、详情、活动、撤销均按用户隔离，SuperAdmin 也不能访问他人的私人令牌。旧 scope 1–4 保留原类型限制；新授权不按文件类型划分。
 
 ```sh
 MCP_TOKEN_RESPONSE=$(curl_with_jwt -sS "$API_BASE/api/v1/private/mcp-tokens" \
   -H 'Content-Type: application/json' \
-  -d '{"name":"docs-agent","scopes":[1,2]}')
+  -d '{"name":"docs-agent","scopes":[5,6]}')
 MCP_TOKEN=$(printf '%s' "$MCP_TOKEN_RESPONSE" | jq -r '.detail.token')
 
 curl_with_mcp_token() {
@@ -268,7 +268,7 @@ GET       /api/v1/open/document-shares/{share_id}/versions/{version_id}/download
 | --------------- | ------------------------------------------------------------------ |
 | Open            | Health、login、显式开启的 register、OpenAPI YAML、MCP JSON-RPC。   |
 | Identity        | 当前 JWT 用户身份。                                                |
-| System Users    | SuperAdmin user lifecycle 和 user MCP token oversight。            |
+| System Users    | SuperAdmin user lifecycle；私人 MCP token 仍仅限本人。             |
 | Teams           | Team lifecycle。                                                   |
 | Projects        | Project lifecycle 和 membership。                                  |
 | Documents       | Project document lifecycle。                                       |
@@ -304,7 +304,7 @@ GET       /api/v1/open/document-shares/{share_id}/versions/{version_id}/download
 
 OpenAPI 支持本地 Path Item 引用与精确数字。3.1 联合类型按集合比较；收窄请求类型、放宽响应类型、取消响应字段必有保证、扩展响应枚举会标记为破坏性变化。新增可选请求体不会使旧调用必须填写其内部字段。数值、长度与数组边界及可判定的组合分支也参与比较。无法精确分类的 Schema 约束变化显示“Schema 兼容性需要人工检查”，并设置 `must_handle=true`；它不表示已证明兼容。
 
-解析设置节点、深度和展开大小预算并响应取消。升级 backend 时会应用迁移 `007_parser_facts_and_history_pages`；历史派生索引和差异在读取详情时升级，保留已发布原文与既有接口 ID。MCP 工具名称、参数和 scope 不变。
+解析设置节点、深度和展开大小预算并响应取消。升级 backend 时会应用迁移 `007_parser_facts_and_history_pages`；历史派生索引和差异在读取详情时升级，保留已发布原文与既有接口 ID。该解析迁移不改变 MCP 工具名称、参数和授权。
 
 原文、规范化/稳定正文和生成的 Diff 快照分别受存储读取上限约束（`server.max_body_size`，默认 10 MiB）。超限会在写入该对象前返回 `INVALID_ARGUMENT`，清理本次暂存对象并保留原有草稿和发布状态；原文未超限不代表规范化后也未超限。OpenAPI `paths` 中的 `x-*` 扩展保留为数据，不计为接口路径；真实路径仍须以 `/` 开头。
 

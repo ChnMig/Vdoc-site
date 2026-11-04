@@ -1,5 +1,11 @@
 # Version Notes
 
+## v0.4.3
+
+Preserve empty folders and isolate private tokens. Add folder row menus, a move tree, clickable paths and refresh; simplify reader actions. Unify capabilities, date/time controls, tables and motion, retaining sidebar preferences and reduced-motion support.
+
+Migration **026** preserves legacy authorization. npm is deferred; use the GitHub MCP installer. Beta is unchanged. See [upgrade instructions](release-rollback.md).
+
 ## v0.4.2
 
 - Folder/document CRUD and moves; team/project discovery. 28 MCP tools retain full source reads, writes and downloads.
@@ -18,12 +24,7 @@ No additional database migration compared with v0.4.0 or v0.4.1-beta.1. Update B
 
 ## v0.4.1-beta.1
 
-- Move MCP discovery to document repositories; legacy version and draft tools are no longer advertised.
-- Add raw keyword search, exact-commit section views (lines, Markdown ATX headings and OpenAPI operations/outlines), and optimistic, idempotent anchored text patches.
-- Preserve complete raw reads, full-file writes and original downloads independently of parsing, including BOM, CRLF, trailing newlines and empty files.
-- Update bilingual MCP documentation and argument contracts. Storage still accepts UTF-8 text; binary files require a separate extension.
-
-No additional database migration compared with v0.4.0. Upgrade Backend, Admin and MCP together, then restart MCP for new schemas. Beta image aliases and npm `@beta` only; stable `latest` and Pages remain unchanged.
+Add raw search, exact-commit sections and optimistic, idempotent patches; retain full source reads, replacements and downloads. UTF-8 storage, no new migration, Beta only. See the [changelog](changelog.md) for tools and verification.
 
 ## v0.4.0
 
@@ -31,15 +32,15 @@ Document branches, automatic versions, reviewed publication and MCP access are s
 
 ## v0.4.0-beta.7
 
-Add `download_document_at_commit` to save original files locally with hash verification, preserved formatting and no overwrites. Fix commit content reads returning `INTERNAL` in PostgreSQL deployments for unpublished commits and imported historical releases. Startup applies migration 024, allowing audit resource identifiers to store UUIDs and complete commit hashes while preserving existing records. Back up Beta data and storage, update Backend, Admin and MCP together, then restart MCP. Image rollback does not undo the migration. Use `@chnmig/vdoc-mcp@beta` on npm. See the [changelog](changelog.md) and [upgrade instructions](release-rollback.md).
+Add exact-commit downloads with SHA-256 and no-overwrite checks; fix PostgreSQL source reads. Migration **024** changes audit resource IDs to text, retaining UUIDs. Back up Beta data and update components together; image rollback retains the migration. See the [changelog](changelog.md).
 
 ## v0.4.0-beta.6
 
-MCP is available from npm as `@chnmig/vdoc-mcp@beta`. The workbench restores one-sentence installation, update and removal. Client/backend version differences are reported through MCP logging and stderr. Update Backend, Admin and MCP together; no new migration. npm initialized `@latest` to beta.6 on first publication. Subsequent betas update only `@beta`; the first stable npm publication will replace `@latest`. See [MCP setup](mcp-tools.md) and the [changelog](changelog.md).
+Add npm `@beta`, global installation prompts and version warnings without migrations. First npm publication initialized `latest` to beta.6; the first stable npm release replaces it. See the [changelog](changelog.md).
 
 ## v0.4.0-beta.5
 
-Agents need only MCP; consumers define how documents support their business. Global audit retention defaults to 30 calendar days in Asia/Shanghai, with daily cleanup at 01:00. A value of 0 clears history and stops retention. Startup applies migration 023. Back up Beta data first; image rollback or a longer retention period cannot recover deleted logs. The first upgrade from a combined package needs the new standalone channel installer. See [MCP setup](mcp-tools.md#release-channels) and the [changelog](changelog.md).
+Standalone MCP and global audit retention. Migration **023** defaults to 30 Asia/Shanghai calendar days; 0 clears history and stops retention. Rollback cannot recover purged logs. Combined-package upgrades need the standalone installer; see [upgrade instructions](release-rollback.md).
 
 ## v0.4.0-beta.4
 
