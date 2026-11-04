@@ -17,17 +17,17 @@ Agent 运行的机器还需安装 Node.js 20 或更新版本和 npm。尚未启�
 
 ## 安装方式
 
-正式环境使用 npm 的 `@latest`，无需填写 Git 提交：
+本开发版使用 npm 的 `@beta`，连接配套 Beta 后端，无需填写 Git 提交：
 
 ```sh
-npx --yes @chnmig/vdoc-mcp@latest --version
+npx --yes @chnmig/vdoc-mcp@beta --version
 ```
 
-全局命令可用 `npm install --global @chnmig/vdoc-mcp@latest` 安装，更新时重复同一命令。`@latest` 选择最新正式版，`@beta` 选择最新测试版，两者分别更新。固定部署可使用与后端一致的确切包版本。
+全局命令可用 `npm install --global @chnmig/vdoc-mcp@beta` 安装，更新时重复同一命令。`@latest` 选择最新正式版，`@beta` 选择最新测试版，两者分别更新。固定部署可使用与后端一致的确切包版本。
 
 工作台的 **MCP 客户端配置** 提供安装、更新和卸载的一句话提示词，发给 AI 即可按[操作指南](https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.4.1-beta.1/docs/public/mcp-install.md)处理；指南会保留已有配置、渠道和共享安装，不安装 Skill。
 
-下方 Agent 配置通过 `npx` 的 `@latest` 调用，每次新启动解析该渠道最新包，更新后重启 MCP。全局安装需要主动执行安装命令更新。npm 包包含编译好的 JavaScript，无需 Git 或本地 TypeScript 编译器。
+下方 Agent 配置通过 `npx` 的 `@beta` 调用，每次新启动解析该渠道最新包，更新后重启 MCP。全局安装需要主动执行安装命令更新。npm 包包含编译好的 JavaScript，无需 Git 或本地 TypeScript 编译器。
 
 固定部署仍可安装与审核过的工作区锁一致的已编译发行包，先校验再安装：
 
@@ -67,7 +67,7 @@ MCP 按渠道安装适配器发行包。`release` 只选择正式版，`beta` �
   curl -fL "$VDOC_MCP_INSTALLER_RELEASE/install-channel.mjs" -o install-channel.mjs
   curl -fL "$VDOC_MCP_INSTALLER_RELEASE/install-channel.mjs.sha256" -o install-channel.mjs.sha256
   shasum -a 256 -c install-channel.mjs.sha256
-  node install-channel.mjs --channel release
+  node install-channel.mjs --channel beta
   # 测试环境使用：node install-channel.mjs --channel beta
 )
 ```
@@ -118,7 +118,7 @@ MCP 在成功请求实际连接的后端时，将包版本与响应头 `X-Vdoc-S
   "mcpServers": {
     "vdoc": {
       "command": "npx",
-      "args": ["--yes", "@chnmig/vdoc-mcp@latest"],
+      "args": ["--yes", "@chnmig/vdoc-mcp@beta"],
       "env": {
         "VDOC_BASE_URL": "https://your-vdoc.example.test",
         "VDOC_MCP_TOKEN": "REPLACE_WITH_LOCAL_VDOC_MCP_TOKEN"
