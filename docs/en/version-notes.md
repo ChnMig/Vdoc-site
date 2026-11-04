@@ -2,13 +2,13 @@
 
 ## v0.4.2
 
-- Add MCP team listing and team/project name discovery. One user token and configuration can access multiple authorized teams and projects, with 22 tools in total. Full source reads, file replacement and original downloads remain available.
-- One-sentence setup installs MCP globally with a user-wide configuration shared by projects; update and uninstall prompts use the same global scope.
-- Rename and move folders within a project with synchronized document paths; delete empty folders only.
-- Show MCP key capabilities and access boundaries, replace legacy draft wording in permissions and AI suggestions, and improve collapsed sidebar button targets.
-- Add Unlimited for AI output tokens while retaining custom limits when toggled; fix intermittent duplicate document activity during cursor pagination.
+- Discover teams/projects by name: 22 MCP tools, retaining full source reads, writes and downloads.
+- Install, update and uninstall MCP globally; projects share user-wide configuration.
+- Rename/move folders within a project, updating document paths; delete empty folders.
+- Show key capabilities/access boundaries, remove draft wording and enlarge collapsed sidebar targets.
+- Add Unlimited output tokens, retaining custom values; fix duplicate activity pagination.
 
-Startup applies `025_ai_output_token_limit.sql`, accepting 0 for provider-default output limits and preserving existing positive settings. Back up the database and object store, update Backend, Admin and MCP together, then restart MCP. Stable images `:latest`, npm `@latest` and the public website update together; Beta remains separate. See [Upgrade and Rollback](release-rollback.md).
+Migration **025** preserves existing settings. Back up, upgrade Backend/Admin/MCP together and restart MCP. Stable channels update; Beta stays separate. See [Upgrade and Rollback](release-rollback.md).
 
 ## v0.4.1
 

@@ -49,7 +49,7 @@ Run a system or project provider test before or after saving. A test uses the cu
 
 Each limit has an independent **Unlimited** switch (API value `0`); finite values accept `1000` through `2147483647` milliseconds. Response data and SSE heartbeats renew the idle timer, without resetting the total timer. Unlimited total time still follows any enabled first-response and idle limits. With all three disabled, cancellation, disconnection or upstream completion ends the call. Non-streaming responses use the same first-data and response-body idle protection. Migration **014** raises the historical `30000` total default to `600000` and preserves other custom totals. Back up the database and upgrade Backend/Admin together. Configure external reverse proxies to allow the intended request duration.
 
-**Maximum output tokens** supports **Unlimited** (API value `0`); turning it off restores the custom value entered before toggling. The provider/model then determines the output limit; its own limits still apply. Background titles and conversation memory retain their task-specific caps. Both system and project configurations persist the choice after saving and reloading; migration **025** preserves existing positive limits.
+**Maximum output tokens** supports **Unlimited** (`0`), restoring the custom value when disabled. Both scopes persist this setting. Model limits and background title/memory caps still apply; migration **025** preserves existing values.
 
 ## Configure Prompts
 

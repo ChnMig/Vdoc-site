@@ -195,7 +195,7 @@ Document lists and search respect type scopes: `api:read` reads OpenAPI and `doc
 
 ### Discover teams and projects by name
 
-One MCP configuration and user token work across the teams/projects the owner can access. Start with `list_teams(query?)` for team IDs, names, and accessible project counts. Teams with no accessible projects are omitted. Use `list_projects(query?, team_id?, team_name?)` to find projects by a case-insensitive name substring, exact team ID, or exact case-insensitive team name. Filters intersect; results include team names and preserve duplicate-name candidates. Omit filters to list all accessible projects. Both tools require at least one document read scope, and current membership remains the access boundary.
+One user configuration spans authorized teams/projects. `list_teams(query?)` returns IDs, names and accessible project counts, omitting empty-access teams. `list_projects(query?, team_id?, team_name?)` filters by project substring, team ID or complete team name; results include team names and preserve duplicate candidates. Omit filters to list all accessible projects. Names ignore case, filters intersect, and read scopes plus current membership apply.
 
 ### Full source and optional structured views
 

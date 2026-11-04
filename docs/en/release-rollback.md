@@ -1,6 +1,6 @@
 # Upgrade and Rollback
 
-`v0.4.2` adds MCP team/project name discovery, folder rename/move and empty-folder deletion, key capability details, and Unlimited AI output tokens. Startup applies `025_ai_output_token_limit.sql`, accepting 0 for provider-default limits while preserving existing positive settings. Back up PostgreSQL and object storage, update Backend, Admin and MCP together, then restart MCP. Image rollback does not undo this migration; restore positive output limits before running an older backend. Stable deployments use `docker-compose.yml` and npm `@latest`; Beta remains separate. Full source reads/writes/downloads remain available, with UTF-8 text storage.
+`v0.4.2` migration **025_ai_output_token_limit.sql** allows 0 for provider-default output limits, preserving existing values. Back up, upgrade Backend/Admin/MCP together and restart MCP. Image rollback retains the migration; restore positive limits before using an older backend. Stable uses `latest`; Beta stays separate.
 
 For a single-file deployment, Backend/Admin follow stable `latest` images. You run `docker compose pull` and `docker compose up -d --wait` to update containers, and the backend runs migrations included in the new release at startup. Upgrades retain existing accounts, keys, and data volumes.
 
