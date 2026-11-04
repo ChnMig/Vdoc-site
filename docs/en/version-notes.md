@@ -1,5 +1,11 @@
 # Version Notes
 
+## v0.4.1
+
+Promote the verified v0.4.1-beta.1 to stable. MCP exposes 21 tools, adding raw keyword search, exact-commit section reads and optimistic, idempotent text patches. Full source reads, complete file replacements and original downloads remain independent of parsing. Storage still accepts UTF-8 text.
+
+No additional database migration compared with v0.4.0 or v0.4.1-beta.1. Update Backend, Admin and MCP together, then restart MCP for the new inventory. Update stable images `:latest`, npm `@latest` and the public website while preserving the separate Beta channel.
+
 ## v0.4.1-beta.1
 
 - Move MCP discovery to document repositories; legacy version and draft tools are no longer advertised.

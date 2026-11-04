@@ -27,7 +27,7 @@ This directory is the release control plane for the four Vdoc repositories:
 - `Vdoc-site/`: public website and product documentation
 - `Vdoc-mcp/`: installable MCP stdio adapter
 
-The current MCP npm channel is `@chnmig/vdoc-mcp@beta`. Use it in Agent npx configurations or copy the workbench’s one-sentence install, update or uninstall prompt. `@latest` is reserved for a stable npm release.
+The stable MCP npm channel is `@chnmig/vdoc-mcp@latest`. Use it in Agent npx configurations or copy the workbench’s one-sentence install, update or uninstall prompt. Use `@beta` only with an isolated beta backend.
 
 Product requirements, the repository lock, Compose orchestration, Pilot evidence, and release gates live at this workspace root. The root itself is intentionally not a Git repository; the four source repositories keep independent histories and releases.
 
@@ -45,8 +45,8 @@ pnpm site:package
 This produces:
 
 ```text
-vdoc-compose-bootstrap-v0.4.1-beta.1.tar.gz
-vdoc-compose-bootstrap-v0.4.1-beta.1.tar.gz.sha256
+vdoc-compose-bootstrap-v0.4.1.tar.gz
+vdoc-compose-bootstrap-v0.4.1.tar.gz.sha256
 ```
 
 This is not a binary installer or a container-image bundle. It contains `docker-compose.yml`, `.env.example`, the root deployment/release scripts, the MIT license, and `workspace.lock.json`. The optional offline installer downloads the separate Backend/Admin image archives, verifies their checksums and locked revisions, and loads them into Docker. Compose then starts PostgreSQL, RustFS, Backend, and Admin. Developers can instead initialize the four exact source checkouts and build locally. The archive contains no `.env`, credentials, local evidence, application binaries, container images, or repository working trees.
@@ -56,19 +56,19 @@ Packaging normalizes file order, mode, owner, group, timestamp, and gzip metadat
 Public copies of these workspace files live in [Vdoc-site/workspace](https://github.com/ChnMig/Vdoc-site/tree/main/workspace). Beta archives and checksums are retained in the matching GitHub Release; stable website downloads remain separate. Download, verify, and extract the bootstrap with:
 
 ```sh
-VDOC_BOOTSTRAP_BASE=https://github.com/ChnMig/Vdoc-site/releases/download/v0.4.1-beta.1
-curl -fLO "$VDOC_BOOTSTRAP_BASE/vdoc-compose-bootstrap-v0.4.1-beta.1.tar.gz"
-curl -fLO "$VDOC_BOOTSTRAP_BASE/vdoc-compose-bootstrap-v0.4.1-beta.1.tar.gz.sha256"
-shasum -a 256 -c vdoc-compose-bootstrap-v0.4.1-beta.1.tar.gz.sha256
-tar -xzf vdoc-compose-bootstrap-v0.4.1-beta.1.tar.gz
+VDOC_BOOTSTRAP_BASE=https://github.com/ChnMig/Vdoc-site/releases/download/v0.4.1
+curl -fLO "$VDOC_BOOTSTRAP_BASE/vdoc-compose-bootstrap-v0.4.1.tar.gz"
+curl -fLO "$VDOC_BOOTSTRAP_BASE/vdoc-compose-bootstrap-v0.4.1.tar.gz.sha256"
+shasum -a 256 -c vdoc-compose-bootstrap-v0.4.1.tar.gz.sha256
+tar -xzf vdoc-compose-bootstrap-v0.4.1.tar.gz
 cd vdoc-workspace
 ```
 
-Direct assets: [Compose bootstrap archive](https://github.com/ChnMig/Vdoc-site/releases/download/v0.4.1-beta.1/vdoc-compose-bootstrap-v0.4.1-beta.1.tar.gz) and [SHA-256 file](https://github.com/ChnMig/Vdoc-site/releases/download/v0.4.1-beta.1/vdoc-compose-bootstrap-v0.4.1-beta.1.tar.gz.sha256). See the [deployment guide](https://chnmig.github.io/Vdoc-site/en/deployment) for configuration and first login. The archive and all four source tags use `v0.4.1-beta.1`. The source lock uses `@release` only for the Site commit: a Git commit cannot contain its own hash. The Site tag build resolves this entry, verifies all four public tags against their pinned commits, and ships a fully resolved lock with four exact commit hashes. Beta does not deploy the stable website. Separate website downloads are evaluation snapshots and may be replaced; retain the downloaded archive and checksum when reproducing an environment. The checksum checks the bytes against the accompanying file; it does not authenticate a release or prove production readiness or a completed Pilot.
+Direct assets: [Compose bootstrap archive](https://github.com/ChnMig/Vdoc-site/releases/download/v0.4.1/vdoc-compose-bootstrap-v0.4.1.tar.gz) and [SHA-256 file](https://github.com/ChnMig/Vdoc-site/releases/download/v0.4.1/vdoc-compose-bootstrap-v0.4.1.tar.gz.sha256). See the [deployment guide](https://chnmig.github.io/Vdoc-site/en/deployment) for configuration and first login. The archive and all four source tags use `v0.4.1`. The source lock uses `@release` only for the Site commit: a Git commit cannot contain its own hash. The Site tag build resolves this entry, verifies all four public tags against their pinned commits, and ships a fully resolved lock with four exact commit hashes. Stable Site releases deploy the verified website to GitHub Pages; Beta retains its separate downloads. Separate website downloads are evaluation snapshots and may be replaced; retain the downloaded archive and checksum when reproducing an environment. The checksum checks the bytes against the accompanying file; it does not authenticate a release or prove production readiness or a completed Pilot.
 
 ## Existing workspace
 
-Vdoc v0.4.1-beta.1 uses independent branches and numbered versions for each document, described in [Document branches and numbered versions](DOCUMENT_BRANCH_REDESIGN.md) (Chinese). Projects organize documents; each document keeps its own branches, immutable history, reviews and releases. This supersedes the earlier project-branch design. Publication and verification are recorded separately from this design.
+Vdoc v0.4.1 uses independent branches and numbered versions for each document, described in [Document branches and numbered versions](DOCUMENT_BRANCH_REDESIGN.md) (Chinese). Projects organize documents; each document keeps its own branches, immutable history, reviews and releases. This supersedes the earlier project-branch design. Publication and verification are recorded separately from this design.
 
 The commands below apply to a workspace extracted from a published Compose archive. The checked-in release source lock is a template; run `pnpm workspace:package` from `Vdoc-site/` after publishing the matching tags to materialize it. For pre-publication checks, `pnpm workspace:package --candidate` creates an explicitly non-deployable archive; the initializer and release packager reject it.
 
