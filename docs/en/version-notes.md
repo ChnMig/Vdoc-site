@@ -2,9 +2,7 @@
 
 ## v0.4.4
 
-Breadcrumbs identify teams, projects and folders with icons, using text weight for the current location. Copy path is available in the directory toolbar, list rows, file tree and reader. It retains project scope and IDs: documents include `document_id` and `relative_path`; folders use `path`. Readers can copy as well, with localized feedback and support for narrow screens and HTTP LAN deployments.
-
-No database migration beyond v0.4.3. Update the workbench and MCP together, then restart MCP. Stable and Beta channels remain separate.
+Breadcrumb icons identify each level. Copy from directories, lists, file trees and readers with project/document IDs. Readers can copy too. No new migration; restart MCP after updating.
 
 ## v0.4.3
 

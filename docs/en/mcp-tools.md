@@ -27,7 +27,7 @@ To install a global command, run `npm install --global @chnmig/vdoc-mcp@latest`;
 
 The workbench's **MCP client configuration** offers global install, update and uninstall prompts with user-wide configuration shared by projects. The [installation guide](https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.4.4/docs/public/mcp-install.md) preserves settings, channels and shared installations. No Skill is installed.
 
-The configuration below uses `npx`, resolving the channel's latest package at startup. Global installs require an explicit update. Restart MCP after updating. npm ships compiled JavaScript; no Git or TypeScript compiler is needed.
+npm ships compiled JavaScript; no Git or TypeScript compiler is needed.
 
 For a deployment locked to the reviewed workspace release, the verified prebuilt archive remains available:
 
@@ -117,17 +117,7 @@ For local full Compose, `VDOC_BASE_URL` is usually `http://127.0.0.1:8080`. For 
 }
 ```
 
-If you already know the full MCP endpoint, use this form:
-
-```json
-{
-  "env": {
-    "VDOC_MCP_URL": "https://your-vdoc.example.test/api/v1/open/mcp",
-    "VDOC_MCP_TOKEN": "REPLACE_WITH_LOCAL_VDOC_MCP_TOKEN",
-    "VDOC_MCP_TIMEOUT_MS": "180000"
-  }
-}
-```
+For a full endpoint, replace `VDOC_BASE_URL` in `env` with `VDOC_MCP_URL`, such as `https://your-vdoc.example.test/api/v1/open/mcp`. Keep the Token and adjust `VDOC_MCP_TIMEOUT_MS` if needed.
 
 ## Document management
 

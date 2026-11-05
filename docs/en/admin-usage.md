@@ -11,7 +11,7 @@ Use `v0.4.4` to save, review, publish and query a guide after completing [deploy
 
 Sign in to the [workbench](http://127.0.0.1:8081) or your deployment with the Compose credentials. As SuperAdmin, create a team under **Workspace → All teams**, then create **Vdoc Trial**. Browse **Documents**; assign Reader, Writer or Project Admin under **Project members**. Team membership does not grant project access.
 
-Breadcrumb icons distinguish teams, projects and folders; select an ancestor to return to it. **Copy current folder path** and **More → Copy path** retain team/project names and stable IDs. The reader and file tree offer the same action. Give the full copied location to MCP to identify the correct project even when paths match.
+Use breadcrumb icons to return to an ancestor. **Copy path** in the directory toolbar, row menus, reader or file tree includes project scope and stable IDs for MCP.
 
 Without an account, use [initial-admin setup](deployment.md#initial-admin); its fields cannot reset existing accounts.
 

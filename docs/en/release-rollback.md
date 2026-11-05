@@ -1,6 +1,6 @@
 # Upgrade and Rollback
 
-`v0.4.4` improves navigation and scoped path copying, with no new migration beyond v0.4.3. Update the workbench and MCP together. Install globally with `npm install -g @chnmig/vdoc-mcp@latest`, then restart MCP.
+`v0.4.4` adds no migration. Update the workbench and MCP, then restart MCP.
 
 `v0.4.3` migration **026_mcp_capability_scopes.sql** adds read/write codes 5/6 without changing legacy grants. Back up and upgrade components together; MCP is available through npm or the [GitHub installer](mcp-tools.md#github-channel-installer). Before rollback, revoke new capability tokens and reissue supported grants; restore positive output limits from migration 025. Migrations persist. Beta stays separate.
 

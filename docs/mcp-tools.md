@@ -27,7 +27,7 @@ npx --yes @chnmig/vdoc-mcp@latest --version
 
 工作台的 **MCP 客户端配置** 提供全局安装、更新和卸载的一句话提示词，用户级配置供所有项目共用。[操作指南](https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.4.4/docs/public/mcp-install.md)会保留配置、渠道和共享安装，不安装 Skill。
 
-下方配置使用 `npx`，每次启动解析渠道最新包；全局安装需主动更新。更新后重启 MCP。npm 包已编译，无需 Git 或 TypeScript 编译器。
+npm 包已编译，无需 Git 或 TypeScript 编译器。
 
 固定部署仍可安装与审核过的工作区锁一致的已编译发行包，先校验再安装：
 
@@ -117,17 +117,7 @@ MCP 比较自身版本与实际后端的 `X-Vdoc-Server-Version`（含 beta 编�
 }
 ```
 
-如果你已经知道完整 MCP endpoint，可以改用：
-
-```json
-{
-  "env": {
-    "VDOC_MCP_URL": "https://your-vdoc.example.test/api/v1/open/mcp",
-    "VDOC_MCP_TOKEN": "REPLACE_WITH_LOCAL_VDOC_MCP_TOKEN",
-    "VDOC_MCP_TIMEOUT_MS": "180000"
-  }
-}
-```
+已知完整 endpoint 时，在 `env` 中用 `VDOC_MCP_URL` 替代 `VDOC_BASE_URL`，值如 `https://your-vdoc.example.test/api/v1/open/mcp`。保留 Token，超时可通过 `VDOC_MCP_TIMEOUT_MS` 调整。
 
 ## 文档管理
 

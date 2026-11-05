@@ -1,6 +1,6 @@
 # 升级与回滚
 
-`v0.4.4` 优化路径导航和复制，沿用 v0.4.3 的迁移与数据格式，无新增迁移。配套更新工作台与 MCP；全局安装使用 `npm install -g @chnmig/vdoc-mcp@latest`，重启 MCP 后生效。
+`v0.4.4` 无新增迁移；配套升级工作台与 MCP 后重启 MCP。
 
 `v0.4.3` 迁移 **026_mcp_capability_scopes.sql** 新增读写能力码 5/6，旧授权保持。备份后配套升级；MCP 可通过 npm 或 [GitHub 安装器](mcp-tools.md#github-channel-installer)安装。回滚旧后端前撤销新能力密钥，按旧权限重建；迁移不会回退。迁移 025 的“不限制”配置须先改回正数。Beta 独立。
 
