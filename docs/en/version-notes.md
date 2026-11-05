@@ -1,10 +1,16 @@
 # Version Notes
 
+## v0.4.4
+
+Breadcrumbs identify teams, projects and folders with icons, using text weight for the current location. Copy path is available in the directory toolbar, list rows, file tree and reader. It retains project scope and IDs: documents include `document_id` and `relative_path`; folders use `path`. Readers can copy as well, with localized feedback and support for narrow screens and HTTP LAN deployments.
+
+No database migration beyond v0.4.3. Update the workbench and MCP together, then restart MCP. Stable and Beta channels remain separate.
+
 ## v0.4.3
 
 Preserve empty folders and isolate private tokens. Add folder row menus, a move tree, clickable paths and refresh; simplify reader actions. Unify capabilities, date/time controls, tables and motion, retaining sidebar preferences and reduced-motion support.
 
-Migration **026** preserves legacy authorization. npm is deferred; use the GitHub MCP installer. Beta is unchanged. See [upgrade instructions](release-rollback.md).
+Migration **026** preserves legacy authorization. npm 0.4.3 was subsequently published on 2026-11-05; the GitHub MCP installer remains available. Beta is unchanged. See [upgrade instructions](release-rollback.md).
 
 ## v0.4.2
 

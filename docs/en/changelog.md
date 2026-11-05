@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.4.4
+
+Add hierarchy icons to breadcrumbs and remove their persistent gray backgrounds. Copy scoped locations from the current directory, folder/document menus, reader and file tree. Copied text includes team/project names and stable IDs to distinguish identical paths across projects. Readers can copy too. Database migrations and authorization remain as in v0.4.3.
+
 ## v0.4.3
 
 See [version notes](version-notes.md) for folder, token isolation and shared component fixes. v0.4.2 management features remain available.
