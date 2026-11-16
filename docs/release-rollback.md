@@ -1,5 +1,7 @@
 # 升级与回滚
 
+`v0.4.6-beta.1` 无新迁移。备份 Beta 数据库与对象存储，配套升级 Backend、Admin、MCP（npm `@beta`）并重启 MCP；稳定 `latest` 与 Pages 不变。旧版不显示托管图片，回滚不能恢复[删文档已清理的图片](admin-usage.md#markdown-images)。
+
 `v0.4.5` 无新增迁移；配套升级工作台与 MCP 后重启 MCP。
 
 MCP 比较默认返回有界差异；依赖完整 `old_content`／`new_content` 或 `semantic_diff` 的调用须传 `include_content: true`。Agent 重启后刷新工具定义，详见 [MCP 接入](mcp-tools.md)。

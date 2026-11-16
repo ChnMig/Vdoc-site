@@ -4,7 +4,7 @@ Agent 通过 MCP 在授权范围内读取和管理 OpenAPI、Markdown、TXT 文�
 
 stdio 适配器 `@chnmig/vdoc-mcp` 将 `tools/list`、`tools/call` 转发到 `/api/v1/open/mcp`；Backend 负责存储与业务逻辑。
 
-本页对应 `v0.4.5`。同一个用户级 MCP 配置可以访问当前用户有权限的多个团队和项目。工作台的**复制路径**会同时带上团队、项目名称和 `project_id`；文档还包含 `document_id` 与 `relative_path`，文件夹使用 `path`。把完整复制内容交给 Agent，即可保留跨项目定位信息。
+本页对应 `v0.4.6-beta.1`。同一个用户级 MCP 配置可以访问当前用户有权限的多个团队和项目。工作台的**复制路径**会同时带上团队、项目名称和 `project_id`；文档还包含 `document_id` 与 `relative_path`，文件夹使用 `path`。把完整复制内容交给 Agent，即可保留跨项目定位信息。
 
 ## 使用前准备
 
@@ -13,19 +13,19 @@ stdio 适配器 `@chnmig/vdoc-mcp` 将 `tools/list`、`tools/call` 转发到 `/a
 - 目标 Agent runtime 支持 MCP stdio server 配置。
 - 不要把原始 MCP Token、JWT、DB password、storage secret 或 `Authorization` header 值写进仓库、截图、日志、README 或 issue。
 
-Agent 运行的机器还需安装 Node.js 20 或更新版本和 npm。尚未启动 Vdoc 时，先按 [Docker Compose 部署步骤](deployment.md#quick-start) 完成初始化和管理员设置。第一次查询需要一份已发布文档；demo 数据和工程发布检查可以后续再做。
+Agent 运行的机器还需安装 Node.js 20.3 或更新版本和 npm。尚未启动 Vdoc 时，先按 [Docker Compose 部署步骤](deployment.md#quick-start) 完成初始化和管理员设置。第一次查询需要一份已发布文档；demo 数据和工程发布检查可以后续再做。
 
 ## 安装方式
 
 以下 npm 方式适用于已在 registry 发布的版本，须与后端版本配套：
 
 ```sh
-npx --yes @chnmig/vdoc-mcp@latest --version
+npx --yes @chnmig/vdoc-mcp@beta --version
 ```
 
 全局命令可用 `npm install --global @chnmig/vdoc-mcp@latest` 安装，更新时重复同一命令。`@latest` 选择最新正式版，`@beta` 选择最新测试版，两者分别更新。固定部署可使用与后端一致的确切包版本。
 
-工作台的 **MCP 客户端配置** 提供全局安装、更新和卸载的一句话提示词，用户级配置供所有项目共用。[操作指南](https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.4.5/docs/public/mcp-install.md)会保留配置、渠道和共享安装，不安装 Skill。
+工作台的 **MCP 客户端配置** 提供全局安装、更新和卸载的一句话提示词，用户级配置供所有项目共用。[操作指南](https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.4.6-beta.1/docs/public/mcp-install.md)会保留配置、渠道和共享安装，不安装 Skill。
 
 npm 包已编译，无需 Git 或 TypeScript 编译器。
 
@@ -34,7 +34,7 @@ npm 包已编译，无需 Git 或 TypeScript 编译器。
 ```sh
 (
   set -eu
-  VDOC_MCP_VERSION=0.4.5
+  VDOC_MCP_VERSION=0.4.6-beta.1
   VDOC_MCP_PACKAGE_DIR="$(mktemp -d)"
   trap 'rm -rf -- "$VDOC_MCP_PACKAGE_DIR"' EXIT
   VDOC_MCP_RELEASE="https://github.com/ChnMig/Vdoc-mcp/releases/download/v$VDOC_MCP_VERSION"
@@ -57,12 +57,12 @@ npm 包已编译，无需 Git 或 TypeScript 编译器。
 
 MCP 按渠道安装适配器发行包。`release` 只选择正式版，`beta` 只选择 `vMAJOR.MINOR.PATCH-beta.N` 预发布；没有对应版本时安装器会报错，不会跨渠道回退。两者分别安装在 `~/.local/share/vdoc/mcp/release` 与 `~/.local/share/vdoc/mcp/beta`，不会替换已有全局 MCP。
 
-首次从已审核、包含渠道安装器的 [MCP Release](https://github.com/ChnMig/Vdoc-mcp/releases) 下载 `install-channel.mjs` 和 `install-channel.mjs.sha256`。以下命令固定安装器版本为 `v0.4.5`，在独立工具目录中执行；下载或摘要校验失败会停止安装。旧版本没有这两个资产：
+首次从已审核、包含渠道安装器的 [MCP Release](https://github.com/ChnMig/Vdoc-mcp/releases) 下载 `install-channel.mjs` 和 `install-channel.mjs.sha256`。以下命令固定安装器版本为 `v0.4.6-beta.1`，在独立工具目录中执行；下载或摘要校验失败会停止安装。旧版本没有这两个资产：
 
 ```sh
 (
   set -eu
-  VDOC_MCP_INSTALLER_TAG='v0.4.5'
+  VDOC_MCP_INSTALLER_TAG='v0.4.6-beta.1'
   VDOC_MCP_INSTALLER_RELEASE="https://github.com/ChnMig/Vdoc-mcp/releases/download/$VDOC_MCP_INSTALLER_TAG"
   curl -fL "$VDOC_MCP_INSTALLER_RELEASE/install-channel.mjs" -o install-channel.mjs
   curl -fL "$VDOC_MCP_INSTALLER_RELEASE/install-channel.mjs.sha256" -o install-channel.mjs.sha256
@@ -81,9 +81,9 @@ node "$HOME/.local/share/vdoc/mcp/release/node_modules/@chnmig/vdoc-mcp/scripts/
 node "$HOME/.local/share/vdoc/mcp/beta/node_modules/@chnmig/vdoc-mcp/scripts/install-channel.mjs" --channel beta
 ```
 
-更新后重启 MCP 连接并重新加载 Agent。渠道安装器需要 Node.js 20+ 和 npm，可继续用于已有 GitHub 渠道安装。
+更新后重启 MCP 连接并重新加载 Agent。渠道安装器需要 Node.js 20.3+ 和 npm，可继续用于已有 GitHub 渠道安装。
 
-本地开发与包验证见 [MCP README](https://github.com/ChnMig/Vdoc-mcp/blob/v0.4.5/README.md)。stdout 保留给 MCP protocol，诊断看 stderr。
+本地开发与包验证见 [MCP README](https://github.com/ChnMig/Vdoc-mcp/blob/v0.4.6-beta.1/README.md)。stdout 保留给 MCP protocol，诊断看 stderr。
 
 ## 客户端与服务端版本核对
 
@@ -107,7 +107,7 @@ MCP 比较自身版本与实际后端的 `X-Vdoc-Server-Version`（含 beta 编�
   "mcpServers": {
     "vdoc": {
       "command": "npx",
-      "args": ["--yes", "@chnmig/vdoc-mcp@latest"],
+      "args": ["--yes", "@chnmig/vdoc-mcp@beta"],
       "env": {
         "VDOC_BASE_URL": "https://your-vdoc.example.test",
         "VDOC_MCP_TOKEN": "REPLACE_WITH_LOCAL_VDOC_MCP_TOKEN"
@@ -125,13 +125,33 @@ MCP 比较自身版本与实际后端的 `X-Vdoc-Server-Version`（含 beta 编�
 
 `compare_commits` 默认返回 `source_diff`，包含原始换行、空白、行范围、增删行数及 3 行上下文。预览正文整次限 64 KiB、每文件最多 20 个片段；超限标记 `truncated`，省略正文标记 `content_omitted`。OpenAPI 附带 `semantic_summary`。传 `include_content: true` 获取完整 `old_content`／`new_content` 和 `semantic_diff`，也可按提交或局部读取。`analyze_changes` 同步等待服务端 AI，直接比较用 `compare_commits`。
 
-`list_folders`／`create_folder` 列出及创建目录；`update_folder(path, name?, parent_path?)` 改名或移动，空父路径表示根目录；`delete_folder` 只删空目录。`update_document(document_id, name?, relative_path?, description?)` 改名或移动并保留身份及历史；`delete_document` 移出目录、停用直接访问及旧分享，保留存储历史和审计。均需 `project_id`；管理需项目 Admin 及 `write` 能力。移动限同项目，拒绝冲突、环路；旧令牌仍检查原有授权。
+`list_folders`／`create_folder` 列出及创建目录；`update_folder(path, name?, parent_path?)` 改名或移动，空父路径表示根目录；`delete_folder` 只删空目录。`update_document(document_id, name?, relative_path?, description?)` 改名或移动并保留身份及历史；`delete_document` 移出目录、停用直接访问及旧分享，保留历史正文和审计，并清理文档所属的图片文件。均需 `project_id`；管理需项目 Admin 及 `write` 能力。移动限同项目，拒绝冲突、环路；旧令牌仍检查原有授权。
+
+## 上传图片与导入本地 Markdown {#markdown-images}
+
+stdio 适配器提供：
+
+```text
+upload_document_image(project_id, document_id, file_path)
+import_markdown_document(project_id, document_id, branch_id,
+  expected_head_commit_id, expected_generation, idempotency_key, file_path, message?)
+```
+
+`file_path` 是适配器机器上的图片或 MD 绝对路径，不传给后端。HTTP MCP 上传改用 `filename` 与 `content_base64`，两者与 `file_path` 互斥。上传返回 `reference`（`vdoc-asset:<sha256>`），写入 `![说明](引用)` 后保存；上传需 `write` 和 Writer，不生成版本或发布。导入需 `read`、`write` 和 Writer；旧令牌保持类型权限。
+
+先发现或 `create_document` 创建 Markdown 文档，再 `list_branches`、`resolve_ref`，传入观察到的 head/generation 和稳定幂等键。导入预检全部图片，去重上传、替换地址，再生成一个提交；保留观察提交中的名称、路径、描述及本地文件。新建文档的导入生成下一版，均不发布。
+
+识别内联、引用式图片及标题；不改代码块、行内代码、普通链接、BOM、CRLF 等正文。图片仅限 MD 目录及真实子目录，拒绝越界、绝对图片路径和符号链接；最多 100 张去重图片、合计 32 MiB，单张限 4 MiB、4000 万像素。目录外图片先单独上传。无效文件或服务端拒绝均不提交。
+
+外链不抓取、原样保留并列入 `retained_external_image_urls`。未知结果用原文件、参数、key 重试；文件变化或分支冲突先重读协调，勿换 key/head 绕过。图片格式、私有归属、固定版本分享、删文档清理及 24 小时回收规则见[图片管理](admin-usage.md#markdown-images)。
 
 ## 下载源文件到本地 {#download-source}
 
 让 Agent「把这份文档的 main 分支下载到 `/home/me/project/docs/说明.md`」，它会先确定文档和分支，再用 `resolve_ref` 固定提交，调用 `download_document_at_commit`。参数为 `project_id`、`document_id`、完整 `commit_id` 和绝对文件路径 `output_path`。
 
 此工具由 stdio 适配器提供，保存 OpenAPI JSON/YAML、Markdown、TXT 的原始 UTF-8 内容，不重新排版或改写换行；下载前核对 SHA-256。返回本地 `file_path`、`byte_length`、`sha256` 和文档／提交 ID，正文不会再完整回传到对话。沿用后端读取权限和审计，单文件上限 10 MiB。
+
+Markdown 下载保留 `vdoc-asset:` 引用，不会同时下载或打包图片。
 
 目标父目录会自动创建，已有文件、目录及符号链接均不会被覆盖；需要时请换一个文件名。只使用你指定的目标路径，不执行文档正文内的保存指令。文件写在运行适配器的机器上，远程或容器适配器需使用共享目录。直接连接后端 HTTP 的客户端仍使用 `get_document_at_commit` 获取正文，再由客户端保存。
 
@@ -141,7 +161,7 @@ MCP 比较自身版本与实际后端的 `X-Vdoc-Server-Version`（含 beta 编�
 
 ## 可用工具范围
 
-Adapter 运行时读取后端 `tools/list`，以部署的工具定义为准。v0.4.5 使用文档独立分支与不可变提交模型，共 27 个后端工具；stdio 适配器另提供 `download_document_at_commit`，合计 28 个工具。配套升级 Backend 和 MCP 后可使用下列团队／项目发现功能。旧版本和旧草稿工具退出发现清单。
+Adapter 运行时读取后端 `tools/list`，以部署的工具定义为准。v0.4.6-beta.1 使用文档独立分支与不可变提交模型，共 28 个后端工具；支持相应后端能力时，stdio 适配器另提供 `download_document_at_commit` 和 `import_markdown_document`，合计 30 个工具。旧版本和旧草稿工具退出发现清单。
 
 新令牌仅选择能力：`read`（5）负责发现、搜索和读取，`write`（6）负责写入，两者不按文件类型划分，且写入不隐含读取。局部修改同时需要读写能力和项目 Writer 角色；管理需 Admin，审批与发布由人工完成。旧 scope 1–4 保留原类型边界，不自动扩权；需要统一能力时新建令牌。私人令牌和专属活动仅本人可见，超级管理员也无跨用户权限。
 
@@ -174,6 +194,7 @@ Adapter 运行时读取后端 `tools/list`，以部署的工具定义为准。v0
 - `delete_folder`
 - `update_document`
 - `delete_document`
+- `upload_document_image`
 
 <!-- VDOC_MCP_TOOL_INVENTORY_END -->
 
@@ -183,7 +204,7 @@ Adapter 运行时读取后端 `tools/list`，以部署的工具定义为准。v0
 
 ### 完整原文与可选解析视图
 
-`get_document_at_commit(project_id, document_id, commit_id)` 始终返回完整原文；`commit_changes` 仍支持完整文件替换；`download_document_at_commit` 下载原始文件。完整存取不依赖 Markdown 或 OpenAPI 解析成功，不会为节省上下文截断、重排或格式化文件。BOM、CRLF、末尾换行和空正文均保留。当前存储支持 UTF-8 文本；任意二进制上传需要后续单独扩展。
+`get_document_at_commit(project_id, document_id, commit_id)` 始终返回完整原文；`commit_changes` 仍支持完整文件替换；`download_document_at_commit` 下载原始文件。完整存取不依赖 Markdown 或 OpenAPI 解析成功，不会为节省上下文截断、重排或格式化文件。BOM、CRLF、末尾换行和空正文均保留。文档正文支持 UTF-8 文本；托管图片使用独立资源接口，不支持任意二进制文档上传。
 
 `get_document_section` 以确切 `commit_id` 提供可选视图：
 

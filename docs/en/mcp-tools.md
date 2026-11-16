@@ -4,7 +4,7 @@ Agents use MCP to read and manage authorized OpenAPI, Markdown and TXT documents
 
 The stdio adapter `@chnmig/vdoc-mcp` forwards `tools/list` and `tools/call` to `/api/v1/open/mcp`; Backend owns storage and business logic.
 
-This page describes `v0.4.5`. One user-wide MCP configuration can access authorized teams and projects. The workbench’s **Copy path** includes team/project names and `project_id`; documents also include `document_id` and `relative_path`, while folders use `path`. Give the complete copied location to your agent to preserve project scope.
+This page describes `v0.4.6-beta.1`. One user-wide MCP configuration can access authorized teams and projects. The workbench’s **Copy path** includes team/project names and `project_id`; documents also include `document_id` and `relative_path`, while folders use `path`. Give the complete copied location to your agent to preserve project scope.
 
 ## Before You Start
 
@@ -13,19 +13,19 @@ This page describes `v0.4.5`. One user-wide MCP configuration can access authori
 - The target Agent runtime supports MCP stdio server configuration.
 - Do not put raw MCP Tokens, JWTs, DB passwords, storage secrets, or `Authorization` header values in repos, screenshots, logs, README files, or issues.
 
-The agent machine also needs Node.js 20 or later and npm. If Vdoc is not running yet, start with [Docker Compose deployment](deployment.md#quick-start), including initial-admin setup. A first query needs an authorized saved document; demo seeding and engineering release checks are optional.
+The agent machine also needs Node.js 20.3 or later and npm. If Vdoc is not running yet, start with [Docker Compose deployment](deployment.md#quick-start), including initial-admin setup. A first query needs an authorized saved document; demo seeding and engineering release checks are optional.
 
 ## Installation Options
 
 The npm options below apply to versions already published in the registry; match the backend version:
 
 ```sh
-npx --yes @chnmig/vdoc-mcp@latest --version
+npx --yes @chnmig/vdoc-mcp@beta --version
 ```
 
 To install a global command, run `npm install --global @chnmig/vdoc-mcp@latest`; repeat it to update. `@latest` selects stable releases and `@beta` selects betas; the tags update independently. For a fixed deployment, use an exact package version matching its backend.
 
-The workbench's **MCP client configuration** offers global install, update and uninstall prompts with user-wide configuration shared by projects. The [installation guide](https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.4.5/docs/public/mcp-install.md) preserves settings, channels and shared installations. No Skill is installed.
+The workbench's **MCP client configuration** offers global install, update and uninstall prompts with user-wide configuration shared by projects. The [installation guide](https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.4.6-beta.1/docs/public/mcp-install.md) preserves settings, channels and shared installations. No Skill is installed.
 
 npm ships compiled JavaScript; no Git or TypeScript compiler is needed.
 
@@ -34,7 +34,7 @@ For a deployment locked to the reviewed workspace release, the verified prebuilt
 ```sh
 (
   set -eu
-  VDOC_MCP_VERSION=0.4.5
+  VDOC_MCP_VERSION=0.4.6-beta.1
   VDOC_MCP_PACKAGE_DIR="$(mktemp -d)"
   trap 'rm -rf -- "$VDOC_MCP_PACKAGE_DIR"' EXIT
   VDOC_MCP_RELEASE="https://github.com/ChnMig/Vdoc-mcp/releases/download/v$VDOC_MCP_VERSION"
@@ -57,12 +57,12 @@ Use `@chnmig/vdoc-mcp@beta` for testing and `@chnmig/vdoc-mcp@latest` for stable
 
 MCP uses one adapter package per channel. `release` selects only stable releases; `beta` selects only `vMAJOR.MINOR.PATCH-beta.N` prereleases. A missing channel fails without falling back to another channel. Separate prefixes at `~/.local/share/vdoc/mcp/release` and `~/.local/share/vdoc/mcp/beta` preserve any existing global MCP installation.
 
-First download `install-channel.mjs` and `install-channel.mjs.sha256` from a reviewed [MCP Release](https://github.com/ChnMig/Vdoc-mcp/releases) that includes them. These commands pin the MCP-only installer to `v0.4.5`; run them in a dedicated tools directory. A failed download or checksum stops installation. Older releases do not contain these assets:
+First download `install-channel.mjs` and `install-channel.mjs.sha256` from a reviewed [MCP Release](https://github.com/ChnMig/Vdoc-mcp/releases) that includes them. These commands pin the MCP-only installer to `v0.4.6-beta.1`; run them in a dedicated tools directory. A failed download or checksum stops installation. Older releases do not contain these assets:
 
 ```sh
 (
   set -eu
-  VDOC_MCP_INSTALLER_TAG='v0.4.5'
+  VDOC_MCP_INSTALLER_TAG='v0.4.6-beta.1'
   VDOC_MCP_INSTALLER_RELEASE="https://github.com/ChnMig/Vdoc-mcp/releases/download/$VDOC_MCP_INSTALLER_TAG"
   curl -fL "$VDOC_MCP_INSTALLER_RELEASE/install-channel.mjs" -o install-channel.mjs
   curl -fL "$VDOC_MCP_INSTALLER_RELEASE/install-channel.mjs.sha256" -o install-channel.mjs.sha256
@@ -81,9 +81,9 @@ node "$HOME/.local/share/vdoc/mcp/release/node_modules/@chnmig/vdoc-mcp/scripts/
 node "$HOME/.local/share/vdoc/mcp/beta/node_modules/@chnmig/vdoc-mcp/scripts/install-channel.mjs" --channel beta
 ```
 
-Restart MCP and reload the Agent after updating. The installer requires Node.js 20+ and npm, and remains available for existing GitHub channel installations.
+Restart MCP and reload the Agent after updating. The installer requires Node.js 20.3+ and npm, and remains available for existing GitHub channel installations.
 
-For development and package checks, see the [MCP README](https://github.com/ChnMig/Vdoc-mcp/blob/v0.4.5/README.md). stdout carries MCP frames; diagnostics use stderr.
+For development and package checks, see the [MCP README](https://github.com/ChnMig/Vdoc-mcp/blob/v0.4.6-beta.1/README.md). stdout carries MCP frames; diagnostics use stderr.
 
 ## Client and server version check
 
@@ -107,7 +107,7 @@ For local full Compose, `VDOC_BASE_URL` is usually `http://127.0.0.1:8080`. For 
   "mcpServers": {
     "vdoc": {
       "command": "npx",
-      "args": ["--yes", "@chnmig/vdoc-mcp@latest"],
+      "args": ["--yes", "@chnmig/vdoc-mcp@beta"],
       "env": {
         "VDOC_BASE_URL": "https://your-vdoc.example.test",
         "VDOC_MCP_TOKEN": "REPLACE_WITH_LOCAL_VDOC_MCP_TOKEN"
@@ -125,13 +125,33 @@ Select the environment, project and document. Use `list_branches` and `resolve_r
 
 `compare_commits` defaults to `source_diff`: exact whitespace/line endings, line ranges, added/removed counts and 3 context lines. Preview text shares 64 KiB per response, with 20 hunks per file; limits set `truncated` and omitted text sets `content_omitted`. OpenAPI adds `semantic_summary`. Pass `include_content: true` for full `old_content` / `new_content` and `semantic_diff`, or read commit content/sections. `analyze_changes` waits for server AI; use `compare_commits` for direct differences.
 
-`list_folders` / `create_folder` list and create folders. `update_folder(path, name?, parent_path?)` renames or moves a folder; an empty parent selects root. `delete_folder` deletes empty folders only. `update_document(document_id, name?, relative_path?, description?)` renames or moves a document while preserving identity/history. `delete_document` removes it from the catalog and disables direct access and old shares, retaining stored history/audits. All take `project_id`; management requires Admin and `write`. Moves stay within a project and reject conflicts/cycles; legacy tokens retain their original checks.
+`list_folders` / `create_folder` list and create folders. `update_folder(path, name?, parent_path?)` renames or moves a folder; an empty parent selects root. `delete_folder` deletes empty folders only. `update_document(document_id, name?, relative_path?, description?)` renames or moves a document while preserving identity/history. `delete_document` removes it from the catalog and disables direct access and old shares, retaining source history/audits while cleaning up owned image files. All take `project_id`; management requires Admin and `write`. Moves stay within a project and reject conflicts/cycles; legacy tokens retain their original checks.
+
+## Upload Images and Import Local Markdown {#markdown-images}
+
+The stdio adapter provides:
+
+```text
+upload_document_image(project_id, document_id, file_path)
+import_markdown_document(project_id, document_id, branch_id,
+  expected_head_commit_id, expected_generation, idempotency_key, file_path, message?)
+```
+
+`file_path` is an absolute image/MD path on the adapter's machine, never sent to Backend. HTTP MCP uploads instead use `filename` and `content_base64`, mutually exclusive with `file_path`. Upload returns `reference` (`vdoc-asset:<sha256>`): insert `![Description](reference)` and save. Upload needs `write` and Writer, creating no version or publication. Import needs `read`, `write` and Writer; legacy type restrictions remain.
+
+Discover or `create_document` a Markdown document, then `list_branches` and `resolve_ref`. Supply the observed head/generation and stable idempotency key. Import prechecks all images, deduplicates uploads, rewrites destinations and creates one commit, retaining the observed name/path/description and local files. Importing into a new document creates its next version; neither step publishes.
+
+Inline/reference images and titles are recognized; code, ordinary links, BOM, CRLF and other source are preserved. Images must stay within the MD directory or real subdirectories: no escapes, absolute image paths or symlinks. Limits: 100 distinct images, 32 MiB combined; each 4 MiB/40 million pixels. Upload outside images separately. Invalid files or server rejection prevent committing.
+
+External URLs remain unfetched and unchanged, listed in `retained_external_image_urls`. Unknown outcomes require identical files/arguments/key on retry; changed files or conflicts require rereading/reconciling, never bypassing via a new key/head. See [image management](admin-usage.md#markdown-images) for formats, private ownership, fixed-version shares, deletion and 24-hour cleanup.
 
 ## Download a source file locally {#download-source}
 
 Ask the agent to download a document's main branch to `/home/me/project/docs/guide.md`. It identifies the document and branch, pins an exact commit through `resolve_ref`, then calls `download_document_at_commit` with `project_id`, `document_id`, the full `commit_id` and absolute file path `output_path`.
 
 The stdio adapter saves original UTF-8 OpenAPI JSON/YAML, Markdown and TXT content without reformatting or changing line endings, and verifies SHA-256 before saving. It returns `file_path`, `byte_length`, `sha256` and document/commit IDs without echoing the entire body into the conversation. Existing backend read permissions and audits apply, with a 10 MiB source-file limit.
+
+Markdown downloads retain `vdoc-asset:` references without downloading or bundling the image files.
 
 Missing parent directories are created. Existing files, directories and symlinks are never overwritten; choose another filename when needed. Only the explicit destination path is used; document bodies cannot choose it. Files are saved on the adapter's machine, so remote/containerized adapters need a shared mount. Direct backend HTTP clients still read content using `get_document_at_commit` and save it themselves.
 
@@ -141,7 +161,7 @@ For a combined installation, use a newly downloaded, checksummed standalone inst
 
 ## Tool Scope
 
-The adapter reads deployed backend `tools/list` schemas at runtime. v0.4.5 uses independent document branches and immutable commits: 27 backend tools plus the stdio-only `download_document_at_commit`, for 28 tools in total. Update Backend and MCP together to use the team/project discovery below. Legacy version and draft tools are no longer advertised.
+The adapter reads deployed backend `tools/list` schemas at runtime. v0.4.6-beta.1 uses independent document branches and immutable commits: 28 backend tools, plus `download_document_at_commit` and `import_markdown_document` when the backend advertises their prerequisites, for 30 tools in total. Legacy version and draft tools are no longer advertised.
 
 New tokens use `read` (5) and `write` (6) capabilities across file types. Writing does not grant reading; patches need both and project Writer permission. Management requires Admin; humans approve and publish. Legacy scopes 1–4 keep their type restrictions without expanded access; create a new token for unified capabilities. Private tokens and their activity are owner-only, including for super administrators.
 
@@ -174,6 +194,7 @@ New tokens use `read` (5) and `write` (6) capabilities across file types. Writin
 - `delete_folder`
 - `update_document`
 - `delete_document`
+- `upload_document_image`
 
 <!-- VDOC_MCP_TOOL_INVENTORY_END -->
 
@@ -183,7 +204,7 @@ One user configuration spans authorized teams/projects. `list_teams(query?)` ret
 
 ### Full source and optional structured views
 
-`get_document_at_commit(project_id, document_id, commit_id)` always returns the complete original source. `commit_changes` retains full-file replacement and `download_document_at_commit` downloads original files. These paths do not require Markdown or OpenAPI parsing and never truncate, reorder or format content to save context. BOM, CRLF, trailing newlines and empty files are preserved. Storage currently accepts UTF-8 text; arbitrary binary uploads require a separate future extension.
+`get_document_at_commit(project_id, document_id, commit_id)` always returns the complete original source. `commit_changes` retains full-file replacement and `download_document_at_commit` downloads original files. These paths do not require Markdown or OpenAPI parsing and never truncate, reorder or format content to save context. BOM, CRLF, trailing newlines and empty files are preserved. Document source accepts UTF-8 text. Managed images use a separate resource API; arbitrary binary document uploads are not supported.
 
 `get_document_section` offers optional views at an exact `commit_id`:
 

@@ -1,5 +1,9 @@
 # Version Notes
 
+## v0.4.6-beta.1
+
+Managed Markdown images and MCP import: see the [changelog](changelog.md) and [upgrade guide](release-rollback.md).
+
 ## v0.4.5
 
 Smaller Agent comparison responses and shorter shared-lock usage. No new migration. Full-content callers must pass `include_content: true`. Update components and restart MCP; see [upgrade notes](release-rollback.md).
@@ -60,21 +64,15 @@ Restore the document layout without changing branches or schema. See the [change
 
 ## v0.4.0-beta.2
 
-Documents own separate branches: default `main` or a custom initial name, with automatic `main.1`, `main.2`, `dev.1` versions. Branch switches preserve the catalog. Workbench, REST and MCP/Skill use document scope; legacy versions/shares remain readable. See [First Use](admin-usage.md).
-
-`021_document_repositories.sql` permits same-name branches across documents. Back up Beta data/storage, then update Backend/Admin/MCP together. Image rollback cannot undo migrations; only Beta updates.
+Independent document branches and automatic versions: [changelog](changelog.md#v0-4-0-beta-2); legacy versions/shares remain readable. `021_document_repositories.sql` permits same-name branches across documents. Back up Beta database/storage and update Backend/Admin/MCP together. Beta only; image rollback cannot undo migration.
 
 ## v0.4.0-beta.1
 
-Project branches, immutable commits and fixed releases replace drafts, with automatic revision/release IDs. [First Use](admin-usage.md) covers history, comparison, review, AI and events. Beta migrations 018–020 require a database/storage backup. Administrators import legacy projects; missing overwritten content is unrecoverable.
+Immutable commits and fixed releases replace drafts: [changelog](changelog.md#v0-4-0-beta-1). Back up Beta database/storage before migrations 018–020. Administrators import legacy projects; missing source cannot be restored.
 
 ## v0.3.17-beta.9
 
-Workspace groups teams, projects and folders. Documents have a left tree, central content and right outline/tools, header Share/Edit draft, and project membership controls. See [First Use](admin-usage.md) and the [changelog](changelog.md).
-
-Four repositories adopt Go 1.27.3 and Node.js 26.12.1; Admin uses Caddy 2.11.7. Admin/Site retain TypeScript 6.0.3 for lint compatibility; MCP uses 7.0.2. npm/pnpm audits found no known vulnerabilities, without guaranteeing environment security.
-
-No migration beyond beta.8. Back up Beta and [upgrade manually](release-rollback.md); update Node.js on the Agent machine and restart MCP.
+Workspace, document layout and toolchain: [changelog](changelog.md#v0-3-17-beta-9); dependency audits do not guarantee environment security. No migration beyond beta.8; Beta only. Back up before [manual upgrade](release-rollback.md), update Agent Node.js and restart MCP.
 
 ## v0.3.17-beta.8
 
@@ -102,9 +100,7 @@ Task layouts and shared form controls: see the [changelog](changelog.md). Beta o
 
 ## v0.3.16
 
-Adds an isolated Beta channel. Use [Beta Compose](deployment.md#beta-channel) for a test environment: Backend and Admin follow `:beta`, while stable deployments continue following `:latest`. Each environment has separate ports, networks, databases, and storage volumes.
-
-[MCP and its bundled Skill](mcp-tools.md#release-channels) support channel installation and updates in separate directories. The guides cover installation, updates, and Agent configuration. This release adds no database migrations; use separate credentials, keys, and Tokens for testing.
+Isolated Beta images, ports, networks, volumes and MCP/Skill channel installs: [changelog](changelog.md#v0-3-16). No migration. Use separate test accounts, keys and tokens.
 
 ## v0.3.15
 
@@ -130,7 +126,7 @@ Fix OpenAPI compatibility, project concurrency, and large-document reads; retain
 
 ## v0.3.8
 
-The default global MCP/Skill installation now downloads the compiled GitHub Release archive and checks `SHA256SUMS` before installing it. This avoids npm global Git source preparation failures. Existing pinned `npx` MCP configurations remain supported. No application database migration is added.
+Compiled archive installs, SHA256 verification and existing `npx` compatibility: [changelog](changelog.md#v0-3-8). No migration.
 
 ## v0.3.7
 
@@ -140,12 +136,7 @@ These notes describe the v0.2 boundary. Before planning a pilot, writing Agent i
 
 ## v0.3.6
 
-- Prevent delayed sign-in or registration responses from replacing a newer account; cancel requests when leaving the form and check session identity before applying results.
-- Keep CORS and security headers on global rate-limit rejections; preflight requests no longer consume business request quota.
-- Respect request/response direction for OpenAPI `readOnly` and `writeOnly` required fields, including references, nesting, and `allOf`; refresh stored diff facts when read.
-- Prevent old AI summary callbacks from repopulating the cache after sign-out, account changes, or a new login.
-
-This patch adds no database migrations and keeps the REST/MCP contracts compatible. Deployment continues to use application `latest` images, PostgreSQL `18`, RustFS `1.0.0`, and separate frontend/backend domains. See [Upgrade and Rollback](release-rollback.md).
+Session, CORS, OpenAPI-direction and AI-cache fixes: [changelog](changelog.md#v0-3-6). No migration; REST/MCP remain compatible. [Upgrades](release-rollback.md) retain application `latest`, PostgreSQL 18, RustFS 1.0.0 and two domains.
 
 ## v0.3.5
 
@@ -155,62 +146,33 @@ This documentation patch adds no application feature or database migration. All 
 
 ## v0.3.4
 
-- Prevent late identity requests from overwriting or clearing a newer login session, including cancelled routes and sign-in with the same token.
-- Correct the document format in OpenAPI 3.1 draft previews and published Diffs. Cross-dialect comparisons use the target format; existing cached facts are repaired on read.
-- Keep the workbench theme context synchronized with operating-system theme changes.
-- Add a standalone Compose file for an existing PostgreSQL server, with field comments, downloads, and checksums for both deployment variants.
-
-No database migration is added beyond v0.3.3. REST/MCP contracts remain compatible. See [upgrade and rollback](release-rollback.md).
+Identity isolation, OpenAPI formats, theme sync and external PostgreSQL Compose: [changelog](changelog.md#v0-3-4). No migration beyond v0.3.3; REST/MCP stay compatible. See [upgrading](release-rollback.md).
 
 ## v0.3.3
 
-Standalone Compose follows the newest stable Backend/Admin images, PostgreSQL 18.x patches, and RustFS 1.0.0. Application image references no longer require editing each release; run `docker compose pull` and `docker compose up -d --wait` to update running containers.
+Stable images, two domains and CORS: [changelog](changelog.md#v0-3-3). Domains proxy frontend 8081/backend 8080; the frontend uses Backend HTTPS, and CORS `*` still requires authentication. Update with `docker compose pull` and `docker compose up -d --wait`. [Deployment checks](deployment.md#caddy-domain) cover login, publication, MCP and anonymous shares.
 
-[Two-domain Caddy deployment](deployment.md#caddy-domain) keeps frontend port 8081 and backend port 8080 separate. Admin connects to the backend HTTPS domain, and backend CORS is `*`; authentication and authorization remain required. The deployment smoke script covers real sign-in, publication, MCP reads and anonymous shares.
-
-No application database migration is added beyond v0.3.2. Back up data and retain credentials; moving RustFS from an older beta to 1.0.0 also requires an object-storage backup. See [Upgrade and Rollback](release-rollback.md).
+No migration. Retain credentials and back up database/storage, including RustFS upgrades from beta to 1.0.0. See [upgrading](release-rollback.md).
 
 ## v0.3.2
 
-This patch integrates request log context, parameter rebinding cleanup, transport-abort handling, and the Base64URL random-string helper from the Go scaffold. Both backend READMEs identify [ChnMig/go-template](https://github.com/ChnMig/go-template), under `http-services/`, as the source. The reviewed upstream commit is `f8ab237`.
-
-Logs continue to omit request bodies, credentials, and document contents. Ordinary API errors retain the unified business envelope; aborted connections or streams record a cancellation and terminate transport. Existing REST/MCP APIs, the 22 MCP tools, and issued token formats remain compatible.
-
-Backend, Admin, Site, MCP, Skill, and Compose downloads use `v0.3.2`. No database migration is added beyond v0.3.1. Upgrades from older versions still apply pending migrations, including 007. See [Upgrade and Rollback](release-rollback.md).
+Sync go-template `http-services/` to `f8ab237`; logging, cancellation and coordinated releases: [changelog](changelog.md#v0-3-2). REST/MCP, 22 tools and tokens remain compatible. No new migration; [upgrades](release-rollback.md) from older versions still apply pending migrations, including 007.
 
 ## v0.3.1
 
-This patch fixes exact contract numbers, semantic differences, history pagination, password input, and authenticated-page accessibility. It also improves MCP cancellation and backend concurrency. Published facts retain their original JSON numbers in MCP responses.
-
-Upgrade applies `007_parser_facts_and_history_pages.sql`, adding parser metadata, history query indexes, and the Diff `must_handle` field. Back up PostgreSQL and object storage first; rolling back an image does not reverse database migrations. See [Upgrade and Rollback](release-rollback.md).
-
-Backend, Admin, Site, MCP, Skill, and Compose downloads use `v0.3.1`. The existing 22 MCP tools remain compatible; human review, permissions, and bcrypt cost 12 remain unchanged.
+Precision, diff, history and concurrency fixes: [changelog](changelog.md#v0-3-1). Adds `007_parser_facts_and_history_pages.sql` for parser versions, history indexes and `must_handle`. [Back up database/storage](release-rollback.md); image rollback does not undo migrations. Five repositories share this version; 22 tools, human review, permissions and bcrypt cost 12 remain unchanged.
 
 ## v0.3.0
 
-- Deploy and update with a single [docker-compose.yml](deployment.md): all settings and secrets are in YAML, with no `.env` or installation scripts.
-- Pull verified Linux amd64/arm64 Backend and Admin images directly from GHCR.
-- Validate required configuration before database initialization; backend startup handles schema migrations, administrator and storage bucket setup.
-- Document preservation of existing keys and volumes, including migration from older Compose archives.
-
-This release adds no database migrations and keeps the v0.2.0 MCP API contract. See [Upgrade and Rollback](release-rollback.md).
+Single-file Compose, dual-architecture images and startup validation: [changelog](changelog.md#v0-3-0). No migration; MCP API stays at v0.2.0. [Upgrades](release-rollback.md) retain keys and data volumes.
 
 ## v0.2.1
 
-This patch includes the [complete Compose example](deployment.md#compose-example) and the fix for clipped MCP configuration panels on narrow Admin screens. All five repositories and deployment downloads use v0.2.1.
-
-Backend APIs and the 22-tool MCP contract remain compatible with v0.2.0, with no new database migration. Follow [Upgrade and Rollback](release-rollback.md) to update release files and load new images while preserving the existing `.env`, Compose project name, and data volumes.
+Compose examples and narrow MCP panels: [changelog](changelog.md#v0-2-1). Five repositories/downloads share this version. No migration; backend/22 tools remain compatible with v0.2.0. [Upgrades](release-rollback.md) retain `.env`, Compose project name and volumes.
 
 ## v0.2.0
 
-- New MCP tools `get_schema_version` and `get_doc_version` return complete content from an exact published version.
-- Latest-content reads require `branch_id`, and undeclared arguments are rejected. Reload MCP tool discovery after upgrading and update callers of `get_latest_schema` / `get_latest_doc`.
-- OpenAPI draft reads add raw content from the same snapshot as the revision, while preserving existing metadata fields.
-- Backend/Admin releases include Linux amd64 and arm64 Docker images. The installer verifies checksums and source identity without requiring five source checkouts.
-- Admin and first-use docs provide Codex / Cursor configurations. The site improves Chinese search, language switching, main landmarks and feature-link names.
-- The official site uses [GitHub Pages](https://chnmig.github.io/Vdoc-site/), deployed only after a stable Site tag passes verification.
-
-No database migration is added. Human publication, immutable versions and token permissions retain their existing boundaries. Back up PostgreSQL and object storage and upgrade the coordinated five-repository release.
+Exact-version reads, dual-architecture releases and GitHub Pages: [changelog](changelog.md#v0-2-0). Refresh tools and add `branch_id` to latest-content calls. No migration; human publication, immutable versions and token permissions stay unchanged. [Back up database/storage](release-rollback.md) and upgrade all five releases together.
 
 ## Included in v0.1
 

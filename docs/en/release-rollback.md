@@ -1,5 +1,7 @@
 # Upgrade and Rollback
 
+`v0.4.6-beta.1` needs no migration. Back up Beta database/storage, upgrade Backend/Admin/MCP (npm `@beta`) and restart MCP. Stable `latest` and Pages stay unchanged. Older versions cannot render managed images; rollback cannot restore [images purged by document deletion](admin-usage.md#markdown-images).
+
 `v0.4.5` adds no migration. Update the workbench and MCP, then restart MCP.
 
 MCP comparisons default to bounded hunks. Callers needing full `old_content` / `new_content` or `semantic_diff` must pass `include_content: true`. Restart MCP to refresh schemas; see [MCP tools](mcp-tools.md).

@@ -1,6 +1,6 @@
 # First Use
 
-Use `v0.4.5` to save, review, publish and query a guide after completing [deployment](deployment.md#quick-start).
+Use `v0.4.6-beta.1` to save, review, publish and query a guide after completing [deployment](deployment.md#quick-start).
 
 ## Before You Start
 
@@ -39,6 +39,16 @@ Choose **New branch → dev** beside the selector. It starts from the viewed ver
 
 Concurrent saves preserve local input: compare and reconcile, or save on a new branch. Identical retries after a lost response do not duplicate versions. Failures, unchanged content and retries consume no numbers. Unsaved edits stay with each document and branch.
 
+### Insert Markdown Images {#markdown-images}
+
+Choose **Insert image**, paste or drop into Markdown. Upload inserts `![Description](vdoc-asset:hash)` at the cursor; check **Preview**, then **Save version**. Failures preserve text for retry. PNG, JPEG, animated GIF and static WebP are supported, up to 4 MiB and 40 million pixels; SVG and animated WebP are rejected.
+
+Images are private and owned by the project/document. References survive moves, branch and domain changes. Only managed images render; uploading MD alone does not include local images, and source downloads do not bundle them. Use [MCP import](mcp-tools.md#markdown-images) for local images.
+
+Reads follow document permissions. Shares serve only images referenced by their fixed published version, checking password, expiry and revocation; upload alone grants no public access.
+
+**Deleting a document purges its images**, retrying failures; retained source/audits cannot restore purged bytes. Reversible archives and historical references retain images. Unreferenced uploads receive a 24-hour grace period from their latest upload before background cleanup.
+
 ## 4. Review and Publish
 
 `main` is editable. In **Merge requests**, select this document’s source and target branches and inspect the merge candidate for administrator review. Branch changes and conflict resolution require a fresh review.
@@ -53,7 +63,7 @@ Choose **Create MCP token** with **Read documents** (`read`), access to **Vdoc T
 
 ## 6. Connect Your Agent
 
-In the token page’s **MCP client configuration**, send the one-sentence install prompt to your AI, or copy the Codex, Cursor or Claude Code npx configuration using `@chnmig/vdoc-mcp@latest`. Preserve other servers. Set `VDOC_MCP_TOKEN` and a `VDOC_BASE_URL` reachable from **the agent machine**; localhost requires Backend on that machine.
+In the token page’s **MCP client configuration**, send the one-sentence install prompt to your AI, or copy the Codex, Cursor or Claude Code npx configuration using `@chnmig/vdoc-mcp@beta`. Preserve other servers. Set `VDOC_MCP_TOKEN` and a `VDOC_BASE_URL` reachable from **the agent machine**; localhost requires Backend on that machine.
 
 Restart MCP or the agent and refresh tools. Expect `list_projects`, `list_releases`, `get_release` and `get_document_at_commit`. See [MCP Setup](mcp-tools.md) for npm channels and exact versions. Align the client and backend if a version warning appears.
 

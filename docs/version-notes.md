@@ -1,5 +1,9 @@
 # 版本说明
 
+## v0.4.6-beta.1
+
+托管 Markdown 图片与 MCP 导入，见[变更记录](changelog.md)及[升级说明](release-rollback.md)。
+
 ## v0.4.5
 
 优化 Agent 文档比较的响应大小和共享锁占用，无新增迁移。依赖完整正文的调用须传 `include_content: true`。配套升级并重启 MCP，见[升级说明](release-rollback.md)。
@@ -60,21 +64,15 @@
 
 ## v0.4.0-beta.2
 
-每份文档独立分支，初始分支默认 `main`、可手填，版本自动递增为 `main.1`、`main.2`、`dev.1`。切换分支保留项目目录；工作台、REST、MCP/Skill 使用文档范围，旧版本与分享可读。见[首次使用](admin-usage.md)。
-
-`021_document_repositories.sql` 允许不同文档使用同名分支。备份 Beta 数据库及存储后配套更新 Backend/Admin/MCP；镜像回退不撤销迁移，仅更新 Beta。
+文档独立分支与自动版本见[变更记录](changelog.md#v0-4-0-beta-2)，旧版本/分享保留。迁移 `021_document_repositories.sql` 允许跨文档同名分支；先备份 Beta 数据库/存储，配套更新 Backend/Admin/MCP。仅 Beta，镜像回退不撤销迁移。
 
 ## v0.4.0-beta.1
 
-项目分支、不可变提交和固定发布替代默认草稿流程，修订号与发布号自动生成。历史、比较、合并审核、AI、事件见[首次使用](admin-usage.md)。018–020 迁移仅用于 Beta，先备份数据库及存储；旧项目由管理员导入，缺失的旧正文无法恢复。
+不可变提交与固定发布替代草稿，见[变更记录](changelog.md#v0-4-0-beta-1)。Beta 迁移 018–020 需先备份数据库/存储；旧项目由管理员导入，缺失正文无法恢复。
 
 ## v0.3.17-beta.9
 
-工作空间按团队／项目／文件夹浏览，文档页采用左目录、中正文、右大纲与工具，顶栏提供分享／草稿编辑，项目内管理成员。见[首次使用](admin-usage.md)及[变更记录](changelog.md)。
-
-四仓库工具链更新为 Go 1.27.3、Node.js 26.12.1；Admin 使用 Caddy 2.11.7。Admin/Site 为兼容 lint 固定 TypeScript 6.0.3，MCP 使用 7.0.2。npm/pnpm 审计未发现已知漏洞，不构成运行环境安全保证。
-
-相对 beta.8 无新增迁移。仅更新 Beta，备份后[手动升级](release-rollback.md)；Agent 机器须更新 Node.js 并重启 MCP。
+工作空间、三栏文档及工具链见[变更记录](changelog.md#v0-3-17-beta-9)；依赖审计不保证环境安全。相对 beta.8 无新迁移，仅更新 Beta。备份后[手动升级](release-rollback.md)，更新 Agent 的 Node.js 并重启 MCP。
 
 ## v0.3.17-beta.8
 
@@ -102,9 +100,7 @@
 
 ## v0.3.16
 
-新增独立 Beta 渠道：使用 [Beta Compose](deployment.md#beta-channel) 部署测试环境，Backend 和 Admin 跟随 `:beta`，稳定环境继续跟随 `:latest`。两套配置使用独立端口、网络、数据库和存储卷。
-
-[MCP 和配套 Skill](mcp-tools.md#release-channels) 支持按渠道安装与更新，各自保存在独立目录。官网补齐安装、更新及 Agent 配置指引。本次不新增数据库迁移；测试环境须使用独立账号、密钥和 Token。
+独立 Beta 的镜像、端口、网络、数据卷及 MCP/Skill 渠道安装见[变更记录](changelog.md#v0-3-16)。无新迁移；测试须用独立账号、密钥和 Token。
 
 ## v0.3.15
 
@@ -130,7 +126,7 @@
 
 ## v0.3.8
 
-默认全局 MCP/Skill 安装改为下载编译好的 GitHub Release 发行包，校验 `SHA256SUMS` 后再安装，避免 npm 全局 Git 安装在准备阶段失败。现有固定 commit 的 `npx` MCP 配置继续可用。本版不新增应用数据库迁移。
+编译发行包安装、SHA256 校验及旧 `npx` 兼容见[变更记录](changelog.md#v0-3-8)。无新迁移。
 
 ## v0.3.7
 
@@ -140,12 +136,7 @@ Skill 合并到 `Vdoc-mcp/skills/vdoc`，与 MCP 共用版本和发行包，新�
 
 ## v0.3.6
 
-- 修复迟到的登录或注册响应覆盖新账号的问题；页面离开后取消请求，并按会话版本隔离结果。
-- 启用全局限流时，拒绝响应仍携带 CORS 与安全响应头；跨域预检不消耗业务请求额度。
-- OpenAPI 必填变化按请求/响应方向处理 `readOnly`、`writeOnly`，覆盖引用、嵌套和 `allOf`；已有差异缓存读取时自动更新。
-- 修复退出、切号或重新登录后，旧 AI 摘要任务回调重新写入缓存的问题。
-
-本次不新增数据库迁移，REST/MCP 契约保持兼容。部署继续使用应用 `latest`、PostgreSQL `18`、RustFS `1.0.0` 及双域名反代。升级方法见[升级与回滚](release-rollback.md)。
+会话、CORS、OpenAPI 方向与 AI 缓存修复见[变更记录](changelog.md#v0-3-6)。无新增迁移，REST/MCP 兼容；[升级](release-rollback.md)沿用应用 `latest`、PostgreSQL 18、RustFS 1.0.0 和双域名。
 
 ## v0.3.5
 
@@ -155,62 +146,33 @@ Skill 合并到 `Vdoc-mcp/skills/vdoc`，与 MCP 共用版本和发行包，新�
 
 ## v0.3.4
 
-- 修复账号切换时旧身份请求覆盖或清除新会话的问题，并处理路由取消与同一 Token 再次登录。
-- 修复 OpenAPI 3.1 草稿预览和正式 Diff 的格式标识；跨方言比较使用目标版本格式，读取时自动修正已有缓存。
-- 修复系统主题变化后工作台主题上下文未同步的问题。
-- 增加接入现成 PostgreSQL 的独立 Compose 文件，并为两份部署配置补齐字段注释、下载与校验文件。
-
-相对 v0.3.3 不新增数据库迁移，REST/MCP 契约保持兼容。升级方法见[升级与回滚](release-rollback.md)。
+身份隔离、OpenAPI 格式、主题同步与外部 PostgreSQL Compose 见[变更记录](changelog.md#v0-3-4)。相对 v0.3.3 无新迁移，REST/MCP 兼容；见[升级](release-rollback.md)。
 
 ## v0.3.3
 
-单文件 Compose 跟随后端与 Admin 最新稳定镜像，PostgreSQL 跟随 18.x 补丁，RustFS 固定为 1.0.0。镜像引用不再需要逐版手工修改；执行 `docker compose pull` 和 `docker compose up -d --wait` 才会更新运行容器。
+稳定镜像、双域名及 CORS 更新见[变更记录](changelog.md#v0-3-3)。双域名分别反代前端 8081、后端 8080；前端使用后端 HTTPS 域名，CORS `*` 仍需鉴权。用 `docker compose pull`、`docker compose up -d --wait` 更新；[部署验证](deployment.md#caddy-domain)覆盖登录、发布、MCP 和匿名分享。
 
-[双域名 Caddy 部署](deployment.md#caddy-domain)保留前端 8081、后端 8080 两个端口。前端使用后端 HTTPS 域名，后端 CORS 设为 `*`；认证和授权照常生效。文档包含真实部署验证脚本，覆盖登录、发布、MCP 读取和匿名分享。
-
-v0.3.3 相比 v0.3.2 没有新增应用数据库迁移。升级前备份数据并保留凭据；RustFS 从旧 beta 版本切换为 1.0.0 时同样需要备份对象存储。详见[升级与回滚](release-rollback.md)。
+无新迁移；保留凭据，备份数据库与对象存储，包括 RustFS 旧 beta 升至 1.0.0。见[升级](release-rollback.md)。
 
 ## v0.3.2
 
-本次补丁合入 Go 脚手架的请求日志上下文、参数重绑清理、连接中断处理和 Base64URL 随机字符串工具，并在后端 README 中明确来源为 [ChnMig/go-template](https://github.com/ChnMig/go-template) 的 `http-services/`。已审阅的上游提交为 `f8ab237`。
-
-日志继续隐藏请求体、凭据与文档正文；普通 API 错误仍使用统一业务响应。连接或流已经中断时，只记录取消结果并终止传输。现有 REST/MCP 接口、22 项 MCP 工具及已签发令牌保持兼容。
-
-Backend、Admin、Site、MCP、Skill 与 Compose 下载统一为 `v0.3.2`。相对 v0.3.1 不新增数据库迁移；从更早版本升级时仍会执行尚未应用的迁移，包括 007。操作步骤见[升级与回滚](release-rollback.md)。
+同步 go-template `http-services/` 至 `f8ab237`，日志脱敏、取消处理及五仓发行见[变更记录](changelog.md#v0-3-2)。REST/MCP、22 项工具及令牌兼容。无新迁移；从更早版本[升级](release-rollback.md)仍执行未应用迁移，包括 007。
 
 ## v0.3.1
 
-本次补丁修复契约数字精度、语义差异、历史分页、密码输入与认证页可访问性，并改进 MCP 取消和后端并发处理。已发布事实经 MCP 返回时保留原始 JSON 数字。
-
-升级会自动执行迁移 `007_parser_facts_and_history_pages.sql`，新增解析版本信息、历史查询索引和 Diff 的 `must_handle` 字段。升级前备份 PostgreSQL 与对象存储；回退镜像不会撤销数据库迁移。操作步骤见[升级与回滚](release-rollback.md)。
-
-Backend、Admin、Site、MCP、Skill 与 Compose 下载统一为 `v0.3.1`。现有 22 项 MCP 工具保持兼容；人工审核发布、权限和 bcrypt cost 12 保持不变。
+数字精度、差异、历史及并发修复见[变更记录](changelog.md#v0-3-1)。新增迁移 `007_parser_facts_and_history_pages.sql`（解析版本、历史索引及 `must_handle`）。先[备份数据库和存储](release-rollback.md)，镜像回退不撤销迁移。五仓统一版本，22 项工具、人工审核、权限及 bcrypt cost 12 不变。
 
 ## v0.3.0
 
-- 通过单个 [docker-compose.yml](deployment.md) 部署和更新，配置与密钥直接写在 YAML 中，无需 `.env` 或安装脚本。
-- 从 GHCR 直接拉取通过验证的 Backend/Admin 镜像，支持 Linux amd64 和 arm64。
-- 数据库初始化前检查必填配置；后端启动时自动处理数据库迁移、首个管理员和存储桶。
-- 补充旧 Compose 压缩包迁移说明，升级时沿用原密钥和数据卷。
-
-本版不新增数据库迁移，MCP API 契约保持 v0.2.0。升级步骤见[升级与回滚](release-rollback.md)。
+单文件 Compose、双架构镜像及启动检查见[变更记录](changelog.md#v0-3-0)。无新迁移，MCP API 保持 v0.2.0；[升级](release-rollback.md)保留密钥和数据卷。
 
 ## v0.2.1
 
-本次补丁包含[完整 Compose 示例](deployment.md#compose-example)和 Admin 小屏幕 MCP 配置框修复，五个仓库及部署下载统一为 v0.2.1。
-
-后端接口、22 项 MCP 工具契约与 v0.2.0 兼容，无新增数据库迁移。已有部署可按[升级与回滚](release-rollback.md)更新发行文件并加载新镜像，保留现有 `.env`、Compose 项目名和数据卷。
+Compose 示例和小屏 MCP 配置修复见[变更记录](changelog.md#v0-2-1)。五仓及下载统一版本，无新迁移，后端与 22 项工具兼容 v0.2.0；[升级](release-rollback.md)保留 `.env`、Compose 项目名和数据卷。
 
 ## v0.2.0
 
-- MCP 新增 `get_schema_version` 和 `get_doc_version`，读取指定已发布版本全文。
-- 最新内容查询必须明确分支；未知参数会报错。升级后请重新加载 MCP 工具清单，并为 `get_latest_schema` / `get_latest_doc` 补上 `branch_id`。
-- OpenAPI 草稿读取增加原始正文，与 revision 来自同一快照；原有元数据字段保留。
-- Backend/Admin 提供 Linux amd64 和 arm64 预构建 Docker 镜像，安装器校验下载与源码来源；无需先获取五个源码仓库。
-- 工作台和首次使用指南提供 Codex / Cursor 配置；官网改善中文搜索、语言切换、正文地标与卡片链接名称。
-- 官网统一为 [GitHub Pages](https://chnmig.github.io/Vdoc-site/)，仅正式 Site 标签通过检查后自动上线。
-
-本版不新增数据库迁移。人工审核发布、不可变版本和令牌权限保持原有边界。升级前备份数据库与对象存储，并同步升级五仓发行包。
+指定版本读取、双架构发行及 GitHub Pages 见[变更记录](changelog.md#v0-2-0)。更新后刷新工具，为最新内容查询补 `branch_id`。无新迁移，人工发布、不可变版本和令牌权限不变；[升级](release-rollback.md)前备份数据库/存储，同步五仓发行包。
 
 ## v0.1 已包含
 

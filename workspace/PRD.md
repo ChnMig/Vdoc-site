@@ -1804,11 +1804,12 @@ AI 通过 MCP 可以：
 
 ### 9.2 MCP Tools
 
-以 2026-11-02 后的文档独立分支和不可变提交模型为准。当前开发版发现清单为 27 个后端工具；stdio 适配器另外提供 `download_document_at_commit`。旧版本／草稿工具不再向新 Agent 展示，历史数据与后端内部兼容处理保留。工具参数契约以 `contracts/mcp-tools-v0.2.json` 和实际 `tools/list` 为准。
+以 2026-11-02 后的文档独立分支和不可变提交模型为准。当前开发版发现清单为 28 个后端工具；stdio 适配器另外提供 `download_document_at_commit` 和 `import_markdown_document`。旧版本／草稿工具不再向新 Agent 展示，历史数据与后端内部兼容处理保留。工具参数契约以 `contracts/mcp-tools-v0.2.json` 和实际 `tools/list` 为准。
 
 <!-- VDOC_MCP_TOOL_INVENTORY_START -->
 
 ```text
+upload_document_image
 create_document
 resolve_ref
 list_branches
@@ -1840,7 +1841,9 @@ delete_document
 
 <!-- VDOC_MCP_TOOL_INVENTORY_END -->
 
-`list_folders` / `create_folder` 提供目录列表和创建；`update_folder` 通过 `name` / `parent_path` 改名或同项目移动，空父路径表示根目录；`delete_folder` 只删空目录。`update_document` 通过 `name` / `relative_path` / `description` 改名、移动或更新说明，保持文档 ID、分支及历史；`delete_document` 从活动目录移除并停用旧分享及直接历史访问，存储历史与审计保留，重复删除幂等。管理要求项目 Admin 和匹配文档类型的写入 scope，文件夹移动在事务内检查所有受影响活动文档类型。
+`upload_document_image(project_id, document_id, filename, content_base64)` 将 PNG、JPEG、GIF 或静态 WebP 图片存入文档私有存储，返回 `vdoc-asset:<SHA-256>` 引用；每张最多 4 MiB、4000 万像素，服务端实际解码验证。工作台支持选图、粘贴和拖放。stdio 适配器支持绝对 `file_path`，`import_markdown_document` 在提交前上传 Markdown 目录内的本地图片并改写引用；本地路径不发送后端，不抓取远程图片。私有阅读和分享图片均复核权限，分享仅能读取固定发布正文实际引用的图片。显式删除文档清理图片；可逆归档保留图片；未被历史、草稿或发布引用的暂存上传在 24 小时后回收。
+
+`list_folders` / `create_folder` 提供目录列表和创建；`update_folder` 通过 `name` / `parent_path` 改名或同项目移动，空父路径表示根目录；`delete_folder` 只删空目录。`update_document` 通过 `name` / `relative_path` / `description` 改名、移动或更新说明，保持文档 ID、分支及历史；`delete_document` 从活动目录移除并停用旧分享及直接历史访问，文本历史与审计保留，对应图片排队物理清理且失败重试，重复删除幂等。管理要求项目 Admin 和匹配文档类型的写入 scope，文件夹移动在事务内检查所有受影响活动文档类型。
 
 `list_teams(query?)` 列出当前用户有可访问项目的团队及可访问项目数；`list_projects(query?, team_id?, team_name?)` 按项目名子串、团队 ID 或精确团队名筛选，名称忽略大小写，各筛选条件取交集。项目结果包含 `team_name`，重名候选保留供选择。两者至少需要一项文档读取权限；不返回无访问权限的团队或项目。一个用户密钥和客户端配置可跨其有权限的团队与项目使用，权限仍受当前成员角色限制。
 

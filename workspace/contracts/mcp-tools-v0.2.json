@@ -2,6 +2,12 @@
   "version": "0.2.0",
   "tools": [
     {
+      "name": "upload_document_image",
+      "scopes_any": ["write", "doc:draft"],
+      "required": ["project_id", "document_id", "filename", "content_base64"],
+      "optional": []
+    },
+    {
       "name": "create_document",
       "scopes_any": ["write", "api:draft", "doc:draft"],
       "required": [

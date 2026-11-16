@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.4.6-beta.1
+
+Add [Markdown images](admin-usage.md#markdown-images) and [MCP local import](mcp-tools.md#markdown-images), with private storage, content/access validation, document-deletion cleanup and orphan collection. No migration; beta only. See [upgrade instructions](release-rollback.md).
+
 ## v0.4.5
 
 MCP comparisons default to bounded source hunks and semantic summaries, with optional full content. Reads and comparisons release the shared lock and recheck access. Logs include response size and phase durations.
@@ -79,7 +83,7 @@ Back up Beta data, then update Backend/Admin (migration 022) and MCP/Skill toget
 
 Update the Beta components together; no new migration. See [First use](admin-usage.md).
 
-## v0.4.0-beta.2
+## v0.4.0-beta.2 {#v0-4-0-beta-2}
 
 - Each document owns separate branches and history; branch switches leave the project catalog unchanged.
 - New documents default to `main`, with an optional initial branch name. Saves increment independently as `main.1`, `main.2`, `dev.1` for each document and branch.
@@ -88,7 +92,7 @@ Update the Beta components together; no new migration. See [First use](admin-usa
 
 Upgrade Backend, Admin and MCP/Skill together. Startup applies migration 021. Back up the isolated Beta database and object store first. Updates only Beta. See [First Use](admin-usage.md).
 
-## v0.4.0-beta.1
+## v0.4.0-beta.1 {#v0-4-0-beta-1}
 
 The project repository model enters Beta: immutable commits, project branches and release references replace the default draft workflow. The server generates revision and publication identifiers. Continuous history, exact commit comparisons, merge review and AI tied to explicit changes are described in [Commits and Branches](admin-usage.md#commit-history).
 
@@ -208,7 +212,7 @@ Use consistent bordered selects for branch, content state, and version/draft in 
 
 No new API/migration.
 
-## v0.3.17-beta.9
+## v0.3.17-beta.9 {#v0-3-17-beta-9}
 
 - **Workspace** groups teams, projects, people, and documents. Projects manage documents, members, and settings; permissions remain per project. Teams, projects, people, folders, and three document types have distinct icons.
 - Independent document pages show the project's tree on the left, content centrally, and outline, versions, Diffs, AI, and settings on the right. Click folders to expand/collapse; document selection and folder location remain distinct.
@@ -255,7 +259,7 @@ Settings categories, system/project AI scopes, simpler lists/guides and small-sc
 
 beta.3 and beta.4 add no migrations.
 
-## v0.3.16
+## v0.3.16 {#v0-3-16}
 
 Adds an isolated Beta channel. Use [Beta Compose](deployment.md#beta-channel) for a test environment: Backend and Admin follow `:beta`, while stable deployments continue following `:latest`. Each environment has separate ports, networks, databases, and storage volumes.
 
@@ -311,7 +315,7 @@ No database migration is added and REST/MCP tool parameters remain compatible. B
 
 No database migration is added and REST/MCP tool parameters remain compatible. Back up the database and object storage before upgrading, then update the MCP/Skill package and restart the agent.
 
-## v0.3.8
+## v0.3.8 {#v0-3-8}
 
 The default global MCP/Skill installation now downloads the compiled GitHub Release archive and checks `SHA256SUMS` before installing it. This avoids npm global Git source preparation failures. Existing pinned `npx` MCP configurations remain supported. No application database migration is added.
 
@@ -326,7 +330,7 @@ No application database migration is added. Preserve any local Skill edits befor
 
 This page records the current user-visible v0.2 state covered by the VitePress docs. It is not a marketing list; it is what users should know before evaluation, deployment, or pilot use.
 
-## v0.3.6
+## v0.3.6 {#v0-3-6}
 
 - Prevent delayed sign-in or registration responses from replacing a newer account; cancel requests when leaving the form and check session identity before applying results.
 - Keep CORS and security headers on global rate-limit rejections; preflight requests no longer consume business request quota.
@@ -341,7 +345,7 @@ The deployment guide now displays the [complete Compose example for an existing 
 
 This documentation patch adds no application feature or database migration. All five distributions use v0.3.5.
 
-## v0.3.4
+## v0.3.4 {#v0-3-4}
 
 - Prevent late identity requests from overwriting or clearing a newer login session, including cancelled routes and sign-in with the same token.
 - Correct the document format in OpenAPI 3.1 draft previews and published Diffs. Cross-dialect comparisons use the target format; existing cached facts are repaired on read.
@@ -350,14 +354,14 @@ This documentation patch adds no application feature or database migration. All 
 
 No database migration is added beyond v0.3.3. REST/MCP contracts remain compatible. See [upgrade and rollback](release-rollback.md).
 
-## v0.3.3
+## v0.3.3 {#v0-3-3}
 
 - Standalone deployments use Backend/Admin `latest`, PostgreSQL `18` and RustFS `1.0.0`; pull/up updates containers.
 - Document separate frontend/backend Caddy domains on ports 8081/8080 and the first-use workflow.
 - Support explicit wildcard CORS without disabling account, MCP or share authentication.
 - Promote `latest` after stable publication; prereleases and older releases cannot overwrite newer aliases.
 
-## v0.3.2
+## v0.3.2 {#v0-3-2}
 
 - Sync [go-template/http-services](https://github.com/ChnMig/go-template/tree/main/http-services) through `f8ab237`, and identify the scaffold source and synchronization record in both backend READMEs.
 - Centralize request log metadata and standard-context trace fallback; clear stale values after failed parameter rebinding while preserving credential and document-content redaction.
@@ -366,7 +370,7 @@ No database migration is added beyond v0.3.3. REST/MCP contracts remain compatib
 
 No database migration is added beyond v0.3.1. Existing REST/MCP APIs and token formats remain compatible. See [Upgrade and Rollback](release-rollback.md).
 
-## v0.3.1
+## v0.3.1 {#v0-3-1}
 
 - Preserve exact OpenAPI numbers and semantic differences across schema processing, MCP responses, and the workbench, including large integers and high-precision decimals.
 - Improve history pagination, endpoint fact reads, token authentication, and password hashing lock scope; fix historical selections, draft conflicts, and review snapshot handling.
@@ -375,7 +379,7 @@ No database migration is added beyond v0.3.1. Existing REST/MCP APIs and token f
 
 This release includes migration `007_parser_facts_and_history_pages.sql`, adding parser metadata, history query indexes, and the Diff `must_handle` field. Back up the database and object storage before following [Upgrade and Rollback](release-rollback.md). The 22-tool MCP contract remains compatible.
 
-## v0.3.0
+## v0.3.0 {#v0-3-0}
 
 - Deploy and update with a single [docker-compose.yml](deployment.md): all settings and secrets are in YAML, with no `.env` or installation scripts.
 - Pull verified Linux amd64/arm64 Backend and Admin images directly from GHCR.
@@ -384,7 +388,7 @@ This release includes migration `007_parser_facts_and_history_pages.sql`, adding
 
 This release adds no database migrations and keeps the v0.2.0 MCP API contract. See [Upgrade and Rollback](release-rollback.md).
 
-## v0.2.1
+## v0.2.1 {#v0-2-1}
 
 - The [deployment guide](deployment.md#compose-example) adds a complete Docker Compose example with one-click copying for all four services, plus `.env`, deployment directory, and image-loading instructions. The example reads directly from the deployment package source.
 - Fixed clipped MCP configuration panels on narrow Admin screens; long configurations scroll within their panel.
@@ -392,7 +396,7 @@ This release adds no database migrations and keeps the v0.2.0 MCP API contract. 
 
 This patch adds no database migration. Backend APIs and the 22-tool MCP contract remain compatible with v0.2.0. See [Upgrade and Rollback](release-rollback.md) for the upgrade procedure.
 
-## v0.2.0
+## v0.2.0 {#v0-2-0}
 
 - New MCP tools `get_schema_version` and `get_doc_version` return complete content from an exact published version.
 - Latest-content reads require `branch_id`, and undeclared arguments are rejected. Reload MCP tool discovery after upgrading and update callers of `get_latest_schema` / `get_latest_doc`.

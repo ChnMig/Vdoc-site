@@ -8,7 +8,7 @@ This guide configures the `@chnmig/vdoc-mcp` stdio adapter. Vdoc supplies docume
 - `release`: `@chnmig/vdoc-mcp@latest`, connected to the stable backend. Stable publications update only `latest`; beta publications update only `beta`. Check the resolved version before configuring a stable connection. An unavailable tag must fail; do not silently change channels.
 - An exact version such as `@chnmig/vdoc-mcp@0.4.5` keeps a deployment on the backend's release.
 
-Requires Node.js 20+ and npm. Verify the requested tag with `npm view @chnmig/vdoc-mcp@latest version` (or `@beta`). These are Vdoc package tags; do not upgrade unrelated client software or dependencies.
+Requires Node.js 20.3+ and npm. Verify the requested tag with `npm view @chnmig/vdoc-mcp@latest version` (or `@beta`). These are Vdoc package tags; do not upgrade unrelated client software or dependencies.
 
 Install once for the current OS user and register one user-wide MCP connection shared by all projects. Inspect the client's user-level settings and existing Vdoc entries first, preserving other servers and settings. Keep credentials in private user configuration. For Codex, merge a server section into personal `~/.codex/config.toml`; Cursor uses personal `~/.cursor/mcp.json`; Claude Code uses top-level `mcpServers` in private `~/.claude.json` (user scope, outside `projects`). Preserve the client's configuration format. Do not create project-local MCP files or add Vdoc to a project's package.json or node_modules. Existing project entries may shadow global entries: identify and report them, preserving their settings unless the user requests migration.
 

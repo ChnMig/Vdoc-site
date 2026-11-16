@@ -196,6 +196,9 @@ POST /api/v1/private/projects/:project_id/documents/:document_id/repository/subs
 POST /api/v1/private/projects/:project_id/documents/:document_id/repository/subscriptions/:subscription_id/resume
 POST /api/v1/private/projects/:project_id/repository/documents
 
+POST /api/v1/private/projects/:project_id/documents/:document_id/images
+GET /api/v1/private/projects/:project_id/documents/:document_id/images/:asset_id
+GET /api/v1/open/document-shares/:share_id/versions/:version_id/images/:asset_id
 GET  /api/v1/private/projects/:project_id/documents
 POST /api/v1/private/projects/:project_id/documents
 GET  /api/v1/private/projects/:project_id/documents/:document_id
@@ -315,6 +318,7 @@ MCP 默认提供查询、文档独立分支、追加提交、固定比较、分�
 
 ```text
 VDOC_MCP_TOOL_INVENTORY_START
+upload_document_image
 create_document
 resolve_ref
 list_branches
@@ -345,7 +349,9 @@ delete_document
 VDOC_MCP_TOOL_INVENTORY_END
 ```
 
-`list_folders` / `create_folder` 提供目录列表和创建；`update_folder` 通过 `name` / `parent_path` 改名或同项目移动，空父路径表示根目录；`delete_folder` 只删空目录。`update_document` 通过 `name` / `relative_path` / `description` 改名、移动或更新说明，保持文档 ID、分支及历史；`delete_document` 从活动目录移除并停用旧分享及直接历史访问，存储历史与审计保留，重复删除幂等。管理要求项目 Admin 和 `write` 能力；旧令牌仍在事务内按原类型授权复核。
+`upload_document_image(project_id, document_id, filename, content_base64)` 将 PNG、JPEG、GIF 或静态 WebP 图片存入文档私有存储，返回 `vdoc-asset:<SHA-256>` 引用；每张最多 4 MiB、4000 万像素，服务端实际解码验证。工作台支持选图、粘贴和拖放。stdio 适配器支持绝对 `file_path`，`import_markdown_document` 在提交前上传 Markdown 目录内的本地图片并改写引用；本地路径不发送后端，不抓取远程图片。私有阅读和分享图片均复核权限，分享仅能读取固定发布正文实际引用的图片。显式删除文档清理图片；可逆归档保留图片；未被历史、草稿或发布引用的暂存上传在 24 小时后回收。
+
+`list_folders` / `create_folder` 提供目录列表和创建；`update_folder` 通过 `name` / `parent_path` 改名或同项目移动，空父路径表示根目录；`delete_folder` 只删空目录。`update_document` 通过 `name` / `relative_path` / `description` 改名、移动或更新说明，保持文档 ID、分支及历史；`delete_document` 从活动目录移除并停用旧分享及直接历史访问，文本历史与审计保留，对应图片排队物理清理且失败重试，重复删除幂等。管理要求项目 Admin 和 `write` 能力；旧令牌仍在事务内按原类型授权复核。
 
 `list_teams(query?)` 列出有可访问项目的团队及项目数；`list_projects(query?, team_id?, team_name?)` 支持按名字发现并返回团队名，避免要求用户提供内部 ID。过滤相交、忽略大小写，重名保留候选；只读 scope 即可查询，用户成员权限仍是访问边界。
 
