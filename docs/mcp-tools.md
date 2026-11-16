@@ -20,7 +20,7 @@ Agent 运行的机器还需安装 Node.js 20.3 或更新版本和 npm。尚未�
 以下 npm 方式适用于已在 registry 发布的版本，须与后端版本配套：
 
 ```sh
-npx --yes @chnmig/vdoc-mcp@beta --version
+npx --yes @chnmig/vdoc-mcp@latest --version
 ```
 
 全局命令可用 `npm install --global @chnmig/vdoc-mcp@latest` 安装，更新时重复同一命令。`@latest` 选择最新正式版，`@beta` 选择最新测试版，两者分别更新。固定部署可使用与后端一致的确切包版本。

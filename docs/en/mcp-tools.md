@@ -20,7 +20,7 @@ The agent machine also needs Node.js 20.3 or later and npm. If Vdoc is not runni
 The npm options below apply to versions already published in the registry; match the backend version:
 
 ```sh
-npx --yes @chnmig/vdoc-mcp@beta --version
+npx --yes @chnmig/vdoc-mcp@latest --version
 ```
 
 To install a global command, run `npm install --global @chnmig/vdoc-mcp@latest`; repeat it to update. `@latest` selects stable releases and `@beta` selects betas; the tags update independently. For a fixed deployment, use an exact package version matching its backend.
