@@ -2,9 +2,7 @@
 
 ## v0.4.5
 
-优化 Agent 文档比较：默认只返回有界差异片段与 OpenAPI 语义摘要；完整正文和明细可通过 `include_content: true` 获取。对象读取和比较不再占用共享锁，返回前复核权限。日志补充响应大小及分阶段耗时。
-
-无新增迁移。配套更新 Backend、Admin、MCP 后重启 MCP；自定义调用方若依赖顶层 `old_content`／`new_content`，须显式开启完整模式。见[升级说明](release-rollback.md)。
+优化 Agent 文档比较的响应大小和共享锁占用，无新增迁移。依赖完整正文的调用须传 `include_content: true`。配套升级并重启 MCP，见[升级说明](release-rollback.md)。
 
 ## v0.4.4
 

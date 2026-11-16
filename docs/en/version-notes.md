@@ -2,9 +2,7 @@
 
 ## v0.4.5
 
-Agent comparisons now default to bounded source hunks and an OpenAPI semantic summary. Request `include_content: true` for full source and semantic details. Object reads and comparisons release the shared lock, then recheck access before returning. Logs add response size and phase durations.
-
-No new migration. Update Backend, Admin and MCP together and restart MCP. Custom callers that depend on top-level `old_content` / `new_content` must enable full mode explicitly. See [upgrade and rollback](release-rollback.md).
+Smaller Agent comparison responses and shorter shared-lock usage. No new migration. Full-content callers must pass `include_content: true`. Update components and restart MCP; see [upgrade notes](release-rollback.md).
 
 ## v0.4.4
 

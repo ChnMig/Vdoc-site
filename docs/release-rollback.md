@@ -2,7 +2,7 @@
 
 `v0.4.5` 无新增迁移；配套升级工作台与 MCP 后重启 MCP。
 
-MCP 比较默认改为有界差异片段，`content_included` 表明是否包含完整正文。自定义调用方如依赖顶层 `old_content`／`new_content` 或完整 `semantic_diff`，请传 `include_content: true`；普通 Agent 重新发现工具即可使用新默认值。完整原文和局部读取入口继续可用。
+MCP 比较默认返回有界差异；依赖完整 `old_content`／`new_content` 或 `semantic_diff` 的调用须传 `include_content: true`。Agent 重启后刷新工具定义，详见 [MCP 接入](mcp-tools.md)。
 
 `v0.4.3` 迁移 **026_mcp_capability_scopes.sql** 新增读写能力码 5/6，旧授权保持。备份后配套升级；MCP 可通过 npm 或 [GitHub 安装器](mcp-tools.md#github-channel-installer)安装。回滚旧后端前撤销新能力密钥，按旧权限重建；迁移不会回退。迁移 025 的“不限制”配置须先改回正数。Beta 独立。
 

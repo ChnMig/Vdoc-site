@@ -123,7 +123,7 @@ MCP 比较自身版本与实际后端的 `X-Vdoc-Server-Version`（含 beta 编�
 
 选择环境、项目和文档，通过 `list_branches`、`resolve_ref` 固定提交及 head/generation，再用 `get_document_at_commit` 读原文或 `compare_commits` 比较。`commit_changes` 需提供观察到的 head/generation 和稳定幂等键；冲突后重读并协调，结果未知时以相同参数和 key 重试。后端生成提交 ID 和版本编号；只有确切 release 能证明发布，审批与发布由工作台中的人类管理员完成。
 
-`compare_commits` 默认返回 `source_diff`：保留原始换行和空白，包含改动行及各侧 3 行上下文、行范围和增删行数。整次响应的预览正文预算为 64 KiB，每文件最多 20 个片段；超限时标记 `truncated`，被省略片段带 `content_omitted`。OpenAPI 默认附带 `semantic_summary`。需要完整 `old_content`／`new_content` 和 `semantic_diff` 时传 `include_content: true`；也可用固定提交读取或局部读取补齐。`analyze_changes` 会同步调用服务端配置的 AI，耗时受模型和服务商影响；直接比较使用 `compare_commits`。
+`compare_commits` 默认返回 `source_diff`，包含原始换行、空白、行范围、增删行数及 3 行上下文。预览正文整次限 64 KiB、每文件最多 20 个片段；超限标记 `truncated`，省略正文标记 `content_omitted`。OpenAPI 附带 `semantic_summary`。传 `include_content: true` 获取完整 `old_content`／`new_content` 和 `semantic_diff`，也可按提交或局部读取。`analyze_changes` 同步等待服务端 AI，直接比较用 `compare_commits`。
 
 `list_folders`／`create_folder` 列出及创建目录；`update_folder(path, name?, parent_path?)` 改名或移动，空父路径表示根目录；`delete_folder` 只删空目录。`update_document(document_id, name?, relative_path?, description?)` 改名或移动并保留身份及历史；`delete_document` 移出目录、停用直接访问及旧分享，保留存储历史和审计。均需 `project_id`；管理需项目 Admin 及 `write` 能力。移动限同项目，拒绝冲突、环路；旧令牌仍检查原有授权。
 
