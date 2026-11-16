@@ -1,5 +1,7 @@
 # 升级与回滚
 
+`v0.4.6` 将托管 Markdown 图片与 MCP 导入发布到稳定渠道，无新增迁移。备份数据库和对象存储，配套升级 Backend、Admin、MCP（npm `@latest`）并重启 MCP；Beta 保持独立。显式删除文档会清理对应图片，失败任务在重启后继续重试；归档和历史引用会保留图片。旧版不显示托管图片，回滚不能恢复[删文档已清理的图片](admin-usage.md#markdown-images)。
+
 `v0.4.6-beta.1` 无新迁移。备份 Beta 数据库与对象存储，配套升级 Backend、Admin、MCP（npm `@beta`）并重启 MCP；稳定 `latest` 与 Pages 不变。旧版不显示托管图片，回滚不能恢复[删文档已清理的图片](admin-usage.md#markdown-images)。
 
 `v0.4.5` 无新增迁移；配套升级工作台与 MCP 后重启 MCP。

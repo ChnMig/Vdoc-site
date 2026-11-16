@@ -1,5 +1,7 @@
 # Upgrade and Rollback
 
+`v0.4.6` releases managed Markdown images and MCP import on the stable channel, with no new migration. Back up the database and object store, upgrade Backend/Admin/MCP (npm `@latest`) together and restart MCP. Beta remains separate. Explicit document deletion purges its images, with failed cleanup retried after restart; archives and historical references retain images. Older versions cannot render managed images, and rollback cannot restore [images purged by document deletion](admin-usage.md#markdown-images).
+
 `v0.4.6-beta.1` needs no migration. Back up Beta database/storage, upgrade Backend/Admin/MCP (npm `@beta`) and restart MCP. Stable `latest` and Pages stay unchanged. Older versions cannot render managed images; rollback cannot restore [images purged by document deletion](admin-usage.md#markdown-images).
 
 `v0.4.5` adds no migration. Update the workbench and MCP, then restart MCP.

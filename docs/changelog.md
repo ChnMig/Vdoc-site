@@ -1,5 +1,9 @@
 # 变更记录
 
+## v0.4.6
+
+将 Beta 的 [Markdown 插图](admin-usage.md#markdown-images)与 [MCP 本地图片导入](mcp-tools.md#markdown-images)发布到稳定渠道。图片保存在私有对象存储；显式删除文档后清理对应图片，失败会持久重试，归档与历史引用保留图片。无新增迁移；Backend、Admin、MCP 配套升级，见[升级说明](release-rollback.md)。
+
 ## v0.4.6-beta.1
 
 新增 [Markdown 插图](admin-usage.md#markdown-images)与 [MCP 本地图片导入](mcp-tools.md#markdown-images)，含私有存储、内容与访问校验、删文档清图及孤立上传回收。无新增迁移，仅更新 Beta；见[升级说明](release-rollback.md)。

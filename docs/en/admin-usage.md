@@ -1,6 +1,6 @@
 # First Use
 
-Use `v0.4.6-beta.1` to save, review, publish and query a guide after completing [deployment](deployment.md#quick-start).
+Use `v0.4.6` to save, review, publish and query a guide after completing [deployment](deployment.md#quick-start).
 
 ## Before You Start
 

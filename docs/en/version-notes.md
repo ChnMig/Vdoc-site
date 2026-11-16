@@ -1,5 +1,9 @@
 # Version Notes
 
+## v0.4.6
+
+Managed Markdown images and MCP local import are now stable. Select, paste or drop images in the workbench; deleting a document cleans up its images. No new migration. Stable images use `latest` and MCP uses npm `@latest`; restart MCP after updating. See the [changelog](changelog.md) and [upgrade guide](release-rollback.md).
+
 ## v0.4.6-beta.1
 
 Managed Markdown images and MCP import: see the [changelog](changelog.md) and [upgrade guide](release-rollback.md).
