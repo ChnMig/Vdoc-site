@@ -138,7 +138,10 @@
       "name": "compare_commits",
       "scopes_any": ["read", "api:read", "doc:read"],
       "required": ["project_id", "from_commit_id", "to_commit_id"],
-      "optional": ["document_id"]
+      "optional": ["document_id", "include_content"],
+      "argument_schemas": {
+        "include_content": {"type": "boolean", "default": false}
+      }
     },
     {
       "name": "list_merge_requests",

@@ -1,6 +1,8 @@
 # Upgrade and Rollback
 
-`v0.4.4` adds no migration. Update the workbench and MCP, then restart MCP.
+`v0.4.5` adds no migration. Update the workbench and MCP, then restart MCP.
+
+MCP comparisons now default to bounded hunks; `content_included` reports whether full source is present. Custom callers that require top-level `old_content` / `new_content` or full `semantic_diff` must pass `include_content: true`. Agents pick up the new default by refreshing tool discovery. Exact source and section reads remain available.
 
 `v0.4.3` migration **026_mcp_capability_scopes.sql** adds read/write codes 5/6 without changing legacy grants. Back up and upgrade components together; MCP is available through npm or the [GitHub installer](mcp-tools.md#github-channel-installer). Before rollback, revoke new capability tokens and reissue supported grants; restore positive output limits from migration 025. Migrations persist. Beta stays separate.
 

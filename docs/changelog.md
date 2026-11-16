@@ -1,5 +1,13 @@
 # 变更记录
 
+## v0.4.5
+
+- MCP `compare_commits` 默认返回有界的原文差异片段和 OpenAPI 语义摘要，减少 Agent 处理长文档的等待。需要旧版完整正文和语义明细时传 `include_content: true`。
+- 对象读取与比较移出共享锁和数据库事务，返回前复核权限、Token 及文档状态。
+- 请求日志新增响应字节数及 MCP 鉴权、执行、审计耗时，便于定位等待。
+
+无新增迁移。一起升级 Backend、Admin、MCP，并重启 MCP 获取新参数。见[升级说明](release-rollback.md)。
+
 ## v0.4.4
 
 路径导航与跨项目复制优化，见[版本说明](version-notes.md)。无新增迁移。

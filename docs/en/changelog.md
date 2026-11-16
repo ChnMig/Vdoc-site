@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.4.5
+
+- MCP `compare_commits` returns bounded source hunks and an OpenAPI semantic summary by default, reducing the payload agents process for long documents. Pass `include_content: true` for full source and semantic details.
+- Object reads and comparisons run outside the shared lock and database transaction, with permissions, tokens and document state checked again before returning.
+- Request logs include response bytes and MCP authentication, execution and audit durations.
+
+No new migration. Update Backend, Admin and MCP together, then restart MCP to refresh tool schemas. See [upgrade and rollback](release-rollback.md).
+
 ## v0.4.4
 
 Improve breadcrumbs and copy project-scoped paths. See [version notes](version-notes.md); no new migration.
