@@ -2,7 +2,7 @@
 
 ## v0.4.6
 
-Markdown 托管图片与 MCP 本地导入转为稳定版，支持后台选择、粘贴、拖拽插图和删文档清图。无新增迁移；稳定镜像使用 `latest`，MCP 使用 npm `@latest`，更新后重启 MCP。见[变更记录](changelog.md)及[升级说明](release-rollback.md)。
+托管图片与 MCP 导入转为稳定版，见[变更记录](changelog.md)及[升级说明](release-rollback.md)。
 
 ## v0.4.6-beta.1
 

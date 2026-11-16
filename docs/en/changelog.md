@@ -2,7 +2,7 @@
 
 ## v0.4.6
 
-Release [Markdown images](admin-usage.md#markdown-images) and [MCP local import](mcp-tools.md#markdown-images) on the stable channel. Images use private object storage. Explicit document deletion purges its images with durable retries; archives and historical references retain images. No new migration. Upgrade Backend, Admin and MCP together; see [upgrade instructions](release-rollback.md).
+Release [Markdown images](admin-usage.md#markdown-images) and [MCP local import](mcp-tools.md#markdown-images) on stable, including private storage and durable deletion cleanup. No migration; see [upgrade instructions](release-rollback.md).
 
 ## v0.4.6-beta.1
 
