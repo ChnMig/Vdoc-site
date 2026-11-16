@@ -403,36 +403,6 @@ This patch adds no database migration. Backend APIs and the 22-tool MCP contract
 
 No database migration is added. Human publication, immutable versions and token permissions retain their existing boundaries. Back up PostgreSQL and object storage and upgrade the coordinated five-repository release.
 
-## Current Docs Changes
+## Current guides
 
-- The reading path changed from an operations manual to: understand Vdoc, learn the runtime flow, deploy, first use, Agent integration, upgrade, and troubleshoot.
-- The Chinese default entry is `/`.
-- English docs use `/en/...` with matching topic routes.
-- Added [How It Works](how-it-works.md) to explain Admin review, Drafts, Versions, MCP, Skills, and Agents.
-- [Deployment Guide](deployment.md) has been rewritten around `scripts/vdoc-local-bootstrap.sh`, root Compose, optional demo seed, live-compose E2E, release dry-run, direct deployment, and external PostgreSQL/S3 compatible storage.
-- [First Use](admin-usage.md) now covers the first chain from initial admin to Project, Document, Draft, Version, MCP Token, MCP adapter, and Skill.
-- Added [Admin AI](admin-ai.md) for system and project providers, two OpenAI-compatible API modes, prompt overrides, automatic summaries, page chat, audit behavior, and the human publishing boundary.
-- [Upgrade and Rollback](release-rollback.md) now covers PostgreSQL/object storage backup, `docker compose --env-file .env up -d --build`, live E2E, `scripts/vdoc-release-dry-run.sh`, health verification, and rollback.
-
-## Current Product Surface
-
-- Backend provides public health/auth/docs/MCP routes and private Admin routes.
-- Backend automatically runs migrations when database is enabled and tries to create the missing bucket when storage is enabled.
-- Admin Docker supports runtime `VDOC_ADMIN_API_BASE_URL` to generate a browser-usable backend API base URL.
-- `@vdoc/mcp` is an installable stdio MCP adapter that forwards Agent MCP requests to backend.
-- `Vdoc-skill` is an installable Agent workflow package that tells Agents to query Vdoc MCP before answering from facts.
-- Built-in Admin AI can help explain Drafts, Versions, and Diffs, but it does not replace the external MCP/Skill Agent, machine Diff, or the human publishing gate.
-- Live E2E uses `./scripts/vdoc-e2e.sh live-compose --env-file ../.env` and resets only the disposable `VDOC_TEST_POSTGRES_DB`, `vdoc_e2e` by default.
-
-## Boundaries to Remember
-
-- MCP cannot publish Versions directly.
-- Agents can submit Drafts; publishing requires Admin or SuperAdmin review.
-- Do not use Compose service names in browser config. Browsers use `127.0.0.1` or domains; containers use service names such as `postgres`, `rustfs`, and `backend`.
-- Do not put real secrets in docs, logs, screenshots, or Git history.
-
-## Verify the Docs
-
-1. Open `/` and confirm the default Chinese page loads.
-2. Open `/en/product-overview` and confirm the English page loads.
-3. Click [How It Works](how-it-works.md), [Admin AI](admin-ai.md), [Deployment Guide](deployment.md), [MCP Tools](mcp-tools.md), and [Upgrade and Rollback](release-rollback.md), and confirm the topic path is coherent.
+See [deployment](deployment.md), [first use](admin-usage.md), [MCP tools](mcp-tools.md) and [upgrade notes](release-rollback.md) for current operations. Agents use the standalone MCP adapter; humans review and publish in the workbench. The legacy Skill is retired.
