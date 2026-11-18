@@ -38,21 +38,19 @@ Migration **025** preserves existing settings. Back up, upgrade Backend/Admin/MC
 
 ## v0.4.1
 
-Promote the verified v0.4.1-beta.1 to stable. MCP exposes 21 tools, adding raw keyword search, exact-commit section reads and optimistic, idempotent text patches. Full source reads, complete file replacements and original downloads remain independent of parsing. Storage still accepts UTF-8 text.
-
-No additional database migration compared with v0.4.0 or v0.4.1-beta.1. Update Backend, Admin and MCP together, then restart MCP for the new inventory. Update stable images `:latest`, npm `@latest` and the public website while preserving the separate Beta channel.
+Raw search, exact-commit section reads and optimistic, idempotent patches are stable, with no new migration. Update components together and restart MCP. See the [changelog](changelog.md) for tools and channels.
 
 ## v0.4.1-beta.1
 
-Add raw search, exact-commit sections and optimistic, idempotent patches; retain full source reads, replacements and downloads. UTF-8 storage, no new migration, Beta only. See the [changelog](changelog.md) for tools and verification.
+Beta of the MCP source tools, with no new migration. See the [changelog](changelog.md) for scope and upgrade instructions.
 
 ## v0.4.0
 
-Document branches, automatic versions, reviewed publication and MCP access are stable. Install MCP with npm `@latest`, including version warnings and source downloads. Upgrades from v0.3.17 apply migrations 018–024; beta.7 has none to add. Back up data, then update Backend/Admin/MCP together. See [upgrade instructions](release-rollback.md) for audit retention and compatibility, and the [changelog](changelog.md) for features.
+Document branches, versions and MCP access are stable. Upgrades from v0.3.17 apply migrations 018–024; beta.7 adds none. Back up and update components together. See [upgrade instructions](release-rollback.md) for compatibility and audit retention.
 
 ## v0.4.0-beta.7
 
-Add exact-commit downloads with SHA-256 and no-overwrite checks; fix PostgreSQL source reads. Migration **024** changes audit resource IDs to text, retaining UUIDs. Back up Beta data and update components together; image rollback retains the migration. See the [changelog](changelog.md).
+Exact-commit downloads and a PostgreSQL audit fix; migration **024** expands resource IDs. Back up and update components together. See the [changelog](changelog.md).
 
 ## v0.4.0-beta.6
 
@@ -60,7 +58,7 @@ Add npm `@beta`, global installation prompts and version warnings without migrat
 
 ## v0.4.0-beta.5
 
-Standalone MCP and global audit retention. Migration **023** defaults to 30 Asia/Shanghai calendar days; 0 clears history and stops retention. Rollback cannot recover purged logs. Combined-package upgrades need the standalone installer; see [upgrade instructions](release-rollback.md).
+Standalone MCP and audit retention. See [upgrade instructions](release-rollback.md) for migration **023**, log cleanup and installer changes.
 
 ## v0.4.0-beta.4
 
@@ -72,7 +70,7 @@ Restore the document layout without changing branches or schema. See the [change
 
 ## v0.4.0-beta.2
 
-Independent document branches and automatic versions: [changelog](changelog.md#v0-4-0-beta-2); legacy versions/shares remain readable. `021_document_repositories.sql` permits same-name branches across documents. Back up Beta database/storage and update Backend/Admin/MCP together. Beta only; image rollback cannot undo migration.
+Independent document branches and versions, with migration **021**. Back up and update components together. See the [changelog](changelog.md#v0-4-0-beta-2) for compatibility and rollback limits.
 
 ## v0.4.0-beta.1
 
