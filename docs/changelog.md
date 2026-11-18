@@ -1,5 +1,9 @@
 # 变更记录
 
+## v0.4.7-beta.1
+
+统一后台色调、图标、控件尺寸与间距，整理团队／项目导航、文档列表和阅读工具栏，改善移动端布局。补全加载、重试、搜索清空与编辑保存反馈，保留未保存内容并处理版本冲突。无新增数据库迁移，见[升级说明](release-rollback.md)。
+
 ## v0.4.6
 
 将 [Markdown 插图](admin-usage.md#markdown-images)与 [MCP 本地图片导入](mcp-tools.md#markdown-images)发布到稳定渠道，含私有存储、删文档清图与失败重试。无新增迁移，见[升级说明](release-rollback.md)。

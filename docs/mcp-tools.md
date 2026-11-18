@@ -4,7 +4,7 @@ Agent 通过 MCP 在授权范围内读取和管理 OpenAPI、Markdown、TXT 文�
 
 stdio 适配器 `@chnmig/vdoc-mcp` 将 `tools/list`、`tools/call` 转发到 `/api/v1/open/mcp`；Backend 负责存储与业务逻辑。
 
-本页对应 `v0.4.6`。同一个用户级 MCP 配置可以访问当前用户有权限的多个团队和项目。工作台的**复制路径**会同时带上团队、项目名称和 `project_id`；文档还包含 `document_id` 与 `relative_path`，文件夹使用 `path`。把完整复制内容交给 Agent，即可保留跨项目定位信息。
+本页对应 `v0.4.7-beta.1`。同一个用户级 MCP 配置可以访问当前用户有权限的多个团队和项目。工作台的**复制路径**会同时带上团队、项目名称和 `project_id`；文档还包含 `document_id` 与 `relative_path`，文件夹使用 `path`。把完整复制内容交给 Agent，即可保留跨项目定位信息。
 
 ## 使用前准备
 
@@ -20,12 +20,12 @@ Agent 运行的机器还需安装 Node.js 20.3 或更新版本和 npm。尚未�
 以下 npm 方式适用于已在 registry 发布的版本，须与后端版本配套：
 
 ```sh
-npx --yes @chnmig/vdoc-mcp@latest --version
+npx --yes @chnmig/vdoc-mcp@beta --version
 ```
 
-全局命令可用 `npm install --global @chnmig/vdoc-mcp@latest` 安装，更新时重复同一命令。`@latest` 选择最新正式版，`@beta` 选择最新测试版，两者分别更新。固定部署可使用与后端一致的确切包版本。
+全局命令可用 `npm install --global @chnmig/vdoc-mcp@beta` 安装，更新时重复同一命令。`@latest` 选择最新正式版，`@beta` 选择最新测试版，两者分别更新。固定部署可使用与后端一致的确切包版本。
 
-工作台的 **MCP 客户端配置** 提供全局安装、更新和卸载的一句话提示词，用户级配置供所有项目共用。[操作指南](https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.4.6/docs/public/mcp-install.md)会保留配置、渠道和共享安装，不安装 Skill。
+工作台的 **MCP 客户端配置** 提供全局安装、更新和卸载的一句话提示词，用户级配置供所有项目共用。[操作指南](https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.4.7-beta.1/docs/public/mcp-install.md)会保留配置、渠道和共享安装，不安装 Skill。
 
 npm 包已编译，无需 Git 或 TypeScript 编译器。
 
@@ -34,7 +34,7 @@ npm 包已编译，无需 Git 或 TypeScript 编译器。
 ```sh
 (
   set -eu
-  VDOC_MCP_VERSION=0.4.6
+  VDOC_MCP_VERSION=0.4.7-beta.1
   VDOC_MCP_PACKAGE_DIR="$(mktemp -d)"
   trap 'rm -rf -- "$VDOC_MCP_PACKAGE_DIR"' EXIT
   VDOC_MCP_RELEASE="https://github.com/ChnMig/Vdoc-mcp/releases/download/v$VDOC_MCP_VERSION"
@@ -57,12 +57,12 @@ npm 包已编译，无需 Git 或 TypeScript 编译器。
 
 MCP 按渠道安装适配器发行包。`release` 只选择正式版，`beta` 只选择 `vMAJOR.MINOR.PATCH-beta.N` 预发布；没有对应版本时安装器会报错，不会跨渠道回退。两者分别安装在 `~/.local/share/vdoc/mcp/release` 与 `~/.local/share/vdoc/mcp/beta`，不会替换已有全局 MCP。
 
-首次从已审核、包含渠道安装器的 [MCP Release](https://github.com/ChnMig/Vdoc-mcp/releases) 下载 `install-channel.mjs` 和 `install-channel.mjs.sha256`。以下命令固定安装器版本为 `v0.4.6`，在独立工具目录中执行；下载或摘要校验失败会停止安装。旧版本没有这两个资产：
+首次从已审核、包含渠道安装器的 [MCP Release](https://github.com/ChnMig/Vdoc-mcp/releases) 下载 `install-channel.mjs` 和 `install-channel.mjs.sha256`。以下命令固定安装器版本为 `v0.4.7-beta.1`，在独立工具目录中执行；下载或摘要校验失败会停止安装。旧版本没有这两个资产：
 
 ```sh
 (
   set -eu
-  VDOC_MCP_INSTALLER_TAG='v0.4.6'
+  VDOC_MCP_INSTALLER_TAG='v0.4.7-beta.1'
   VDOC_MCP_INSTALLER_RELEASE="https://github.com/ChnMig/Vdoc-mcp/releases/download/$VDOC_MCP_INSTALLER_TAG"
   curl -fL "$VDOC_MCP_INSTALLER_RELEASE/install-channel.mjs" -o install-channel.mjs
   curl -fL "$VDOC_MCP_INSTALLER_RELEASE/install-channel.mjs.sha256" -o install-channel.mjs.sha256
@@ -83,7 +83,7 @@ node "$HOME/.local/share/vdoc/mcp/beta/node_modules/@chnmig/vdoc-mcp/scripts/ins
 
 更新后重启 MCP 连接并重新加载 Agent。渠道安装器需要 Node.js 20.3+ 和 npm，可继续用于已有 GitHub 渠道安装。
 
-本地开发与包验证见 [MCP README](https://github.com/ChnMig/Vdoc-mcp/blob/v0.4.6/README.md)。stdout 保留给 MCP protocol，诊断看 stderr。
+本地开发与包验证见 [MCP README](https://github.com/ChnMig/Vdoc-mcp/blob/v0.4.7-beta.1/README.md)。stdout 保留给 MCP protocol，诊断看 stderr。
 
 ## 客户端与服务端版本核对
 
@@ -161,7 +161,7 @@ Markdown 下载保留 `vdoc-asset:` 引用，不会同时下载或打包图片�
 
 ## 可用工具范围
 
-Adapter 运行时读取后端 `tools/list`，以部署的工具定义为准。v0.4.6 使用文档独立分支与不可变提交模型，共 28 个后端工具；支持相应后端能力时，stdio 适配器另提供 `download_document_at_commit` 和 `import_markdown_document`，合计 30 个工具。旧版本和旧草稿工具退出发现清单。
+Adapter 运行时读取后端 `tools/list`，以部署的工具定义为准。v0.4.7-beta.1 使用文档独立分支与不可变提交模型，共 28 个后端工具；支持相应后端能力时，stdio 适配器另提供 `download_document_at_commit` 和 `import_markdown_document`，合计 30 个工具。旧版本和旧草稿工具退出发现清单。
 
 新令牌仅选择能力：`read`（5）负责发现、搜索和读取，`write`（6）负责写入，两者不按文件类型划分，且写入不隐含读取。局部修改同时需要读写能力和项目 Writer 角色；管理需 Admin，审批与发布由人工完成。旧 scope 1–4 保留原类型边界，不自动扩权；需要统一能力时新建令牌。私人令牌和专属活动仅本人可见，超级管理员也无跨用户权限。
 

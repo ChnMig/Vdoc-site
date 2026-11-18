@@ -1,5 +1,7 @@
 # 升级与回滚
 
+`v0.4.7-beta.1` 优化后台界面与交互，无新增数据库迁移。备份 Beta 数据后，配套升级 Backend、Admin 与 MCP，并重启 MCP。使用独立 Beta Compose 文件更新；回滚时将两个应用镜像固定到 `v0.4.6-beta.1`，并安装对应 MCP 发行包。
+
 `v0.4.6` 将托管 Markdown 图片与 MCP 导入发布到稳定渠道，无新增迁移。备份数据库和对象存储，配套升级 Backend、Admin、MCP（npm `@latest`）并重启 MCP；Beta 保持独立。显式删除文档会清理对应图片，失败任务在重启后继续重试；归档和历史引用会保留图片。旧版不显示托管图片，回滚不能恢复[删文档已清理的图片](admin-usage.md#markdown-images)。
 
 `v0.4.6-beta.1` 无新迁移。备份 Beta 数据库与对象存储，配套升级 Backend、Admin、MCP（npm `@beta`）并重启 MCP；稳定 `latest` 与 Pages 不变。旧版不显示托管图片，回滚不能恢复[删文档已清理的图片](admin-usage.md#markdown-images)。

@@ -1,5 +1,9 @@
 # Version Notes
 
+## v0.4.7-beta.1
+
+Refine workbench layout, icon spacing and interaction feedback. No new migration. See the [changelog](changelog.md) and [upgrade guide](release-rollback.md).
+
 ## v0.4.6
 
 Managed images and MCP import are now stable. See the [changelog](changelog.md) and [upgrade guide](release-rollback.md).

@@ -1,5 +1,9 @@
 # 版本说明
 
+## v0.4.7-beta.1
+
+后台布局、图标间距和交互反馈优化，无新增迁移。见[变更记录](changelog.md)及[升级说明](release-rollback.md)。
+
 ## v0.4.6
 
 托管图片与 MCP 导入转为稳定版，见[变更记录](changelog.md)及[升级说明](release-rollback.md)。

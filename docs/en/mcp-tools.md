@@ -4,7 +4,7 @@ Agents use MCP to read and manage authorized OpenAPI, Markdown and TXT documents
 
 The stdio adapter `@chnmig/vdoc-mcp` forwards `tools/list` and `tools/call` to `/api/v1/open/mcp`; Backend owns storage and business logic.
 
-This page describes `v0.4.6`. One user-wide MCP configuration can access authorized teams and projects. The workbench’s **Copy path** includes team/project names and `project_id`; documents also include `document_id` and `relative_path`, while folders use `path`. Give the complete copied location to your agent to preserve project scope.
+This page describes `v0.4.7-beta.1`. One user-wide MCP configuration can access authorized teams and projects. The workbench’s **Copy path** includes team/project names and `project_id`; documents also include `document_id` and `relative_path`, while folders use `path`. Give the complete copied location to your agent to preserve project scope.
 
 ## Before You Start
 
@@ -20,12 +20,12 @@ The agent machine also needs Node.js 20.3 or later and npm. If Vdoc is not runni
 The npm options below apply to versions already published in the registry; match the backend version:
 
 ```sh
-npx --yes @chnmig/vdoc-mcp@latest --version
+npx --yes @chnmig/vdoc-mcp@beta --version
 ```
 
-To install a global command, run `npm install --global @chnmig/vdoc-mcp@latest`; repeat it to update. `@latest` selects stable releases and `@beta` selects betas; the tags update independently. For a fixed deployment, use an exact package version matching its backend.
+To install a global command, run `npm install --global @chnmig/vdoc-mcp@beta`; repeat it to update. `@latest` selects stable releases and `@beta` selects betas; the tags update independently. For a fixed deployment, use an exact package version matching its backend.
 
-The workbench's **MCP client configuration** offers global install, update and uninstall prompts with user-wide configuration shared by projects. The [installation guide](https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.4.6/docs/public/mcp-install.md) preserves settings, channels and shared installations. No Skill is installed.
+The workbench's **MCP client configuration** offers global install, update and uninstall prompts with user-wide configuration shared by projects. The [installation guide](https://raw.githubusercontent.com/ChnMig/Vdoc-site/refs/tags/v0.4.7-beta.1/docs/public/mcp-install.md) preserves settings, channels and shared installations. No Skill is installed.
 
 npm ships compiled JavaScript; no Git or TypeScript compiler is needed.
 
@@ -34,7 +34,7 @@ For a deployment locked to the reviewed workspace release, the verified prebuilt
 ```sh
 (
   set -eu
-  VDOC_MCP_VERSION=0.4.6
+  VDOC_MCP_VERSION=0.4.7-beta.1
   VDOC_MCP_PACKAGE_DIR="$(mktemp -d)"
   trap 'rm -rf -- "$VDOC_MCP_PACKAGE_DIR"' EXIT
   VDOC_MCP_RELEASE="https://github.com/ChnMig/Vdoc-mcp/releases/download/v$VDOC_MCP_VERSION"
@@ -57,12 +57,12 @@ Use `@chnmig/vdoc-mcp@beta` for testing and `@chnmig/vdoc-mcp@latest` for stable
 
 MCP uses one adapter package per channel. `release` selects only stable releases; `beta` selects only `vMAJOR.MINOR.PATCH-beta.N` prereleases. A missing channel fails without falling back to another channel. Separate prefixes at `~/.local/share/vdoc/mcp/release` and `~/.local/share/vdoc/mcp/beta` preserve any existing global MCP installation.
 
-First download `install-channel.mjs` and `install-channel.mjs.sha256` from a reviewed [MCP Release](https://github.com/ChnMig/Vdoc-mcp/releases) that includes them. These commands pin the MCP-only installer to `v0.4.6`; run them in a dedicated tools directory. A failed download or checksum stops installation. Older releases do not contain these assets:
+First download `install-channel.mjs` and `install-channel.mjs.sha256` from a reviewed [MCP Release](https://github.com/ChnMig/Vdoc-mcp/releases) that includes them. These commands pin the MCP-only installer to `v0.4.7-beta.1`; run them in a dedicated tools directory. A failed download or checksum stops installation. Older releases do not contain these assets:
 
 ```sh
 (
   set -eu
-  VDOC_MCP_INSTALLER_TAG='v0.4.6'
+  VDOC_MCP_INSTALLER_TAG='v0.4.7-beta.1'
   VDOC_MCP_INSTALLER_RELEASE="https://github.com/ChnMig/Vdoc-mcp/releases/download/$VDOC_MCP_INSTALLER_TAG"
   curl -fL "$VDOC_MCP_INSTALLER_RELEASE/install-channel.mjs" -o install-channel.mjs
   curl -fL "$VDOC_MCP_INSTALLER_RELEASE/install-channel.mjs.sha256" -o install-channel.mjs.sha256
@@ -83,7 +83,7 @@ node "$HOME/.local/share/vdoc/mcp/beta/node_modules/@chnmig/vdoc-mcp/scripts/ins
 
 Restart MCP and reload the Agent after updating. The installer requires Node.js 20.3+ and npm, and remains available for existing GitHub channel installations.
 
-For development and package checks, see the [MCP README](https://github.com/ChnMig/Vdoc-mcp/blob/v0.4.6/README.md). stdout carries MCP frames; diagnostics use stderr.
+For development and package checks, see the [MCP README](https://github.com/ChnMig/Vdoc-mcp/blob/v0.4.7-beta.1/README.md). stdout carries MCP frames; diagnostics use stderr.
 
 ## Client and server version check
 
@@ -161,7 +161,7 @@ For a combined installation, use a newly downloaded, checksummed standalone inst
 
 ## Tool Scope
 
-The adapter reads deployed backend `tools/list` schemas at runtime. v0.4.6 uses independent document branches and immutable commits: 28 backend tools, plus `download_document_at_commit` and `import_markdown_document` when the backend advertises their prerequisites, for 30 tools in total. Legacy version and draft tools are no longer advertised.
+The adapter reads deployed backend `tools/list` schemas at runtime. v0.4.7-beta.1 uses independent document branches and immutable commits: 28 backend tools, plus `download_document_at_commit` and `import_markdown_document` when the backend advertises their prerequisites, for 30 tools in total. Legacy version and draft tools are no longer advertised.
 
 New tokens use `read` (5) and `write` (6) capabilities across file types. Writing does not grant reading; patches need both and project Writer permission. Management requires Admin; humans approve and publish. Legacy scopes 1–4 keep their type restrictions without expanded access; create a new token for unified capabilities. Private tokens and their activity are owner-only, including for super administrators.
 

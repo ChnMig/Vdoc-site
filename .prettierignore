@@ -1,6 +1,7 @@
 dist
 coverage
 .omo
+.impeccable
 .playwright-mcp
 .artifacts
 playwright-report
